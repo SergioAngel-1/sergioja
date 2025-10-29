@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-text-muted;
+  }
+  
+  body {
+    @apply bg-background-light text-text-primary;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  /* Custom scrollbar - Inverted */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background-surface;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-cyber-black rounded-full;
+    transition: background-color 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-cyber-blue-cyan;
+  }
+}
+
+@layer components {
+  /* Glow effect utility - Inverted for white background */
+  .glow-red {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), 0 0 40px rgba(255, 0, 0, 0.3);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 0 40px rgba(0, 191, 255, 0.3);
+  }
+
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(139, 0, 255, 0.5), 0 0 40px rgba(139, 0, 255, 0.3);
+  }
+
+  .glow-black {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Animated border gradient */
+  .border-gradient {
+    position: relative;
+    background: linear-gradient(90deg, #FF0000, #0000FF, #FF0000);
+    background-size: 200% 100%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Cyber grid background - Inverted for white */
+  .cyber-grid {
+    background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  /* Corner brackets - Cyberpunk style */
+  .cyber-corners {
+    position: relative;
+  }
+
+  .cyber-corners::before,
+  .cyber-corners::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid currentColor;
+  }
+
+  .cyber-corners::before {
+    top: 0;
+    left: 0;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .cyber-corners::after {
+    bottom: 0;
+    right: 0;
+    border-left: none;
+    border-top: none;
+  }
+
+  /* Neon button - Inverted */
+  .btn-neon {
+    @apply relative px-6 py-3 font-orbitron font-bold uppercase tracking-wider;
+    @apply border-2 border-cyber-black text-cyber-black;
+    @apply transition-all duration-300;
+    @apply hover:bg-cyber-black hover:text-white hover:shadow-glow-black;
+  }
+
+  .btn-neon-blue {
+    @apply relative px-6 py-3 font-orbitron font-bold uppercase tracking-wider;
+    @apply border-2 border-cyber-blue-cyan text-cyber-blue-cyan;
+    @apply transition-all duration-300;
+    @apply hover:bg-cyber-blue-cyan hover:text-white hover:shadow-glow-blue;
+  }
+
+  /* Card with glow - Inverted */
+  .card-cyber {
+    @apply bg-background-surface border border-cyber-black/30 rounded-lg p-6;
+    @apply transition-all duration-300;
+    @apply hover:border-cyber-black hover:shadow-glow-black;
+  }
+
+  .card-cyber-blue {
+    @apply bg-background-surface border border-cyber-blue-cyan/30 rounded-lg p-6;
+    @apply transition-all duration-300;
+    @apply hover:border-cyber-blue-cyan hover:shadow-glow-blue;
+  }
+}
+
+@layer utilities {
+  .text-gradient-cyber {
+    @apply bg-gradient-to-r from-cyber-red via-cyber-purple to-cyber-blue-cyan bg-clip-text text-transparent;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 15px currentColor);
+    }
+    50% {
+      filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 30px currentColor);
+    }
+  }
+
+  /* Animated gradient background */
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-animation 3s ease infinite;
+  }
+
+  @keyframes gradient-animation {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Floating animation */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+}

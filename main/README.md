@@ -17,13 +17,41 @@ npm install
 copy .env.local.example .env.local  # Windows
 # cp .env.local.example .env.local  # macOS/Linux
 
-# Editar .env.local con tus valores
-```
+# Main - Sitio Principal
 
-### 3. Iniciar Servidor de Desarrollo
+Página principal de Sergio Jáuregui con diseño cyberpunk invertido (fondo blanco) y cara 3D interactiva.
+
+## 🎨 Características
+
+- **Diseño Cyberpunk Invertido**: Paleta de colores sobre fondo blanco
+- **Cara 3D Interactiva**: Modelo 3D que sigue el movimiento del mouse usando Three.js
+- **Sin Scroll**: Diseño de tablero completo en viewport
+- **Animaciones Fluidas**: Transiciones y efectos con Framer Motion
+- **Metodología Atómica**: Componentes organizados en atoms, molecules, organisms
+
+## 🛠️ Tecnologías
+
+- **Next.js 14** - Framework React con App Router
+- **React 18** - Biblioteca UI
+- **TypeScript** - Tipado estático
+- **Tailwind CSS** - Estilos utility-first
+- **Framer Motion** - Animaciones
+- **Three.js** - Gráficos 3D
+- **React Three Fiber** - React renderer para Three.js
+- **React Three Drei** - Helpers para R3F
+
+## 📦 Instalación
 
 ```bash
+# Instalar dependencias
+npm install
+
+# Ejecutar en desarrollo
 npm run dev
+
+# Build para producción
+npm run build
+npm start
 ```
 
 El sitio estará disponible en `http://localhost:3001`
@@ -31,20 +59,23 @@ El sitio estará disponible en `http://localhost:3001`
 ## 📁 Estructura del Proyecto
 
 ```
-main-frontend/
-├── app/                      # App Router de Next.js
+main/
+├── app/
+│   ├── globals.css          # Estilos globales con Tailwind
 │   ├── layout.tsx           # Layout principal
-│   ├── page.tsx             # Página de inicio
-│   ├── globals.css          # Estilos globales
-│   ├── servicios/           # Página de servicios
-│   ├── blog/                # Blog
-│   └── contacto/            # Página de contacto
+│   └── page.tsx             # Página de inicio
 ├── components/
-│   ├── layout/              # Componentes de layout
-│   │   ├── Navbar.tsx      # Barra de navegación
-│   │   └── Footer.tsx      # Pie de página
-│   ├── sections/            # Secciones de páginas
-│   │   ├── HeroSection.tsx
+│   ├── 3d/
+│   │   └── Face3D.tsx       # Componente de cara 3D interactiva
+│   └── atoms/
+│       └── CyberCorner.tsx  # Esquinas decorativas cyberpunk
+├── lib/
+│   └── utils.ts             # Utilidades y helpers
+├── public/                  # Archivos estáticos
+├── tailwind.config.ts       # Configuración Tailwind
+├── tsconfig.json           # Configuración TypeScript
+└── package.json            # Dependencias
+
 │   │   ├── ServicesSection.tsx
 │   │   ├── AboutSection.tsx
 │   │   └── CTASection.tsx
