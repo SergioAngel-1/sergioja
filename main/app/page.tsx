@@ -1,337 +1,239 @@
 'use client';
 
-import { Suspense } from 'react';
 import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
-import CyberCorner from '@/components/atoms/CyberCorner';
+import { useState, useEffect } from 'react';
+import CameraCorner from '@/components/atoms/CameraCorner';
 import DataStream from '@/components/atoms/DataStream';
 import HexagonGrid from '@/components/atoms/HexagonGrid';
 import ScanLine from '@/components/atoms/ScanLine';
-import StatusPanel from '@/components/molecules/StatusPanel';
-import InfoCard from '@/components/molecules/InfoCard';
+import CenteredHero from '@/components/molecules/CenteredHero';
+import FloatingMenu from '@/components/molecules/FloatingMenu';
+import SettingsPanel from '@/components/molecules/SettingsPanel';
+import VisionCard from '@/components/cards/VisionCard';
+import InfoCard from '@/components/cards/InfoCard';
+import ServicesCard from '@/components/cards/ServicesCard';
+import ContactCard from '@/components/cards/ContactCard';
+import { 
+  getGridConfig, 
+  calculateAutoLayout, 
+  PRESET_LAYOUTS,
+  GridPosition 
+} from '@/lib/gridSystem';
 
-// Lazy load 3D component for better performance
-const Face3D = dynamic(() => import('@/components/3d/Face3D'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="w-32 h-32 border-4 border-cyber-black border-t-transparent rounded-full animate-spin" />
-    </div>
-  ),
-});
+interface Panel {
+  id: string;
+  name: string;
+  isOpen: boolean;
+  size: '1x1' | '1x2' | '2x1' | '2x2';
+  priority: number;
+}
 
 export default function Home() {
+  const [panels, setPanels] = useState<Panel[]>([
+    { id: 'vision', name: 'Visión', isOpen: true, size: '1x1', priority: 10 },
+    { id: 'info', name: 'Info', isOpen: true, size: '1x1', priority: 9 },
+    { id: 'services', name: 'Servicios', isOpen: true, size: '1x1', priority: 8 },
+    { id: 'contact', name: 'Contacto', isOpen: true, size: '1x1', priority: 7 },
+  ]);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [gridPositions, setGridPositions] = useState<Map<string, GridPosition>>(new Map());
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+  // Actualizar tamaño de ventana
+  useEffect(() => {
+    const updateSize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  // Recalcular posiciones cuando cambian los paneles o el tamaño de ventana
+  useEffect(() => {
+    if (windowSize.width === 0) return;
+
+    const config = getGridConfig(windowSize.width, windowSize.height);
+    const openPanels = panels.filter(p => p.isOpen);
+    
+    const layout = openPanels.map(p => ({
+      id: p.id,
+      size: p.size,
+      priority: p.priority,
+      preferredPosition: PRESET_LAYOUTS.default.find(preset => preset.id === p.id)?.preferredPosition
+    }));
+
+    const positions = calculateAutoLayout(layout, config, windowSize.width, windowSize.height);
+    setGridPositions(positions);
+  }, [panels, windowSize]);
+
+  const handleTogglePanel = (id: string) => {
+    setPanels(prev => prev.map(panel => 
+      panel.id === id ? { ...panel, isOpen: !panel.isOpen } : panel
+    ));
+  };
+
+  const handlePortfolioClick = () => {
+    window.location.href = 'http://localhost:3000';
+  };
+
   return (
     <div className="relative w-full h-screen bg-background-light overflow-hidden">
       {/* Background layers */}
-      <div className="absolute inset-0 cyber-grid opacity-20" />
-      <HexagonGrid />
+      <div className="absolute inset-0 cyber-grid opacity-20 z-0" />
+      <div className="absolute inset-0 z-0">
+        <HexagonGrid />
+      </div>
       
       {/* Data streams */}
-      <DataStream position="left" color="blue" />
-      <DataStream position="right" color="purple" />
+      <div className="absolute inset-0 z-0">
+        <DataStream position="left" color="blue" />
+        <DataStream position="right" color="purple" />
+      </div>
       
       {/* Scan lines */}
-      <ScanLine direction="horizontal" color="blue" duration={4} />
-      <ScanLine direction="vertical" color="red" duration={5} />
-
-      {/* Corner decorations with margin */}
-      <div className="absolute top-6 left-6 z-10">
-        <CyberCorner position="top-left" size={60} color="black" />
-      </div>
-      <div className="absolute top-6 right-6 z-10">
-        <CyberCorner position="top-right" size={60} color="black" />
-      </div>
-      <div className="absolute bottom-6 left-6 z-10">
-        <CyberCorner position="bottom-left" size={60} color="black" />
-      </div>
-      <div className="absolute bottom-6 right-6 z-10">
-        <CyberCorner position="bottom-right" size={60} color="black" />
-      </div>
-      
-      {/* Status Panel */}
-      <StatusPanel />
-      
-      {/* Floating Info Cards */}
-      <InfoCard
-        icon={
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        }
-        title="Status"
-        value="ACTIVE"
-        color="blue"
-        position={{ top: '25%', left: '10%' }}
-        delay={0.8}
-      />
-      
-      <InfoCard
-        icon={
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        }
-        title="Power"
-        value="100%"
-        color="red"
-        position={{ top: '25%', right: '10%' }}
-        delay={1}
-      />
-      
-      <InfoCard
-        icon={
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-          </svg>
-        }
-        title="Systems"
-        value="ONLINE"
-        color="purple"
-        position={{ bottom: '25%', left: '10%' }}
-        delay={1.2}
-      />
-      
-      <InfoCard
-        icon={
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-        }
-        title="Performance"
-        value="98%"
-        color="black"
-        position={{ bottom: '25%', right: '10%' }}
-        delay={1.4}
-      />
-
-      {/* Main content container */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center">
-        {/* Central circle with 3D face */}
-        <motion.div
-          className="relative"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
-        >
-          {/* Outer ring - animated */}
-          <motion.div
-            className="absolute inset-0 rounded-full border-4 border-cyber-black"
-            style={{ width: '450px', height: '450px', left: '-50px', top: '-50px' }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          />
-
-          {/* Middle ring - animated opposite direction */}
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-cyber-blue-cyan opacity-50"
-            style={{ width: '400px', height: '400px', left: '-25px', top: '-25px' }}
-            animate={{ rotate: -360 }}
-            transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-          />
-
-          {/* Inner ring with dashes */}
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-dashed border-cyber-purple opacity-30"
-            style={{ width: '360px', height: '360px', left: '-5px', top: '-5px' }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          />
-
-          {/* Inner container for 3D face */}
-          <div className="relative w-[350px] h-[350px] rounded-full bg-white border-4 border-cyber-black shadow-glow-black overflow-hidden">
-            <Suspense fallback={
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="w-16 h-16 border-4 border-cyber-black border-t-transparent rounded-full animate-spin" />
-              </div>
-            }>
-              <Face3D />
-            </Suspense>
-          </div>
-
-          {/* Decorative elements around circle - Top */}
-          <motion.div
-            className="absolute -top-6 left-1/2 transform -translate-x-1/2"
-            initial={{ scaleY: 0, opacity: 0 }}
-            animate={{ scaleY: 1, opacity: 1 }}
-            transition={{ delay: 1, duration: 0.5 }}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-cyber-red shadow-glow-red" />
-              <div className="w-1 h-8 bg-gradient-to-b from-cyber-red to-transparent" />
-            </div>
-          </motion.div>
-
-          {/* Bottom */}
-          <motion.div
-            className="absolute -bottom-6 left-1/2 transform -translate-x-1/2"
-            initial={{ scaleY: 0, opacity: 0 }}
-            animate={{ scaleY: 1, opacity: 1 }}
-            transition={{ delay: 1, duration: 0.5 }}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-1 h-8 bg-gradient-to-t from-cyber-red to-transparent" />
-              <div className="w-3 h-3 rounded-full bg-cyber-red shadow-glow-red" />
-            </div>
-          </motion.div>
-
-          {/* Left */}
-          <motion.div
-            className="absolute -left-6 top-1/2 transform -translate-y-1/2"
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ delay: 1, duration: 0.5 }}
-          >
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-cyber-blue-cyan shadow-glow-blue" />
-              <div className="w-8 h-1 bg-gradient-to-r from-cyber-blue-cyan to-transparent" />
-            </div>
-          </motion.div>
-
-          {/* Right */}
-          <motion.div
-            className="absolute -right-6 top-1/2 transform -translate-y-1/2"
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ delay: 1, duration: 0.5 }}
-          >
-            <div className="flex items-center gap-1">
-              <div className="w-8 h-1 bg-gradient-to-l from-cyber-blue-cyan to-transparent" />
-              <div className="w-3 h-3 rounded-full bg-cyber-blue-cyan shadow-glow-blue" />
-            </div>
-          </motion.div>
-
-          {/* Corner accents */}
-          <motion.div
-            className="absolute -top-4 -left-4 w-8 h-8 border-l-2 border-t-2 border-cyber-purple"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-          />
-          <motion.div
-            className="absolute -top-4 -right-4 w-8 h-8 border-r-2 border-t-2 border-cyber-purple"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-          />
-          <motion.div
-            className="absolute -bottom-4 -left-4 w-8 h-8 border-l-2 border-b-2 border-cyber-purple"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-          />
-          <motion.div
-            className="absolute -bottom-4 -right-4 w-8 h-8 border-r-2 border-b-2 border-cyber-purple"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-          />
-        </motion.div>
+      <div className="absolute inset-0 z-0">
+        <ScanLine direction="horizontal" color="blue" duration={4} />
+        <ScanLine direction="vertical" color="red" duration={5} />
       </div>
 
-      {/* Top text */}
-      <motion.div
-        className="absolute top-16 left-1/2 transform -translate-x-1/2 text-center z-20 max-w-4xl"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.8 }}
+      {/* Camera corners */}
+      <motion.div 
+        className="absolute top-6 left-6 z-10"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 0.2, type: 'spring', stiffness: 200 }}
       >
-        <motion.h1 
-          className="font-orbitron text-4xl md:text-6xl font-black text-cyber-black tracking-wider relative"
-          animate={{ 
-            textShadow: [
-              '0 0 10px rgba(0,0,0,0.3)',
-              '0 0 20px rgba(0,0,0,0.5)',
-              '0 0 10px rgba(0,0,0,0.3)',
-            ]
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          SERGIO JÁUREGUI
-          <motion.span
-            className="absolute -top-2 -right-2 w-3 h-3 bg-cyber-red rounded-full"
-            animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        </motion.h1>
-        <div className="mt-3 h-1 w-full bg-gradient-to-r from-transparent via-cyber-black to-transparent" />
-        <motion.div
-          className="mt-2 flex items-center justify-center gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-        >
-          <div className="w-2 h-2 bg-cyber-blue-cyan rounded-full animate-pulse" />
-          <span className="font-mono text-xs text-text-muted tracking-widest">ID: SJ-2025-MAIN</span>
-          <div className="w-2 h-2 bg-cyber-blue-cyan rounded-full animate-pulse" />
-        </motion.div>
+        <CameraCorner position="top-left" size={80} />
+      </motion.div>
+      
+      <motion.div 
+        className="absolute top-6 right-6 z-10"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 0.3, type: 'spring', stiffness: 200 }}
+      >
+        <CameraCorner position="top-right" size={80} />
+      </motion.div>
+      
+      <motion.div 
+        className="absolute bottom-6 left-6 z-10"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 0.4, type: 'spring', stiffness: 200 }}
+      >
+        <CameraCorner position="bottom-left" size={80} />
+      </motion.div>
+      
+      <motion.div 
+        className="absolute bottom-6 right-6 z-10"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1, delay: 0.5, type: 'spring', stiffness: 200 }}
+      >
+        <CameraCorner position="bottom-right" size={80} />
       </motion.div>
 
-      {/* Bottom text */}
-      <motion.div
-        className="absolute bottom-16 left-1/2 transform -translate-x-1/2 text-center z-20 max-w-4xl"
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.8 }}
+      {/* Menu Button */}
+      <motion.button
+        onClick={() => {
+          if (!isMenuOpen) setIsSettingsOpen(false);
+          setIsMenuOpen(!isMenuOpen);
+        }}
+        className="fixed left-24 top-8 z-50 group"
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25, delay: 0.2 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
       >
-        <p className="font-rajdhani text-xl md:text-2xl text-text-secondary tracking-wide font-bold">
-          DESARROLLADOR FULL STACK
-        </p>
-        <div className="mt-3 flex items-center justify-center gap-4">
-          <motion.div
-            className="w-20 h-0.5 bg-cyber-blue-cyan"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 1.2, duration: 0.5 }}
-          />
-          <motion.div
-            className="relative"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1.4, duration: 0.3 }}
-          >
-            <div className="w-4 h-4 rounded-full bg-cyber-red animate-pulse" />
-            <motion.div
-              className="absolute inset-0 w-4 h-4 rounded-full bg-cyber-red"
-              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </motion.div>
-          <motion.div
-            className="w-20 h-0.5 bg-cyber-blue-cyan"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 1.2, duration: 0.5 }}
-          />
+        <div className="relative flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-cyber-black/20 hover:bg-white rounded-lg px-3 py-2 transition-all duration-300">
+          <svg className="w-4 h-4 text-cyber-black/70 group-hover:text-cyber-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <span className="font-mono text-xs text-cyber-black/70 group-hover:text-cyber-black tracking-wide">
+            menú
+          </span>
         </div>
-        <motion.div
-          className="mt-3 font-mono text-xs text-text-muted flex items-center justify-center gap-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.6 }}
-        >
-          <span className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 bg-cyber-blue-cyan rounded-full" />
-            REACT
-          </span>
-          <span className="text-cyber-black">•</span>
-          <span className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 bg-cyber-purple rounded-full" />
-            NODE.JS
-          </span>
-          <span className="text-cyber-black">•</span>
-          <span className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 bg-cyber-red rounded-full" />
-            TYPESCRIPT
-          </span>
-        </motion.div>
-      </motion.div>
+      </motion.button>
 
-      {/* Floating particles effect - Enhanced */}
+      {/* Settings Button */}
+      <motion.button
+        onClick={() => {
+          if (!isSettingsOpen) setIsMenuOpen(false);
+          setIsSettingsOpen(!isSettingsOpen);
+        }}
+        className="fixed left-[180px] top-8 z-50 group"
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25, delay: 0.3 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <div className="relative flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-cyber-black/20 hover:bg-white rounded-lg px-3 py-2 transition-all duration-300">
+          <svg className="w-4 h-4 text-cyber-black/70 group-hover:text-cyber-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span className="font-mono text-xs text-cyber-black/70 group-hover:text-cyber-black tracking-wide">
+            ajustes
+          </span>
+        </div>
+      </motion.button>
+
+      {/* Settings Panel */}
+      <SettingsPanel 
+        panels={panels}
+        onTogglePanel={handleTogglePanel}
+        isOpen={isSettingsOpen}
+        onToggle={() => setIsSettingsOpen(!isSettingsOpen)}
+      />
+
+      {/* Floating Menu */}
+      <FloatingMenu 
+        onPortfolioClick={handlePortfolioClick}
+        isOpen={isMenuOpen}
+        onToggle={() => setIsMenuOpen(!isMenuOpen)}
+      />
+
+      {/* Custom Cards con Grid System */}
+      <VisionCard
+        isOpen={panels.find(p => p.id === 'vision')?.isOpen || false}
+        onClose={() => handleTogglePanel('vision')}
+        gridPosition={gridPositions.get('vision')}
+      />
+
+      <InfoCard
+        isOpen={panels.find(p => p.id === 'info')?.isOpen || false}
+        onClose={() => handleTogglePanel('info')}
+        gridPosition={gridPositions.get('info')}
+      />
+
+      <ServicesCard
+        isOpen={panels.find(p => p.id === 'services')?.isOpen || false}
+        onClose={() => handleTogglePanel('services')}
+        gridPosition={gridPositions.get('services')}
+      />
+
+      <ContactCard
+        isOpen={panels.find(p => p.id === 'contact')?.isOpen || false}
+        onClose={() => handleTogglePanel('contact')}
+        gridPosition={gridPositions.get('contact')}
+      />
+
+      {/* Main content */}
+      <main className="relative z-20">
+        <CenteredHero />
+      </main>
+
+      {/* Floating particles */}
       {[...Array(15)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full opacity-40"
+          className="absolute rounded-full opacity-40 pointer-events-none z-0"
           style={{
             width: Math.random() * 4 + 2,
             height: Math.random() * 4 + 2,
