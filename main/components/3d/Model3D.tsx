@@ -127,7 +127,7 @@ function AnimatedModel({ mousePosition }: Model3DProps) {
   const hasContent = scene.children.length > 0;
 
   // Calcular escala para la animación de entrada (desde el centro)
-  const scale = 5.5 * animationProgress;
+  const scale = 3.5 * animationProgress;
 
   return (
     <group ref={groupRef}>
@@ -205,35 +205,60 @@ export default function Model3D({ mousePosition }: Model3DProps) {
     }
   };
 
-  if (!mounted || isLoading) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-white">
-        <Loader size="md" message="CARGANDO MODELO" />
-      </div>
-    );
-  }
-
   return (
     <div className="relative w-full h-full">
-      <Canvas
-        camera={{ position: [0, 0, 4], fov: 50 }}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent' }}
-      >
-        {/* Fondo blanco del círculo */}
-        <color attach="background" args={['#FFFFFF']} />
-        
-        <AnimatedModel mousePosition={mousePosition} />
-      </Canvas>
+      {/* Fondo con gradiente radial - siempre visible */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-gray-100" />
+      
+      {/* Patrón de puntos sutiles - siempre visible */}
+      <div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)',
+          backgroundSize: '20px 20px'
+        }}
+      />
+      
+      {/* Glow central - siempre visible */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 60%)'
+        }}
+      />
 
-      {/* Botón para activar giroscopio en iOS */}
-      {showGyroButton && (
-        <button
-          onClick={handleGyroPermission}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 text-sm font-bold"
-        >
-          ACTIVAR GIROSCOPIO
-        </button>
+      {/* Contenido: Loader o Canvas */}
+      {!mounted || isLoading ? (
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <Loader size="md" message="CARGANDO MODELO" />
+        </div>
+      ) : (
+        <>
+          {/* Canvas 3D con fondo transparente */}
+          <div className="absolute inset-0 z-10">
+            <Canvas
+              camera={{ position: [0, 0, 4], fov: 50 }}
+              gl={{ 
+                antialias: true, 
+                alpha: true,
+                preserveDrawingBuffer: true
+              }}
+              style={{ background: 'transparent' }}
+            >
+              <AnimatedModel mousePosition={mousePosition} />
+            </Canvas>
+          </div>
+
+          {/* Botón para activar giroscopio en iOS */}
+          {showGyroButton && (
+            <button
+              onClick={handleGyroPermission}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 text-sm font-bold z-20"
+            >
+              ACTIVAR GIROSCOPIO
+            </button>
+          )}
+        </>
       )}
     </div>
   );
