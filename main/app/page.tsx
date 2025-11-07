@@ -36,7 +36,7 @@ export default function Home() {
         position="top-left"
         label="NAVEGACIÓN"
         delay={0.2}
-        onClick={() => setActiveModal('navigation')}
+        onClick={() => setActiveModal(activeModal === 'navigation' ? null : 'navigation')}
         isActive={activeModal === 'navigation'}
         icon={
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +49,7 @@ export default function Home() {
         position="top-right"
         label="SERVICIOS"
         delay={0.3}
-        onClick={() => setActiveModal('services')}
+        onClick={() => setActiveModal(activeModal === 'services' ? null : 'services')}
         isActive={activeModal === 'services'}
         icon={
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@ export default function Home() {
         position="bottom-left"
         label="TECH STACK"
         delay={0.4}
-        onClick={() => setActiveModal('tech')}
+        onClick={() => setActiveModal(activeModal === 'tech' ? null : 'tech')}
         isActive={activeModal === 'tech'}
         icon={
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,7 +75,7 @@ export default function Home() {
         position="bottom-right"
         label="CONTACTO"
         delay={0.5}
-        onClick={() => setActiveModal('contact')}
+        onClick={() => setActiveModal(activeModal === 'contact' ? null : 'contact')}
         isActive={activeModal === 'contact'}
         icon={
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
