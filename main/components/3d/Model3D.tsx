@@ -13,12 +13,67 @@ interface Model3DProps {
 function AnimatedModel({ mousePosition }: Model3DProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
+  const [deviceOrientation, setDeviceOrientation] = useState({ beta: 0, gamma: 0 });
+  const [isMobile, setIsMobile] = useState(false);
+  const [needsPermission, setNeedsPermission] = useState(false);
   
   // Cargar modelo GLTF de Blender
   const { scene } = useGLTF('/models/SergioJAModel.glb');
   
   // Clonar la escena para evitar problemas de reutilización
   const clonedScene = scene.clone();
+
+  // Detectar si es mobile y configurar giroscopio
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+      return mobile;
+    };
+
+    const mobile = checkMobile();
+
+    if (mobile && typeof DeviceOrientationEvent !== 'undefined') {
+      // Solicitar permiso en iOS 13+
+      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        setNeedsPermission(true);
+      } else {
+        // Android o iOS antiguo - activar directamente
+        window.addEventListener('deviceorientation', handleOrientation);
+      }
+    }
+
+    function handleOrientation(event: DeviceOrientationEvent) {
+      setDeviceOrientation({
+        beta: event.beta || 0,   // Inclinación adelante-atrás (-180 a 180)
+        gamma: event.gamma || 0  // Inclinación izquierda-derecha (-90 a 90)
+      });
+    }
+
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+    };
+  }, []);
+
+  // Función para solicitar permisos de giroscopio (iOS)
+  const requestGyroPermission = async () => {
+    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      try {
+        const permissionState = await (DeviceOrientationEvent as any).requestPermission();
+        if (permissionState === 'granted') {
+          setNeedsPermission(false);
+          window.addEventListener('deviceorientation', (event: DeviceOrientationEvent) => {
+            setDeviceOrientation({
+              beta: event.beta || 0,
+              gamma: event.gamma || 0
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Error requesting gyroscope permission:', error);
+      }
+    }
+  };
 
   // Animación de entrada
   useEffect(() => {
@@ -47,9 +102,20 @@ function AnimatedModel({ mousePosition }: Model3DProps) {
         // Durante la animación de entrada, rotar suavemente
         groupRef.current.rotation.y = animationProgress * Math.PI * 2;
       } else {
-        // Después de la animación, seguir el mouse
-        const targetRotationY = mousePosition.x * 0.5;
-        const targetRotationX = mousePosition.y * 0.3;
+        // Después de la animación
+        let targetRotationY, targetRotationX;
+
+        if (isMobile) {
+          // Mobile: usar giroscopio
+          // gamma: -90 (izquierda) a 90 (derecha)
+          // beta: -180 (atrás) a 180 (adelante)
+          targetRotationY = (deviceOrientation.gamma / 90) * 0.5;  // Normalizar a -0.5 a 0.5
+          targetRotationX = (deviceOrientation.beta / 180) * 0.3;  // Normalizar a -0.3 a 0.3
+        } else {
+          // Desktop: usar mouse
+          targetRotationY = mousePosition.x * 0.5;
+          targetRotationX = mousePosition.y * 0.3;
+        }
         
         groupRef.current.rotation.y += (targetRotationY - groupRef.current.rotation.y) * 0.05;
         groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.05;
@@ -109,16 +175,35 @@ function AnimatedModel({ mousePosition }: Model3DProps) {
 export default function Model3D({ mousePosition }: Model3DProps) {
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showGyroButton, setShowGyroButton] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     // Simular tiempo de carga mínimo para mostrar el loader
     const timer = setTimeout(() => {
       setIsLoading(false);
+      // Verificar si necesita permisos de giroscopio
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        setShowGyroButton(true);
+      }
     }, 1500);
     
     return () => clearTimeout(timer);
   }, []);
+
+  const handleGyroPermission = async () => {
+    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      try {
+        const permissionState = await (DeviceOrientationEvent as any).requestPermission();
+        if (permissionState === 'granted') {
+          setShowGyroButton(false);
+        }
+      } catch (error) {
+        console.error('Error requesting gyroscope permission:', error);
+      }
+    }
+  };
 
   if (!mounted || isLoading) {
     return (
@@ -129,16 +214,28 @@ export default function Model3D({ mousePosition }: Model3DProps) {
   }
 
   return (
-    <Canvas
-      camera={{ position: [0, 0, 4], fov: 50 }}
-      gl={{ antialias: true, alpha: true }}
-      style={{ background: 'transparent' }}
-    >
-      {/* Fondo blanco del círculo */}
-      <color attach="background" args={['#FFFFFF']} />
-      
-      <AnimatedModel mousePosition={mousePosition} />
-    </Canvas>
+    <div className="relative w-full h-full">
+      <Canvas
+        camera={{ position: [0, 0, 4], fov: 50 }}
+        gl={{ antialias: true, alpha: true }}
+        style={{ background: 'transparent' }}
+      >
+        {/* Fondo blanco del círculo */}
+        <color attach="background" args={['#FFFFFF']} />
+        
+        <AnimatedModel mousePosition={mousePosition} />
+      </Canvas>
+
+      {/* Botón para activar giroscopio en iOS */}
+      {showGyroButton && (
+        <button
+          onClick={handleGyroPermission}
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 text-sm font-bold"
+        >
+          ACTIVAR GIROSCOPIO
+        </button>
+      )}
+    </div>
   );
 }
 
