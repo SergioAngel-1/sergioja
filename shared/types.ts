@@ -47,13 +47,20 @@ export interface Project {
   image?: string;
   images?: string[];
   technologies: string[];
+  tech: string[]; // Alias para technologies (usado en frontend)
   category: string;
   featured: boolean;
   demoUrl?: string;
   githubUrl?: string;
+  repoUrl?: string; // Alias para githubUrl
   status: 'completed' | 'in-progress' | 'planned';
   startDate?: string;
   endDate?: string;
+  metrics?: {
+    performance: number;
+    accessibility: number;
+    seo: number;
+  };
   createdAt: string;
   updatedAt: string;
 }
