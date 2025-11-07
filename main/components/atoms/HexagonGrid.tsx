@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 export default function HexagonGrid() {
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 }); // Iniciar fuera de pantalla
   const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
+  const [centerLightIntensity, setCenterLightIntensity] = useState(0); // Animación de luz central
   
   useEffect(() => {
     // Set initial dimensions and center mouse
@@ -12,6 +13,22 @@ export default function HexagonGrid() {
     const height = window.innerHeight;
     setDimensions({ width, height });
     setMousePos({ x: width / 2, y: height / 2 }); // Centrar mouse
+    
+    // Animar la luz central gradualmente
+    const animateLight = () => {
+      let intensity = 0;
+      const interval = setInterval(() => {
+        intensity += 0.02;
+        if (intensity >= 1) {
+          intensity = 1;
+          clearInterval(interval);
+        }
+        setCenterLightIntensity(intensity);
+      }, 30);
+      return interval;
+    };
+    
+    const lightInterval = animateLight();
     
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
@@ -25,6 +42,7 @@ export default function HexagonGrid() {
     window.addEventListener('resize', handleResize);
     
     return () => {
+      clearInterval(lightInterval);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
     };
@@ -62,8 +80,8 @@ export default function HexagonGrid() {
     const centerMaxDistance = 400; // Radio de luz central más grande
     const opacityFromCenter = Math.max(0, 1 - distanceFromCenter / centerMaxDistance);
     
-    // Combinar ambas luces (tomar la mayor)
-    const combinedOpacity = Math.max(opacityFromMouse, opacityFromCenter * 0.7);
+    // Combinar ambas luces (tomar la mayor) con animación de entrada
+    const combinedOpacity = Math.max(opacityFromMouse, opacityFromCenter * 0.7 * centerLightIntensity);
     return combinedOpacity * 0.8;
   };
 
