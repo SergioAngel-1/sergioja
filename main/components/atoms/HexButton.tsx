@@ -173,7 +173,11 @@ export default function HexButton({
 
         {/* Indicador de estado activo */}
         <motion.div
-          className={`absolute -bottom-2 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-lg ${
+          className={`absolute w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-lg ${
+            position.includes('top') 
+              ? '-top-2' 
+              : '-bottom-2'
+          } ${
             position.includes('left') ? '-left-2' : '-right-2'
           }`}
           initial={{ scale: 0, opacity: 0 }}
