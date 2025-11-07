@@ -31,10 +31,10 @@ export default function HexButton({
   isActive = false
 }: HexButtonProps) {
   const positionClasses = {
-    'top-left': 'top-8 left-8',
-    'top-right': 'top-8 right-8',
-    'bottom-left': 'bottom-8 left-8',
-    'bottom-right': 'bottom-8 right-8',
+    'top-left': 'top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8',
+    'top-right': 'top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8',
+    'bottom-left': 'bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8',
+    'bottom-right': 'bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8',
   };
 
   return (
@@ -52,9 +52,9 @@ export default function HexButton({
     >
       <motion.button
         onClick={onClick}
-        className="relative group cursor-pointer focus:outline-none"
+        className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center cursor-pointer group"
         whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.92 }}
+        whileTap={{ scale: 0.95 }}
       >
         {/* SVG Hexágono */}
         <svg 
@@ -160,7 +160,7 @@ export default function HexButton({
 
         {/* Icono central */}
         <motion.div 
-          className="absolute inset-0 flex items-center justify-center text-white"
+          className="absolute inset-0 flex items-center justify-center text-white scale-75 sm:scale-90 md:scale-100"
           animate={{
             scale: isActive ? 1.15 : 1,
           }}
@@ -202,15 +202,15 @@ export default function HexButton({
 
         {/* Label flotante mejorado */}
         <motion.div
-          className={`absolute ${
-            position.includes('left') ? 'left-full ml-4' : 'right-full mr-4'
+          className={`hidden sm:block absolute ${
+            position.includes('left') ? 'left-full ml-2 sm:ml-3 md:ml-4' : 'right-full mr-2 sm:mr-3 md:mr-4'
           } top-1/2 -translate-y-1/2 pointer-events-none whitespace-nowrap`}
           initial={{ opacity: 0, x: position.includes('left') ? -10 : 10 }}
           whileHover={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <div className="bg-white text-black px-4 py-2 rounded-lg shadow-2xl border border-white">
-            <span className="font-orbitron text-xs font-bold tracking-wider uppercase">
+          <div className="bg-white text-black px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-lg shadow-2xl border border-white">
+            <span className="font-orbitron text-[10px] sm:text-xs font-bold tracking-wider uppercase">
               {label}
             </span>
           </div>

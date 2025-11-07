@@ -26,15 +26,15 @@ export default function Modal({
   const getModalPosition = () => {
     switch(position) {
       case 'top-left':
-        return 'top-8 left-40'; // Al lado derecho del HexButton (más espacio)
+        return 'top-4 left-4 sm:top-6 sm:left-24 md:top-8 md:left-40'; // Responsive
       case 'top-right':
-        return 'top-8 right-40'; // Al lado izquierdo del HexButton (más espacio)
+        return 'top-4 right-4 sm:top-6 sm:right-24 md:top-8 md:right-40'; // Responsive
       case 'bottom-left':
-        return 'bottom-8 left-40'; // Al lado derecho del HexButton (más espacio)
+        return 'bottom-4 left-4 sm:bottom-6 sm:left-24 md:bottom-8 md:left-40'; // Responsive
       case 'bottom-right':
-        return 'bottom-8 right-40'; // Al lado izquierdo del HexButton (más espacio)
+        return 'bottom-4 right-4 sm:bottom-6 sm:right-24 md:bottom-8 md:right-40'; // Responsive
       default:
-        return 'top-8 left-40';
+        return 'top-4 left-4 sm:top-8 sm:left-40';
     }
   };
 
@@ -60,7 +60,7 @@ export default function Modal({
 
           {/* Modal */}
           <motion.div
-            className={`fixed ${getModalPosition()} z-50 w-[380px] max-h-[calc(100vh-200px)]`}
+            className={`fixed ${getModalPosition()} z-50 w-[calc(100vw-2rem)] sm:w-[340px] md:w-[380px] max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-12rem)] md:max-h-[calc(100vh-200px)]`}
             initial={{ x: getInitialX(), opacity: 0, scale: 0.8, rotateY: -15 }}
             animate={{ x: 0, opacity: 1, scale: 1, rotateY: 0 }}
             exit={{ x: getInitialX(), opacity: 0, scale: 0.8, rotateY: 15 }}

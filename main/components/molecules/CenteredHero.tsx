@@ -40,8 +40,8 @@ export default function CenteredHero() {
   if (!mounted) return null;
 
   return (
-    <div className="relative w-full h-screen flex items-center justify-center">
-      <div className="relative w-[400px] h-[400px] sm:w-[500px] sm:h-[500px]">
+    <div className="relative w-full h-screen flex items-center justify-center px-4">
+      <div className="relative w-[280px] h-[280px] xs:w-[320px] xs:h-[320px] sm:w-[400px] sm:h-[400px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px]">
         
         {/* Simplified outer ring */}
         <motion.div
