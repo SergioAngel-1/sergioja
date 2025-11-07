@@ -2,24 +2,69 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { api } from '@/lib/api-client';
+import type { ContactMessage } from '@/lib/types';
 
 export default function ConnectionContent() {
-  const [consoleInput, setConsoleInput] = useState('');
+  const [formData, setFormData] = useState<ContactMessage>({
+    name: '',
+    email: '',
+    subject: 'Contacto desde landing',
+    message: ''
+  });
   const [consoleHistory, setConsoleHistory] = useState<string[]>([
     '> Sistema de conexión iniciado...',
     '> Esperando tu mensaje...'
   ]);
+  const [sending, setSending] = useState(false);
 
-  const handleConsoleSubmit = (e: React.FormEvent) => {
+  const handleConsoleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!consoleInput.trim()) return;
+    if (!formData.message.trim() || !formData.name.trim() || !formData.email.trim()) {
+      setConsoleHistory(prev => [
+        ...prev,
+        '> Error: Por favor completa nombre, email y mensaje'
+      ]);
+      return;
+    }
 
+    setSending(true);
     setConsoleHistory(prev => [
       ...prev,
-      `> ${consoleInput}`,
-      '> Mensaje recibido. Te responderé pronto.'
+      `> Enviando mensaje de ${formData.name}...`
     ]);
-    setConsoleInput('');
+
+    try {
+      const response = await api.submitContact(formData);
+      
+      if (response.success) {
+        setConsoleHistory(prev => [
+          ...prev,
+          '> ✓ Mensaje enviado correctamente',
+          '> Te responderé pronto. Gracias por conectar.'
+        ]);
+        setFormData({
+          name: '',
+          email: '',
+          subject: 'Contacto desde landing',
+          message: ''
+        });
+      } else {
+        setConsoleHistory(prev => [
+          ...prev,
+          `> ✗ Error: ${response.error || 'No se pudo enviar el mensaje'}`,
+          '> Intenta de nuevo o contáctame por email directo'
+        ]);
+      }
+    } catch (error) {
+      setConsoleHistory(prev => [
+        ...prev,
+        '> ✗ Error de red. Verifica tu conexión',
+        '> O contáctame directamente por email'
+      ]);
+    } finally {
+      setSending(false);
+    }
   };
 
   const connections = [
@@ -102,44 +147,69 @@ export default function ConnectionContent() {
         ))}
       </motion.div>
 
-      {/* Consola de mensajes */}
+      {/* Formulario de contacto */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-2"
+        className="space-y-3"
       >
-        <h4 className="text-white/80 font-mono text-xs">$ console.message</h4>
+        <h4 className="text-white/80 font-mono text-xs">$ contact.send()</h4>
         
-        {/* Terminal */}
-        <div className="bg-black/40 rounded-lg border border-white/20 p-3 space-y-2">
-          {/* Historia */}
-          <div className="space-y-1 max-h-24 overflow-y-auto text-xs font-mono">
-            {consoleHistory.map((line, index) => (
-              <div key={index} className="text-white/60">
-                {line}
-              </div>
-            ))}
-          </div>
-
-          {/* Input */}
-          <form onSubmit={handleConsoleSubmit} className="flex items-center gap-2">
-            <span className="text-white/60 font-mono text-xs">{'>'}</span>
+        {/* Form */}
+        <form onSubmit={handleConsoleSubmit} className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="text"
-              value={consoleInput}
-              onChange={(e) => setConsoleInput(e.target.value)}
-              placeholder="Escribe tu mensaje..."
-              className="flex-1 bg-transparent text-white text-xs font-mono outline-none placeholder:text-white/30"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Nombre"
+              className="bg-black/40 border border-white/20 rounded px-3 py-2 text-white text-xs font-mono outline-none focus:border-white/40 placeholder:text-white/30"
+              required
             />
-            <button
-              type="submit"
-              className="text-white/60 hover:text-white transition-colors text-xs font-mono"
-            >
-              [ENVIAR]
-            </button>
-          </form>
-        </div>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              placeholder="Email"
+              className="bg-black/40 border border-white/20 rounded px-3 py-2 text-white text-xs font-mono outline-none focus:border-white/40 placeholder:text-white/30"
+              required
+            />
+          </div>
+          
+          <textarea
+            value={formData.message}
+            onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+            placeholder="Tu mensaje..."
+            rows={3}
+            className="w-full bg-black/40 border border-white/20 rounded px-3 py-2 text-white text-xs font-mono outline-none focus:border-white/40 placeholder:text-white/30 resize-none"
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={sending}
+            className="w-full bg-white/10 hover:bg-white/20 disabled:bg-white/5 border border-white/20 rounded px-4 py-2 text-white text-xs font-mono transition-colors disabled:cursor-not-allowed"
+          >
+            {sending ? '[ENVIANDO...]' : '[ENVIAR MENSAJE]'}
+          </button>
+        </form>
+
+        {/* Console output */}
+        {consoleHistory.length > 2 && (
+          <div className="bg-black/40 rounded-lg border border-white/20 p-3">
+            <div className="space-y-1 max-h-20 overflow-y-auto text-xs font-mono">
+              {consoleHistory.slice(-4).map((line, index) => (
+                <div 
+                  key={index} 
+                  className={line.includes('✓') ? 'text-green-400' : line.includes('✗') ? 'text-red-400' : 'text-white/60'}
+                >
+                  {line}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );
