@@ -4,11 +4,13 @@ import { Suspense, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 
+import Loader from '@/components/atoms/Loader';
+
 const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center">
-      <div className="w-32 h-32 border-4 border-cyber-black border-t-transparent rounded-full animate-spin" />
+      <Loader size="md" message="INICIALIZANDO" />
     </div>
   ),
 });
@@ -93,7 +95,7 @@ export default function CenteredHero() {
         >
           <Suspense fallback={
             <div className="w-full h-full flex items-center justify-center">
-              <div className="w-16 h-16 border-4 border-cyber-black border-t-transparent rounded-full animate-spin" />
+              <Loader size="sm" />
             </div>
           }>
             <Model3D mousePosition={mousePosition} />
