@@ -8,6 +8,30 @@ import DataStream from '@/components/atoms/DataStream';
 import HexagonGrid from '@/components/atoms/HexagonGrid';
 import CenteredHero from '@/components/molecules/CenteredHero';
 
+// Valores estáticos de partículas para evitar diferencias servidor/cliente
+const particles = [
+  { width: 2.5, height: 3.2, left: 15, top: 20, x: 5, duration: 7, delay: 1 },
+  { width: 1.8, height: 2.1, left: 85, top: 35, x: -3, duration: 8, delay: 2 },
+  { width: 3.5, height: 1.5, left: 45, top: 60, x: 7, duration: 6, delay: 0.5 },
+  { width: 2.2, height: 2.8, left: 70, top: 15, x: -5, duration: 9, delay: 1.5 },
+  { width: 1.5, height: 3.8, left: 25, top: 80, x: 4, duration: 7.5, delay: 3 },
+  { width: 3.2, height: 2.5, left: 55, top: 45, x: -6, duration: 6.5, delay: 0.8 },
+  { width: 2.8, height: 1.9, left: 90, top: 70, x: 3, duration: 8.5, delay: 2.5 },
+  { width: 1.2, height: 2.6, left: 10, top: 50, x: -4, duration: 7.2, delay: 1.2 },
+  { width: 3.8, height: 3.5, left: 65, top: 25, x: 6, duration: 5.5, delay: 3.5 },
+  { width: 2.1, height: 1.7, left: 35, top: 90, x: -7, duration: 9.5, delay: 0.3 },
+  { width: 1.9, height: 3.1, left: 78, top: 55, x: 5.5, duration: 6.8, delay: 2.8 },
+  { width: 3.3, height: 2.3, left: 20, top: 40, x: -3.5, duration: 8.2, delay: 1.8 },
+  { width: 2.6, height: 2.9, left: 50, top: 75, x: 4.5, duration: 7.8, delay: 3.2 },
+  { width: 1.6, height: 1.8, left: 95, top: 30, x: -6.5, duration: 5.8, delay: 0.6 },
+  { width: 3.6, height: 3.4, left: 40, top: 65, x: 7.5, duration: 9.2, delay: 2.2 },
+  { width: 2.4, height: 2.2, left: 60, top: 10, x: -2.5, duration: 6.2, delay: 1.6 },
+  { width: 1.4, height: 3.6, left: 30, top: 85, x: 3.5, duration: 8.8, delay: 3.8 },
+  { width: 3.1, height: 1.6, left: 75, top: 48, x: -5.5, duration: 7.5, delay: 0.9 },
+  { width: 2.7, height: 2.7, left: 12, top: 22, x: 6.5, duration: 5.2, delay: 2.6 },
+  { width: 1.3, height: 3.3, left: 88, top: 95, x: -4.5, duration: 9.8, delay: 1.4 },
+];
+
 export default function Home() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
 
@@ -287,27 +311,27 @@ export default function Home() {
       </main>
 
       {/* Floating particles - white dots */}
-      {[...Array(20)].map((_, i) => (
+      {particles.map((particle, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full pointer-events-none z-0"
           style={{
-            width: Math.random() * 3 + 1,
-            height: Math.random() * 3 + 1,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
+            width: particle.width,
+            height: particle.height,
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
             backgroundColor: '#FFFFFF',
           }}
           animate={{
             y: [0, -30, 0],
-            x: [0, Math.random() * 15 - 7.5, 0],
+            x: [0, particle.x, 0],
             opacity: [0.1, 0.4, 0.1],
             scale: [1, 1.3, 1],
           }}
           transition={{
-            duration: 5 + Math.random() * 4,
+            duration: particle.duration,
             repeat: Infinity,
-            delay: Math.random() * 4,
+            delay: particle.delay,
             ease: 'easeInOut',
           }}
         />

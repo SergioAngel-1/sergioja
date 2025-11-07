@@ -12,6 +12,16 @@ interface HexButtonProps {
   isActive?: boolean;
 }
 
+// Valores precalculados estáticos para evitar diferencias servidor/cliente
+const linePositions = [
+  { x2: 85, y2: 50 },                    // 0°
+  { x2: 67.5, y2: 80.31088913245535 },  // 60°
+  { x2: 32.5, y2: 80.31088913245535 },  // 120°
+  { x2: 15, y2: 50 },                    // 180°
+  { x2: 32.5, y2: 19.689110867544652 }, // 240°
+  { x2: 67.5, y2: 19.689110867544652 }  // 300°
+];
+
 export default function HexButton({ 
   position, 
   icon, 
@@ -125,13 +135,13 @@ export default function HexButton({
           />
 
           {/* Líneas decorativas en las esquinas */}
-          {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+          {linePositions.map((pos, i) => (
             <motion.line
               key={i}
               x1="50"
               y1="50"
-              x2={50 + Math.cos((angle * Math.PI) / 180) * 35}
-              y2={50 + Math.sin((angle * Math.PI) / 180) * 35}
+              x2={pos.x2}
+              y2={pos.y2}
               stroke="#FFFFFF"
               strokeWidth="0.5"
               opacity="0.3"
