@@ -5,10 +5,9 @@ import { useEffect, useState } from 'react';
 
 interface DataStreamProps {
   position: 'left' | 'right';
-  color?: 'red' | 'blue' | 'purple';
 }
 
-export default function DataStream({ position, color = 'blue' }: DataStreamProps) {
+export default function DataStream({ position }: DataStreamProps) {
   const [lines, setLines] = useState<string[]>([]);
 
   useEffect(() => {
@@ -29,28 +28,22 @@ export default function DataStream({ position, color = 'blue' }: DataStreamProps
     return () => clearInterval(interval);
   }, []);
 
-  const colorClass = color === 'red' 
-    ? 'text-cyber-red' 
-    : color === 'blue' 
-    ? 'text-cyber-blue-cyan' 
-    : 'text-cyber-purple';
-
   return (
     <div 
       className={`fixed ${position === 'left' ? 'left-4' : 'right-4'} top-0 h-screen overflow-hidden pointer-events-none z-0`}
       style={{ width: '60px' }}
     >
       <motion.div
-        className="flex flex-col gap-1 font-mono text-xs opacity-20"
+        className="flex flex-col gap-1 font-mono text-xs opacity-10"
         animate={{ y: [0, -20] }}
         transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
       >
         {lines.map((line, i) => (
           <motion.div
             key={i}
-            className={colorClass}
+            className="text-white"
             initial={{ opacity: 0 }}
-            animate={{ opacity: i === 0 ? 1 : 0.5 - (i * 0.03) }}
+            animate={{ opacity: i === 0 ? 0.5 : 0.3 - (i * 0.02) }}
             transition={{ duration: 0.2 }}
           >
             {line}

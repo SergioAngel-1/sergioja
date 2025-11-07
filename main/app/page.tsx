@@ -1,276 +1,337 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import CameraCorner from '@/components/atoms/CameraCorner';
+import { useState } from 'react';
+import HexButton from '@/components/atoms/HexButton';
+import Modal from '@/components/molecules/Modal';
 import DataStream from '@/components/atoms/DataStream';
 import HexagonGrid from '@/components/atoms/HexagonGrid';
-import ScanLine from '@/components/atoms/ScanLine';
 import CenteredHero from '@/components/molecules/CenteredHero';
-import FloatingMenu from '@/components/molecules/FloatingMenu';
-import SettingsPanel from '@/components/molecules/SettingsPanel';
-import VisionCard from '@/components/cards/VisionCard';
-import InfoCard from '@/components/cards/InfoCard';
-import ServicesCard from '@/components/cards/ServicesCard';
-import ContactCard from '@/components/cards/ContactCard';
-import { 
-  getGridConfig, 
-  calculateAutoLayout, 
-  PRESET_LAYOUTS,
-  GridPosition 
-} from '@/lib/gridSystem';
-
-interface Panel {
-  id: string;
-  name: string;
-  isOpen: boolean;
-  size: '1x1' | '1x2' | '2x1' | '2x2';
-  priority: number;
-}
 
 export default function Home() {
-  const [panels, setPanels] = useState<Panel[]>([
-    { id: 'vision', name: 'Visión', isOpen: true, size: '1x1', priority: 10 },
-    { id: 'info', name: 'Info', isOpen: true, size: '1x1', priority: 9 },
-    { id: 'services', name: 'Servicios', isOpen: true, size: '1x1', priority: 8 },
-    { id: 'contact', name: 'Contacto', isOpen: true, size: '1x1', priority: 7 },
-  ]);
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [gridPositions, setGridPositions] = useState<Map<string, GridPosition>>(new Map());
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-
-  // Actualizar tamaño de ventana
-  useEffect(() => {
-    const updateSize = () => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-    
-    updateSize();
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
-
-  // Recalcular posiciones cuando cambian los paneles o el tamaño de ventana
-  useEffect(() => {
-    if (windowSize.width === 0) return;
-
-    const config = getGridConfig(windowSize.width, windowSize.height);
-    const openPanels = panels.filter(p => p.isOpen);
-    
-    const layout = openPanels.map(p => ({
-      id: p.id,
-      size: p.size,
-      priority: p.priority,
-      preferredPosition: PRESET_LAYOUTS.default.find(preset => preset.id === p.id)?.preferredPosition
-    }));
-
-    const positions = calculateAutoLayout(layout, config, windowSize.width, windowSize.height);
-    setGridPositions(positions);
-  }, [panels, windowSize]);
-
-  const handleTogglePanel = (id: string) => {
-    setPanels(prev => prev.map(panel => 
-      panel.id === id ? { ...panel, isOpen: !panel.isOpen } : panel
-    ));
-  };
+  const [activeModal, setActiveModal] = useState<string | null>(null);
 
   const handlePortfolioClick = () => {
     window.location.href = 'http://localhost:3000';
   };
 
+  const closeModal = () => setActiveModal(null);
+
   return (
-    <div className="relative w-full h-screen bg-background-light overflow-hidden">
+    <div className="relative w-full h-screen bg-black overflow-hidden">
       {/* Background layers */}
-      <div className="absolute inset-0 cyber-grid opacity-20 z-0" />
+      <div className="absolute inset-0 cyber-grid opacity-10 z-0" />
       <div className="absolute inset-0 z-0">
         <HexagonGrid />
       </div>
       
       {/* Data streams */}
       <div className="absolute inset-0 z-0">
-        <DataStream position="left" color="blue" />
-        <DataStream position="right" color="purple" />
-      </div>
-      
-      {/* Scan lines */}
-      <div className="absolute inset-0 z-0">
-        <ScanLine direction="horizontal" color="blue" duration={4} />
-        <ScanLine direction="vertical" color="red" duration={5} />
+        <DataStream position="left" />
+        <DataStream position="right" />
       </div>
 
-      {/* Camera corners */}
-      <motion.div 
-        className="absolute top-6 left-6 z-10"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.2, type: 'spring', stiffness: 200 }}
-      >
-        <CameraCorner position="top-left" size={80} />
-      </motion.div>
-      
-      <motion.div 
-        className="absolute top-6 right-6 z-10"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.3, type: 'spring', stiffness: 200 }}
-      >
-        <CameraCorner position="top-right" size={80} />
-      </motion.div>
-      
-      <motion.div 
-        className="absolute bottom-6 left-6 z-10"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.4, type: 'spring', stiffness: 200 }}
-      >
-        <CameraCorner position="bottom-left" size={80} />
-      </motion.div>
-      
-      <motion.div 
-        className="absolute bottom-6 right-6 z-10"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.5, type: 'spring', stiffness: 200 }}
-      >
-        <CameraCorner position="bottom-right" size={80} />
-      </motion.div>
-
-      {/* Menu Button */}
-      <motion.button
-        onClick={() => {
-          if (!isMenuOpen) setIsSettingsOpen(false);
-          setIsMenuOpen(!isMenuOpen);
-        }}
-        className="fixed left-24 top-8 z-50 group"
-        initial={{ x: -50, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25, delay: 0.2 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <div className="relative flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-cyber-black/20 hover:bg-white rounded-lg px-3 py-2 transition-all duration-300">
-          <svg className="w-4 h-4 text-cyber-black/70 group-hover:text-cyber-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      {/* Hex Buttons - Botones esquineros */}
+      <HexButton
+        position="top-left"
+        label="NAVEGACIÓN"
+        delay={0.2}
+        onClick={() => setActiveModal('navigation')}
+        isActive={activeModal === 'navigation'}
+        icon={
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
-          <span className="font-mono text-xs text-cyber-black/70 group-hover:text-cyber-black tracking-wide">
-            menú
-          </span>
-        </div>
-      </motion.button>
+        }
+      />
 
-      {/* Settings Button */}
-      <motion.button
-        onClick={() => {
-          if (!isSettingsOpen) setIsMenuOpen(false);
-          setIsSettingsOpen(!isSettingsOpen);
-        }}
-        className="fixed left-[180px] top-8 z-50 group"
-        initial={{ x: -50, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25, delay: 0.3 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <div className="relative flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-cyber-black/20 hover:bg-white rounded-lg px-3 py-2 transition-all duration-300">
-          <svg className="w-4 h-4 text-cyber-black/70 group-hover:text-cyber-black transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <HexButton
+        position="top-right"
+        label="SERVICIOS"
+        delay={0.3}
+        onClick={() => setActiveModal('services')}
+        isActive={activeModal === 'services'}
+        icon={
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
           </svg>
-          <span className="font-mono text-xs text-cyber-black/70 group-hover:text-cyber-black tracking-wide">
-            ajustes
-          </span>
+        }
+      />
+
+      <HexButton
+        position="bottom-left"
+        label="TECH STACK"
+        delay={0.4}
+        onClick={() => setActiveModal('tech')}
+        isActive={activeModal === 'tech'}
+        icon={
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
+        }
+      />
+
+      <HexButton
+        position="bottom-right"
+        label="CONTACTO"
+        delay={0.5}
+        onClick={() => setActiveModal('contact')}
+        isActive={activeModal === 'contact'}
+        icon={
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        }
+      />
+
+      {/* Modales */}
+      <Modal
+        isOpen={activeModal === 'navigation'}
+        onClose={closeModal}
+        title="NAVEGACIÓN"
+        color="cyan"
+        position="top-left"
+        icon={
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        }
+      >
+        <div className="space-y-1">
+          <button
+            onClick={() => {
+              handlePortfolioClick();
+              closeModal();
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-cyber-black/5 transition-all duration-200 group"
+          >
+            <svg className="w-6 h-6 text-cyber-black/70 group-hover:text-cyber-black transition-all group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span className="text-cyber-black/80 group-hover:text-cyber-black transition-colors">Portfolio</span>
+            <svg className="w-3 h-3 ml-auto text-cyber-black/50 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-cyber-black/5 transition-all duration-200 group"
+          >
+            <svg className="w-6 h-6 text-cyber-black/70 group-hover:text-cyber-black transition-all group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+            <span className="text-cyber-black/80 group-hover:text-cyber-black transition-colors">GitHub</span>
+            <svg className="w-3 h-3 ml-auto text-cyber-black/50 opacity-0 group-hover:opacity-100 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-cyber-black/5 transition-all duration-200 group"
+          >
+            <svg className="w-6 h-6 text-cyber-black/70 group-hover:text-cyber-black transition-all group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg>
+            <span className="text-cyber-black/80 group-hover:text-cyber-black transition-colors">LinkedIn</span>
+            <svg className="w-3 h-3 ml-auto text-cyber-black/50 opacity-0 group-hover:opacity-100 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+
+          <a
+            href="mailto:sergiojauregui22@gmail.com"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-cyber-black/5 transition-all duration-200 group"
+          >
+            <svg className="w-6 h-6 text-cyber-black/70 group-hover:text-cyber-black transition-all group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span className="text-cyber-black/80 group-hover:text-cyber-black transition-colors">Email</span>
+            <svg className="w-3 h-3 ml-auto text-cyber-black/50 opacity-0 group-hover:opacity-100 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
         </div>
-      </motion.button>
 
-      {/* Settings Panel */}
-      <SettingsPanel 
-        panels={panels}
-        onTogglePanel={handleTogglePanel}
-        isOpen={isSettingsOpen}
-        onToggle={() => setIsSettingsOpen(!isSettingsOpen)}
-      />
+        <div className="mt-4 pt-3 border-t border-cyber-black/5 text-center">
+          <div className="flex items-center justify-center gap-1.5">
+            <span className="text-[10px] text-cyber-black/40">SergioJA</span>
+            <div className="w-0.5 h-0.5 rounded-full bg-cyber-black/30" />
+            <span className="text-[10px] text-cyber-black/40">2025</span>
+          </div>
+        </div>
+      </Modal>
 
-      {/* Floating Menu */}
-      <FloatingMenu 
-        onPortfolioClick={handlePortfolioClick}
-        isOpen={isMenuOpen}
-        onToggle={() => setIsMenuOpen(!isMenuOpen)}
-      />
+      <Modal
+        isOpen={activeModal === 'services'}
+        onClose={closeModal}
+        title="SERVICIOS"
+        color="blue"
+        position="top-right"
+        icon={
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+        }
+      >
+        <div className="space-y-3">
+          <div className="flex items-start gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-cyber-blue mt-1.5 flex-shrink-0" />
+            <div>
+              <div className="font-bold mb-0.5">Desarrollo Full Stack</div>
+              <div className="text-[10px] opacity-60">Aplicaciones web modernas y escalables</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-cyber-blue mt-1.5 flex-shrink-0" />
+            <div>
+              <div className="font-bold mb-0.5">Arquitectura de Software</div>
+              <div className="text-[10px] opacity-60">Diseño de sistemas robustos y mantenibles</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-cyber-blue mt-1.5 flex-shrink-0" />
+            <div>
+              <div className="font-bold mb-0.5">Consultoría Técnica</div>
+              <div className="text-[10px] opacity-60">Asesoramiento en tecnología y mejores prácticas</div>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-cyber-blue mt-1.5 flex-shrink-0" />
+            <div>
+              <div className="font-bold mb-0.5">UI/UX Design</div>
+              <div className="text-[10px] opacity-60">Interfaces intuitivas y experiencias memorables</div>
+            </div>
+          </div>
+        </div>
+      </Modal>
 
-      {/* Custom Cards con Grid System */}
-      <VisionCard
-        isOpen={panels.find(p => p.id === 'vision')?.isOpen || false}
-        onClose={() => handleTogglePanel('vision')}
-        gridPosition={gridPositions.get('vision')}
-      />
+      <Modal
+        isOpen={activeModal === 'tech'}
+        onClose={closeModal}
+        title="TECH STACK"
+        color="purple"
+        position="bottom-left"
+        icon={
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+          </svg>
+        }
+      >
+        <div className="grid grid-cols-2 gap-2">
+          <div className="text-center p-2 bg-cyber-purple/5 rounded-lg border border-cyber-purple/20 hover:border-cyber-purple/40 transition-colors">
+            <div className="font-bold text-[11px]">React</div>
+            <div className="text-[9px] opacity-50 mt-0.5">UI Library</div>
+          </div>
+          <div className="text-center p-2 bg-cyber-purple/5 rounded-lg border border-cyber-purple/20 hover:border-cyber-purple/40 transition-colors">
+            <div className="font-bold text-[11px]">Next.js</div>
+            <div className="text-[9px] opacity-50 mt-0.5">Framework</div>
+          </div>
+          <div className="text-center p-2 bg-cyber-purple/5 rounded-lg border border-cyber-purple/20 hover:border-cyber-purple/40 transition-colors">
+            <div className="font-bold text-[11px]">Node.js</div>
+            <div className="text-[9px] opacity-50 mt-0.5">Runtime</div>
+          </div>
+          <div className="text-center p-2 bg-cyber-purple/5 rounded-lg border border-cyber-purple/20 hover:border-cyber-purple/40 transition-colors">
+            <div className="font-bold text-[11px]">TypeScript</div>
+            <div className="text-[9px] opacity-50 mt-0.5">Language</div>
+          </div>
+          <div className="text-center p-2 bg-cyber-purple/5 rounded-lg border border-cyber-purple/20 hover:border-cyber-purple/40 transition-colors">
+            <div className="font-bold text-[11px]">Prisma</div>
+            <div className="text-[9px] opacity-50 mt-0.5">ORM</div>
+          </div>
+          <div className="text-center p-2 bg-cyber-purple/5 rounded-lg border border-cyber-purple/20 hover:border-cyber-purple/40 transition-colors">
+            <div className="font-bold text-[11px]">Three.js</div>
+            <div className="text-[9px] opacity-50 mt-0.5">3D Graphics</div>
+          </div>
+        </div>
+      </Modal>
 
-      <InfoCard
-        isOpen={panels.find(p => p.id === 'info')?.isOpen || false}
-        onClose={() => handleTogglePanel('info')}
-        gridPosition={gridPositions.get('info')}
-      />
-
-      <ServicesCard
-        isOpen={panels.find(p => p.id === 'services')?.isOpen || false}
-        onClose={() => handleTogglePanel('services')}
-        gridPosition={gridPositions.get('services')}
-      />
-
-      <ContactCard
-        isOpen={panels.find(p => p.id === 'contact')?.isOpen || false}
-        onClose={() => handleTogglePanel('contact')}
-        gridPosition={gridPositions.get('contact')}
-      />
+      <Modal
+        isOpen={activeModal === 'contact'}
+        onClose={closeModal}
+        title="CONTACTO"
+        color="red"
+        position="bottom-right"
+        icon={
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        }
+      >
+        <div className="space-y-3">
+          <div>
+            <div className="text-[10px] opacity-60 mb-1 uppercase tracking-wide">Email</div>
+            <a href="mailto:sergio@sergioja.com" className="font-semibold hover:text-cyber-red transition-colors">
+              sergio@sergioja.com
+            </a>
+          </div>
+          <div>
+            <div className="text-[10px] opacity-60 mb-1 uppercase tracking-wide">LinkedIn</div>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-cyber-red transition-colors">
+              @SergioJA
+            </a>
+          </div>
+          <div>
+            <div className="text-[10px] opacity-60 mb-1 uppercase tracking-wide">GitHub</div>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-cyber-red transition-colors">
+              @SergioAngel
+            </a>
+          </div>
+        </div>
+      </Modal>
 
       {/* Main content */}
       <main className="relative z-20">
         <CenteredHero />
       </main>
 
-      {/* Floating particles */}
-      {[...Array(15)].map((_, i) => (
+      {/* Floating particles - white dots */}
+      {[...Array(20)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full opacity-40 pointer-events-none z-0"
+          className="absolute rounded-full pointer-events-none z-0"
           style={{
-            width: Math.random() * 4 + 2,
-            height: Math.random() * 4 + 2,
+            width: Math.random() * 3 + 1,
+            height: Math.random() * 3 + 1,
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            backgroundColor: i % 3 === 0 ? '#00BFFF' : i % 3 === 1 ? '#FF0000' : '#8B00FF',
+            backgroundColor: '#FFFFFF',
           }}
           animate={{
-            y: [0, -40, 0],
-            x: [0, Math.random() * 20 - 10, 0],
-            opacity: [0.4, 0.8, 0.4],
-            scale: [1, 1.5, 1],
+            y: [0, -30, 0],
+            x: [0, Math.random() * 15 - 7.5, 0],
+            opacity: [0.1, 0.4, 0.1],
+            scale: [1, 1.3, 1],
           }}
           transition={{
-            duration: 4 + Math.random() * 3,
+            duration: 5 + Math.random() * 4,
             repeat: Infinity,
-            delay: Math.random() * 3,
+            delay: Math.random() * 4,
             ease: 'easeInOut',
           }}
         />
       ))}
 
-      {/* Scanline effect */}
+      {/* Scanline effect - CRT style */}
       <motion.div
         className="absolute inset-0 pointer-events-none z-30"
         style={{
-          background: 'linear-gradient(transparent 50%, rgba(0, 0, 0, 0.02) 50%)',
+          background: 'linear-gradient(transparent 50%, rgba(255, 255, 255, 0.02) 50%)',
           backgroundSize: '100% 4px',
         }}
         animate={{ backgroundPositionY: ['0px', '4px'] }}
         transition={{ duration: 0.1, repeat: Infinity, ease: 'linear' }}
       />
 
-      {/* Vignette effect */}
+      {/* Vignette effect - darker edges */}
       <div className="absolute inset-0 pointer-events-none z-30" 
         style={{
-          background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.1) 100%)'
+          background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.7) 100%)'
         }}
       />
     </div>
