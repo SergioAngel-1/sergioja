@@ -151,8 +151,8 @@ export default function Modal({
               {/* Footer */}
               <div className="px-6 py-4 border-t border-white/10 bg-white/[0.02]">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-white/50 tracking-widest uppercase">
-                    SYS/{position.replace('-', '_').toUpperCase()}
+                  <span className="font-mono text-[10px] text-white/50 tracking-widest">
+                    SergioJA
                   </span>
                   <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
