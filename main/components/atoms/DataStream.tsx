@@ -34,7 +34,7 @@ export default function DataStream({ position }: DataStreamProps) {
       style={{ width: '60px' }}
     >
       <motion.div
-        className="flex flex-col gap-1 font-mono text-xs opacity-10"
+        className="flex flex-col gap-1 font-mono text-xs opacity-30"
         animate={{ y: [0, -20] }}
         transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
       >
