@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-light: 255 255 255;
+  --bg-surface: 245 245 245;
+  --bg-elevated: 232 232 232;
+  --bg-dark: 10 10 15;
+  --text-primary: 10 10 15;
+  --text-secondary: 64 64 80;
+  --text-muted: 112 112 128;
+}
+
 @layer base {
   * {
     @apply border-text-muted;
