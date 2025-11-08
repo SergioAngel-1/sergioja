@@ -30,21 +30,50 @@ export default function NextPageButton() {
   const nextRoute = routes.find((route) => route.path === currentRoute?.next);
 
   useEffect(() => {
+    // Iniciar desactivado
+    setIsVisible(false);
+
     const handleScroll = () => {
       const scrollHeight = document.documentElement.scrollHeight;
       const scrollTop = window.scrollY;
       const clientHeight = window.innerHeight;
       
-      // Show button when user is near bottom (80% scrolled)
-      const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
-      setIsVisible(scrollPercentage > 0.8);
+      // Calcular si hay contenido scrolleable
+      const hasScroll = scrollHeight > clientHeight;
+      
+      if (!hasScroll) {
+        // Si no hay scroll, mostrar el botón siempre
+        setIsVisible(true);
+      } else {
+        // Si hay scroll, solo mostrar cuando esté cerca del final (90% scrolled)
+        const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
+        const isNearBottom = scrollPercentage >= 0.9;
+        
+        // Ocultar si vuelve arriba (menos del 85%)
+        const isBackToTop = scrollPercentage < 0.85;
+        
+        if (isNearBottom) {
+          setIsVisible(true);
+        } else if (isBackToTop) {
+          setIsVisible(false);
+        }
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Check initial state
+    // Esperar un momento antes de verificar el estado inicial
+    const timeoutId = setTimeout(() => {
+      handleScroll();
+    }, 100);
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll); // También verificar en resize
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [pathname]); // Re-evaluar cuando cambie la ruta
 
   const handleClick = () => {
     if (nextRoute) {
