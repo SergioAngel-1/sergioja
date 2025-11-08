@@ -20,6 +20,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 import type { Profile } from '../../shared/types';
 
 export default function Home() {
@@ -261,8 +262,8 @@ export default function Home() {
       />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 lg:py-0 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
+      <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-center" style={{ gap: 'clamp(2rem, 4vw, 6rem)' }}>
           {/* Left side - Main content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -271,19 +272,21 @@ export default function Home() {
           >
             {/* Glitch effect label */}
             <motion.div
-              className="inline-block mb-3 md:mb-4 px-3 md:px-4 py-1.5 md:py-2 border-2 border-white rounded-sm"
+              className="inline-block mb-fluid-md border-2 border-white rounded-sm"
+              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-              <span className="font-mono text-[10px] md:text-xs text-white font-bold tracking-wider">
+              <span className="font-mono text-fluid-xs text-white font-bold tracking-wider">
                 {'<'} {t('home.portfolioLabel')} {'/>'}
               </span>
             </motion.div>
 
             {/* Title with glitch effect */}
             <motion.h1
-              className="font-orbitron text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-black mb-2 sm:mb-3 md:mb-4 relative leading-tight"
+              className="font-orbitron font-black mb-fluid-md relative leading-tight"
+              style={{ fontSize: fluidSizing.text['6xl'] }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
@@ -319,15 +322,21 @@ export default function Home() {
 
             {/* Animated subtitle with typing effect */}
             <motion.div
-              className="font-orbitron text-base sm:text-lg md:text-xl lg:text-2xl text-text-secondary mb-2 sm:mb-3 md:mb-4 tracking-wider h-8 sm:h-9 md:h-10 lg:h-12 flex items-center"
+              className="font-orbitron text-text-secondary mb-fluid-md tracking-wider flex items-center"
+              style={{ fontSize: fluidSizing.text['2xl'], height: fluidSizing.size.buttonLg }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
-              <span className="text-cyber-red mr-1 sm:mr-1.5 md:mr-2">{'>'}</span>
+              <span className="text-cyber-red" style={{ marginRight: fluidSizing.space.sm }}>{'>'}</span>
               <span className="text-white truncate">{typedText}</span>
               <motion.span
-                className="inline-block w-0.5 h-5 sm:h-6 md:h-7 lg:h-8 bg-white ml-0.5 sm:ml-1 flex-shrink-0"
+                className="inline-block bg-white flex-shrink-0"
+                style={{ 
+                  width: fluidSizing.space.xs, 
+                  height: fluidSizing.text['2xl'],
+                  marginLeft: fluidSizing.space.xs
+                }}
                 animate={{ opacity: [1, 0] }}
                 transition={{ duration: 0.8, repeat: Infinity }}
               />
@@ -335,7 +344,7 @@ export default function Home() {
 
             {/* Tagline */}
             <motion.p
-              className="font-rajdhani text-xs sm:text-sm md:text-base lg:text-lg text-text-secondary mb-4 sm:mb-6 md:mb-8 max-w-xl leading-relaxed"
+              className="font-rajdhani text-text-secondary mb-fluid-xl max-w-xl leading-relaxed text-fluid-lg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.8 }}
@@ -345,7 +354,8 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6 md:mb-8"
+              className="flex flex-col sm:flex-row mb-fluid-xl"
+              style={{ gap: fluidSizing.space.md }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
@@ -355,7 +365,7 @@ export default function Home() {
                   <span className="flex items-center justify-center gap-2">
                     {t('home.viewProjects')}
                     <svg
-                      className="w-4 h-4 md:w-5 md:h-5"
+                      className="size-icon-md"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -380,16 +390,16 @@ export default function Home() {
             {/* Status indicator */}
             {profile?.availability === 'available' && (
               <motion.div
-                className="flex items-center gap-2 md:gap-3 justify-center sm:justify-start"
+                className="flex items-center gap-fluid-sm justify-center sm:justify-start"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1, duration: 0.8 }}
               >
                 <div className="relative">
-                  <div className="w-2.5 md:w-3 h-2.5 md:h-3 bg-cyber-red rounded-full animate-pulse" />
-                  <div className="absolute inset-0 w-2.5 md:w-3 h-2.5 md:h-3 bg-cyber-red rounded-full animate-ping" />
+                  <div className="bg-cyber-red rounded-full animate-pulse" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
+                  <div className="absolute inset-0 bg-cyber-red rounded-full animate-ping" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
                 </div>
-                <span className="text-xs md:text-sm text-text-secondary font-rajdhani">
+                <span className="text-text-secondary font-rajdhani text-fluid-sm">
                   {t('home.available')}
                 </span>
               </motion.div>
@@ -397,7 +407,11 @@ export default function Home() {
 
             {/* Focus areas */}
             <motion.div
-              className="mt-6 sm:mt-8 md:mt-12 pt-4 sm:pt-6 md:pt-8 mb-6 lg:mb-0 relative"
+              className="mb-6 lg:mb-0 relative"
+              style={{ 
+                marginTop: fluidSizing.space['2xl'],
+                paddingTop: fluidSizing.space.xl
+              }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2, duration: 0.8 }}
@@ -418,8 +432,8 @@ export default function Home() {
                 />
               </div>
 
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <span className="font-orbitron text-xs sm:text-sm md:text-base font-bold text-white">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-fluid-sm">
+                <span className="font-orbitron font-bold text-white text-fluid-base">
                   {t('home.focus')}:
                 </span>
                 {[
@@ -432,14 +446,14 @@ export default function Home() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1.3 + index * 0.1, duration: 0.4 }}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-fluid-sm"
                   >
                     {index > 0 && (
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="size-icon-sm text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     )}
-                    <span className="font-rajdhani text-[10px] sm:text-xs md:text-sm font-semibold text-text-secondary uppercase tracking-wide">
+                    <span className="font-rajdhani font-semibold text-text-secondary uppercase tracking-wide text-fluid-xs">
                       {t(`home.${focus.key}`)}
                     </span>
                   </motion.div>
@@ -461,13 +475,13 @@ export default function Home() {
                 className="bg-background-surface/80 backdrop-blur-sm border border-white/30 rounded-lg overflow-hidden shadow-2xl"
               >
                 {/* Terminal header */}
-                <div className="bg-background-elevated px-4 py-3 flex items-center gap-2 border-b border-white/30">
-                  <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-cyber-red" />
-                    <div className="w-3 h-3 rounded-full bg-white" />
-                    <div className="w-3 h-3 rounded-full bg-white" />
+                <div className="bg-background-elevated flex items-center border-b border-white/30" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}`, gap: fluidSizing.space.sm }}>
+                  <div className="flex" style={{ gap: fluidSizing.space.sm }}>
+                    <div className="rounded-full bg-cyber-red" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
+                    <div className="rounded-full bg-white" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
+                    <div className="rounded-full bg-white" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
                   </div>
-                  <span className="font-mono text-xs text-text-muted ml-4">
+                  <span className="font-mono text-text-muted text-fluid-xs" style={{ marginLeft: fluidSizing.space.lg }}>
                     ~/portfolio/terminal
                     {currentView !== 'main' && (
                       <span className="text-white">
@@ -481,15 +495,15 @@ export default function Home() {
                 </div>
 
                 {/* Terminal content */}
-                <div className="p-6 font-mono text-sm space-y-3">
+                <div className="font-mono text-fluid-sm" style={{ padding: fluidSizing.space.xl, gap: fluidSizing.space.md, display: 'flex', flexDirection: 'column' }}>
                   {/* Render current view */}
                   {currentView === 'main' && (
                     <>
                       <TerminalInit profileName={profile?.name} />
-                      <div className="pt-3">
+                      <div style={{ paddingTop: fluidSizing.space.md }}>
                         <TerminalHelp onCommandSelect={(cmd) => handleTerminalCommand(cmd)} />
                       </div>
-                      <motion.div className="pt-4 text-text-muted/50 text-xs italic" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+                      <motion.div className="text-text-muted/50 italic text-fluid-xs" style={{ paddingTop: fluidSizing.space.lg }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
                         <span className="text-cyber-red">#</span> {t('terminal.easterEgg')}
                       </motion.div>
                     </>
