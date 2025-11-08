@@ -20,7 +20,7 @@ const translations = {
     'nav.home': 'INICIO',
     'nav.work': 'TRABAJO',
     'nav.projects': 'PROYECTOS',
-    'nav.about': 'ACERCA',
+    'nav.about': 'ACERCA DE',
     'nav.contact': 'CONTACTO',
     // Common
     'common.previous': 'Anterior',
@@ -87,7 +87,7 @@ const translations = {
     'nextpage.home': 'Inicio',
     'nextpage.work': 'Trabajo',
     'nextpage.projects': 'Proyectos',
-    'nextpage.about': 'Acerca',
+    'nextpage.about': 'Acerca de',
     'nextpage.contact': 'Contacto',
     'nextpage.next': 'Siguiente',
     
