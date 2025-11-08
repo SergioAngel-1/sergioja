@@ -208,7 +208,15 @@ export default function Navbar() {
               )}
 
               {/* Icon */}
-              <Link href={item.href} className="block relative z-10">
+              <Link
+                href={item.href}
+                className="block relative z-10"
+                onClick={() => {
+                  if (pathname !== item.href) {
+                    window.dispatchEvent(new Event('app:navigation-start'));
+                  }
+                }}
+              >
                 <motion.div
                   className={`size-button-md rounded-lg flex items-center justify-center transition-all duration-300 backdrop-blur-sm ${
                     isActive
@@ -386,7 +394,15 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link href={item.href} className="flex flex-col items-center gap-1 py-1 px-3">
+                <Link
+                  href={item.href}
+                  className="flex flex-col items-center gap-1 py-1 px-3"
+                  onClick={() => {
+                    if (pathname !== item.href) {
+                      window.dispatchEvent(new Event('app:navigation-start'));
+                    }
+                  }}
+                >
                   <motion.div
                     className={`transition-colors duration-300 ${
                       isActive ? 'text-white' : 'text-text-muted'

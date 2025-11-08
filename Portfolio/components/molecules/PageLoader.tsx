@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
@@ -18,43 +18,34 @@ export default function PageLoader({
 }: PageLoaderProps) {
   const [internalLoading, setInternalLoading] = useState(false);
   const pathname = usePathname();
+  const shownAtRef = useRef(0);
 
   // Solo usar el loading interno si no se pasa isLoading como prop
   const isLoading = externalLoading !== undefined ? externalLoading : internalLoading;
 
   useEffect(() => {
-    // Solo activar el loading automático si variant es 'full' y no hay control externo
-    if (variant === 'full' && externalLoading === undefined) {
-      // Activar el loader inmediatamente
+    if (variant !== 'full' || externalLoading !== undefined) return;
+    const onStart = () => {
+      shownAtRef.current = Date.now();
       setInternalLoading(true);
-      
-      // Esperar al siguiente frame para verificar el contenido
-      const rafId = requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // Verificar si el contenido ya está cargado (solo en el cliente)
-          if (typeof window !== 'undefined') {
-            const mainElement = document.querySelector('main');
-            const hasContent = mainElement && mainElement.children.length > 1; // > 1 porque el loader también está en main
-            
-            if (hasContent) {
-              // Si ya hay contenido, ocultar el loader inmediatamente
-              setInternalLoading(false);
-            } else {
-              // Si no hay contenido, esperar un tiempo mínimo
-              setTimeout(() => {
-                setInternalLoading(false);
-              }, 300);
-            }
-          } else {
-            // En el servidor, ocultar después de 300ms
-            setTimeout(() => {
-              setInternalLoading(false);
-            }, 300);
-          }
-        });
-      });
+    };
+    const onEnd = () => {
+      const elapsed = Date.now() - shownAtRef.current;
+      const minVisible = 300;
+      const delay = Math.max(minVisible - elapsed, 0);
+      window.setTimeout(() => setInternalLoading(false), delay);
+    };
+    window.addEventListener('app:navigation-start', onStart as EventListener);
+    window.addEventListener('app:navigation-end', onEnd as EventListener);
+    return () => {
+      window.removeEventListener('app:navigation-start', onStart as EventListener);
+      window.removeEventListener('app:navigation-end', onEnd as EventListener);
+    };
+  }, [variant, externalLoading]);
 
-      return () => cancelAnimationFrame(rafId);
+  useEffect(() => {
+    if (variant === 'full' && externalLoading === undefined) {
+      window.dispatchEvent(new Event('app:navigation-end'));
     }
   }, [pathname, variant, externalLoading]);
 

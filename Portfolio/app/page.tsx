@@ -85,6 +85,9 @@ export default function Home() {
     if (cmd === 'dev' || cmd === 'dev tips') {
       setShowDevTipsModal(true);
     } else if (cmd === 'projects' || cmd === t('terminal.projects')) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('app:navigation-start'));
+      }
       router.push('/projects');
     } else if (cmd === 'help' || cmd === t('terminal.help')) {
       setCurrentView('help');

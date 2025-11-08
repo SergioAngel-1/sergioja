@@ -77,6 +77,7 @@ export default function NextPageButton() {
 
   const handleClick = () => {
     if (nextRoute) {
+      window.dispatchEvent(new Event('app:navigation-start'));
       router.push(nextRoute.path);
     }
   };
