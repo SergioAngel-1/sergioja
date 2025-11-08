@@ -17,8 +17,8 @@ export default function LanguageToggle() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="absolute top-0 bg-background-surface/90 backdrop-blur-sm border border-white/30 rounded-lg hidden md:block"
-            style={{ right: 'clamp(3.5rem, 5vw, 4rem)', padding: fluidSizing.space.md, minWidth: 'clamp(140px, 15vw, 160px)' }}
+            className="absolute top-0 bg-background-surface/90 backdrop-blur-sm border border-white/30 rounded-lg hidden md:block whitespace-nowrap"
+            style={{ right: 'clamp(3.5rem, 5vw, 4rem)', padding: fluidSizing.space.md, minWidth: 'clamp(160px, 18vw, 200px)' }}
           >
             <p className="text-text-muted font-mono text-fluid-xs" style={{ marginBottom: fluidSizing.space.xs }}>
               {language === 'es' ? 'Cambiar a inglés' : 'Switch to Spanish'}
