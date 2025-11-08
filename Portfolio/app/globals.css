@@ -10,6 +10,37 @@
   --text-primary: 224 224 224;
   --text-secondary: 160 160 176;
   --text-muted: 112 112 128;
+
+  /* Fluid sizing system - Responsive sin breakpoints */
+  /* Spacing */
+  --space-xs: clamp(0.25rem, 0.3vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 0.75vw, 1rem);
+  --space-md: clamp(0.75rem, 1vw, 1.5rem);
+  --space-lg: clamp(1rem, 1.5vw, 2rem);
+  --space-xl: clamp(1.5rem, 2vw, 2.5rem);
+  --space-2xl: clamp(2rem, 3vw, 4rem);
+  
+  /* Sizing - Icons, buttons, cards */
+  --size-icon-sm: clamp(1rem, 1.2vw, 1.25rem);
+  --size-icon-md: clamp(1.25rem, 1.5vw, 1.5rem);
+  --size-icon-lg: clamp(1.5rem, 2vw, 2rem);
+  --size-button-sm: clamp(2rem, 2.5vw, 2.5rem);
+  --size-button-md: clamp(2.5rem, 3vw, 3rem);
+  --size-button-lg: clamp(3rem, 4vw, 4rem);
+  
+  /* Typography */
+  --text-xs: clamp(0.625rem, 0.75vw, 0.75rem);
+  --text-sm: clamp(0.75rem, 0.875vw, 0.875rem);
+  --text-base: clamp(0.875rem, 1vw, 1rem);
+  --text-lg: clamp(1rem, 1.25vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.5vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 2vw, 2rem);
+  --text-3xl: clamp(2rem, 2.5vw, 3rem);
+  --text-4xl: clamp(2.5rem, 3vw, 4rem);
+  
+  /* Navbar specific */
+  --nav-width: clamp(4rem, 5vw, 5rem);
+  --nav-gap: clamp(0.5rem, 1.2vw, 2rem);
 }
 
 @layer base {
@@ -248,4 +279,48 @@
   .animation-paused {
     animation-play-state: paused;
   }
+
+  /* Fluid spacing utilities */
+  .gap-fluid-xs { gap: var(--space-xs); }
+  .gap-fluid-sm { gap: var(--space-sm); }
+  .gap-fluid-md { gap: var(--space-md); }
+  .gap-fluid-lg { gap: var(--space-lg); }
+  .gap-fluid-xl { gap: var(--space-xl); }
+  .gap-fluid-2xl { gap: var(--space-2xl); }
+
+  .p-fluid-xs { padding: var(--space-xs); }
+  .p-fluid-sm { padding: var(--space-sm); }
+  .p-fluid-md { padding: var(--space-md); }
+  .p-fluid-lg { padding: var(--space-lg); }
+  .p-fluid-xl { padding: var(--space-xl); }
+
+  .m-fluid-xs { margin: var(--space-xs); }
+  .m-fluid-sm { margin: var(--space-sm); }
+  .m-fluid-md { margin: var(--space-md); }
+  .m-fluid-lg { margin: var(--space-lg); }
+  .m-fluid-xl { margin: var(--space-xl); }
+
+  .mb-fluid-xs { margin-bottom: var(--space-xs); }
+  .mb-fluid-sm { margin-bottom: var(--space-sm); }
+  .mb-fluid-md { margin-bottom: var(--space-md); }
+  .mb-fluid-lg { margin-bottom: var(--space-lg); }
+  .mb-fluid-xl { margin-bottom: var(--space-xl); }
+
+  /* Fluid sizing utilities */
+  .size-icon-sm { width: var(--size-icon-sm); height: var(--size-icon-sm); }
+  .size-icon-md { width: var(--size-icon-md); height: var(--size-icon-md); }
+  .size-icon-lg { width: var(--size-icon-lg); height: var(--size-icon-lg); }
+  .size-button-sm { width: var(--size-button-sm); height: var(--size-button-sm); }
+  .size-button-md { width: var(--size-button-md); height: var(--size-button-md); }
+  .size-button-lg { width: var(--size-button-lg); height: var(--size-button-lg); }
+
+  /* Fluid typography utilities */
+  .text-fluid-xs { font-size: var(--text-xs); }
+  .text-fluid-sm { font-size: var(--text-sm); }
+  .text-fluid-base { font-size: var(--text-base); }
+  .text-fluid-lg { font-size: var(--text-lg); }
+  .text-fluid-xl { font-size: var(--text-xl); }
+  .text-fluid-2xl { font-size: var(--text-2xl); }
+  .text-fluid-3xl { font-size: var(--text-3xl); }
+  .text-fluid-4xl { font-size: var(--text-4xl); }
 }
