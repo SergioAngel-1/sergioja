@@ -1,54 +1,133 @@
 import { Router, Request, Response } from 'express';
-import { mockSkills, mockProjects } from '../models/mockData';
-import { ApiResponse, Skill, Project } from '../../../Portfolio/shared/types';
+import { ApiResponse, Skill, Project } from '../../../shared/types';
+import { prisma } from '../lib/prisma';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
 // GET /api/skills - Get all skills
-router.get('/', (req: Request, res: Response) => {
-  const { category } = req.query;
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const { category } = req.query;
 
-  let filteredSkills = [...mockSkills];
+    const where: any = {};
+    if (category && typeof category === 'string') {
+      where.category = category;
+    }
 
-  // Filter by category
-  if (category && typeof category === 'string') {
-    filteredSkills = filteredSkills.filter((s) => s.category === category);
-  }
+    const technologies = await prisma.technology.findMany({
+      where,
+      orderBy: { proficiency: 'desc' },
+    });
 
-  const response: ApiResponse<Skill[]> = {
-    success: true,
-    data: filteredSkills,
-    timestamp: new Date().toISOString(),
-  };
+    const skills: Skill[] = technologies.map((t) => ({
+      id: t.id,
+      name: t.name,
+      category: t.category,
+      proficiency: t.proficiency,
+      yearsOfExperience: t.yearsOfExperience,
+      icon: t.icon || undefined,
+      color: t.color,
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+    }));
 
-  res.json(response);
-});
+    const response: ApiResponse<Skill[]> = {
+      success: true,
+      data: skills,
+      timestamp: new Date().toISOString(),
+    };
 
-// GET /api/skills/:id/projects - Get projects related to a skill
-router.get('/:id/projects', (req: Request, res: Response) => {
-  const { id } = req.params;
-  const skill = mockSkills.find((s) => s.id === id);
-
-  if (!skill) {
-    return res.status(404).json({
+    res.json(response);
+  } catch (error) {
+    logger.error('Error fetching skills', error);
+    res.status(500).json({
       success: false,
       error: {
-        message: 'Skill not found',
-        code: 'SKILL_NOT_FOUND',
+        message: 'Failed to fetch skills',
+        code: 'INTERNAL_ERROR',
       },
       timestamp: new Date().toISOString(),
     });
   }
+});
 
-  const relatedProjects = mockProjects.filter((p) => skill.relatedProjects.includes(p.id));
+// GET /api/skills/:id/projects - Get projects related to a skill
+router.get('/:id/projects', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    const technology = await prisma.technology.findUnique({
+      where: { id },
+      include: {
+        projects: {
+          include: {
+            project: {
+              include: {
+                technologies: {
+                  include: {
+                    technology: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
 
-  const response: ApiResponse<Project[]> = {
-    success: true,
-    data: relatedProjects,
-    timestamp: new Date().toISOString(),
-  };
+    if (!technology) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Skill not found',
+          code: 'SKILL_NOT_FOUND',
+        },
+        timestamp: new Date().toISOString(),
+      });
+    }
 
-  res.json(response);
+    const projects: Project[] = technology.projects.map((pt) => ({
+      id: pt.project.id,
+      title: pt.project.title,
+      slug: pt.project.slug,
+      description: pt.project.description,
+      longDescription: pt.project.longDescription || undefined,
+      image: pt.project.image || undefined,
+      technologies: pt.project.technologies.map((t) => t.technology.name),
+      tech: pt.project.technologies.map((t) => t.technology.name),
+      category: pt.project.category,
+      featured: pt.project.featured,
+      demoUrl: pt.project.demoUrl || undefined,
+      repoUrl: pt.project.repoUrl || undefined,
+      status: 'completed' as const,
+      metrics: pt.project.performanceScore ? {
+        performance: pt.project.performanceScore,
+        accessibility: pt.project.accessibilityScore || 0,
+        seo: pt.project.seoScore || 0,
+      } : undefined,
+      createdAt: pt.project.createdAt.toISOString(),
+      updatedAt: pt.project.updatedAt.toISOString(),
+    }));
+
+    const response: ApiResponse<Project[]> = {
+      success: true,
+      data: projects,
+      timestamp: new Date().toISOString(),
+    };
+
+    res.json(response);
+  } catch (error) {
+    logger.error('Error fetching skill projects', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to fetch skill projects',
+        code: 'INTERNAL_ERROR',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 export default router;

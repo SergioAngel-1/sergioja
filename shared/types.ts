@@ -3,12 +3,16 @@
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
-  error?: string;
+  error?: {
+    message: string;
+    code: string;
+    details?: any;
+  };
   message?: string;
+  timestamp?: string;
 }
 
 export interface PaginatedResponse<T> {
-  success: boolean;
   data: T[];
   pagination: {
     page: number;
@@ -22,6 +26,7 @@ export interface Profile {
   id: string;
   name: string;
   title: string;
+  tagline?: string;
   bio: string;
   email: string;
   phone?: string;
@@ -34,8 +39,8 @@ export interface Profile {
     twitter?: string;
     website?: string;
   };
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Project {
@@ -95,6 +100,13 @@ export interface TimelineItem {
 }
 
 export interface ContactMessage {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+export interface ContactFormData {
   name: string;
   email: string;
   subject: string;

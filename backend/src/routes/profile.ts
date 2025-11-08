@@ -1,17 +1,57 @@
 import { Router, Request, Response } from 'express';
-import { mockProfile } from '../models/mockData';
-import { ApiResponse, Profile } from '../../../Portfolio/shared/types';
+import { ApiResponse, Profile } from '../../../shared/types';
+import { prisma } from '../lib/prisma';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
 // GET /api/profile - Get profile information
-router.get('/', (_req: Request, res: Response) => {
-  const response: ApiResponse<Profile> = {
-    success: true,
-    data: mockProfile,
-    timestamp: new Date().toISOString(),
-  };
-  res.json(response);
+router.get('/', async (_req: Request, res: Response) => {
+  try {
+    const profile = await prisma.profile.findFirst();
+    
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Profile not found',
+          code: 'PROFILE_NOT_FOUND',
+        },
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    const response: ApiResponse<Profile> = {
+      success: true,
+      data: {
+        id: profile.id,
+        name: profile.name,
+        title: profile.title,
+        tagline: profile.tagline,
+        bio: profile.bio,
+        availability: profile.availability,
+        location: profile.location,
+        email: profile.email,
+        social: {
+          github: profile.githubUrl || undefined,
+          linkedin: profile.linkedinUrl || undefined,
+          twitter: profile.twitterUrl || undefined,
+        },
+      },
+      timestamp: new Date().toISOString(),
+    };
+    res.json(response);
+  } catch (error) {
+    logger.error('Error fetching profile', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to fetch profile',
+        code: 'INTERNAL_ERROR',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 export default router;

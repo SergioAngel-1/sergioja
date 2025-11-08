@@ -1,32 +1,57 @@
 import { Router, Request, Response } from 'express';
-import { mockTimeline } from '../models/mockData';
-import { ApiResponse, TimelineEvent } from '../../../Portfolio/shared/types';
+import { ApiResponse, TimelineItem } from '../../../shared/types';
+import { prisma } from '../lib/prisma';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
 // GET /api/timeline - Get timeline events
-router.get('/', (req: Request, res: Response) => {
-  const { type } = req.query;
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const { type } = req.query;
 
-  let filteredTimeline = [...mockTimeline];
+    const where: any = {};
+    if (type && typeof type === 'string') {
+      where.type = type;
+    }
 
-  // Filter by type
-  if (type && typeof type === 'string') {
-    filteredTimeline = filteredTimeline.filter((t) => t.type === type);
+    const events = await prisma.timelineEvent.findMany({
+      where,
+      orderBy: { startDate: 'desc' },
+    });
+
+    const timeline: TimelineItem[] = events.map((e) => ({
+      id: e.id,
+      title: e.title,
+      organization: e.organization,
+      type: e.type as 'work' | 'education' | 'project' | 'achievement',
+      description: e.description,
+      startDate: e.startDate.toISOString(),
+      endDate: e.endDate?.toISOString(),
+      current: e.current,
+      skills: e.technologies,
+      createdAt: e.createdAt.toISOString(),
+      updatedAt: e.updatedAt.toISOString(),
+    }));
+
+    const response: ApiResponse<TimelineItem[]> = {
+      success: true,
+      data: timeline,
+      timestamp: new Date().toISOString(),
+    };
+
+    res.json(response);
+  } catch (error) {
+    logger.error('Error fetching timeline', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to fetch timeline',
+        code: 'INTERNAL_ERROR',
+      },
+      timestamp: new Date().toISOString(),
+    });
   }
-
-  // Sort by date (most recent first)
-  filteredTimeline.sort((a, b) => {
-    return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-  });
-
-  const response: ApiResponse<TimelineEvent[]> = {
-    success: true,
-    data: filteredTimeline,
-    timestamp: new Date().toISOString(),
-  };
-
-  res.json(response);
 });
 
 export default router;

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { ApiResponse, ContactFormData } from '../../../Portfolio/shared/types';
+import { ApiResponse, ContactFormData } from '../../../shared/types';
 import { emailService } from '../services/emailService';
 import { logger } from '../lib/logger';
 import { prisma } from '../lib/prisma';
