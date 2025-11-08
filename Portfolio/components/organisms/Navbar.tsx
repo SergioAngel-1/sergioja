@@ -8,6 +8,7 @@ import NavLink from '../molecules/NavLink';
 import { useLogger } from '@/lib/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 export default function Navbar() {
   const [time, setTime] = useState<Date | null>(null);
@@ -56,8 +57,8 @@ export default function Navbar() {
       transition={{ duration: 0.5 }}
       className="fixed left-0 top-0 h-screen bg-background-surface/90 backdrop-blur-md border-r border-white/30 z-50 md:flex flex-col items-center overflow-hidden hidden"
       style={{
-        width: 'clamp(4rem, 5vw, 5rem)',
-        padding: 'clamp(1.5rem, 2vw, 2rem) 0'
+        width: 'var(--nav-width)',
+        padding: `${fluidSizing.space.xl} 0`
       }}
     >
       {/* Animated background gradient */}
@@ -99,8 +100,7 @@ export default function Navbar() {
       ))}
       {/* Logo/Brand */}
       <motion.div
-        className="relative z-10"
-        style={{ marginBottom: 'clamp(1.5rem, 2vw, 2rem)' }}
+        className="relative z-10 mb-fluid-xl"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -118,15 +118,10 @@ export default function Navbar() {
             
             {/* Main logo */}
             <div 
-              className="relative bg-gradient-to-br from-black to-gray-900 rounded-lg flex items-center justify-center border border-white/50"
-              style={{
-                width: 'clamp(2.5rem, 3vw, 3rem)',
-                height: 'clamp(2.5rem, 3vw, 3rem)'
-              }}
+              className="relative bg-gradient-to-br from-black to-gray-900 rounded-lg flex items-center justify-center border border-white/50 size-button-md"
             >
               <span 
-                className="font-orbitron font-bold text-white"
-                style={{ fontSize: 'clamp(0.7rem, 0.9vw, 0.875rem)' }}
+                className="font-orbitron font-bold text-white text-fluid-sm"
               >
                 SJ
               </span>
@@ -135,19 +130,19 @@ export default function Navbar() {
               <div 
                 className="absolute border-t-2 border-l-2 border-white" 
                 style={{
-                  top: 'clamp(-0.25rem, -0.3vw, -0.25rem)',
-                  left: 'clamp(-0.25rem, -0.3vw, -0.25rem)',
-                  width: 'clamp(0.4rem, 0.5vw, 0.5rem)',
-                  height: 'clamp(0.4rem, 0.5vw, 0.5rem)'
+                  top: `calc(-1 * ${fluidSizing.space.xs})`,
+                  left: `calc(-1 * ${fluidSizing.space.xs})`,
+                  width: fluidSizing.space.sm,
+                  height: fluidSizing.space.sm
                 }}
               />
               <div 
                 className="absolute border-b-2 border-r-2 border-white" 
                 style={{
-                  bottom: 'clamp(-0.25rem, -0.3vw, -0.25rem)',
-                  right: 'clamp(-0.25rem, -0.3vw, -0.25rem)',
-                  width: 'clamp(0.4rem, 0.5vw, 0.5rem)',
-                  height: 'clamp(0.4rem, 0.5vw, 0.5rem)'
+                  bottom: `calc(-1 * ${fluidSizing.space.xs})`,
+                  right: `calc(-1 * ${fluidSizing.space.xs})`,
+                  width: fluidSizing.space.sm,
+                  height: fluidSizing.space.sm
                 }}
               />
             </div>
@@ -157,11 +152,7 @@ export default function Navbar() {
 
       {/* Status indicator */}
       <motion.div
-        className="flex flex-col items-center relative z-10"
-        style={{ 
-          marginBottom: 'clamp(1.5rem, 2vw, 2rem)',
-          gap: 'clamp(0.4rem, 0.5vw, 0.5rem)'
-        }}
+        className="flex flex-col items-center relative z-10 mb-fluid-xl gap-fluid-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
@@ -170,8 +161,8 @@ export default function Navbar() {
           <div 
             className="bg-cyber-red rounded-full" 
             style={{
-              width: 'clamp(0.4rem, 0.5vw, 0.5rem)',
-              height: 'clamp(0.4rem, 0.5vw, 0.5rem)'
+              width: fluidSizing.space.sm,
+              height: fluidSizing.space.sm
             }}
           />
           <motion.div
@@ -182,14 +173,14 @@ export default function Navbar() {
         </div>
         <div 
           className="w-px bg-gradient-to-b from-cyber-red to-transparent" 
-          style={{ height: 'clamp(1.5rem, 2vw, 2rem)' }}
+          style={{ height: fluidSizing.space.xl }}
         />
       </motion.div>
 
       {/* Navigation Links */}
       <div 
         className="flex-1 flex flex-col relative z-10"
-        style={{ gap: 'clamp(0.5rem, 1.2vw, 2rem)' }}
+        style={{ gap: 'var(--nav-gap)' }}
       >
         {navItems.map((item, index) => {
           const isActive = pathname === item.href;
@@ -207,9 +198,9 @@ export default function Navbar() {
                   layoutId="activeNav"
                   className="absolute top-1/2 -translate-y-1/2 bg-white rounded-r-full"
                   style={{
-                    left: 'clamp(-1.5rem, -2vw, -2rem)',
-                    width: 'clamp(0.2rem, 0.25vw, 0.25rem)',
-                    height: 'clamp(1.5rem, 2vw, 2rem)'
+                    left: `calc(-1 * ${fluidSizing.space.xl})`,
+                    width: fluidSizing.space.xs,
+                    height: fluidSizing.space.xl
                   }}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
@@ -218,26 +209,18 @@ export default function Navbar() {
               {/* Icon */}
               <Link href={item.href} className="block relative z-10">
                 <motion.div
-                  className={`rounded-lg flex items-center justify-center transition-all duration-300 backdrop-blur-sm ${
+                  className={`size-button-md rounded-lg flex items-center justify-center transition-all duration-300 backdrop-blur-sm ${
                     isActive
                       ? 'bg-white/20 border border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]'
                       : 'bg-background-surface border border-white/20 hover:border-white hover:bg-white/10'
                   }`}
-                  style={{
-                    width: 'clamp(2.5rem, 3vw, 3rem)',
-                    height: 'clamp(2.5rem, 3vw, 3rem)'
-                  }}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <svg
-                    className={`transition-colors ${
+                    className={`size-icon-md transition-colors ${
                       isActive ? 'text-white' : 'text-text-muted group-hover:text-white'
                     }`}
-                    style={{
-                      width: 'clamp(1.25rem, 1.5vw, 1.5rem)',
-                      height: 'clamp(1.25rem, 1.5vw, 1.5rem)'
-                    }}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -254,26 +237,22 @@ export default function Navbar() {
                 {/* Tooltip */}
                 <motion.div
                   className="absolute top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300"
-                  style={{ left: 'clamp(4.5rem, 5.5vw, 5rem)' }}
+                  style={{ left: `calc(${fluidSizing.nav.width} + ${fluidSizing.space.sm})` }}
                   initial={false}
                 >
                   <div 
-                    className="bg-background-surface border border-white/30 rounded whitespace-nowrap"
-                    style={{
-                      padding: 'clamp(0.4rem, 0.5vw, 0.5rem) clamp(0.6rem, 0.75vw, 0.75rem)'
-                    }}
+                    className="bg-background-surface border border-white/30 rounded whitespace-nowrap p-fluid-sm"
                   >
                     <span 
-                      className="font-orbitron text-white"
-                      style={{ fontSize: 'clamp(0.65rem, 0.75vw, 0.75rem)' }}
+                      className="font-orbitron text-white text-fluid-xs"
                     >
                       {t(item.labelKey)}
                     </span>
                     <div 
                       className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 bg-background-surface border-l border-b border-white/30 transform rotate-45" 
                       style={{
-                        width: 'clamp(0.4rem, 0.5vw, 0.5rem)',
-                        height: 'clamp(0.4rem, 0.5vw, 0.5rem)'
+                        width: fluidSizing.space.sm,
+                        height: fluidSizing.space.sm
                       }}
                     />
                   </div>
@@ -288,36 +267,29 @@ export default function Navbar() {
       <div 
         className="h-px bg-gradient-to-r from-transparent via-cyber-red to-transparent relative z-10" 
         style={{
-          width: 'clamp(1.5rem, 2vw, 2rem)',
-          margin: 'clamp(1rem, 1.5vw, 1.5rem) 0'
+          width: fluidSizing.space.xl,
+          margin: `${fluidSizing.space.lg} 0`
         }}
       />
 
       {/* Time display - Hidden on small screens */}
       <motion.div
-        className="relative z-10 group cursor-default hidden 2xl:block"
-        style={{ marginBottom: 'clamp(1rem, 1.5vw, 1.5rem)' }}
+        className="relative z-10 group cursor-default hidden 2xl:block mb-fluid-lg"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
         whileHover={{ scale: 1.05 }}
       >
         <div 
-          className="text-center rounded-lg bg-background-elevated/0 group-hover:bg-background-elevated/50 transition-all duration-300"
-          style={{ padding: 'clamp(0.4rem, 0.5vw, 0.5rem)' }}
+          className="text-center rounded-lg bg-background-elevated/0 group-hover:bg-background-elevated/50 transition-all duration-300 p-fluid-sm"
         >
           <div 
-            className="font-mono text-white group-hover:text-cyber-blue-cyan transition-colors"
-            style={{ 
-              fontSize: 'clamp(0.55rem, 0.65vw, 0.625rem)',
-              marginBottom: 'clamp(0.15rem, 0.2vw, 0.25rem)'
-            }}
+            className="font-mono text-white group-hover:text-cyber-blue-cyan transition-colors text-fluid-xs mb-fluid-xs"
           >
             {time ? time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }) : '--:--'}
           </div>
           <div 
-            className="font-mono text-text-muted group-hover:text-white transition-colors"
-            style={{ fontSize: 'clamp(0.45rem, 0.5vw, 0.5rem)' }}
+            className="font-mono text-text-muted group-hover:text-white transition-colors text-fluid-xs"
           >
             {time ? time.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }) : '--- --'}
           </div>
@@ -326,8 +298,7 @@ export default function Navbar() {
 
       {/* Social Links */}
       <div 
-        className="flex flex-col relative z-10"
-        style={{ gap: 'clamp(0.6rem, 0.75vw, 0.75rem)' }}
+        className="flex flex-col relative z-10 gap-fluid-sm"
       >
       {[
         { href: 'https://github.com', icon: 'M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z', label: 'GitHub' },
@@ -339,11 +310,7 @@ export default function Navbar() {
           href={social.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative rounded-lg bg-background-surface border border-white/20 flex items-center justify-center text-text-muted hover:text-white hover:border-white hover:bg-white/10 transition-all duration-300 group overflow-hidden backdrop-blur-sm"
-          style={{
-            width: 'clamp(2rem, 2.5vw, 2.5rem)',
-            height: 'clamp(2rem, 2.5vw, 2.5rem)'
-          }}
+          className="relative size-button-sm rounded-lg bg-background-surface border border-white/20 flex items-center justify-center text-text-muted hover:text-white hover:border-white hover:bg-white/10 transition-all duration-300 group overflow-hidden backdrop-blur-sm"
           aria-label={social.label}
           whileHover={{ scale: 1.15, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
@@ -352,11 +319,7 @@ export default function Navbar() {
           transition={{ delay: 1 + index * 0.1 }}
         >
           <svg 
-            className="relative z-10 transition-transform group-hover:scale-110" 
-            style={{
-              width: 'clamp(0.85rem, 1vw, 1rem)',
-              height: 'clamp(0.85rem, 1vw, 1rem)'
-            }}
+            className="relative z-10 transition-transform group-hover:scale-110 size-icon-sm" 
             fill="currentColor" 
             viewBox="0 0 24 24"
           >
