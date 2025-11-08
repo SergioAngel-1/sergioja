@@ -40,6 +40,7 @@ model Project {
   featured        Boolean   @default(false)
   demoUrl         String?
   repoUrl         String?
+  githubUrl       String?   // Alias for repoUrl
   performanceScore Int?
   accessibilityScore Int?
   seoScore        Int?
@@ -51,8 +52,8 @@ model Project {
   technologies ProjectTechnology[]
   views        ProjectView[]
 
-  @@index([category])
-  @@index([featured])
+  @@index([category, featured]) // Composite index for common query
+  @@index([publishedAt(sort: Desc)]) // For sorting by date
   @@index([slug])
   @@map("projects")
 }
@@ -78,7 +79,6 @@ model Technology {
 
 // Many-to-Many relation between Projects and Technologies
 model ProjectTechnology {
-  id           String     @id @default(cuid())
   projectId    String
   technologyId String
   createdAt    DateTime   @default(now())
@@ -86,9 +86,8 @@ model ProjectTechnology {
   project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
 
-  @@unique([projectId, technologyId])
-  @@index([projectId])
-  @@index([technologyId])
+  @@id([projectId, technologyId]) // Composite primary key
+  @@index([technologyId]) // For reverse lookups
   @@map("project_technologies")
 }
 
