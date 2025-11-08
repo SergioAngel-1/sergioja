@@ -1,0 +1,654 @@
+'use client';
+
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { motion, useAnimation } from 'framer-motion';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import Button from '@/components/atoms/Button';
+import FloatingParticles from '@/components/atoms/FloatingParticles';
+import GlowEffect from '@/components/atoms/GlowEffect';
+import TerminalInit from '@/components/molecules/TerminalInit';
+import TerminalHelp from '@/components/molecules/TerminalHelp';
+import TerminalStatus from '@/components/molecules/TerminalStatus';
+import TerminalGames from '@/components/molecules/TerminalGames';
+import TerminalLanguage from '@/components/molecules/TerminalLanguage';
+import MatrixConfirmDialog from '@/components/molecules/MatrixConfirmDialog';
+import MobileTerminalModal from '@/components/molecules/MobileTerminalModal';
+import { api } from '@/lib/api-client';
+import { useLogger } from '@/lib/hooks/useLogger';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useMatrix } from '@/lib/contexts/MatrixContext';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
+import DevTipsModal from '@/components/molecules/DevTipsModal';
+import type { Profile } from '../../shared/types';
+
+export default function Home() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [typedText, setTypedText] = useState('');
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [terminalInput, setTerminalInput] = useState('');
+  const [showDevTipsModal, setShowDevTipsModal] = useState(false);
+  const [currentView, setCurrentView] = useState<'main' | 'help' | 'status' | 'games' | 'language'>('main');
+  const [showMatrixDialog, setShowMatrixDialog] = useState(false);
+  const [matrixMessage, setMatrixMessage] = useState('');
+  const [commandError, setCommandError] = useState(false);
+  const [showMobileTerminal, setShowMobileTerminal] = useState(false);
+  const terminalInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const log = useLogger('HomePage');
+  const controls = useAnimation();
+  const { t, language } = useLanguage();
+  const { matrixMode, setMatrixMode } = useMatrix();
+  const { lowPerformanceMode } = usePerformance();
+
+  const words = useMemo(
+    () => [t('home.title'), t('home.developer'), t('home.automation'), t('home.scalability'), t('home.integration')],
+    [language]
+  );
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.getProfile();
+        if (response.success && response.data) {
+          setProfile(response.data as Profile);
+          log.info('Profile loaded successfully');
+        }
+      } catch (error) {
+        log.error('Failed to fetch profile', error);
+      }
+    };
+
+    fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // reset typing when language changes
+  useEffect(() => {
+    setTypedText('');
+    setCurrentWordIndex(0);
+  }, [language]);
+
+  // Handle terminal input commands
+  const handleTerminalCommand = (command: string) => {
+    const cmd = command.toLowerCase().trim();
+    
+    // Reset error state
+    setCommandError(false);
+    
+    if (!cmd) {
+      setTerminalInput('');
+      return;
+    }
+    
+    if (cmd === 'dev' || cmd === 'dev tips') {
+      setShowDevTipsModal(true);
+    } else if (cmd === 'pages' || cmd === t('terminal.pages')) {
+      router.push('/work');
+    } else if (cmd === 'help' || cmd === t('terminal.help')) {
+      setCurrentView('help');
+    } else if (cmd === 'status' || cmd === t('terminal.status')) {
+      setCurrentView('status');
+    } else if (cmd === 'games' || cmd === t('terminal.games')) {
+      setCurrentView('games');
+    } else if (cmd === 'clear' || cmd === 'cls') {
+      setCurrentView('main');
+    } else if (cmd === 'matrix' || cmd === 'matrix --disable') {
+      // If matrix is already active and user types "matrix --disable", disable it directly
+      if (matrixMode && cmd === 'matrix --disable') {
+        setMatrixMode(false);
+        setMatrixMessage(t('matrix.deactivated'));
+      } else if (!matrixMode && cmd === 'matrix') {
+        // Only show warning dialog when activating
+        setShowMatrixDialog(true);
+      } else if (matrixMode && cmd === 'matrix') {
+        // If already active and user types "matrix", show dialog to disable
+        setShowMatrixDialog(true);
+      }
+    } else if (cmd === 'language' || cmd === t('terminal.language')) {
+      setCurrentView('language');
+    } else {
+      // Command not found
+      setCommandError(true);
+      setTimeout(() => setCommandError(false), 3000);
+    }
+    setTerminalInput('');
+  };
+
+  // Handle matrix mode activation
+  const handleMatrixConfirm = () => {
+    setShowMatrixDialog(false);
+    const newMatrixMode = !matrixMode;
+    setMatrixMode(newMatrixMode);
+    setMatrixMessage(newMatrixMode ? t('matrix.activated') : t('matrix.deactivated'));
+    // Message stays permanently, no timeout
+  };
+
+  const handleMatrixCancel = () => {
+    setShowMatrixDialog(false);
+  };
+
+  // Focus terminal input when clicking on terminal
+  const handleTerminalClick = () => {
+    terminalInputRef.current?.focus();
+  };
+
+  // Typing animation effect
+  useEffect(() => {
+    const word = words[currentWordIndex] || '';
+    let currentIndex = 0;
+    let isDeleting = false;
+    let pauseUntil = 0;
+
+    const typeInterval = setInterval(() => {
+      const now = Date.now();
+      if (pauseUntil && now < pauseUntil) return;
+
+      if (!isDeleting) {
+        setTypedText(word.substring(0, currentIndex + 1));
+        currentIndex++;
+        if (currentIndex === word.length) {
+          isDeleting = true;
+          pauseUntil = Date.now() + 800;
+        }
+      } else {
+        setTypedText(word.substring(0, Math.max(0, currentIndex - 1)));
+        currentIndex--;
+        if (currentIndex <= 0) {
+          isDeleting = false;
+          setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        }
+      }
+    }, 120);
+
+    return () => clearInterval(typeInterval);
+  }, [currentWordIndex, words]);
+
+  const handleDevTipsSubmit = async (email: string) => {
+    try {
+      // TODO: Implement API call to save email to database
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to subscribe');
+      }
+
+      log.info('Email subscribed:', email);
+      // Show success message
+      setMatrixMessage(t('devTips.success'));
+    } catch (error) {
+      log.error('Error subscribing email:', error);
+      throw error;
+    }
+  };
+
+  return (
+    <>
+      {/* Dev Tips Modal */}
+      <DevTipsModal
+        isOpen={showDevTipsModal}
+        onClose={() => setShowDevTipsModal(false)}
+        onSubmit={handleDevTipsSubmit}
+      />
+
+      {/* Matrix Confirmation Dialog */}
+      <MatrixConfirmDialog 
+        isOpen={showMatrixDialog}
+        onConfirm={handleMatrixConfirm}
+        onCancel={handleMatrixCancel}
+      />
+
+      {/* Mobile Terminal Modal */}
+      <MobileTerminalModal
+        isOpen={showMobileTerminal}
+        onClose={() => setShowMobileTerminal(false)}
+        profileName={profile?.name}
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        onCommandExecute={handleTerminalCommand}
+        commandError={commandError}
+        matrixMessage={matrixMessage}
+      />
+
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20">
+      {/* Cyber grid background */}
+      <div className="absolute inset-0 cyber-grid opacity-15" />
+
+      {/* Animated glow effects - Sutiles y uniformes */}
+      <GlowEffect
+        color="white"
+        size="xl"
+        position={{ top: '30%', right: '20%' }}
+        opacity={0.15}
+        blur="lg"
+        animationType="pulse"
+        duration={4}
+      />
+
+      <GlowEffect
+        color="white"
+        size="lg"
+        position={{ bottom: '30%', left: '20%' }}
+        opacity={0.1}
+        blur="lg"
+        animationType="pulse"
+        duration={5}
+        delay={1}
+      />
+
+      {/* Floating particles - Reducidas en móvil */}
+      <FloatingParticles count={15} color="bg-white" className="hidden md:block" />
+      <FloatingParticles count={8} color="bg-white" className="md:hidden" />
+
+      {/* Scanline effect */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={
+          {
+            background:
+              'linear-gradient(transparent 50%, rgba(255, 255, 255, 0.02) 50%)',
+            backgroundSize: '100% 4px',
+          }
+        }
+        animate={{ backgroundPositionY: ['0px', '4px'] }}
+        transition={{ duration: 0.1, repeat: Infinity, ease: 'linear' }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 lg:py-0 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
+          {/* Left side - Main content */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Glitch effect label */}
+            <motion.div
+              className="inline-block mb-3 md:mb-4 px-3 md:px-4 py-1.5 md:py-2 border-2 border-white rounded-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <span className="font-mono text-[10px] md:text-xs text-white font-bold tracking-wider">
+                {'<'} {t('home.portfolioLabel')} {'/>'}
+              </span>
+            </motion.div>
+
+            {/* Title with glitch effect */}
+            <motion.h1
+              className="font-orbitron text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-black mb-2 sm:mb-3 md:mb-4 relative leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+            >
+              <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
+                {profile?.name.split(' ')[0] || 'SERGIO'}
+                <motion.span
+                  className="absolute inset-0"
+                  style={{ color: 'transparent', WebkitTextStroke: '2px black' } as any}
+                  animate={
+                    {
+                      x: [0, -5, 5, -3, 3, 0],
+                      y: [0, 2, -2, 1, -1, 0],
+                      opacity: [0, 0.8, 0.8, 0.6, 0.6, 0],
+                    }
+                  }
+                  transition={
+                    {
+                      duration: 0.4,
+                      repeat: Infinity,
+                      repeatDelay: 4,
+                    }
+                  }
+                >
+                  {profile?.name.split(' ')[0] || 'SERGIO'}
+                </motion.span>
+              </span>
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-text-secondary to-white animate-gradient relative inline-block" style={{ WebkitTextStroke: '1px white' }}>
+                {profile?.name.split(' ')[1] || 'JÁUREGUI'}
+              </span>
+            </motion.h1>
+
+            {/* Animated subtitle with typing effect */}
+            <motion.div
+              className="font-orbitron text-base sm:text-lg md:text-xl lg:text-2xl text-text-secondary mb-2 sm:mb-3 md:mb-4 tracking-wider h-8 sm:h-9 md:h-10 lg:h-12 flex items-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
+              <span className="text-cyber-red mr-1 sm:mr-1.5 md:mr-2">{'>'}</span>
+              <span className="text-white truncate">{typedText}</span>
+              <motion.span
+                className="inline-block w-0.5 h-5 sm:h-6 md:h-7 lg:h-8 bg-white ml-0.5 sm:ml-1 flex-shrink-0"
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.8, repeat: Infinity }}
+              />
+            </motion.div>
+
+            {/* Tagline */}
+            <motion.p
+              className="font-rajdhani text-xs sm:text-sm md:text-base lg:text-lg text-text-secondary mb-4 sm:mb-6 md:mb-8 max-w-xl leading-relaxed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+            >
+              {t('home.tagline')}
+            </motion.p>
+
+            {/* CTA Buttons */}
+            <motion.div
+              className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6 md:mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.8 }}
+            >
+              <Link href="/work" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-black">
+                  <span className="flex items-center justify-center gap-2">
+                    {t('home.viewProjects')}
+                    <svg
+                      className="w-4 h-4 md:w-5 md:h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </span>
+                </Button>
+              </Link>
+              <Link href="/contact" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-black">
+                  {t('home.contact')}
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* Status indicator */}
+            {profile?.availability === 'available' && (
+              <motion.div
+                className="flex items-center gap-2 md:gap-3 justify-center sm:justify-start"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 0.8 }}
+              >
+                <div className="relative">
+                  <div className="w-2.5 md:w-3 h-2.5 md:h-3 bg-cyber-red rounded-full animate-pulse" />
+                  <div className="absolute inset-0 w-2.5 md:w-3 h-2.5 md:h-3 bg-cyber-red rounded-full animate-ping" />
+                </div>
+                <span className="text-xs md:text-sm text-text-secondary font-rajdhani">
+                  {t('home.available')}
+                </span>
+              </motion.div>
+            )}
+
+            {/* Focus areas */}
+            <motion.div
+              className="mt-6 sm:mt-8 md:mt-12 pt-4 sm:pt-6 md:pt-8 mb-6 lg:mb-0 relative"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.8 }}
+            >
+              {/* Animated gradient separator */}
+              <div className="absolute top-0 left-0 right-0 h-px overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-white via-text-secondary to-white"
+                  animate={lowPerformanceMode ? {} : {
+                    x: ['-100%', '100%'],
+                  }}
+                  transition={lowPerformanceMode ? {} : {
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                  style={{ width: '200%' }}
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <span className="font-orbitron text-xs sm:text-sm md:text-base font-bold text-white">
+                  {t('home.focus')}:
+                </span>
+                {[
+                  { key: 'focusTechShort' },
+                  { key: 'focusStrategicShort' },
+                  { key: 'focusHumanShort' },
+                ].map((focus, index) => (
+                  <motion.div
+                    key={focus.key}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.3 + index * 0.1, duration: 0.4 }}
+                    className="flex items-center gap-2"
+                  >
+                    {index > 0 && (
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    )}
+                    <span className="font-rajdhani text-[10px] sm:text-xs md:text-sm font-semibold text-text-secondary uppercase tracking-wide">
+                      {t(`home.${focus.key}`)}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Right side - Terminal/Code preview */}
+          <motion.div
+            className="hidden lg:block"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <div className="relative" onClick={handleTerminalClick}>
+              {/* Terminal window */}
+              <motion.div 
+                className="bg-background-surface/80 backdrop-blur-sm border border-white/30 rounded-lg overflow-hidden shadow-2xl"
+              >
+                {/* Terminal header */}
+                <div className="bg-background-elevated px-4 py-3 flex items-center gap-2 border-b border-white/30">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-cyber-red" />
+                    <div className="w-3 h-3 rounded-full bg-white" />
+                    <div className="w-3 h-3 rounded-full bg-white" />
+                  </div>
+                  <span className="font-mono text-xs text-text-muted ml-4">
+                    ~/portfolio/terminal
+                    {currentView !== 'main' && (
+                      <span className="text-white">
+                        /{currentView === 'help' ? 'help.sh' : 
+                          currentView === 'status' ? 'status.sh' : 
+                          currentView === 'games' ? 'games.sh' : 
+                          currentView === 'language' ? 'language.sh' : ''}
+                      </span>
+                    )}
+                  </span>
+                </div>
+
+                {/* Terminal content */}
+                <div className="p-6 font-mono text-sm space-y-3">
+                  {/* Render current view */}
+                  {currentView === 'main' && (
+                    <>
+                      <TerminalInit profileName={profile?.name} />
+                      <div className="pt-3">
+                        <TerminalHelp onCommandSelect={(cmd) => handleTerminalCommand(cmd)} />
+                      </div>
+                      <motion.div className="pt-4 text-text-muted/50 text-xs italic" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+                        <span className="text-cyber-red">#</span> {t('terminal.easterEgg')}
+                      </motion.div>
+                    </>
+                  )}
+
+                  {currentView === 'help' && (
+                    <TerminalHelp 
+                      onCommandSelect={(cmd) => handleTerminalCommand(cmd)} 
+                      onBack={() => setCurrentView('main')} 
+                    />
+                  )}
+
+                  {currentView === 'status' && (
+                    <TerminalStatus onBack={() => setCurrentView('main')} />
+                  )}
+
+                  {currentView === 'games' && (
+                    <TerminalGames onBack={() => setCurrentView('main')} />
+                  )}
+
+                  {currentView === 'language' && (
+                    <TerminalLanguage onBack={() => setCurrentView('main')} />
+                  )}
+
+
+                  {/* Command error message */}
+                  {commandError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="pt-3"
+                    >
+                      <div className="bg-cyber-red/10 border border-cyber-red/30 rounded px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-cyber-red flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div>
+                            <div className="text-cyber-red font-mono text-xs font-bold">
+                              {t('terminal.commandNotFound')}
+                            </div>
+                            <div className="text-text-muted text-xs mt-0.5">
+                              {t('terminal.tryHelp')}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Matrix mode message */}
+                  {matrixMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="pt-3 text-center"
+                    >
+                      <div className={`font-orbitron text-sm animate-pulse ${
+                        matrixMode ? 'text-cyber-blue-cyan' : 'text-text-muted'
+                      }`}>
+                        {matrixMessage}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Interactive input line */}
+                  <motion.div className="flex items-center pt-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.0 }}>
+                    <span className="text-cyber-red">❯</span>
+                    <div className="flex-1 flex items-center ml-2">
+                      <input
+                        ref={terminalInputRef}
+                        type="text"
+                        value={terminalInput}
+                        onChange={(e) => setTerminalInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleTerminalCommand(terminalInput);
+                          }
+                        }}
+                        className="flex-1 bg-transparent border-none outline-none text-white font-mono text-sm caret-white"
+                        placeholder={t('terminal.inputPlaceholder')}
+                        autoComplete="off"
+                        spellCheck={false}
+                      />
+                      <motion.span className="inline-block w-2 h-4 bg-white ml-1" animate={{ opacity: [1, 0] }} transition={{ duration: 0.8, repeat: Infinity }} />
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              {/* Floating decorative elements */}
+              <motion.div
+                className="absolute -top-4 -right-4 w-20 h-20 border-2 border-white/30 rounded-lg -z-10"
+                animate={
+                  {
+                    rotate: [0, 90, 180, 270, 360],
+                  }
+                }
+                transition={
+                  {
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }
+                }
+              />
+
+              <motion.div
+                className="absolute -bottom-6 -left-6 w-16 h-16 border-2 border-white/30 rounded-full -z-10"
+                animate={
+                  {
+                    scale: [1, 1.2, 1],
+                    opacity: [0.3, 0.6, 0.3],
+                  }
+                }
+                transition={
+                  {
+                    duration: 3,
+                    repeat: Infinity,
+                  }
+                }
+              />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Floating Terminal Button - Top Left (Mobile Only, Home Only) */}
+      <motion.button
+        onClick={() => setShowMobileTerminal(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 w-10 h-10 rounded-lg border-2 bg-white/10 border-white text-white hover:bg-white hover:text-black flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.8, type: 'spring', stiffness: 400, damping: 25 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Open terminal"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        
+        {/* Pulse effect */}
+        <motion.div
+          className="absolute inset-0 rounded-lg border-2 border-white"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 0, 0.5]
+          }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </motion.button>
+    </div>
+    </>
+  );
+}
