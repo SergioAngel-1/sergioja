@@ -16,7 +16,7 @@ export default function TerminalHelp({ onCommandSelect, onBack }: TerminalHelpPr
   const { matrixMode } = useMatrix();
 
   const commands = [
-    { name: t('terminal.pages'), description: t('terminal.helpPages') },
+    { name: t('terminal.projects'), description: t('terminal.helpProjects') },
     { name: t('terminal.games'), description: t('terminal.helpGames') },
     { name: matrixMode ? 'matrix --disable' : 'matrix', description: t('terminal.helpMatrix') },
     { name: t('terminal.language'), description: t('terminal.helpLanguage') },

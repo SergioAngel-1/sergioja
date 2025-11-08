@@ -84,8 +84,8 @@ export default function Home() {
     
     if (cmd === 'dev' || cmd === 'dev tips') {
       setShowDevTipsModal(true);
-    } else if (cmd === 'pages' || cmd === t('terminal.pages')) {
-      router.push('/work');
+    } else if (cmd === 'projects' || cmd === t('terminal.projects')) {
+      router.push('/projects');
     } else if (cmd === 'help' || cmd === t('terminal.help')) {
       setCurrentView('help');
     } else if (cmd === 'status' || cmd === t('terminal.status')) {
