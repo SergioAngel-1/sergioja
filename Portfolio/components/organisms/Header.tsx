@@ -16,18 +16,16 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false 
   const { t } = useLanguage();
 
   return (
-    <motion.header
-      className="fixed top-0 left-0 right-0 z-40 md:left-20"
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-    >
-      <div 
-        className="flex items-center justify-between"
-        style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
-      >
-        {/* Breadcrumbs or Home Badge - Left side */}
-        <div className="flex-1">
+    <>
+      {/* Breadcrumbs or Home Badge - Static position */}
+      {(showBreadcrumbs || showHomeBadge) && (
+        <motion.div 
+          className="absolute top-0 left-0 md:left-20 z-30"
+          style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        >
           {showBreadcrumbs && <Breadcrumbs />}
           {showHomeBadge && (
             <motion.div
@@ -42,14 +40,22 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false 
               </span>
             </motion.div>
           )}
-        </div>
+        </motion.div>
+      )}
 
-        {/* Action buttons - Right side */}
+      {/* Action buttons - Fixed top right */}
+      <motion.div 
+        className="fixed top-0 right-0 z-50"
+        style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+      >
         <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
           <LanguageToggle />
           <PerformanceToggle />
         </div>
-      </div>
-    </motion.header>
+      </motion.div>
+    </>
   );
 }
