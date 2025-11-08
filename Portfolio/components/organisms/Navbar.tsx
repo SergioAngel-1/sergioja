@@ -58,7 +58,7 @@ export default function Navbar() {
       className="fixed left-0 top-0 h-screen bg-background-surface/90 backdrop-blur-md border-r border-white/30 z-50 md:flex flex-col items-center overflow-hidden hidden"
       style={{
         width: 'var(--nav-width)',
-        padding: `${fluidSizing.space.xl} 0`
+        padding: `${fluidSizing.space.md} 0`
       }}
     >
       {/* Animated background gradient */}
@@ -100,11 +100,12 @@ export default function Navbar() {
       ))}
       {/* Logo/Brand */}
       <motion.div
-        className="relative z-10 mb-fluid-xl"
+        className="relative z-10"
+        style={{ marginBottom: fluidSizing.space.xl }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
-        <Link href="/">
+        <a href="http://localhost:3001" target="_blank" rel="noopener noreferrer">
           <div className="relative">
             {/* Outer glow ring */}
             <motion.div
@@ -147,7 +148,7 @@ export default function Navbar() {
               />
             </div>
           </div>
-        </Link>
+        </a>
       </motion.div>
 
       {/* Status indicator */}
