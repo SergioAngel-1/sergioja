@@ -97,19 +97,19 @@ export default function AboutPage() {
       <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
         {/* Header */}
         <div className="mb-8 md:mb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(260px,420px)] items-start gap-6 lg:gap-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto] items-center gap-6 lg:gap-8 w-full">
             {/* Title and Description */}
             <PageHeader 
               title={t('about.title')} 
               subtitle={t('about.intro')} 
             />
 
-            {/* Stats - Grid 2x2 en el extremo */}
+            {/* Stats - 4 en línea horizontal */}
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="grid grid-cols-2 w-full justify-self-end"
+              className="grid grid-cols-4 justify-self-end"
               style={{ gap: fluidSizing.space.sm }}
             >
               <StatCard label={t('about.skills')} value={stats.totalSkills} index={0} />
