@@ -19,6 +19,7 @@ const translations = {
     // Navbar
     'nav.home': 'INICIO',
     'nav.work': 'TRABAJO',
+    'nav.projects': 'PROYECTOS',
     'nav.about': 'ACERCA',
     'nav.contact': 'CONTACTO',
     // Common
@@ -74,6 +75,21 @@ const translations = {
     'work.of': 'de',
     'work.previous': 'Anterior',
     'work.next': 'Siguiente',
+    
+    // Projects
+    'projects.viewNow': 'Ver Ahora',
+    'projects.loading': 'Cargando proyecto...',
+    'projects.backToProjects': 'Volver a Proyectos',
+    'projects.viewDemo': 'Ver Demo',
+    'projects.viewCode': 'Ver Código',
+    
+    // Next Page Button
+    'nextpage.home': 'Inicio',
+    'nextpage.work': 'Trabajo',
+    'nextpage.projects': 'Proyectos',
+    'nextpage.about': 'Acerca',
+    'nextpage.contact': 'Contacto',
+    'nextpage.next': 'Siguiente',
     
     // About
     'about.title': 'ACERCA DE',
@@ -145,13 +161,6 @@ const translations = {
     'notfound.errorCodeLabel': 'Código de Error',
     'notfound.errorCode': 'ERR_PÁGINA_NO_ENCONTRADA',
     'notfound.statusLabel': 'Estado',
-    
-    // Next Page Button
-    'nextpage.next': 'Siguiente',
-    'nextpage.home': 'Inicio',
-    'nextpage.work': 'Trabajo',
-    'nextpage.about': 'Acerca',
-    'nextpage.contact': 'Contacto',
     
     // Snake Game
     'snake.title': 'Snake',
@@ -254,6 +263,7 @@ const translations = {
     // Navbar
     'nav.home': 'HOME',
     'nav.work': 'WORK',
+    'nav.projects': 'PROJECTS',
     'nav.about': 'ABOUT',
     'nav.contact': 'CONTACT',
     // Common
@@ -309,6 +319,21 @@ const translations = {
     'work.of': 'of',
     'work.previous': 'Previous',
     'work.next': 'Next',
+    
+    // Projects
+    'projects.viewNow': 'View Now',
+    'projects.loading': 'Loading project...',
+    'projects.backToProjects': 'Back to Projects',
+    'projects.viewDemo': 'View Demo',
+    'projects.viewCode': 'View Code',
+    
+    // Next Page Button
+    'nextpage.home': 'Home',
+    'nextpage.work': 'Work',
+    'nextpage.projects': 'Projects',
+    'nextpage.about': 'About',
+    'nextpage.contact': 'Contact',
+    'nextpage.next': 'Next',
     
     // About
     'about.title': 'ABOUT',
@@ -380,13 +405,6 @@ const translations = {
     'notfound.errorCodeLabel': 'Error Code',
     'notfound.errorCode': 'ERR_PAGE_NOT_FOUND',
     'notfound.statusLabel': 'Status',
-    
-    // Next Page Button
-    'nextpage.next': 'Next',
-    'nextpage.home': 'Home',
-    'nextpage.work': 'Work',
-    'nextpage.about': 'About',
-    'nextpage.contact': 'Contact',
     
     // Snake Game
     'snake.title': 'Snake',

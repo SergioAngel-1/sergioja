@@ -13,8 +13,8 @@ interface PageRoute {
 }
 
 const routes: PageRoute[] = [
-  { path: '/', labelKey: 'nextpage.home', next: '/work' },
-  { path: '/work', labelKey: 'nextpage.work', next: '/about' },
+  { path: '/', labelKey: 'nextpage.home', next: '/projects' },
+  { path: '/projects', labelKey: 'nextpage.projects', next: '/about' },
   { path: '/about', labelKey: 'nextpage.about', next: '/contact' },
   { path: '/contact', labelKey: 'nextpage.contact', next: '/' },
 ];

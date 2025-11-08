@@ -96,7 +96,7 @@ export default function NotFound() {
                 {t('notfound.backHome')}
               </Button>
             </Link>
-            <Link href="/work">
+            <Link href="/projects">
               <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-black">
                 {t('notfound.viewProjects')}
               </Button>

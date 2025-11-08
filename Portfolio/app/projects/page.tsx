@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/lib/hooks/useLogger';
 import ProjectCard from '@/components/molecules/ProjectCard';
-import ProjectCarousel from '@/components/molecules/ProjectCarousel';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
@@ -20,7 +19,8 @@ import { fluidSizing } from '@/lib/utils/fluidSizing';
 export default function WorkPage() {
   const [mounted, setMounted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
-  const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 8;
   const { projects, loading, error } = useProjects({ category: selectedCategory });
   const log = useLogger('WorkPage');
   const { t } = useLanguage();
@@ -32,6 +32,7 @@ export default function WorkPage() {
   // Reset cuando cambia la categoría
   const handleCategoryChange = (category: string | undefined) => {
     setSelectedCategory(category);
+    setCurrentPage(1); // Reset page when category changes
   };
 
   // Calculate stats
@@ -42,6 +43,13 @@ export default function WorkPage() {
       categories: new Set(projects.map(p => p.category)).size,
     };
   }, [projects]);
+
+  // Pagination
+  const totalPages = Math.ceil(projects.length / projectsPerPage);
+  const paginatedProjects = useMemo(() => {
+    const startIndex = (currentPage - 1) * projectsPerPage;
+    return projects.slice(startIndex, startIndex + projectsPerPage);
+  }, [projects, currentPage, projectsPerPage]);
 
   const categories = [
     { value: undefined, label: t('work.all') },
@@ -112,14 +120,13 @@ export default function WorkPage() {
           </div>
         </div>
 
-        {/* Filters and View Controls */}
-        {viewMode === 'grid' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="mb-8 md:mb-12"
-          >
+        {/* Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+          className="mb-8 md:mb-12"
+        >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
               {/* Category filters - Mobile: Dropdown */}
               <div className="md:hidden">
@@ -168,37 +175,6 @@ export default function WorkPage() {
             </div>
           </div>
         </motion.div>
-        )}
-
-        {/* View mode toggle */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          className="mb-8 md:mb-12 flex justify-end"
-        >
-          <div className="hidden md:flex gap-2 bg-background-surface/50 p-1 rounded-lg border border-white/20">
-            {[
-              { mode: 'carousel' as const, icon: 'M7 4v16M17 4v16M3 8h18M3 16h18', label: 'Carousel' },
-              { mode: 'grid' as const, icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z', label: 'Grid' },
-            ].map((view) => (
-              <button
-                key={view.mode}
-                onClick={() => setViewMode(view.mode)}
-                className={`p-2 rounded transition-all duration-300 ${
-                  viewMode === view.mode
-                    ? 'bg-white/10 text-white border border-white/50'
-                    : 'text-text-muted hover:text-text-primary'
-                }`}
-                title={view.label}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={view.icon} />
-                </svg>
-              </button>
-            ))}
-          </div>
-        </motion.div>
 
         {/* Projects display */}
         {loading ? (
@@ -239,22 +215,14 @@ export default function WorkPage() {
               </button>
             </div>
           </motion.div>
-        ) : viewMode === 'carousel' ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
-            <ProjectCarousel projects={projects} />
-          </motion.div>
         ) : (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
           >
-            {projects.map((project, index) => (
+            {paginatedProjects.map((project, index) => (
               <motion.div
                 key={project.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -264,6 +232,22 @@ export default function WorkPage() {
                 <ProjectCard project={project} viewMode="grid" />
               </motion.div>
             ))}
+          </motion.div>
+        )}
+
+        {/* Pagination */}
+        {!loading && !error && projects.length > projectsPerPage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.6 }}
+            className="mt-12 flex justify-center"
+          >
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </motion.div>
         )}
         </div>
