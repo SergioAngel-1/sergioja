@@ -90,7 +90,7 @@ export default function WorkPage() {
         <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
           {/* Header */}
           <div className="mb-8 md:mb-16">
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 lg:gap-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
               {/* Title and Description */}
               <PageHeader 
                 title={t('work.title')} 
