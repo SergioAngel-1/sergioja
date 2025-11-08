@@ -7,6 +7,8 @@ import { useLogger } from '@/lib/hooks/useLogger';
 import ProjectCard from '@/components/molecules/ProjectCard';
 import ProjectCarousel from '@/components/molecules/ProjectCarousel';
 import Header from '@/components/organisms/Header';
+import PageHeader from '@/components/organisms/PageHeader';
+import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
@@ -95,38 +97,10 @@ export default function WorkPage() {
           <div className="mb-8 md:mb-16">
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 lg:gap-8">
               {/* Title and Description */}
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-                className="flex-1"
-              >
-                <h1 className="font-orbitron font-black relative inline-block" style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}>
-                  <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
-                    {t('work.title')}
-                  <motion.span
-                    className="absolute inset-0"
-                    style={{ color: 'transparent', WebkitTextStroke: '2px black' } as any}
-                    animate={{
-                      x: [0, -5, 5, -3, 3, 0],
-                      y: [0, 2, -2, 1, -1, 0],
-                      opacity: [0, 0.8, 0.8, 0.6, 0.6, 0],
-                    }}
-                    transition={{
-                      duration: 0.4,
-                      repeat: Infinity,
-                      repeatDelay: 4,
-                    }}
-                  >
-                    {t('work.title')}
-                  </motion.span>
-                </span>
-              </h1>
-
-              <p className="text-text-secondary font-rajdhani max-w-2xl leading-relaxed text-fluid-lg">
-                {t('work.description')}
-              </p>
-            </motion.div>
+              <PageHeader 
+                title={t('work.title')} 
+                subtitle={t('work.description')} 
+              />
 
             {/* Stats - 3 columnas en el extremo */}
             <motion.div
@@ -136,34 +110,9 @@ export default function WorkPage() {
               className="grid grid-cols-3 lg:min-w-[240px]"
               style={{ gap: fluidSizing.space.sm }}
             >
-              {[
-                { label: t('work.total'), value: stats.total },
-                { label: t('work.featured'), value: stats.featured },
-                { label: t('work.categories'), value: stats.categories },
-              ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  className="relative group flex-1 lg:flex-none"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                >
-                  <div className="bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300 h-full" style={{ padding: fluidSizing.space.sm }}>
-                    <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-                      <div className="text-white font-orbitron font-bold flex-shrink-0 text-fluid-2xl">
-                        {stat.value}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-text-muted font-rajdhani uppercase tracking-wider leading-tight text-fluid-xs">
-                          {stat.label}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 rounded-lg blur-xl transition-opacity pointer-events-none" />
-                </motion.div>
-              ))}
+              <StatCard label={t('work.total')} value={stats.total} index={0} />
+              <StatCard label={t('work.featured')} value={stats.featured} index={1} />
+              <StatCard label={t('work.categories')} value={stats.categories} index={2} />
             </motion.div>
           </div>
         </div>

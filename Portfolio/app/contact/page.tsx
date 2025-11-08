@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { useLogger } from '@/lib/hooks/useLogger';
 import Header from '@/components/organisms/Header';
+import PageHeader from '@/components/organisms/PageHeader';
 import Button from '@/components/atoms/Button';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
@@ -129,37 +130,10 @@ export default function ContactPage() {
       <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
         {/* Header */}
         <div className="mb-8 md:mb-16">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="font-orbitron font-black relative inline-block" style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}>
-              <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
-                {t('contact.title')}
-                <motion.span
-                  className="absolute inset-0"
-                  style={{ color: 'transparent', WebkitTextStroke: '2px black' } as any}
-                  animate={{
-                    x: [0, -5, 5, -3, 3, 0],
-                    y: [0, 2, -2, 1, -1, 0],
-                    opacity: [0, 0.8, 0.8, 0.6, 0.6, 0],
-                  }}
-                  transition={{
-                    duration: 0.4,
-                    repeat: Infinity,
-                    repeatDelay: 4,
-                  }}
-                >
-                  {t('contact.title')}
-                </motion.span>
-              </span>
-            </h1>
-
-            <p className="text-text-secondary font-rajdhani max-w-3xl leading-relaxed text-fluid-lg">
-              {t('contact.intro')}
-            </p>
-          </motion.div>
+          <PageHeader 
+            title={t('contact.title')} 
+            subtitle={t('contact.intro')} 
+          />
         </div>
 
         <div className="grid lg:grid-cols-5" style={{ gap: fluidSizing.space['2xl'] }}>

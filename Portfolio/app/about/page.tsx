@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { useSkills } from '@/lib/hooks/useSkills';
 import { useLogger } from '@/lib/hooks/useLogger';
 import Header from '@/components/organisms/Header';
+import PageHeader from '@/components/organisms/PageHeader';
+import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
@@ -102,38 +104,10 @@ export default function AboutPage() {
         <div className="mb-8 md:mb-16">
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(260px,420px)] items-start gap-6 lg:gap-8 w-full">
             {/* Title and Description */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex-1"
-            >
-              <h1 className="font-orbitron font-black relative inline-block" style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}>
-              <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
-                {t('about.title')}
-                <motion.span
-                  className="absolute inset-0"
-                  style={{ color: 'transparent', WebkitTextStroke: '2px black' } as any}
-                  animate={{
-                    x: [0, -5, 5, -3, 3, 0],
-                    y: [0, 2, -2, 1, -1, 0],
-                    opacity: [0, 0.8, 0.8, 0.6, 0.6, 0],
-                  }}
-                  transition={{
-                    duration: 0.4,
-                    repeat: Infinity,
-                    repeatDelay: 4,
-                  }}
-                >
-                  {t('about.title')}
-                </motion.span>
-              </span>
-            </h1>
-
-              <p className="text-text-secondary font-rajdhani max-w-2xl leading-relaxed text-fluid-lg">
-                {t('about.intro')}
-              </p>
-            </motion.div>
+            <PageHeader 
+              title={t('about.title')} 
+              subtitle={t('about.intro')} 
+            />
 
             {/* Stats - Grid 2x2 en el extremo */}
             <motion.div
@@ -143,35 +117,10 @@ export default function AboutPage() {
               className="grid grid-cols-2 w-full justify-self-end"
               style={{ gap: fluidSizing.space.sm }}
             >
-              {[
-                { label: t('about.skills'), value: stats.totalSkills },
-                { label: t('about.proficiency'), value: `${stats.avgProficiency}%` },
-                { label: t('about.yearsExp'), value: `${stats.totalExperience}+` },
-                { label: t('about.categories'), value: stats.categories },
-              ].map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  className="relative group flex-1 lg:flex-none"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                >
-                  <div className="bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300 h-full" style={{ padding: fluidSizing.space.sm }}>
-                    <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-                      <div className="text-white font-orbitron font-bold flex-shrink-0 text-fluid-2xl">
-                        {stat.value}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-text-muted font-rajdhani uppercase tracking-wider leading-tight text-fluid-xs">
-                          {stat.label}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 rounded-lg blur-xl transition-opacity pointer-events-none" />
-                </motion.div>
-              ))}
+              <StatCard label={t('about.skills')} value={stats.totalSkills} index={0} />
+              <StatCard label={t('about.proficiency')} value={`${stats.avgProficiency}%`} index={1} />
+              <StatCard label={t('about.yearsExp')} value={`${stats.totalExperience}+`} index={2} />
+              <StatCard label={t('about.categories')} value={stats.categories} index={3} />
             </motion.div>
           </div>
         </div>
