@@ -65,7 +65,7 @@ export default function NextPageButton() {
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.3 }}
           className="group fixed z-[60] hidden md:flex items-center"
-          style={{ bottom: fluidSizing.space['2xl'], right: fluidSizing.space['2xl'], gap: fluidSizing.space.md }}
+          style={{ bottom: fluidSizing.space.lg, right: fluidSizing.space.lg, gap: fluidSizing.space.md }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           whileHover={{ scale: 1.05 }}
@@ -90,7 +90,7 @@ export default function NextPageButton() {
           </motion.div>
 
           {/* Circular button */}
-          <div className="relative rounded-full bg-background-surface/80 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all duration-300 group-hover:border-white group-hover:bg-white/10 shadow-lg" style={{ width: fluidSizing.size.buttonLg, height: fluidSizing.size.buttonLg }}>
+          <div className="relative rounded-full bg-background-surface/80 backdrop-blur-md flex items-center justify-center transition-all duration-300 group-hover:bg-white/10 shadow-lg" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
             {/* Pulsing background */}
             <motion.div
               className="absolute inset-0 rounded-full bg-white/20"

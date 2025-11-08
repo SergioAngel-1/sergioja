@@ -23,7 +23,7 @@ export default function PerformanceToggle() {
   };
 
   return (
-    <div className="fixed top-4 right-4 md:top-4 md:right-4 z-[60]">
+    <div className="relative">
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -63,9 +63,6 @@ export default function PerformanceToggle() {
               : 'bg-background-surface border-white text-white hover:bg-white hover:text-black'
         } flex items-center justify-center group shadow-lg`}
         style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.6, type: 'spring', stiffness: 400, damping: 25 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
