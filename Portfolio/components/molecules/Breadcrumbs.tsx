@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface BreadcrumbItem {
   label: string;
@@ -36,34 +37,35 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4 }}
-      className="flex items-center gap-2 mb-4 md:mb-6"
+      className="flex items-center"
+      style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.lg }}
       aria-label="Breadcrumb"
     >
-      <div className="flex items-center gap-2 px-4 py-2 bg-background-surface/30 backdrop-blur-sm border border-white/20 rounded-sm">
-        <span className="font-mono text-xs text-white">{'<'}</span>
+      <div className="flex items-center bg-background-surface/30 backdrop-blur-sm border border-white/20 rounded-sm" style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
+        <span className="font-mono text-white text-fluid-xs">{'<'}</span>
         
         {breadcrumbItems.map((item, index) => (
-          <div key={index} className="flex items-center gap-2">
+          <div key={index} className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
             {item.href ? (
               <Link
                 href={item.href}
-                className="font-mono text-xs text-text-muted hover:text-white transition-colors"
+                className="font-mono text-text-muted hover:text-white transition-colors text-fluid-xs"
               >
                 {item.label}
               </Link>
             ) : (
-              <span className="font-mono text-xs text-white font-semibold">
+              <span className="font-mono text-white font-semibold text-fluid-xs">
                 {item.label}
               </span>
             )}
             
             {index < breadcrumbItems.length - 1 && (
-              <span className="font-mono text-xs text-text-muted">/</span>
+              <span className="font-mono text-text-muted text-fluid-xs">/</span>
             )}
           </div>
         ))}
         
-        <span className="font-mono text-xs text-white">{'/>'}</span>
+        <span className="font-mono text-white text-fluid-xs">{'/>'}</span>
       </div>
     </motion.nav>
   );

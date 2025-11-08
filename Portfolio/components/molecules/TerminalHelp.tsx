@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import TerminalBackButton from '@/components/atoms/TerminalBackButton';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface TerminalHelpProps {
   onCommandSelect?: (command: string) => void;
@@ -23,7 +24,7 @@ export default function TerminalHelp({ onCommandSelect, onBack }: TerminalHelpPr
   ];
 
   return (
-    <div className="space-y-3">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
       <div className="flex items-center justify-between">
         <motion.div
           className="flex items-center"
@@ -32,13 +33,14 @@ export default function TerminalHelp({ onCommandSelect, onBack }: TerminalHelpPr
           transition={{ delay: 0.1 }}
         >
           <span className="text-cyber-red">❯</span>
-          <span className="text-white ml-2">{t('terminal.help')}</span>
+          <span className="text-white" style={{ marginLeft: fluidSizing.space.sm }}>{t('terminal.help')}</span>
         </motion.div>
         {onBack && <TerminalBackButton onBack={onBack} delay={0.2} />}
       </div>
 
       <motion.div
-        className="pl-6 text-text-muted text-xs space-y-1"
+        className="text-text-muted text-fluid-xs"
+        style={{ paddingLeft: fluidSizing.space.xl, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xs }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}

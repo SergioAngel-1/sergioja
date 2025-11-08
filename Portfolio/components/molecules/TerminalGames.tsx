@@ -8,6 +8,7 @@ import TetrisGame from './TetrisGame';
 import TerminalBackButton from '@/components/atoms/TerminalBackButton';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useModal } from '@/lib/contexts/ModalContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface TerminalGamesProps {
   onBack: () => void;
@@ -116,7 +117,7 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
   }, [tetrisScore, tetrisHighScore, tetrisLevel, tetrisLines, tetrisPaused, tetrisGameOver, isGameModalOpen, activeGame, updateGameModal, t]);
 
   return (
-    <div className="space-y-3">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
       <div className="flex items-center justify-between">
         <motion.div
           className="flex items-center"
@@ -125,13 +126,14 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
           transition={{ delay: 0.1 }}
         >
           <span className="text-cyber-red">❯</span>
-          <span className="text-white ml-2">{t('terminal.games')}</span>
+          <span className="text-white" style={{ marginLeft: fluidSizing.space.sm }}>{t('terminal.games')}</span>
         </motion.div>
         <TerminalBackButton onBack={onBack} delay={0.2} />
       </div>
 
       <motion.div
-        className="pl-3 sm:pl-6 text-text-muted text-[10px] sm:text-xs mb-2"
+        className="text-text-muted text-fluid-xs"
+        style={{ paddingLeft: fluidSizing.space.md, marginBottom: fluidSizing.space.sm }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
@@ -140,7 +142,8 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
       </motion.div>
 
       <motion.div
-        className="pl-3 sm:pl-6 flex flex-wrap items-center gap-1.5 sm:gap-2"
+        className="flex flex-wrap items-center"
+        style={{ paddingLeft: fluidSizing.space.md, gap: fluidSizing.space.sm }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
