@@ -4,7 +4,6 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useSkills } from '@/lib/hooks/useSkills';
 import { useLogger } from '@/lib/hooks/useLogger';
-import Header from '@/components/organisms/Header';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
@@ -68,11 +67,7 @@ export default function AboutPage() {
   }, [skills, skillsByCategory]);
 
   return (
-    <>
-      {/* Header */}
-      <Header showBreadcrumbs />
-
-      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -370,6 +365,5 @@ export default function AboutPage() {
         </motion.div>
       </div>
     </div>
-    </>
   );
 }

@@ -6,7 +6,6 @@ import { useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/lib/hooks/useLogger';
 import ProjectCard from '@/components/molecules/ProjectCard';
 import ProjectCarousel from '@/components/molecules/ProjectCarousel';
-import Header from '@/components/organisms/Header';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
@@ -61,11 +60,7 @@ export default function WorkPage() {
   }
 
   return (
-    <>
-      {/* Header */}
-      <Header showBreadcrumbs />
-
-      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
         {/* Cyber grid background */}
         <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -272,7 +267,6 @@ export default function WorkPage() {
           </motion.div>
         )}
         </div>
-      </div>
-    </>
+    </div>
   );
 }

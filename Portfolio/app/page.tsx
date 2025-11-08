@@ -20,7 +20,6 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
-import Header from '@/components/organisms/Header';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import type { Profile } from '../../shared/types';
 
@@ -217,9 +216,6 @@ export default function Home() {
         commandError={commandError}
         matrixMessage={matrixMessage}
       />
-
-      {/* Header */}
-      <Header showHomeBadge />
 
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}

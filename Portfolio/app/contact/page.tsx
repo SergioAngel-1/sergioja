@@ -3,7 +3,6 @@
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { useLogger } from '@/lib/hooks/useLogger';
-import Header from '@/components/organisms/Header';
 import PageHeader from '@/components/organisms/PageHeader';
 import Button from '@/components/atoms/Button';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
@@ -96,11 +95,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <>
-      {/* Header */}
-      <Header showBreadcrumbs />
-
-      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -416,6 +411,5 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
-    </>
   );
 }
