@@ -14,6 +14,7 @@ import PageLoader from '@/components/molecules/PageLoader';
 import Pagination from '@/components/molecules/Pagination';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import MobileFilterDropdown from '@/components/molecules/MobileFilterDropdown';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 export default function WorkPage() {
   const [mounted, setMounted] = useState(false);
@@ -58,7 +59,7 @@ export default function WorkPage() {
   }
 
   return (
-    <div className="relative min-h-screen pl-4 md:pl-20 py-16 md:py-20 px-4 sm:px-6 md:px-8 pb-24 md:pb-8 overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -85,7 +86,7 @@ export default function WorkPage() {
       {/* Floating particles - Reducidas en móvil */}
       <FloatingParticles count={50} color="bg-white" />
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full">
+      <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
         {/* Breadcrumbs */}
         <Breadcrumbs />
 
@@ -99,7 +100,7 @@ export default function WorkPage() {
               transition={{ duration: 0.6 }}
               className="flex-1"
             >
-              <h1 className="font-orbitron text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-3 md:mb-4 relative inline-block">
+              <h1 className="font-orbitron font-black relative inline-block" style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}>
                 <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
                   {t('work.title')}
                   <motion.span
@@ -121,7 +122,7 @@ export default function WorkPage() {
                 </span>
               </h1>
 
-              <p className="text-text-secondary text-sm sm:text-base md:text-lg font-rajdhani max-w-2xl leading-relaxed">
+              <p className="text-text-secondary font-rajdhani max-w-2xl leading-relaxed text-fluid-lg">
                 {t('work.description')}
               </p>
             </motion.div>
@@ -131,7 +132,8 @@ export default function WorkPage() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="grid grid-cols-3 gap-2 lg:min-w-[240px]"
+              className="grid grid-cols-3 lg:min-w-[240px]"
+              style={{ gap: fluidSizing.space.sm }}
             >
               {[
                 { label: t('work.total'), value: stats.total },
@@ -145,13 +147,13 @@ export default function WorkPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
                 >
-                  <div className="bg-background-elevated border border-white/20 rounded-lg p-2 lg:p-3 hover:border-white/40 transition-all duration-300 h-full">
-                    <div className="flex items-center gap-2">
-                      <div className="text-white font-orbitron text-xl lg:text-2xl font-bold flex-shrink-0">
+                  <div className="bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300 h-full" style={{ padding: fluidSizing.space.sm }}>
+                    <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+                      <div className="text-white font-orbitron font-bold flex-shrink-0 text-fluid-2xl">
                         {stat.value}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[9px] lg:text-[10px] text-text-muted font-rajdhani uppercase tracking-wider leading-tight">
+                        <div className="text-text-muted font-rajdhani uppercase tracking-wider leading-tight text-fluid-xs">
                           {stat.label}
                         </div>
                       </div>
