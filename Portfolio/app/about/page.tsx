@@ -12,6 +12,7 @@ import PageLoader from '@/components/molecules/PageLoader';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import ExperienceCarousel from '@/components/molecules/ExperienceCarousel';
 import MobileFilterDropdown from '@/components/molecules/MobileFilterDropdown';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 export default function AboutPage() {
   const { skills, loading } = useSkills();
@@ -65,7 +66,7 @@ export default function AboutPage() {
   }, [skills, skillsByCategory]);
 
   return (
-    <div className="relative min-h-screen md:pl-20 py-16 md:py-20 px-4 sm:px-6 md:px-8 pb-24 md:pb-8 overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -92,7 +93,7 @@ export default function AboutPage() {
       {/* Floating particles - Reducidas en móvil */}
       <FloatingParticles count={50} color="bg-white" />
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full">
+      <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
         {/* Breadcrumbs */}
         <Breadcrumbs />
         {/* Header */}
@@ -105,7 +106,7 @@ export default function AboutPage() {
               transition={{ duration: 0.6 }}
               className="flex-1"
             >
-              <h1 className="font-orbitron text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-3 md:mb-4 relative inline-block">
+              <h1 className="font-orbitron font-black relative inline-block" style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}>
               <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
                 {t('about.title')}
                 <motion.span
@@ -127,7 +128,7 @@ export default function AboutPage() {
               </span>
             </h1>
 
-              <p className="text-text-secondary text-sm sm:text-base md:text-lg font-rajdhani max-w-2xl leading-relaxed">
+              <p className="text-text-secondary font-rajdhani max-w-2xl leading-relaxed text-fluid-lg">
                 {t('about.intro')}
               </p>
             </motion.div>
@@ -137,7 +138,8 @@ export default function AboutPage() {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="grid grid-cols-2 gap-2 w-full justify-self-end"
+              className="grid grid-cols-2 w-full justify-self-end"
+              style={{ gap: fluidSizing.space.sm }}
             >
               {[
                 { label: t('about.skills'), value: stats.totalSkills },
@@ -152,13 +154,13 @@ export default function AboutPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
                 >
-                  <div className="bg-background-elevated border border-white/20 rounded-lg p-2 lg:p-3 hover:border-white/40 transition-all duration-300 h-full">
-                    <div className="flex items-center gap-2">
-                      <div className="text-white font-orbitron text-xl lg:text-2xl font-bold flex-shrink-0">
+                  <div className="bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300 h-full" style={{ padding: fluidSizing.space.sm }}>
+                    <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+                      <div className="text-white font-orbitron font-bold flex-shrink-0 text-fluid-2xl">
                         {stat.value}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[9px] lg:text-[10px] text-text-muted font-rajdhani uppercase tracking-wider leading-tight">
+                        <div className="text-text-muted font-rajdhani uppercase tracking-wider leading-tight text-fluid-xs">
                           {stat.label}
                         </div>
                       </div>
@@ -177,16 +179,16 @@ export default function AboutPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="mb-12 md:mb-20"
+          style={{ marginBottom: fluidSizing.space['2xl'] }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-[3fr_1fr] xl:grid-cols-[7fr_3fr] gap-4 md:gap-6 lg:gap-8 overflow-x-clip">
+          <div className="grid grid-cols-1 lg:grid-cols-[3fr_1fr] xl:grid-cols-[7fr_3fr] overflow-x-clip" style={{ gap: fluidSizing.space.xl }}>
             {/* Left: Bio */}
             <div className="relative">
-              <div className="bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg p-5 sm:p-6 md:p-8 hover:border-white/50 transition-all duration-300">
-                <h2 className="font-orbitron text-2xl sm:text-3xl font-bold mb-4 md:mb-6 text-white">
+              <div className="bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg hover:border-white/50 transition-all duration-300" style={{ padding: fluidSizing.space.xl }}>
+                <h2 className="font-orbitron font-bold text-white text-fluid-3xl" style={{ marginBottom: fluidSizing.space.lg }}>
                   {t('about.experience')}
                 </h2>
-                <div className="space-y-3 md:space-y-4 text-text-secondary font-rajdhani text-sm sm:text-base leading-relaxed">
+                <div className="text-text-secondary font-rajdhani leading-relaxed text-fluid-base" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
                   <p>
                     {t('about.bio1')} <span className="text-white font-semibold">{t('about.bio1b')}</span> {t('about.bio1c')}
                   </p>
