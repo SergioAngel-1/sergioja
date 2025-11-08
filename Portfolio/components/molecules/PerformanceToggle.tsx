@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 export default function PerformanceToggle() {
   const { lowPerformanceMode, togglePerformanceMode } = usePerformance();
@@ -29,16 +30,17 @@ export default function PerformanceToggle() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="absolute right-14 md:right-16 top-0 bg-background-surface/90 backdrop-blur-sm border border-white/30 rounded-lg p-3 min-w-[180px] md:min-w-[200px] hidden md:block z-[70] shadow-lg"
+            className="absolute top-0 bg-background-surface/90 backdrop-blur-sm border border-white/30 rounded-lg hidden md:block z-[70] shadow-lg"
+            style={{ right: 'clamp(3.5rem, 5vw, 4rem)', padding: fluidSizing.space.md, minWidth: 'clamp(180px, 20vw, 200px)' }}
           >
-            <p className="text-xs text-text-muted font-mono mb-2">
+            <p className="text-text-muted font-mono text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
               {matrixMode 
                 ? t('matrix.activated')
                 : lowPerformanceMode 
                   ? t('performance.lowMode')
                   : t('performance.highMode')}
             </p>
-            <p className="text-[10px] text-text-muted">
+            <p className="text-text-muted text-fluid-xs">
               {matrixMode
                 ? t('performance.clickToDeactivate')
                 : lowPerformanceMode 
@@ -53,13 +55,14 @@ export default function PerformanceToggle() {
         onClick={handleClick}
         onHoverStart={() => setIsExpanded(true)}
         onHoverEnd={() => setIsExpanded(false)}
-        className={`relative w-10 h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-300 ${
+        className={`relative rounded-full border-2 transition-all duration-300 ${
           matrixMode
             ? 'bg-background-elevated border-cyber-red text-cyber-red animate-pulse'
             : lowPerformanceMode
               ? 'bg-background-elevated border-white/50 text-white/50'
               : 'bg-background-surface border-white text-white hover:bg-white hover:text-black'
         } flex items-center justify-center group shadow-lg`}
+        style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.6, type: 'spring', stiffness: 400, damping: 25 }}
@@ -68,7 +71,7 @@ export default function PerformanceToggle() {
       >
         {/* Icon - Más pequeño en móvil */}
         <svg
-          className="w-5 h-5 md:w-6 md:h-6"
+          className="size-icon-md"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -101,7 +104,7 @@ export default function PerformanceToggle() {
         </svg>
 
         {/* Tooltip on mobile */}
-        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-mono text-text-muted whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="absolute left-1/2 -translate-x-1/2 font-mono text-text-muted whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity text-fluid-xs" style={{ bottom: `calc(-1 * ${fluidSizing.space.xl})` }}>
           {matrixMode ? t('performance.matrix') : lowPerformanceMode ? t('performance.low') : t('performance.high')}
         </span>
       </motion.button>

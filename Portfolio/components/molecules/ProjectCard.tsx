@@ -7,6 +7,7 @@ import Badge from '../atoms/Badge';
 import PageLoader from './PageLoader';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import type { Project } from '../../../shared/types';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface ProjectCardProps {
   project: Project;

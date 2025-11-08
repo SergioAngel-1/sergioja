@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface PageLoaderProps {
   variant?: 'full' | 'simple';
@@ -67,10 +68,11 @@ export default function PageLoader({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2 }}
-            className="flex flex-col items-center justify-center py-20"
+            className="flex flex-col items-center justify-center"
+            style={{ paddingTop: fluidSizing.space['2xl'], paddingBottom: fluidSizing.space['2xl'] }}
           >
             {/* Simple spinner */}
-            <div className="relative w-16 h-16 mb-4">
+            <div className="relative" style={{ width: fluidSizing.size.buttonLg, height: fluidSizing.size.buttonLg, marginBottom: fluidSizing.space.md }}>
               <motion.div
                 className="absolute inset-0 border-4 border-white/30 border-t-white rounded-full"
                 animate={{ rotate: 360 }}
@@ -93,7 +95,7 @@ export default function PageLoader({
 
             {/* Loading text */}
             <motion.p
-              className="text-text-muted font-mono text-sm"
+              className="text-text-muted font-mono text-fluid-sm"
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{
                 duration: 1.5,
@@ -138,9 +140,9 @@ export default function PageLoader({
           />
 
           {/* Loader content */}
-          <div className="relative z-10 flex flex-col items-center gap-6">
+          <div className="relative z-10 flex flex-col items-center" style={{ gap: fluidSizing.space.lg }}>
             {/* Spinning loader */}
-            <div className="relative w-24 h-24">
+            <div className="relative" style={{ width: 'clamp(5rem, 8vw, 6rem)', height: 'clamp(5rem, 8vw, 6rem)' }}>
               {/* Outer ring */}
               <motion.div
                 className="absolute inset-0 border-4 border-white/30 border-t-white rounded-full"
@@ -179,7 +181,8 @@ export default function PageLoader({
                 className="absolute inset-0 flex items-center justify-center"
               >
                 <motion.div
-                  className="w-3 h-3 bg-white rounded-full"
+                  className="bg-white rounded-full"
+                  style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }}
                   animate={{
                     scale: [1, 1.5, 1],
                     opacity: [1, 0.5, 1],
@@ -195,16 +198,18 @@ export default function PageLoader({
 
             {/* Loading text */}
             <motion.div
-              className="flex items-center gap-2"
+              className="flex items-center"
+              style={{ gap: fluidSizing.space.sm }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <span className="font-mono text-sm text-white">
+              <span className="font-mono text-white text-fluid-sm">
                 {'<'} CARGANDO {'/>'} 
               </span>
               <motion.span
-                className="flex gap-1"
+                className="flex"
+                style={{ gap: fluidSizing.space.xs }}
                 animate={{ opacity: [1, 0.3, 1] }}
                 transition={{
                   duration: 1.5,
@@ -212,14 +217,14 @@ export default function PageLoader({
                   ease: 'easeInOut',
                 }}
               >
-                <span className="w-1 h-1 bg-white rounded-full" />
-                <span className="w-1 h-1 bg-white rounded-full" />
-                <span className="w-1 h-1 bg-cyber-red rounded-full" />
+                <span className="bg-white rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.xs }} />
+                <span className="bg-white rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.xs }} />
+                <span className="bg-cyber-red rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.xs }} />
               </motion.span>
             </motion.div>
 
             {/* Progress bar */}
-            <div className="w-64 h-1 bg-background-elevated rounded-full overflow-hidden">
+            <div className="h-1 bg-background-elevated rounded-full overflow-hidden" style={{ width: 'clamp(12rem, 30vw, 16rem)' }}>
               <motion.div
                 className="h-full bg-gradient-to-r from-white via-text-secondary to-white"
                 initial={{ x: '-100%' }}
@@ -233,10 +238,10 @@ export default function PageLoader({
           </div>
 
           {/* Corner accents */}
-          <div className="absolute top-8 left-8 w-8 h-8 border-t-2 border-l-2 border-white" />
-          <div className="absolute top-8 right-8 w-8 h-8 border-t-2 border-r-2 border-white" />
-          <div className="absolute bottom-8 left-8 w-8 h-8 border-b-2 border-l-2 border-white" />
-          <div className="absolute bottom-8 right-8 w-8 h-8 border-b-2 border-r-2 border-cyber-red" />
+          <div className="absolute border-t-2 border-l-2 border-white" style={{ top: fluidSizing.space['2xl'], left: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
+          <div className="absolute border-t-2 border-r-2 border-white" style={{ top: fluidSizing.space['2xl'], right: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
+          <div className="absolute border-b-2 border-l-2 border-white" style={{ bottom: fluidSizing.space['2xl'], left: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
+          <div className="absolute border-b-2 border-r-2 border-cyber-red" style={{ bottom: fluidSizing.space['2xl'], right: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
         </motion.div>
       )}
     </AnimatePresence>

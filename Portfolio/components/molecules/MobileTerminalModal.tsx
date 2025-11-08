@@ -8,6 +8,7 @@ import TerminalStatus from './TerminalStatus';
 import TerminalGames from './TerminalGames';
 import TerminalLanguage from './TerminalLanguage';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface MobileTerminalModalProps {
   isOpen: boolean;
@@ -81,14 +82,14 @@ export default function MobileTerminalModal({
             {/* Terminal window */}
             <div className="bg-background-surface/95 backdrop-blur-md border-t border-white/30 rounded-t-2xl overflow-hidden shadow-2xl flex flex-col h-full">
               {/* Terminal header */}
-              <div className="bg-background-elevated px-4 py-3 flex items-center justify-between border-b border-white/30 flex-shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-cyber-red" />
-                    <div className="w-3 h-3 rounded-full bg-white" />
-                    <div className="w-3 h-3 rounded-full bg-white" />
+              <div className="bg-background-elevated flex items-center justify-between border-b border-white/30 flex-shrink-0" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.md}` }}>
+                <div className="flex items-center" style={{ gap: fluidSizing.space.md }}>
+                  <div className="flex" style={{ gap: fluidSizing.space.sm }}>
+                    <div className="rounded-full bg-cyber-red" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
+                    <div className="rounded-full bg-white" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
+                    <div className="rounded-full bg-white" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
                   </div>
-                  <span className="font-mono text-xs text-text-muted">
+                  <span className="font-mono text-text-muted text-fluid-xs">
                     ~/terminal
                     {currentView !== 'main' && (
                       <span className="text-white">
@@ -102,39 +103,41 @@ export default function MobileTerminalModal({
                 </div>
                 <button
                   onClick={handleClose}
-                  className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                  className="rounded-lg hover:bg-white/10 transition-colors"
+                  style={{ padding: fluidSizing.space.xs }}
                   aria-label="Close terminal"
                 >
-                  <svg className="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="size-icon-md text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
               {/* Title Banner */}
-              <div className="bg-gradient-to-r from-white/10 via-text-secondary/10 to-white/10 px-4 py-3 border-b border-white/20 flex-shrink-0">
-                <h2 className="font-orbitron text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-text-secondary text-center">
+              <div className="bg-gradient-to-r from-white/10 via-text-secondary/10 to-white/10 border-b border-white/20 flex-shrink-0" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.md}` }}>
+                <h2 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-text-secondary text-center text-fluid-sm">
                   {t('terminal.interactiveExperience')}
                 </h2>
               </div>
 
               {/* Terminal content */}
               <div 
-                className="flex-1 overflow-y-auto p-4 font-mono text-sm space-y-3"
+                className="flex-1 overflow-y-auto font-mono text-fluid-sm"
+                style={{ padding: fluidSizing.space.md, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
                 onClick={handleTerminalClick}
               >
                 {/* Render current view */}
                 {currentView === 'main' && (
                   <>
                     <TerminalInit profileName={profileName} />
-                    <div className="pt-3">
+                    <div style={{ paddingTop: fluidSizing.space.md }}>
                       <TerminalHelp onCommandSelect={(cmd) => {
                         onCommandExecute(cmd);
                       }} />
                     </div>
                     
                     {/* Easter egg hint */}
-                    <div className="pt-4 text-[10px] text-text-muted/50 italic">
+                    <div className="text-text-muted/50 italic text-fluid-xs" style={{ paddingTop: fluidSizing.space.md }}>
                       {t('terminal.easterEggHint')}
                     </div>
                   </>
@@ -162,7 +165,7 @@ export default function MobileTerminalModal({
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-white text-xs"
+                    className="text-white text-fluid-xs"
                   >
                     <span className="text-green-400">{'>'}</span> {matrixMessage}
                   </motion.div>
@@ -173,14 +176,14 @@ export default function MobileTerminalModal({
                   <motion.div
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="text-cyber-red text-xs"
+                    className="text-cyber-red text-fluid-xs"
                   >
                     <span className="text-cyber-red">{'>'}</span> {t('terminal.commandNotFound')}
                   </motion.div>
                 )}
 
                 {/* Input prompt */}
-                <div className="flex items-center gap-2 pt-2">
+                <div className="flex items-center" style={{ gap: fluidSizing.space.sm, paddingTop: fluidSizing.space.sm }}>
                   <span className="text-cyber-red">{'>'}</span>
                   <input
                     ref={terminalInputRef}
@@ -188,7 +191,7 @@ export default function MobileTerminalModal({
                     value={terminalInput}
                     onChange={(e) => setTerminalInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 bg-transparent border-none outline-none text-white font-mono text-sm caret-white"
+                    className="flex-1 bg-transparent border-none outline-none text-white font-mono caret-white text-fluid-sm"
                     placeholder={t('terminal.typeCommand')}
                     autoComplete="off"
                     autoCorrect="off"

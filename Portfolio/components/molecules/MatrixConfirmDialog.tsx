@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface MatrixConfirmDialogProps {
   isOpen: boolean;
@@ -27,10 +28,11 @@ export default function MatrixConfirmDialog({ isOpen, onConfirm, onCancel }: Mat
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative bg-background-surface border-2 border-cyber-red/50 rounded-lg p-6 max-w-md mx-4 shadow-2xl"
+            className="relative bg-background-surface border-2 border-cyber-red/50 rounded-lg max-w-md mx-4 shadow-2xl"
+            style={{ padding: fluidSizing.space.lg }}
           >
             {/* Warning header */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center" style={{ gap: fluidSizing.space.md, marginBottom: fluidSizing.space.md }}>
               <motion.div
                 animate={{ 
                   scale: [1, 1.2, 1],
@@ -38,57 +40,59 @@ export default function MatrixConfirmDialog({ isOpen, onConfirm, onCancel }: Mat
                 }}
                 transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
               >
-                <svg className="w-8 h-8 text-cyber-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="size-icon-lg text-cyber-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </motion.div>
               <div>
-                <h3 className="font-orbitron text-xl font-bold text-cyber-red">
+                <h3 className="font-orbitron font-bold text-cyber-red text-fluid-xl">
                   {t('matrix.warning')}
                 </h3>
-                <p className="text-xs text-text-muted font-mono">
+                <p className="text-text-muted font-mono text-fluid-xs">
                   {t('matrix.systemAlert')}
                 </p>
               </div>
             </div>
 
             {/* Warning message */}
-            <div className="mb-6 space-y-3">
-              <p className="text-text-secondary font-rajdhani text-sm leading-relaxed">
+            <div style={{ marginBottom: fluidSizing.space.lg, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
+              <p className="text-text-secondary font-rajdhani leading-relaxed text-fluid-sm">
                 {t('matrix.message')}
               </p>
               
-              <div className="bg-background-dark/50 border border-cyber-red/30 rounded p-3 space-y-2">
-                <div className="flex items-center gap-2 text-xs">
+              <div className="bg-background-dark/50 border border-cyber-red/30 rounded" style={{ padding: fluidSizing.space.md, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}>
+                <div className="flex items-center text-fluid-xs" style={{ gap: fluidSizing.space.sm }}>
                   <span className="text-cyber-red">⚠</span>
                   <span className="text-text-muted font-mono">{t('matrix.highCPU')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs">
+                <div className="flex items-center text-fluid-xs" style={{ gap: fluidSizing.space.sm }}>
                   <span className="text-cyber-red">⚠</span>
                   <span className="text-text-muted font-mono">{t('matrix.highGPU')}</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs">
+                <div className="flex items-center text-fluid-xs" style={{ gap: fluidSizing.space.sm }}>
                   <span className="text-cyber-red">⚠</span>
                   <span className="text-text-muted font-mono">{t('matrix.batteryDrain')}</span>
                 </div>
               </div>
 
-              <p className="text-cyber-blue-cyan text-xs font-mono italic">
+              <p className="text-cyber-blue-cyan font-mono italic text-fluid-xs">
                 {t('matrix.recommendation')}
               </p>
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3">
+            <div className="flex" style={{ gap: fluidSizing.space.md }}>
               <button
                 onClick={onCancel}
-                className="flex-1 px-4 py-2 rounded border border-text-muted/30 text-text-muted hover:bg-background-elevated hover:border-text-muted transition-all duration-300 font-mono text-sm"
+                className="flex-1 rounded border border-text-muted/30 text-text-muted hover:bg-background-elevated hover:border-text-muted transition-all duration-300 font-mono text-fluid-sm"
+                style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
               >
                 {t('matrix.cancel')}
               </button>
               <motion.button
                 onClick={onConfirm}
-                className="flex-1 px-4 py-2 rounded bg-cyber-red border border-cyber-red text-background-dark hover:bg-cyber-red/80 transition-all duration-300 font-orbitron font-bold text-sm"
+                className="flex-1 rounded bg-cyber-red border border-cyber-red text-background-dark hover:bg-cyber-red/80 transition-all duration-300 font-orbitron font-bold text-fluid-sm"
+                style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >

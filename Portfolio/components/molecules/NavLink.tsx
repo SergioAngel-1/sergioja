@@ -18,7 +18,7 @@ export default function NavLink({ href, children, className }: NavLinkProps) {
     <Link
       href={href}
       className={cn(
-        'font-orbitron text-sm uppercase tracking-widest transition-all duration-300',
+        'font-orbitron text-fluid-sm uppercase tracking-widest transition-all duration-300',
         'hover:text-cyber-red hover:translate-x-1',
         isActive ? 'text-cyber-red font-bold' : 'text-text-secondary',
         className

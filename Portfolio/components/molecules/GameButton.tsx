@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useModal, GameModalConfig } from '@/lib/contexts/ModalContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface GameButtonProps {
   gameName: string;
@@ -53,7 +54,7 @@ export default function GameButton({
   const isDisabled = lowPerformanceMode || comingSoon;
 
   const defaultIcon = (
-    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="size-icon-sm flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
@@ -63,11 +64,12 @@ export default function GameButton({
     <motion.button
       onClick={handleOpen}
       disabled={isDisabled}
-      className={`inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded border transition-all duration-300 relative ${
+      className={`inline-flex items-center rounded border transition-all duration-300 relative ${
         isDisabled
           ? 'border-text-muted/30 text-text-muted/50 cursor-not-allowed'
           : colorClasses[color]
       }`}
+      style={{ gap: fluidSizing.space.xs, padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}
       whileHover={isDisabled ? {} : { scale: 1.05 }}
       whileTap={isDisabled ? {} : { scale: 0.95 }}
       title={
@@ -79,9 +81,9 @@ export default function GameButton({
       }
     >
       {icon || defaultIcon}
-      <span className="font-mono text-[10px] sm:text-xs whitespace-nowrap">{gameTitle}</span>
+      <span className="font-mono whitespace-nowrap text-fluid-xs">{gameTitle}</span>
       {comingSoon && (
-        <span className="absolute -top-1.5 sm:-top-2 -right-1.5 sm:-right-2 bg-cyber-blue-cyan text-black text-[8px] sm:text-[9px] px-1.5 sm:px-2 py-0.5 rounded-full font-mono font-bold shadow-lg shadow-cyber-blue-cyan/50 animate-pulse uppercase">
+        <span className="absolute bg-cyber-blue-cyan text-black rounded-full font-mono font-bold shadow-lg shadow-cyber-blue-cyan/50 animate-pulse uppercase text-fluid-xs" style={{ top: `calc(-1 * ${fluidSizing.space.xs})`, right: `calc(-1 * ${fluidSizing.space.xs})`, padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}>
           {t('snake.comingSoon')}
         </span>
       )}

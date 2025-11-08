@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface PageRoute {
   path: string;
@@ -63,7 +64,8 @@ export default function NextPageButton() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.3 }}
-          className="group fixed bottom-8 right-8 z-[60] hidden md:flex items-center gap-3"
+          className="group fixed z-[60] hidden md:flex items-center"
+          style={{ bottom: fluidSizing.space['2xl'], right: fluidSizing.space['2xl'], gap: fluidSizing.space.md }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           whileHover={{ scale: 1.05 }}
@@ -80,15 +82,15 @@ export default function NextPageButton() {
             transition={{ duration: 0.2 }}
             className="pointer-events-none"
           >
-            <div className="bg-background-surface/90 backdrop-blur-md border border-white/30 rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
-              <span className="font-mono text-xs text-text-secondary">
+            <div className="bg-background-surface/90 backdrop-blur-md border border-white/30 rounded-lg whitespace-nowrap shadow-lg" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
+              <span className="font-mono text-text-secondary text-fluid-xs">
                 {t('nextpage.next')}: <span className="font-orbitron font-semibold text-white">{t(nextRoute.labelKey)}</span>
               </span>
             </div>
           </motion.div>
 
           {/* Circular button */}
-          <div className="relative w-12 h-12 rounded-full bg-background-surface/80 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all duration-300 group-hover:border-white group-hover:bg-white/10 shadow-lg">
+          <div className="relative rounded-full bg-background-surface/80 backdrop-blur-md border border-white/30 flex items-center justify-center transition-all duration-300 group-hover:border-white group-hover:bg-white/10 shadow-lg" style={{ width: fluidSizing.size.buttonLg, height: fluidSizing.size.buttonLg }}>
             {/* Pulsing background */}
             <motion.div
               className="absolute inset-0 rounded-full bg-white/20"
@@ -100,7 +102,7 @@ export default function NextPageButton() {
             {pathname === '/contact' ? (
               // Home icon for Contact page
               <svg
-                className="w-5 h-5 text-white relative z-10"
+                className="size-icon-md text-white relative z-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -115,7 +117,7 @@ export default function NextPageButton() {
             ) : (
               // Arrow icon for other pages
               <motion.svg
-                className="w-5 h-5 text-white relative z-10"
+                className="size-icon-md text-white relative z-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

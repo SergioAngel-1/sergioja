@@ -9,6 +9,7 @@ import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import { api } from '@/lib/api-client';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -58,7 +59,7 @@ export default function ContactPage() {
   const contactMethods = [
     {
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       ),
@@ -68,7 +69,7 @@ export default function ContactPage() {
     },
     {
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
@@ -78,7 +79,7 @@ export default function ContactPage() {
     },
     {
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
@@ -94,7 +95,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="relative min-h-screen md:pl-20 py-16 md:py-20 px-4 sm:px-6 md:px-8 pb-24 md:pb-8 overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -121,7 +122,7 @@ export default function ContactPage() {
       {/* Floating particles - Reducidas en móvil */}
       <FloatingParticles count={50} color="bg-white" />
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full">
+      <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
         {/* Breadcrumbs */}
         <Breadcrumbs />
 
@@ -132,7 +133,7 @@ export default function ContactPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="font-orbitron text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-3 md:mb-4 relative inline-block">
+            <h1 className="font-orbitron font-black relative inline-block" style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}>
               <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
                 {t('contact.title')}
                 <motion.span
@@ -154,13 +155,13 @@ export default function ContactPage() {
               </span>
             </h1>
 
-            <p className="text-text-secondary text-sm sm:text-base md:text-lg font-rajdhani max-w-3xl leading-relaxed">
+            <p className="text-text-secondary font-rajdhani max-w-3xl leading-relaxed text-fluid-lg">
               {t('contact.intro')}
             </p>
           </motion.div>
         </div>
 
-        <div className="grid lg:grid-cols-5 gap-6 md:gap-8 lg:gap-12">
+        <div className="grid lg:grid-cols-5" style={{ gap: fluidSizing.space['2xl'] }}>
           {/* Left side - Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -168,15 +169,15 @@ export default function ContactPage() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="lg:col-span-3 flex"
           >
-            <div className="relative w-full bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg p-5 sm:p-6 md:p-8 hover:border-white/50 transition-all duration-300 flex flex-col">
-              <h2 className="font-orbitron text-xl sm:text-2xl font-bold mb-4 md:mb-6 text-white">
+            <div className="relative w-full bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg hover:border-white/50 transition-all duration-300 flex flex-col" style={{ padding: fluidSizing.space.xl }}>
+              <h2 className="font-orbitron font-bold text-white text-fluid-2xl" style={{ marginBottom: fluidSizing.space.lg }}>
                 {t('contact.sendMessage')}
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6 flex-1 flex flex-col">
+              <form onSubmit={handleSubmit} className="flex-1 flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
                 {/* Name Input */}
                 <div>
-                  <label htmlFor="name" className="block text-[10px] sm:text-xs font-mono text-white uppercase tracking-wider mb-2">
+                  <label htmlFor="name" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
                     {t('contact.name')} *
                   </label>
                   <input
@@ -186,14 +187,15 @@ export default function ContactPage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-sm sm:text-base"
+                    className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
+                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                     placeholder={t('contact.namePlaceholder')}
                   />
                 </div>
 
                 {/* Email Input */}
                 <div>
-                  <label htmlFor="email" className="block text-[10px] sm:text-xs font-mono text-white uppercase tracking-wider mb-2">
+                  <label htmlFor="email" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
                     {t('contact.email')} *
                   </label>
                   <input
@@ -203,14 +205,15 @@ export default function ContactPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-sm sm:text-base"
+                    className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
+                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                     placeholder={t('contact.emailPlaceholder')}
                   />
                 </div>
 
                 {/* Subject Input */}
                 <div>
-                  <label htmlFor="subject" className="block text-[10px] sm:text-xs font-mono text-white uppercase tracking-wider mb-2">
+                  <label htmlFor="subject" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
                     {t('contact.subject')} *
                   </label>
                   <input
@@ -220,14 +223,15 @@ export default function ContactPage() {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-sm sm:text-base"
+                    className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
+                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                     placeholder={t('contact.subjectPlaceholder')}
                   />
                 </div>
 
                 {/* Message Textarea */}
                 <div className="flex-1 flex flex-col">
-                  <label htmlFor="message" className="block text-[10px] sm:text-xs font-mono text-white uppercase tracking-wider mb-2">
+                  <label htmlFor="message" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
                     {t('contact.message')} *
                   </label>
                   <textarea
@@ -236,7 +240,8 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    className="flex-1 w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all resize-none text-text-primary font-rajdhani text-sm sm:text-base min-h-[120px] sm:min-h-[150px]"
+                    className="flex-1 w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all resize-none text-text-primary font-rajdhani text-fluid-base"
+                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, minHeight: 'clamp(120px, 20vw, 180px)' }}
                     placeholder={t('contact.messagePlaceholder')}
                   />
                 </div>
@@ -303,8 +308,8 @@ export default function ContactPage() {
               </form>
 
               {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white" />
-              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white" />
+              <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
+              <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
             </div>
           </motion.div>
 
@@ -313,10 +318,11 @@ export default function ContactPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="lg:col-span-2 space-y-6"
+            className="lg:col-span-2"
+            style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xl }}
           >
             {/* Contact Methods - Grid 3 */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3" style={{ gap: fluidSizing.space.md }}>
               {contactMethods.map((method, index) => (
                 <motion.div
                   key={method.label}
@@ -327,16 +333,16 @@ export default function ContactPage() {
                 >
                   {method.href ? (
                     <a href={method.href} className="block h-full">
-                      <div className="h-full bg-background-elevated border border-white/20 rounded-lg p-4 hover:border-white/40 transition-all duration-300">
-                        <div className="flex flex-col items-center text-center gap-3">
+                      <div className="h-full bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300" style={{ padding: fluidSizing.space.md }}>
+                        <div className="flex flex-col items-center text-center" style={{ gap: fluidSizing.space.md }}>
                           <div className="text-white group-hover:scale-110 transition-transform">
                             {method.icon}
                           </div>
                           <div>
-                            <div className="text-[9px] text-text-muted font-mono uppercase tracking-wider mb-1">
+                            <div className="text-text-muted font-mono uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.xs }}>
                               {method.label}
                             </div>
-                            <div className="text-text-primary font-rajdhani font-semibold text-xs break-all">
+                            <div className="text-text-primary font-rajdhani font-semibold break-all text-fluid-xs">
                               {method.value}
                             </div>
                           </div>
@@ -345,16 +351,16 @@ export default function ContactPage() {
                       <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 rounded-lg blur-lg transition-opacity pointer-events-none" />
                     </a>
                   ) : (
-                    <div className="h-full bg-background-elevated border border-white/20 rounded-lg p-4 hover:border-white/40 transition-all duration-300">
-                      <div className="flex flex-col items-center text-center gap-3">
+                    <div className="h-full bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300" style={{ padding: fluidSizing.space.md }}>
+                      <div className="flex flex-col items-center text-center" style={{ gap: fluidSizing.space.md }}>
                         <div className="text-white group-hover:scale-110 transition-transform">
                           {method.icon}
                         </div>
                         <div>
-                          <div className="text-[9px] text-text-muted font-mono uppercase tracking-wider mb-1">
+                          <div className="text-text-muted font-mono uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.xs }}>
                             {method.label}
                           </div>
-                          <div className="text-text-primary font-rajdhani font-semibold text-xs">
+                          <div className="text-text-primary font-rajdhani font-semibold text-fluid-xs">
                             {method.value}
                           </div>
                         </div>
@@ -371,31 +377,33 @@ export default function ContactPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9, duration: 0.6 }}
-              className="bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg p-4 sm:p-5 md:p-6 hover:border-white/50 transition-all duration-300"
+              className="bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg hover:border-white/50 transition-all duration-300"
+              style={{ padding: fluidSizing.space.lg }}
             >
-              <h3 className="font-orbitron text-base sm:text-lg font-bold mb-3 sm:mb-4 text-white">
+              <h3 className="font-orbitron font-bold text-white text-fluid-lg" style={{ marginBottom: fluidSizing.space.md }}>
                 {t('contact.connect')}
               </h3>
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
                 {socialLinks.map((social, index) => (
                   <motion.a
                     key={social.name}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-background-elevated/50 rounded-lg hover:bg-background-elevated transition-all duration-300 group"
+                    className="flex items-center bg-background-elevated/50 rounded-lg hover:bg-background-elevated transition-all duration-300 group"
+                    style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1 + index * 0.1 }}
                     whileHover={{ x: 5 }}
                   >
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="size-icon-md text-text-muted group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                       <path d={social.icon} />
                     </svg>
-                    <span className="text-text-secondary group-hover:text-text-primary font-rajdhani font-medium text-sm sm:text-base transition-colors">
+                    <span className="text-text-secondary group-hover:text-text-primary font-rajdhani font-medium transition-colors text-fluid-base">
                       {social.name}
                     </span>
-                    <svg className="w-4 h-4 ml-auto text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="size-icon-sm ml-auto text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                   </motion.a>
@@ -408,22 +416,24 @@ export default function ContactPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.3, duration: 0.6 }}
-              className="bg-gradient-to-br from-white/10 to-white/10 backdrop-blur-sm border border-white/30 rounded-lg p-4 sm:p-5 md:p-6"
+              className="bg-gradient-to-br from-white/10 to-white/10 backdrop-blur-sm border border-white/30 rounded-lg"
+              style={{ padding: fluidSizing.space.lg }}
             >
-              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.sm }}>
                 <div className="relative">
-                  <div className="w-3 h-3 bg-cyber-red rounded-full" />
+                  <div className="bg-cyber-red rounded-full" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
                   <motion.div
-                    className="absolute inset-0 w-3 h-3 bg-cyber-red rounded-full"
+                    className="absolute inset-0 bg-cyber-red rounded-full"
+                    style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }}
                     animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
                 </div>
-                <span className="font-orbitron text-xs sm:text-sm font-bold text-cyber-red">
+                <span className="font-orbitron font-bold text-cyber-red text-fluid-sm">
                   {t('contact.available')}
                 </span>
               </div>
-              <p className="text-text-secondary text-xs sm:text-sm font-rajdhani leading-relaxed">
+              <p className="text-text-secondary font-rajdhani leading-relaxed text-fluid-sm">
                 {t('contact.availableMsg')}
               </p>
             </motion.div>
