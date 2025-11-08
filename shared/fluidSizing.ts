@@ -45,6 +45,11 @@ export const fluidSizing = {
     width: 'clamp(4rem, 5vw, 5rem)',
     gap: 'clamp(0.5rem, 1.2vw, 2rem)',
   },
+
+  // Header specific
+  header: {
+    height: 'clamp(4rem, 6vw, 6rem)', // Altura del header para padding-top
+  },
 } as const;
 
 /**

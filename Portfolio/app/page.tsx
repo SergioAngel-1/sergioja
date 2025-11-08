@@ -217,7 +217,7 @@ export default function Home() {
         matrixMessage={matrixMessage}
       />
 
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20">
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20" style={{ paddingTop: fluidSizing.header.height }}>
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-15" />
 
