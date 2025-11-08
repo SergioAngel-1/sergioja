@@ -5,8 +5,7 @@ import Navbar from '@/components/organisms/Navbar';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import NextPageButton from '@/components/molecules/NextPageButton';
 import PageLoader from '@/components/molecules/PageLoader';
-import PerformanceToggle from '@/components/molecules/PerformanceToggle';
-import LanguageToggle from '@/components/molecules/LanguageToggle';
+import HeaderWrapper from '@/components/organisms/HeaderWrapper';
 import { PerformanceProvider } from '@/lib/contexts/PerformanceContext';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { MatrixProvider } from '@/lib/contexts/MatrixContext';
@@ -81,8 +80,7 @@ export default function RootLayout({
               <ModalProvider>
                 <ErrorBoundary>
                   <PageLoader />
-                  <PerformanceToggle />
-                  <LanguageToggle />
+                  <HeaderWrapper />
                   <Navbar />
                   <main className="min-h-screen">{children}</main>
                   <NextPageButton />

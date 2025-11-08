@@ -20,12 +20,18 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false 
       {/* Breadcrumbs or Home Badge - Static position */}
       {(showBreadcrumbs || showHomeBadge) && (
         <motion.div 
-          className="absolute top-0 left-0 md:left-20 z-30"
-          style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
+          className="absolute top-0 left-0 md:left-20 right-0 z-30"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
+          <div 
+            className="mx-auto w-full"
+            style={{ 
+              maxWidth: '1600px', 
+              padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` 
+            }}
+          >
           {showBreadcrumbs && <Breadcrumbs />}
           {showHomeBadge && (
             <motion.div
@@ -40,6 +46,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false 
               </span>
             </motion.div>
           )}
+          </div>
         </motion.div>
       )}
 
@@ -47,9 +54,9 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false 
       <motion.div 
         className="fixed top-0 right-0 z-50"
         style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
-        initial={{ y: -100, opacity: 0 }}
+        initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
           <LanguageToggle />
