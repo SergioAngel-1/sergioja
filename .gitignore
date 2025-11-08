@@ -60,7 +60,6 @@ temp/
 tsconfig.tsbuildinfo
 
 # Docker
-.dockerignore
 docker-compose.override.yml
 
 # Vercel
