@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import GameModal, { GameControl, ScoreDisplay } from '@/components/molecules/GameModal';
 
 export interface GameModalConfig {
@@ -31,25 +31,30 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     content: null,
   });
 
-  const openGameModal = (config: GameModalConfig) => {
+  const openGameModal = useCallback((config: GameModalConfig) => {
     setModalConfig(config);
     setIsOpen(true);
-  };
+  }, []);
 
-  const closeGameModal = () => {
+  const closeGameModal = useCallback(() => {
     setIsOpen(false);
     // Clear content after animation
     setTimeout(() => {
       setModalConfig({ title: '', content: null });
     }, 300);
-  };
+  }, []);
 
-  const updateGameModal = (config: Partial<GameModalConfig>) => {
+  const updateGameModal = useCallback((config: Partial<GameModalConfig>) => {
     setModalConfig(prev => ({ ...prev, ...config }));
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({ openGameModal, closeGameModal, updateGameModal, isGameModalOpen: isOpen }),
+    [openGameModal, closeGameModal, updateGameModal, isOpen]
+  );
 
   return (
-    <ModalContext.Provider value={{ openGameModal, closeGameModal, updateGameModal, isGameModalOpen: isOpen }}>
+    <ModalContext.Provider value={value}>
       {children}
       {/* Global modal portal */}
       <GameModal 

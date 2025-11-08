@@ -40,9 +40,11 @@ interface TetrisGameProps {
   onClose: () => void;
   onScoreUpdate?: (score: number, highScore: number, level: number, lines: number) => void;
   onGameStateChange?: (isPaused: boolean, isGameOver: boolean) => void;
+  paused?: boolean;
+  resetTrigger?: number;
 }
 
-export default function TetrisGame({ isActive, onClose, onScoreUpdate, onGameStateChange }: TetrisGameProps) {
+export default function TetrisGame({ isActive, onClose, onScoreUpdate, onGameStateChange, paused, resetTrigger }: TetrisGameProps) {
   const [board, setBoard] = useState<Board>(() => 
     Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(0))
   );
@@ -88,6 +90,27 @@ export default function TetrisGame({ isActive, onClose, onScoreUpdate, onGameSta
       onGameStateChange(isPaused, gameOver);
     }
   }, [isPaused, gameOver, onGameStateChange]);
+
+  // External pause control
+  useEffect(() => {
+    if (typeof paused === 'boolean') {
+      setIsPaused(paused);
+    }
+  }, [paused]);
+
+  // External reset control
+  useEffect(() => {
+    if (resetTrigger && resetTrigger > 0) {
+      setBoard(Array(BOARD_HEIGHT).fill(null).map(() => Array(BOARD_WIDTH).fill(0)));
+      setCurrentPiece(generatePiece());
+      setGameOver(false);
+      setScore(0);
+      setLevel(1);
+      setLinesCleared(0);
+      setIsPaused(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetTrigger]);
 
   // Generate random piece
   const generatePiece = useCallback(() => {

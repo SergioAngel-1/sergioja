@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
 type Language = 'es' | 'en';
 
@@ -530,9 +530,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     changeLanguage(newLanguage);
   };
 
-  const t = (key: string): string => {
+  const t = useCallback((key: string): string => {
     return translations[language][key as keyof typeof translations['es']] || key;
-  };
+  }, [language]);
 
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage, setLanguage: changeLanguage, t }}>

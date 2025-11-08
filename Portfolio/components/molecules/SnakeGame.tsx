@@ -20,11 +20,13 @@ const INITIAL_SPEED = 150;
 interface SnakeGameProps {
   isActive: boolean;
   onClose: () => void;
-  onScoreUpdate?: (score: number, highScore: number) => void;
+  onScoreUpdate?: (score: number) => void;
   onGameStateChange?: (isPaused: boolean, isGameOver: boolean) => void;
+  resetTrigger?: number;
+  paused?: boolean;
 }
 
-export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStateChange }: SnakeGameProps) {
+export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStateChange, resetTrigger, paused }: SnakeGameProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [snake, setSnake] = useState<Position[]>([{ x: 15, y: 9 }]);
   const [food, setFood] = useState<Position>({ x: 20, y: 9 });
@@ -32,7 +34,6 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [highScore, setHighScore] = useState(0);
   const { lowPerformanceMode } = usePerformance();
   const { t } = useLanguage();
   
@@ -51,18 +52,14 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Load high score from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('snake-highscore');
-    if (saved) setHighScore(parseInt(saved, 10));
-  }, []);
+  // Removed: high score persistence
 
   // Notify parent of score changes
   useEffect(() => {
     if (onScoreUpdate) {
-      onScoreUpdate(score, highScore);
+      onScoreUpdate(score);
     }
-  }, [score, highScore, onScoreUpdate]);
+  }, [score, onScoreUpdate]);
 
   // Notify parent of game state changes
   useEffect(() => {
@@ -70,6 +67,13 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
       onGameStateChange(isPaused, gameOver);
     }
   }, [isPaused, gameOver, onGameStateChange]);
+
+  // External pause control
+  useEffect(() => {
+    if (typeof paused === 'boolean') {
+      setIsPaused(paused);
+    }
+  }, [paused]);
 
   // Generate random food position
   const generateFood = useCallback((currentSnake: Position[]): Position => {
@@ -96,6 +100,23 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
     setScore(0);
     setIsPaused(false);
   }, [generateFood, gridWidth, gridHeight]);
+
+  // Listen for reset trigger from parent
+  useEffect(() => {
+    if (resetTrigger && resetTrigger > 0) {
+      const startX = Math.floor(gridWidth / 2);
+      const startY = Math.floor(gridHeight / 2);
+      const initialSnake = [{ x: startX, y: startY }];
+      setSnake(initialSnake);
+      setFood(generateFood(initialSnake));
+      setDirection('RIGHT');
+      directionRef.current = 'RIGHT';
+      setGameOver(false);
+      setScore(0);
+      setIsPaused(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetTrigger]);
 
   // Handle keyboard input for movement
   useEffect(() => {
@@ -199,14 +220,7 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
 
         // Check food collision
         if (newHead.x === food.x && newHead.y === food.y) {
-          setScore(prev => {
-            const newScore = prev + 10;
-            if (newScore > highScore) {
-              setHighScore(newScore);
-              localStorage.setItem('snake-highscore', newScore.toString());
-            }
-            return newScore;
-          });
+          setScore(prev => prev + 10);
           setFood(generateFood(newSnake));
           return newSnake;
         }
@@ -222,7 +236,7 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
         clearInterval(gameLoopRef.current);
       }
     };
-  }, [isActive, gameOver, isPaused, food, score, highScore, generateFood, gridWidth, gridHeight]);
+  }, [isActive, gameOver, isPaused, food, score, generateFood, gridWidth, gridHeight]);
 
   // Close game when switching to low performance mode
   useEffect(() => {

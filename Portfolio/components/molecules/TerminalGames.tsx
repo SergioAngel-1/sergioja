@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import GameButton from './GameButton';
 import SnakeGame from './SnakeGame';
 import TetrisGame from './TetrisGame';
@@ -30,9 +30,9 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
   
   // Snake game state
   const [snakeScore, setSnakeScore] = useState(0);
-  const [snakeHighScore, setSnakeHighScore] = useState(0);
   const [snakePaused, setSnakePaused] = useState(false);
   const [snakeGameOver, setSnakeGameOver] = useState(false);
+  const [snakeResetTrigger, setSnakeResetTrigger] = useState(0);
   
   // Tetris game state
   const [tetrisScore, setTetrisScore] = useState(0);
@@ -41,11 +41,17 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
   const [tetrisLines, setTetrisLines] = useState(0);
   const [tetrisPaused, setTetrisPaused] = useState(false);
   const [tetrisGameOver, setTetrisGameOver] = useState(false);
+  const [tetrisResetTrigger, setTetrisResetTrigger] = useState(0);
+
+  // Refs to avoid redundant modal updates causing render loops
+  const lastSnakeRef = useRef<null | { score: number; paused: boolean; gameOver: boolean }>(null);
+  const lastTetrisRef = useRef<
+    null | { score: number; level: number; lines: number; paused: boolean; gameOver: boolean }
+  >(null);
 
   // Snake callbacks
-  const handleSnakeScoreUpdate = useCallback((score: number, highScore: number) => {
+  const handleSnakeScoreUpdate = useCallback((score: number) => {
     setSnakeScore(score);
-    setSnakeHighScore(highScore);
   }, []);
 
   const handleSnakeStateChange = useCallback((paused: boolean, gameOver: boolean) => {
@@ -73,8 +79,17 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
       onClose={closeGameModal}
       onScoreUpdate={handleSnakeScoreUpdate}
       onGameStateChange={handleSnakeStateChange}
+      paused={snakePaused}
+      resetTrigger={snakeResetTrigger}
     />
-  ), [closeGameModal, handleSnakeScoreUpdate, handleSnakeStateChange]);
+  ), [closeGameModal, handleSnakeScoreUpdate, handleSnakeStateChange, snakeResetTrigger, snakePaused]);
+
+  // Keep modal content in sync for Snake when pause/reset changes
+  useEffect(() => {
+    if (isGameModalOpen && activeGame === 'snake') {
+      updateGameModal({ content: snakeGameContent });
+    }
+  }, [snakeGameContent, isGameModalOpen, activeGame, updateGameModal]);
 
   // Tetris game content
   const tetrisGameContent = useMemo(() => (
@@ -83,38 +98,63 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
       onClose={closeGameModal}
       onScoreUpdate={handleTetrisScoreUpdate}
       onGameStateChange={handleTetrisStateChange}
+      paused={tetrisPaused}
+      resetTrigger={tetrisResetTrigger}
     />
-  ), [closeGameModal, handleTetrisScoreUpdate, handleTetrisStateChange]);
+  ), [closeGameModal, handleTetrisScoreUpdate, handleTetrisStateChange, tetrisPaused, tetrisResetTrigger]);
+
+  // Keep modal content in sync for Tetris when pause/reset changes
+  useEffect(() => {
+    if (isGameModalOpen && activeGame === 'tetris') {
+      updateGameModal({ content: tetrisGameContent });
+    }
+  }, [tetrisGameContent, isGameModalOpen, activeGame, updateGameModal]);
 
   // Update modal scores when Snake scores change
   useEffect(() => {
     if (isGameModalOpen && activeGame === 'snake') {
-      updateGameModal({
-        scores: [
-          { label: t('snake.score'), value: snakeScore, color: 'text-white' },
-          { label: t('snake.high'), value: snakeHighScore, color: 'text-text-secondary' }
-        ],
-        isPaused: snakePaused,
-        isGameOver: snakeGameOver
-      });
+      const snapshot = { score: snakeScore, paused: snakePaused, gameOver: snakeGameOver };
+      const last = lastSnakeRef.current;
+      const changed = !last || last.score !== snapshot.score || last.paused !== snapshot.paused || last.gameOver !== snapshot.gameOver;
+      if (changed) {
+        lastSnakeRef.current = snapshot;
+        updateGameModal({
+          scores: [
+            { label: t('snake.score'), value: snakeScore, color: 'text-white' }
+          ],
+          isPaused: snakePaused,
+          isGameOver: snakeGameOver
+        });
+      }
     }
-  }, [snakeScore, snakeHighScore, snakePaused, snakeGameOver, isGameModalOpen, activeGame, updateGameModal, t]);
+  }, [snakeScore, snakePaused, snakeGameOver, isGameModalOpen, activeGame, updateGameModal, t]);
 
   // Update modal scores when Tetris scores change
   useEffect(() => {
     if (isGameModalOpen && activeGame === 'tetris') {
-      updateGameModal({
-        scores: [
-          { label: t('snake.score'), value: tetrisScore, color: 'text-white' },
-          { label: t('snake.high'), value: tetrisHighScore, color: 'text-text-secondary' },
-          { label: 'Level', value: tetrisLevel, color: 'text-green-400' },
-          { label: 'Lines', value: tetrisLines, color: 'text-yellow-400' }
-        ],
-        isPaused: tetrisPaused,
-        isGameOver: tetrisGameOver
-      });
+      const snapshot = { score: tetrisScore, level: tetrisLevel, lines: tetrisLines, paused: tetrisPaused, gameOver: tetrisGameOver };
+      const last = lastTetrisRef.current;
+      const changed =
+        !last ||
+        last.score !== snapshot.score ||
+        last.level !== snapshot.level ||
+        last.lines !== snapshot.lines ||
+        last.paused !== snapshot.paused ||
+        last.gameOver !== snapshot.gameOver;
+      if (changed) {
+        lastTetrisRef.current = snapshot;
+        updateGameModal({
+          scores: [
+            { label: t('snake.score'), value: tetrisScore, color: 'text-white' },
+            { label: 'Level', value: tetrisLevel, color: 'text-white' },
+            { label: 'Lines', value: tetrisLines, color: 'text-white' }
+          ],
+          isPaused: tetrisPaused,
+          isGameOver: tetrisGameOver
+        });
+      }
     }
-  }, [tetrisScore, tetrisHighScore, tetrisLevel, tetrisLines, tetrisPaused, tetrisGameOver, isGameModalOpen, activeGame, updateGameModal, t]);
+  }, [tetrisScore, tetrisLevel, tetrisLines, tetrisPaused, tetrisGameOver, isGameModalOpen, activeGame, updateGameModal, t]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
@@ -157,17 +197,27 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
           }}
           modalConfig={{
             content: snakeGameContent,
-            onPause: () => setSnakePaused(!snakePaused),
+            onPause: () =>
+              setSnakePaused(prev => {
+                const next = !prev;
+                updateGameModal({ isPaused: next });
+                return next;
+              }),
             onReset: () => {
               setSnakeScore(0);
               setSnakeGameOver(false);
               setSnakePaused(false);
+              setSnakeResetTrigger(prev => prev + 1);
+              updateGameModal({
+                isPaused: false,
+                isGameOver: false,
+                scores: [{ label: t('snake.score'), value: 0, color: 'text-white' }],
+              });
             },
             isPaused: snakePaused,
             isGameOver: snakeGameOver,
             scores: [
-              { label: t('snake.score'), value: snakeScore, color: 'text-white' },
-              { label: t('snake.high'), value: snakeHighScore, color: 'text-text-secondary' }
+              { label: t('snake.score'), value: snakeScore, color: 'text-white' }
             ],
             controls: [
               {
@@ -210,20 +260,34 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
           }}
           modalConfig={{
             content: tetrisGameContent,
-            onPause: () => setTetrisPaused(!tetrisPaused),
+            onPause: () =>
+              setTetrisPaused(prev => {
+                const next = !prev;
+                updateGameModal({ isPaused: next });
+                return next;
+              }),
             onReset: () => {
               setTetrisScore(0);
               setTetrisGameOver(false);
               setTetrisPaused(false);
+              setTetrisResetTrigger(prev => prev + 1);
+              updateGameModal({
+                isPaused: false,
+                isGameOver: false,
+                scores: [
+                  { label: t('snake.score'), value: 0, color: 'text-white' },
+                  { label: 'Level', value: 1, color: 'text-white' },
+                  { label: 'Lines', value: 0, color: 'text-white' },
+                ],
+              });
             },
             isPaused: tetrisPaused,
             isGameOver: tetrisGameOver,
             controlsStacked: true,
             scores: [
               { label: t('snake.score'), value: tetrisScore, color: 'text-white' },
-              { label: t('snake.high'), value: tetrisHighScore, color: 'text-text-secondary' },
-              { label: 'Level', value: tetrisLevel, color: 'text-green-400' },
-              { label: 'Lines', value: tetrisLines, color: 'text-yellow-400' }
+              { label: 'Level', value: tetrisLevel, color: 'text-white' },
+              { label: 'Lines', value: tetrisLines, color: 'text-white' }
             ],
             controls: [
               {
