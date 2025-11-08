@@ -201,4 +201,34 @@
       transform: translateY(-20px);
     }
   }
+
+  /* ========================================
+   * FLUID SIZING UTILITIES
+   * Sistema de sizing fluido con clamp()
+   * ======================================== */
+
+  /* Spacing utilities */
+  .gap-fluid-xs { gap: clamp(0.25rem, 0.3vw, 0.5rem); }
+  .gap-fluid-sm { gap: clamp(0.5rem, 0.75vw, 1rem); }
+  .gap-fluid-md { gap: clamp(0.75rem, 1vw, 1.5rem); }
+  .gap-fluid-lg { gap: clamp(1rem, 1.5vw, 2rem); }
+  .gap-fluid-xl { gap: clamp(1.5rem, 2vw, 2.5rem); }
+  .gap-fluid-2xl { gap: clamp(2rem, 3vw, 4rem); }
+
+  /* Icon sizes */
+  .size-icon-sm { width: clamp(1rem, 1.2vw, 1.25rem); height: clamp(1rem, 1.2vw, 1.25rem); }
+  .size-icon-md { width: clamp(1.25rem, 1.5vw, 1.5rem); height: clamp(1.25rem, 1.5vw, 1.5rem); }
+  .size-icon-lg { width: clamp(1.5rem, 2vw, 2rem); height: clamp(1.5rem, 2vw, 2rem); }
+
+  /* Typography utilities */
+  .text-fluid-xs { font-size: clamp(0.625rem, 0.75vw, 0.75rem); }
+  .text-fluid-sm { font-size: clamp(0.75rem, 0.875vw, 0.875rem); }
+  .text-fluid-base { font-size: clamp(0.875rem, 1vw, 1rem); }
+  .text-fluid-lg { font-size: clamp(1rem, 1.25vw, 1.25rem); }
+  .text-fluid-xl { font-size: clamp(1.25rem, 1.5vw, 1.5rem); }
+  .text-fluid-2xl { font-size: clamp(1.5rem, 2vw, 2rem); }
+  .text-fluid-3xl { font-size: clamp(2rem, 2.5vw, 3rem); }
+  .text-fluid-4xl { font-size: clamp(2.5rem, 3vw, 4rem); }
+  .text-fluid-5xl { font-size: clamp(3rem, 4vw, 5rem); }
+  .text-fluid-6xl { font-size: clamp(3.5rem, 5vw, 6rem); }
 }
