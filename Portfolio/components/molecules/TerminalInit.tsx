@@ -38,7 +38,7 @@ export default function TerminalInit({ profileName }: TerminalInitProps) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       ),
-      label: `${t('terminal.developer')}: ${profileName || 'Sergio Jáuregui'}`,
+      label: t('terminal.developer'),
       delay: 0.4
     }
   ];
@@ -54,34 +54,25 @@ export default function TerminalInit({ profileName }: TerminalInitProps) {
         <span className="text-white" style={{ marginLeft: fluidSizing.space.sm }}>{t('terminal.init')}</span>
       </motion.div>
 
-      <div className="grid grid-cols-3" style={{ paddingLeft: fluidSizing.space.xl, gap: fluidSizing.space.sm }}>
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center" style={{ paddingLeft: fluidSizing.space.md, gap: fluidSizing.space.xs }}>
         {initItems.map((item, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: item.delay }}
-            className="group relative bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300"
-            style={{ padding: fluidSizing.space.md }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: item.delay, type: 'spring', stiffness: 200 }}
+            className="group relative flex items-center bg-background-elevated border border-white/20 rounded-full hover:border-cyber-blue-cyan/50 hover:bg-white/5 transition-all duration-300 w-full sm:w-auto"
+            style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, gap: fluidSizing.space.xs }}
           >
-            {/* Glow effect on hover */}
-            <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
-            <div className="relative flex items-center" style={{ gap: fluidSizing.space.md }}>
-              <div className="flex-shrink-0 text-white">
-                {item.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-text-secondary font-mono truncate text-fluid-xs" title={item.label}>
-                  {item.label}
-                </div>
-              </div>
-              <div className="flex-shrink-0">
-                <svg className={`size-icon-sm text-cyber-blue-cyan ${lowPerformanceMode ? '' : 'animate-pulse'}`} fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
+            <div className="text-white flex-shrink-0">
+              {item.icon}
             </div>
+            <div className="text-text-secondary font-mono text-fluid-xs flex-1 sm:flex-initial">
+              {item.label}
+            </div>
+            <svg className={`size-icon-sm text-cyber-blue-cyan flex-shrink-0 ${lowPerformanceMode ? '' : 'animate-pulse'}`} fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
           </motion.div>
         ))}
       </div>

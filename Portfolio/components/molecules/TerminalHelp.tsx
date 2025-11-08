@@ -33,7 +33,7 @@ export default function TerminalHelp({ onCommandSelect, onBack }: TerminalHelpPr
           transition={{ delay: 0.1 }}
         >
           <span className="text-cyber-red">❯</span>
-          <span className="text-white" style={{ marginLeft: fluidSizing.space.sm }}>{t('terminal.help')}</span>
+          <span className="text-white" style={{ marginLeft: fluidSizing.space.sm }}>commands</span>
         </motion.div>
         {onBack && <TerminalBackButton onBack={onBack} delay={0.2} />}
       </div>
