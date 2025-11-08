@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 
 import Loader from '@/components/atoms/Loader';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
   ssr: false,
@@ -40,8 +41,8 @@ export default function CenteredHero() {
   if (!mounted) return null;
 
   return (
-    <div className="relative w-full h-screen flex items-center justify-center px-4">
-      <div className="relative w-[280px] h-[280px] xs:w-[320px] xs:h-[320px] sm:w-[400px] sm:h-[400px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px]">
+    <div className="relative w-full h-screen flex items-center justify-center" style={{ padding: `0 ${fluidSizing.space.md}` }}>
+      <div className="relative" style={{ width: 'clamp(280px, 40vw, 500px)', height: 'clamp(280px, 40vw, 500px)' }}>
         
         {/* Simplified outer ring */}
         <motion.div
@@ -112,11 +113,14 @@ export default function CenteredHero() {
           <motion.div
             key={item.position}
             className={`absolute ${
-              item.position === 'top' ? '-top-6 left-1/2 -translate-x-1/2' :
-              item.position === 'right' ? '-right-6 top-1/2 -translate-y-1/2' :
-              item.position === 'bottom' ? '-bottom-6 left-1/2 -translate-x-1/2' :
-              '-left-6 top-1/2 -translate-y-1/2'
+              item.position === 'top' ? 'left-1/2 -translate-x-1/2' :
+              item.position === 'right' ? 'top-1/2 -translate-y-1/2' :
+              item.position === 'bottom' ? 'left-1/2 -translate-x-1/2' :
+              'top-1/2 -translate-y-1/2'
             }`}
+            style={{
+              [item.position === 'top' ? 'top' : item.position === 'bottom' ? 'bottom' : item.position === 'left' ? 'left' : 'right']: `calc(-1 * ${fluidSizing.space.lg})`
+            }}
             initial={{ scale: 0, opacity: 0, y: item.position === 'top' ? -20 : item.position === 'bottom' ? 20 : 0, x: item.position === 'left' ? -20 : item.position === 'right' ? 20 : 0 }}
             animate={{ scale: 1, opacity: 1, y: 0, x: 0 }}
             transition={{ 
@@ -128,7 +132,8 @@ export default function CenteredHero() {
             }}
           >
             <motion.div 
-              className="w-3 h-3 rounded-full bg-white shadow-lg"
+              className="rounded-full bg-white shadow-lg"
+              style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }}
               animate={{ 
                 scale: [1, 1.3, 1],
                 opacity: [1, 0.5, 1]
@@ -152,12 +157,20 @@ export default function CenteredHero() {
         ].map((corner, index) => (
           <motion.div
             key={corner}
-            className={`absolute w-8 h-8 ${
-              corner === 'top-left' ? 'border-l-2 border-t-2 -top-4 -left-4' :
-              corner === 'top-right' ? 'border-r-2 border-t-2 -top-4 -right-4' :
-              corner === 'bottom-left' ? 'border-l-2 border-b-2 -bottom-4 -left-4' :
-              'border-r-2 border-b-2 -bottom-4 -right-4'
-            } border-white`}
+            className={`absolute border-white ${
+              corner === 'top-left' ? 'border-l-2 border-t-2' :
+              corner === 'top-right' ? 'border-r-2 border-t-2' :
+              corner === 'bottom-left' ? 'border-l-2 border-b-2' :
+              'border-r-2 border-b-2'
+            }`}
+            style={{
+              width: fluidSizing.space['2xl'],
+              height: fluidSizing.space['2xl'],
+              ...(corner === 'top-left' && { top: `calc(-1 * ${fluidSizing.space.md})`, left: `calc(-1 * ${fluidSizing.space.md})` }),
+              ...(corner === 'top-right' && { top: `calc(-1 * ${fluidSizing.space.md})`, right: `calc(-1 * ${fluidSizing.space.md})` }),
+              ...(corner === 'bottom-left' && { bottom: `calc(-1 * ${fluidSizing.space.md})`, left: `calc(-1 * ${fluidSizing.space.md})` }),
+              ...(corner === 'bottom-right' && { bottom: `calc(-1 * ${fluidSizing.space.md})`, right: `calc(-1 * ${fluidSizing.space.md})` }),
+            }}
             initial={{ opacity: 0, scale: 0, rotate: -90 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ 

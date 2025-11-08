@@ -5,6 +5,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import Loader from '@/components/atoms/Loader';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface Model3DProps {
   mousePosition: { x: number; y: number };
@@ -253,7 +254,8 @@ export default function Model3D({ mousePosition }: Model3DProps) {
           {showGyroButton && (
             <button
               onClick={handleGyroPermission}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 text-sm font-bold z-20"
+              className="absolute left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-20 text-fluid-sm"
+              style={{ bottom: fluidSizing.space.md, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
             >
               ACTIVAR GIROSCOPIO
             </button>

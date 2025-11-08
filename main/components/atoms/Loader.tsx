@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface LoaderProps {
   size?: 'sm' | 'md' | 'lg';
@@ -14,9 +15,9 @@ export default function Loader({
   fullScreen = false 
 }: LoaderProps) {
   const sizes = {
-    sm: { outer: 40, inner: 32, border: 2, text: 'text-xs' },
-    md: { outer: 80, inner: 64, border: 3, text: 'text-sm' },
-    lg: { outer: 120, inner: 96, border: 4, text: 'text-base' }
+    sm: { outer: 40, inner: 32, border: 2, text: 'text-fluid-xs' },
+    md: { outer: 80, inner: 64, border: 3, text: 'text-fluid-sm' },
+    lg: { outer: 120, inner: 96, border: 4, text: 'text-fluid-base' }
   };
 
   const config = sizes[size];
@@ -27,7 +28,7 @@ export default function Loader({
 
   return (
     <div className={containerClasses}>
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center" style={{ gap: fluidSizing.space.lg }}>
         {/* Hexagonal Loader */}
         <div className="relative" style={{ width: config.outer, height: config.outer }}>
           {/* Outer rotating hexagon */}

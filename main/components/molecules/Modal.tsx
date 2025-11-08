@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode } from 'react';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface ModalProps {
   isOpen: boolean;
@@ -22,19 +23,21 @@ export default function Modal({
 }: ModalProps) {
 
   // Determinar posición del modal según el hexágono
-  // Los modales se abren al lado opuesto (donde hay espacio)
-  const getModalPosition = () => {
+  const getModalPositionStyles = () => {
+    const baseOffset = fluidSizing.space.lg;
+    const modalOffset = 'clamp(1rem, 10vw, 10rem)';
+    
     switch(position) {
       case 'top-left':
-        return 'top-4 left-4 sm:top-6 sm:left-24 md:top-8 md:left-40'; // Responsive
+        return { top: baseOffset, left: modalOffset };
       case 'top-right':
-        return 'top-4 right-4 sm:top-6 sm:right-24 md:top-8 md:right-40'; // Responsive
+        return { top: baseOffset, right: modalOffset };
       case 'bottom-left':
-        return 'bottom-4 left-4 sm:bottom-6 sm:left-24 md:bottom-8 md:left-40'; // Responsive
+        return { bottom: baseOffset, left: modalOffset };
       case 'bottom-right':
-        return 'bottom-4 right-4 sm:bottom-6 sm:right-24 md:bottom-8 md:right-40'; // Responsive
+        return { bottom: baseOffset, right: modalOffset };
       default:
-        return 'top-4 left-4 sm:top-8 sm:left-40';
+        return { top: baseOffset, left: modalOffset };
     }
   };
 
@@ -60,7 +63,13 @@ export default function Modal({
 
           {/* Modal */}
           <motion.div
-            className={`fixed ${getModalPosition()} z-50 w-[calc(100vw-2rem)] sm:w-[340px] md:w-[380px] max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-12rem)] md:max-h-[calc(100vh-200px)]`}
+            className="fixed z-50"
+            style={{
+              ...getModalPositionStyles(),
+              width: 'min(calc(100vw - 2rem), clamp(320px, 35vw, 380px))',
+              maxWidth: 'calc(100vw - 2rem)',
+              maxHeight: 'clamp(calc(100vh - 8rem), 70vh, calc(100vh - 200px))'
+            }}
             initial={{ x: getInitialX(), opacity: 0, scale: 0.8, rotateY: -15 }}
             animate={{ x: 0, opacity: 1, scale: 1, rotateY: 0 }}
             exit={{ x: getInitialX(), opacity: 0, scale: 0.8, rotateY: 15 }}
@@ -68,7 +77,7 @@ export default function Modal({
           >
             <div className="relative bg-black/95 backdrop-blur-xl border-2 border-white/30 shadow-2xl overflow-hidden">
               {/* Header */}
-              <div className="relative px-6 py-5 border-b border-white/10">
+              <div className="relative border-b border-white/10" style={{ padding: `${fluidSizing.space.lg} ${fluidSizing.space.lg}` }}>
                 {/* Líneas decorativas de fondo */}
                 <div className="absolute inset-0 opacity-5">
                   <div className="absolute top-0 left-0 w-full h-px bg-white" />
@@ -76,7 +85,7 @@ export default function Modal({
                 </div>
                 
                 <div className="relative flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center" style={{ gap: fluidSizing.space.md }}>
                     {/* Icono */}
                     {icon && (
                       <motion.div
@@ -96,12 +105,13 @@ export default function Modal({
                     
                     {/* Título */}
                     <div>
-                      <h2 className="font-orbitron text-lg font-black text-white tracking-wider uppercase">
+                      <h2 className="font-orbitron font-black text-white tracking-wider uppercase text-fluid-lg">
                         {title}
                       </h2>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginTop: fluidSizing.space.xs }}>
                         <motion.div
-                          className="w-2 h-2 rounded-full bg-white"
+                          className="rounded-full bg-white"
+                          style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }}
                           animate={{
                             scale: [1, 1.4, 1],
                             opacity: [1, 0.4, 1],
@@ -111,7 +121,7 @@ export default function Modal({
                             repeat: Infinity,
                           }}
                         />
-                        <span className="font-mono text-[10px] text-white/60 tracking-widest uppercase">
+                        <span className="font-mono text-white/60 tracking-widest uppercase text-fluid-xs">
                           Online
                         </span>
                       </div>
@@ -121,14 +131,18 @@ export default function Modal({
                   {/* Botón cerrar */}
                   <motion.button
                     onClick={onClose}
-                    className="w-10 h-10 border border-white/30 hover:border-white/60 flex items-center justify-center transition-all duration-300 group relative overflow-hidden"
+                    className="border border-white/30 hover:border-white/60 flex items-center justify-center transition-all duration-300 group relative overflow-hidden"
+                    style={{ 
+                      width: fluidSizing.size.buttonMd, 
+                      height: fluidSizing.size.buttonMd,
+                      clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)'
+                    }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' }}
                   >
                     <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300" />
                     <motion.svg 
-                      className="w-5 h-5 text-white/70 group-hover:text-white transition-colors relative z-10" 
+                      className="size-icon-md text-white/70 group-hover:text-white transition-colors relative z-10" 
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
@@ -142,19 +156,19 @@ export default function Modal({
               </div>
 
               {/* Contenido scrollable */}
-              <div className="px-6 py-5 max-h-[calc(100vh-320px)] overflow-y-auto custom-scrollbar">
-                <div className="font-mono text-sm text-white/90 leading-relaxed">
+              <div className="max-h-[calc(100vh-320px)] overflow-y-auto custom-scrollbar" style={{ padding: `${fluidSizing.space.lg} ${fluidSizing.space.lg}` }}>
+                <div className="font-mono text-white/90 leading-relaxed text-fluid-sm">
                   {children}
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-white/10 bg-white/[0.02]">
+              <div className="border-t border-white/10 bg-white/[0.02]" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-white/50 tracking-widest">
+                  <span className="font-mono text-white/50 tracking-widest text-fluid-xs">
                     SergioJA
                   </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
                     {[...Array(5)].map((_, i) => (
                       <motion.div
                         key={i}
@@ -177,10 +191,10 @@ export default function Modal({
               </div>
 
               {/* Decoración de esquinas */}
-              <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white/40" />
-              <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-white/40" />
-              <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-white/40" />
-              <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/40" />
+              <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white/40" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
+              <div className="absolute top-0 right-0 border-t-2 border-r-2 border-white/40" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
+              <div className="absolute bottom-0 left-0 border-b-2 border-l-2 border-white/40" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
+              <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white/40" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
               
               {/* Líneas decorativas */}
               <motion.div 

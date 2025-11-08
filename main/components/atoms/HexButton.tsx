@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface HexButtonProps {
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -30,16 +31,17 @@ export default function HexButton({
   delay = 0,
   isActive = false
 }: HexButtonProps) {
-  const positionClasses = {
-    'top-left': 'top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8',
-    'top-right': 'top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8',
-    'bottom-left': 'bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8',
-    'bottom-right': 'bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8',
+  const positionStyles = {
+    'top-left': { top: fluidSizing.space.lg, left: fluidSizing.space.lg },
+    'top-right': { top: fluidSizing.space.lg, right: fluidSizing.space.lg },
+    'bottom-left': { bottom: fluidSizing.space.lg, left: fluidSizing.space.lg },
+    'bottom-right': { bottom: fluidSizing.space.lg, right: fluidSizing.space.lg },
   };
 
   return (
     <motion.div
-      className={`fixed ${positionClasses[position]} z-50`}
+      className="fixed z-50"
+      style={positionStyles[position]}
       initial={{ opacity: 0, scale: 0, rotate: -180 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       transition={{ 
@@ -52,7 +54,8 @@ export default function HexButton({
     >
       <motion.button
         onClick={onClick}
-        className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center cursor-pointer group"
+        className="relative flex items-center justify-center cursor-pointer group"
+        style={{ width: 'clamp(4rem, 6vw, 6rem)', height: 'clamp(4rem, 6vw, 6rem)' }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -173,13 +176,15 @@ export default function HexButton({
 
         {/* Indicador de estado activo */}
         <motion.div
-          className={`absolute w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-lg ${
-            position.includes('top') 
-              ? '-top-2' 
-              : '-bottom-2'
-          } ${
-            position.includes('left') ? '-left-2' : '-right-2'
-          }`}
+          className="absolute rounded-full bg-white flex items-center justify-center shadow-lg"
+          style={{
+            width: fluidSizing.space.lg,
+            height: fluidSizing.space.lg,
+            ...(position.includes('top') && { top: `calc(-1 * ${fluidSizing.space.sm})` }),
+            ...(position.includes('bottom') && { bottom: `calc(-1 * ${fluidSizing.space.sm})` }),
+            ...(position.includes('left') && { left: `calc(-1 * ${fluidSizing.space.sm})` }),
+            ...(position.includes('right') && { right: `calc(-1 * ${fluidSizing.space.sm})` }),
+          }}
           initial={{ scale: 0, opacity: 0 }}
           animate={{
             scale: isActive ? 1 : 0,
@@ -192,7 +197,8 @@ export default function HexButton({
           }}
         >
           <motion.div
-            className="w-2 h-2 rounded-full bg-black"
+            className="rounded-full bg-black"
+            style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }}
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.8, 1, 0.8]
@@ -206,15 +212,17 @@ export default function HexButton({
 
         {/* Label flotante mejorado */}
         <motion.div
-          className={`hidden sm:block absolute ${
-            position.includes('left') ? 'left-full ml-2 sm:ml-3 md:ml-4' : 'right-full mr-2 sm:mr-3 md:mr-4'
-          } top-1/2 -translate-y-1/2 pointer-events-none whitespace-nowrap`}
+          className="hidden sm:block absolute top-1/2 -translate-y-1/2 pointer-events-none whitespace-nowrap"
+          style={{
+            ...(position.includes('left') && { left: '100%', marginLeft: fluidSizing.space.md }),
+            ...(position.includes('right') && { right: '100%', marginRight: fluidSizing.space.md }),
+          }}
           initial={{ opacity: 0, x: position.includes('left') ? -10 : 10 }}
           whileHover={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <div className="bg-white text-black px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-lg shadow-2xl border border-white">
-            <span className="font-orbitron text-[10px] sm:text-xs font-bold tracking-wider uppercase">
+          <div className="bg-white text-black rounded-lg shadow-2xl border border-white" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
+            <span className="font-orbitron font-bold tracking-wider uppercase text-fluid-xs">
               {label}
             </span>
           </div>

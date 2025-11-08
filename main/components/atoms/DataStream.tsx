@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface DataStreamProps {
   position: 'left' | 'right';
@@ -30,11 +31,15 @@ export default function DataStream({ position }: DataStreamProps) {
 
   return (
     <div 
-      className={`fixed ${position === 'left' ? 'left-4' : 'right-4'} top-0 h-screen overflow-hidden pointer-events-none z-0`}
-      style={{ width: '60px' }}
+      className="fixed top-0 h-screen overflow-hidden pointer-events-none z-0"
+      style={{ 
+        width: 'clamp(40px, 5vw, 60px)',
+        [position]: fluidSizing.space.md
+      }}
     >
       <motion.div
-        className="flex flex-col gap-1 font-mono text-xs opacity-30"
+        className="flex flex-col font-mono opacity-30 text-fluid-xs"
+        style={{ gap: fluidSizing.space.xs }}
         animate={{ y: [0, -20] }}
         transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
       >

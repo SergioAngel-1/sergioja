@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api-client';
 import type { Project } from '@/lib/types';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 export default function ProjectsContent() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -31,19 +32,19 @@ export default function ProjectsContent() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-pulse text-white/60 text-sm">Cargando proyectos...</div>
+      <div className="flex items-center justify-center" style={{ padding: `${fluidSizing.space['2xl']} 0` }}>
+        <div className="animate-pulse text-white/60 text-fluid-sm">Cargando proyectos...</div>
       </div>
     );
   }
 
   if (error || projects.length === 0) {
     return (
-      <div className="space-y-4 text-center py-8">
-        <p className="text-white/60 text-sm">No hay proyectos disponibles en este momento.</p>
+      <div className="text-center" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md, padding: `${fluidSizing.space.xl} 0` }}>
+        <p className="text-white/60 text-fluid-sm">No hay proyectos disponibles en este momento.</p>
         <a
           href="http://localhost:3000/work"
-          className="inline-block text-white/80 hover:text-white text-sm underline"
+          className="inline-block text-white/80 hover:text-white underline text-fluid-sm"
         >
           Ver portafolio completo →
         </a>
@@ -52,57 +53,59 @@ export default function ProjectsContent() {
   }
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-2"
+        style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}
       >
-        <h3 className="text-white font-bold text-sm">Proyectos Destacados</h3>
+        <h3 className="text-white font-bold text-fluid-sm">Proyectos Destacados</h3>
         <div className="h-px bg-gradient-to-r from-white/30 via-white/10 to-transparent" />
       </motion.div>
 
       {/* Projects grid */}
-      <div className="space-y-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
         {projects.map((project, index) => (
           <motion.div
             key={project.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="group p-3 rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300 space-y-2"
+            className="group rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
+            style={{ padding: fluidSizing.space.md, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}
           >
             {/* Title and status */}
-            <div className="flex items-start justify-between gap-2">
-              <h4 className="text-white font-medium text-sm group-hover:text-white/90 flex-1">
+            <div className="flex items-start justify-between flex-1" style={{ gap: fluidSizing.space.sm }}>
+              <h4 className="text-white font-medium group-hover:text-white/90 flex-1 text-fluid-sm">
                 {project.title}
               </h4>
               {project.status === 'in-progress' && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/60 font-mono">
+                <span className="rounded-full bg-white/10 text-white/60 font-mono text-fluid-xs" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}>
                   EN DESARROLLO
                 </span>
               )}
             </div>
 
             {/* Description */}
-            <p className="text-white/70 text-xs leading-relaxed">
+            <p className="text-white/70 leading-relaxed text-fluid-xs">
               {project.description}
             </p>
 
             {/* Technologies */}
             {project.technologies && project.technologies.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap" style={{ gap: fluidSizing.space.xs }}>
                 {project.technologies.slice(0, 4).map((tech, i) => (
                   <span
                     key={i}
-                    className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-white/60 font-mono"
+                    className="rounded bg-white/5 text-white/60 font-mono text-fluid-xs"
+                    style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}
                   >
                     {tech}
                   </span>
                 ))}
                 {project.technologies.length > 4 && (
-                  <span className="text-[10px] px-2 py-0.5 text-white/40 font-mono">
+                  <span className="text-white/40 font-mono text-fluid-xs" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}>
                     +{project.technologies.length - 4}
                   </span>
                 )}
@@ -110,7 +113,7 @@ export default function ProjectsContent() {
             )}
 
             {/* Links */}
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex items-center" style={{ gap: fluidSizing.space.md, paddingTop: fluidSizing.space.xs }}>
               {project.demoUrl && (
                 <a
                   href={project.demoUrl}
@@ -141,11 +144,12 @@ export default function ProjectsContent() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="pt-2 text-center"
+        className="text-center"
+        style={{ paddingTop: fluidSizing.space.sm }}
       >
         <a
           href="http://localhost:3000/work"
-          className="inline-block text-white/60 hover:text-white text-xs transition-colors font-mono"
+          className="inline-block text-white/60 hover:text-white transition-colors font-mono text-fluid-xs"
         >
           Ver todos los proyectos →
         </a>
