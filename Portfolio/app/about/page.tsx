@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useSkills } from '@/lib/hooks/useSkills';
 import { useLogger } from '@/lib/hooks/useLogger';
-import Breadcrumbs from '@/components/molecules/Breadcrumbs';
+import Header from '@/components/organisms/Header';
 import Badge from '@/components/atoms/Badge';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
@@ -66,7 +66,11 @@ export default function AboutPage() {
   }, [skills, skillsByCategory]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
+    <>
+      {/* Header */}
+      <Header showBreadcrumbs />
+
+      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -94,8 +98,6 @@ export default function AboutPage() {
       <FloatingParticles count={50} color="bg-white" />
 
       <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
-        {/* Breadcrumbs */}
-        <Breadcrumbs />
         {/* Header */}
         <div className="mb-8 md:mb-16">
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(260px,420px)] items-start gap-6 lg:gap-8 w-full">
@@ -419,5 +421,6 @@ export default function AboutPage() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }

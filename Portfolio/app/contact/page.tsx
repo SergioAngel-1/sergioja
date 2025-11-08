@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import { useLogger } from '@/lib/hooks/useLogger';
-import Breadcrumbs from '@/components/molecules/Breadcrumbs';
+import Header from '@/components/organisms/Header';
 import Button from '@/components/atoms/Button';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
@@ -95,7 +95,11 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
+    <>
+      {/* Header */}
+      <Header showBreadcrumbs />
+
+      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -123,9 +127,6 @@ export default function ContactPage() {
       <FloatingParticles count={50} color="bg-white" />
 
       <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
-        {/* Breadcrumbs */}
-        <Breadcrumbs />
-
         {/* Header */}
         <div className="mb-8 md:mb-16">
           <motion.div
@@ -441,5 +442,6 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

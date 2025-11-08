@@ -20,6 +20,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
+import Header from '@/components/organisms/Header';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import type { Profile } from '../../shared/types';
 
@@ -217,6 +218,9 @@ export default function Home() {
         matrixMessage={matrixMessage}
       />
 
+      {/* Header */}
+      <Header showHomeBadge />
+
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-15" />
@@ -270,19 +274,6 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            {/* Glitch effect label */}
-            <motion.div
-              className="inline-block mb-fluid-md border-2 border-white rounded-sm"
-              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            >
-              <span className="font-mono text-fluid-xs text-white font-bold tracking-wider">
-                {'<'} {t('home.portfolioLabel')} {'/>'}
-              </span>
-            </motion.div>
-
             {/* Title with glitch effect */}
             <motion.h1
               className="font-orbitron font-black mb-fluid-md relative leading-tight"

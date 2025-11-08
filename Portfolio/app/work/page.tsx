@@ -6,7 +6,7 @@ import { useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/lib/hooks/useLogger';
 import ProjectCard from '@/components/molecules/ProjectCard';
 import ProjectCarousel from '@/components/molecules/ProjectCarousel';
-import Breadcrumbs from '@/components/molecules/Breadcrumbs';
+import Header from '@/components/organisms/Header';
 import Badge from '@/components/atoms/Badge';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
@@ -59,50 +59,51 @@ export default function WorkPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
-      {/* Cyber grid background */}
-      <div className="absolute inset-0 cyber-grid opacity-10" />
+    <>
+      {/* Header */}
+      <Header showBreadcrumbs />
 
-      {/* Animated glow effects */}
-      <GlowEffect
-        color="white"
-        size="lg"
-        position={{ top: '5rem', right: '5rem' }}
-        opacity={0.15}
-        duration={3}
-        animationType="pulse"
-      />
+      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
+        {/* Cyber grid background */}
+        <div className="absolute inset-0 cyber-grid opacity-10" />
 
-      <GlowEffect
-        color="white"
-        size="lg"
-        position={{ bottom: '5rem', left: '10rem' }}
-        opacity={0.1}
-        duration={4}
-        delay={0.5}
-        animationType="pulse"
-      />
+        {/* Animated glow effects */}
+        <GlowEffect
+          color="white"
+          size="lg"
+          position={{ top: '5rem', right: '5rem' }}
+          opacity={0.15}
+          duration={3}
+          animationType="pulse"
+        />
 
-      {/* Floating particles - Reducidas en móvil */}
-      <FloatingParticles count={50} color="bg-white" />
+        <GlowEffect
+          color="white"
+          size="lg"
+          position={{ bottom: '5rem', left: '10rem' }}
+          opacity={0.1}
+          duration={4}
+          delay={0.5}
+          animationType="pulse"
+        />
 
-      <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
-        {/* Breadcrumbs */}
-        <Breadcrumbs />
+        {/* Floating particles - Reducidas en móvil */}
+        <FloatingParticles count={50} color="bg-white" />
 
-        {/* Header */}
-        <div className="mb-8 md:mb-16">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 lg:gap-8">
-            {/* Title and Description */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex-1"
-            >
-              <h1 className="font-orbitron font-black relative inline-block" style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}>
-                <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
-                  {t('work.title')}
+        <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}>
+          {/* Header */}
+          <div className="mb-8 md:mb-16">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 lg:gap-8">
+              {/* Title and Description */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="flex-1"
+              >
+                <h1 className="font-orbitron font-black relative inline-block" style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}>
+                  <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
+                    {t('work.title')}
                   <motion.span
                     className="absolute inset-0"
                     style={{ color: 'transparent', WebkitTextStroke: '2px black' } as any}
@@ -321,7 +322,8 @@ export default function WorkPage() {
             ))}
           </motion.div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
