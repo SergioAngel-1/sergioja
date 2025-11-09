@@ -39,7 +39,7 @@ export default function ContactPage() {
         log.info('Contact form submitted successfully');
       } else {
         setStatus('error');
-        setErrorMessage(response.error || 'Error al enviar el mensaje');
+        setErrorMessage(response.error?.message || 'Error al enviar el mensaje');
         log.error('Contact form submission failed', response.error);
       }
     } catch (error) {

@@ -18,7 +18,7 @@ export default function IdentityContent() {
         if (response.success && response.data) {
           setProfile(response.data);
         } else {
-          setError(response.error || 'Failed to load profile');
+          setError(response.error?.message || 'Failed to load profile');
         }
       } catch (err) {
         setError('Network error');

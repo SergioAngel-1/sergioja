@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { logger } from './lib/logger';
 import { requestLogger } from './middleware/requestLogger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { prisma } from './lib/prisma';
 
 // Routes
 import profileRoutes from './routes/profile';
@@ -20,10 +21,22 @@ dotenv.config();
 
 console.log('Starting server initialization...');
 
+// Extra diagnostics
+process.on('unhandledRejection', (reason: unknown) => {
+  logger.error('UnhandledRejection', reason as any);
+});
+process.on('uncaughtException', (err: Error) => {
+  logger.error('UncaughtException', err);
+});
+
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
 console.log(`Port configured: ${PORT}`);
+const mask = (url?: string) => (url ? url.replace(/:(?:[^:@/]+)@/, ':****@') : 'undefined');
+console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`FRONTEND_URL: ${process.env.FRONTEND_URL}`);
+console.log(`DATABASE_URL: ${mask(process.env.DATABASE_URL)}`);
 
 // Middleware
 console.log('Setting up middleware...');
@@ -82,16 +95,27 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Start server
-try {
-  app.listen(PORT, () => {
-    logger.info(`🚀 Backend server running on http://localhost:${PORT}`);
-    logger.info(`📊 Health check: http://localhost:${PORT}/health`);
-    logger.info(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
-  });
-} catch (error) {
-  logger.error('Failed to start server', error);
-  console.error('Server startup error:', error);
-  process.exit(1);
-}
+// Pre-flight DB connectivity test (non-fatal)
+(async () => {
+  try {
+    console.log('Testing database connectivity...');
+    await prisma.$queryRaw`SELECT 1`;
+    console.log('Database connectivity: OK');
+  } catch (err) {
+    logger.error('Database connectivity failed', err as any);
+  } finally {
+    try {
+      app.listen(PORT, () => {
+        logger.info(`🚀 Backend server running on http://localhost:${PORT}`);
+        logger.info(`📊 Health check: http://localhost:${PORT}/health`);
+        logger.info(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+      });
+    } catch (error) {
+      logger.error('Failed to start server', error as any);
+      console.error('Server startup error:', error);
+      process.exit(1);
+    }
+  }
+})();
 
 export default app;

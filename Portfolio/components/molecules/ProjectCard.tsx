@@ -9,9 +9,10 @@ import type { Project } from '../../../shared/types';
 
 interface ProjectCardProps {
   project: Project;
+  viewMode?: 'grid' | 'list';
 }
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
   const { t } = useLanguage();
 
   return (

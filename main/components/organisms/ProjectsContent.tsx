@@ -18,7 +18,7 @@ export default function ProjectsContent() {
         if (response.success && response.data) {
           setProjects(response.data);
         } else {
-          setError(response.error || 'Failed to load projects');
+          setError(response.error?.message || 'Failed to load projects');
         }
       } catch (err) {
         setError('Network error');

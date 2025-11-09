@@ -25,8 +25,8 @@ export default function AboutSection() {
 
   const stats = {
     totalSkills: skills.length,
-    avgProficiency: Math.round(skills.reduce((acc, s) => acc + s.proficiency, 0) / skills.length) || 0,
-    totalExperience: skills.length > 0 ? Math.max(...skills.map(s => s.yearsOfExperience)) : 0,
+    avgProficiency: Math.round(skills.reduce((acc, s) => acc + (s.proficiency || 0), 0) / skills.length) || 0,
+    totalExperience: skills.length > 0 ? Math.max(...skills.map(s => s.yearsOfExperience || 0)) : 0,
     categories: Object.keys(skillsByCategory).length,
   };
 

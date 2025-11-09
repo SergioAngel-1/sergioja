@@ -36,7 +36,10 @@ class ApiClient {
       console.error('API GET Error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          code: 'FETCH_ERROR',
+        },
       };
     }
   }
@@ -60,7 +63,10 @@ class ApiClient {
       console.error('API POST Error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          code: 'FETCH_ERROR',
+        },
       };
     }
   }

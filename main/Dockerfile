@@ -4,7 +4,7 @@ FROM node:18-alpine AS deps
 WORKDIR /app
 
 # Copiar archivos de dependencias
-COPY Portfolio/package*.json ./
+COPY main/package*.json ./
 RUN npm ci
 
 # Etapa 2: Build
@@ -18,8 +18,8 @@ COPY shared /shared
 # Copiar dependencias
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copiar código fuente de Portfolio
-COPY Portfolio/. .
+# Copiar código fuente de main
+COPY main/. .
 
 # Argumento de build para la URL de la API
 ARG NEXT_PUBLIC_API_URL
