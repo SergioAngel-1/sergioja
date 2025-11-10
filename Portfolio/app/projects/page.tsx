@@ -95,7 +95,7 @@ export default function WorkPage() {
         {/* Floating particles - Reducidas en móvil */}
         <FloatingParticles count={50} color="bg-white" />
 
-        <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
+        <div className="relative z-10 mx-auto w-full pb-20 md:pb-8" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
           {/* Header */}
           <div className="mb-8 md:mb-16">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
@@ -187,7 +187,7 @@ export default function WorkPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-20"
+            className="text-center py-8 md:py-20"
           >
             <div className="inline-block p-6 bg-cyber-red/10 border border-cyber-red/30 rounded-lg">
               <svg className="w-12 h-12 text-cyber-red mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,7 +200,7 @@ export default function WorkPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
+            className="text-center py-8 md:py-20"
           >
             <div className="inline-block p-8 bg-background-surface/50 border border-white/30 rounded-lg">
               <svg className="w-16 h-16 text-white mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
