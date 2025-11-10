@@ -207,12 +207,14 @@ export default function WorkPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
               </svg>
               <p className="text-text-secondary text-lg font-rajdhani">{t('work.noProjects')}</p>
-              <button
-                onClick={() => handleCategoryChange(undefined)}
-                className="mt-4 px-6 py-2 bg-white/20 text-white border border-white/50 rounded-lg hover:bg-white/30 transition-all"
-              >
-                {t('work.viewAll')}
-              </button>
+              {selectedCategory && (
+                <button
+                  onClick={() => handleCategoryChange(undefined)}
+                  className="mt-4 px-6 py-2 bg-white/20 text-white border border-white/50 rounded-lg hover:bg-white/30 transition-all"
+                >
+                  {t('work.viewAll')}
+                </button>
+              )}
             </div>
           </motion.div>
         ) : (
