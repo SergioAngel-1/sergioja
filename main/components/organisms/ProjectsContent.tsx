@@ -15,7 +15,7 @@ export default function ProjectsContent() {
     const fetchProjects = async () => {
       try {
         const response = await api.getFeaturedProjects();
-        if (response.success && response.data) {
+        if (response.success && response.data && Array.isArray(response.data)) {
           setProjects(response.data);
         } else {
           setError(response.error?.message || 'Failed to load projects');
@@ -43,7 +43,7 @@ export default function ProjectsContent() {
       <div className="text-center" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md, padding: `${fluidSizing.space.xl} 0` }}>
         <p className="text-white/60 text-fluid-sm">No hay proyectos disponibles en este momento.</p>
         <a
-          href="http://localhost:3000/work"
+          href="http://localhost:3000/projects"
           className="inline-block text-white/80 hover:text-white underline text-fluid-sm"
         >
           Ver portafolio completo →
@@ -148,7 +148,7 @@ export default function ProjectsContent() {
         style={{ paddingTop: fluidSizing.space.sm }}
       >
         <a
-          href="http://localhost:3000/work"
+          href="http://localhost:3000/projects"
           className="inline-block text-white/60 hover:text-white transition-colors font-mono text-fluid-xs"
         >
           Ver todos los proyectos →
