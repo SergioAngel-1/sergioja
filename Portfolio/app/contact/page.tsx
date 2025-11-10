@@ -10,6 +10,7 @@ import GlowEffect from '@/components/atoms/GlowEffect';
 import { api } from '@/lib/api-client';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { alerts } from '../../../shared/alertSystem';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -30,22 +31,57 @@ export default function ContactPage() {
 
     log.interaction('submit_contact_form', 'contact_form', formData);
 
+    // Mostrar alerta de procesamiento
+    const processingId = alerts.processing(
+      t('contact.sending') || 'Enviando mensaje...',
+      'Por favor espera mientras procesamos tu solicitud'
+    );
+
     try {
       const response = await api.submitContact(formData);
+      
+      // Dismissar alerta de procesamiento
+      alerts.dismiss(processingId);
       
       if (response.success) {
         setStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
         log.info('Contact form submitted successfully');
+        
+        // Mostrar alerta de éxito
+        alerts.success(
+          '¡Mensaje enviado!',
+          'Te responderé lo antes posible. Revisa tu email para la confirmación.',
+          8000
+        );
       } else {
         setStatus('error');
-        setErrorMessage(response.error?.message || 'Error al enviar el mensaje');
+        const errorMsg = response.error?.message || 'Error al enviar el mensaje';
+        setErrorMessage(errorMsg);
         log.error('Contact form submission failed', response.error);
+        
+        // Mostrar alerta de error
+        alerts.error(
+          'Error al enviar',
+          errorMsg,
+          6000
+        );
       }
     } catch (error) {
+      // Dismissar alerta de procesamiento
+      alerts.dismiss(processingId);
+      
       setStatus('error');
-      setErrorMessage('Error de red. Por favor intenta de nuevo.');
+      const errorMsg = 'Error de red. Por favor intenta de nuevo.';
+      setErrorMessage(errorMsg);
       log.error('Contact form network error', error);
+      
+      // Mostrar alerta de error de red
+      alerts.error(
+        'Error de conexión',
+        'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
+        6000
+      );
     }
   };
 

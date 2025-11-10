@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api-client';
 import type { ContactMessage } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { alerts } from '../../../shared/alertSystem';
 
 export default function ConnectionContent() {
   const [formData, setFormData] = useState<ContactMessage>({
@@ -26,6 +27,13 @@ export default function ConnectionContent() {
         ...prev,
         '> Error: Por favor completa nombre, email y mensaje'
       ]);
+      
+      // Mostrar alerta de validación
+      alerts.warning(
+        'Campos incompletos',
+        'Por favor completa nombre, email y mensaje',
+        4000
+      );
       return;
     }
 
@@ -35,8 +43,17 @@ export default function ConnectionContent() {
       `> Enviando mensaje de ${formData.name}...`
     ]);
 
+    // Mostrar alerta de procesamiento
+    const processingId = alerts.processing(
+      'Enviando mensaje...',
+      'Conectando con el servidor'
+    );
+
     try {
       const response = await api.submitContact(formData);
+      
+      // Dismissar alerta de procesamiento
+      alerts.dismiss(processingId);
       
       if (response.success) {
         setConsoleHistory(prev => [
@@ -50,19 +67,44 @@ export default function ConnectionContent() {
           subject: 'Contacto desde landing',
           message: ''
         });
+        
+        // Mostrar alerta de éxito
+        alerts.success(
+          '¡Mensaje enviado!',
+          'Recibirás una confirmación por email. Te responderé pronto.',
+          8000
+        );
       } else {
+        const errorMsg = response.error?.message || 'No se pudo enviar el mensaje';
         setConsoleHistory(prev => [
           ...prev,
-          `> ✗ Error: ${response.error || 'No se pudo enviar el mensaje'}`,
+          `> ✗ Error: ${errorMsg}`,
           '> Intenta de nuevo o contáctame por email directo'
         ]);
+        
+        // Mostrar alerta de error
+        alerts.error(
+          'Error al enviar',
+          errorMsg,
+          6000
+        );
       }
     } catch (error) {
+      // Dismissar alerta de procesamiento
+      alerts.dismiss(processingId);
+      
       setConsoleHistory(prev => [
         ...prev,
         '> ✗ Error de red. Verifica tu conexión',
         '> O contáctame directamente por email'
       ]);
+      
+      // Mostrar alerta de error de red
+      alerts.error(
+        'Error de conexión',
+        'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
+        6000
+      );
     } finally {
       setSending(false);
     }

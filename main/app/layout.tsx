@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import AlertContainer from '@/components/molecules/AlertContainer';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -61,6 +62,7 @@ export default function RootLayout({
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-light text-text-primary antialiased`}
       >
         <main className="h-screen overflow-hidden">{children}</main>
+        <AlertContainer />
       </body>
     </html>
   );

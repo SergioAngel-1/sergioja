@@ -1,5 +1,8 @@
 // Shared types between Portfolio frontend and backend
 
+// Re-export alert types
+export type { Alert, AlertType, AlertPosition, AlertConfig } from './alertSystem';
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;

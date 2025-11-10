@@ -6,6 +6,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import NextPageButton from '@/components/molecules/NextPageButton';
 import PageLoader from '@/components/molecules/PageLoader';
 import HeaderWrapper from '@/components/organisms/HeaderWrapper';
+import AlertContainer from '@/components/molecules/AlertContainer';
 import { PerformanceProvider } from '@/lib/contexts/PerformanceContext';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { MatrixProvider } from '@/lib/contexts/MatrixContext';
@@ -84,6 +85,7 @@ export default function RootLayout({
                   <Navbar />
                   <main className="min-h-screen">{children}</main>
                   <NextPageButton />
+                  <AlertContainer />
                 </ErrorBoundary>
               </ModalProvider>
             </MatrixProvider>
