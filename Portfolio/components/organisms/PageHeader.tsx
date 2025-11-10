@@ -20,8 +20,8 @@ export default function PageHeader({ title, subtitle }: PageHeaderProps) {
       className="flex-1"
     >
       <h1 
-        className="font-orbitron font-black relative inline-block" 
-        style={{ fontSize: fluidSizing.text['6xl'], marginBottom: fluidSizing.space.md }}
+        className="font-orbitron font-black relative inline-block text-4xl sm:text-5xl md:text-6xl lg:text-7xl" 
+        style={{ marginBottom: fluidSizing.space.md }}
       >
         <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
           {title}
