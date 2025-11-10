@@ -1,5 +1,5 @@
 # Etapa 1: Build
-FROM node:18-bullseye-slim AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY backend/package*.json ./
 COPY backend/prisma ./prisma/
 
 # Instalar dependencias del sistema necesarias para Prisma
-RUN apt-get update && apt-get install -y --no-install-recommends openssl libssl1.1 ca-certificates \
+RUN apt-get update && apt-get install -y --no-install-recommends openssl libssl3 ca-certificates \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
@@ -28,12 +28,12 @@ RUN npx prisma generate
 RUN npm run build
 
 # Etapa 2: Producción
-FROM node:18-bullseye-slim
+FROM node:20-bookworm-slim
 
 WORKDIR /app
 
 # Instalar dependencias del sistema necesarias para Prisma en runtime
-RUN apt-get update && apt-get install -y --no-install-recommends openssl libssl1.1 ca-certificates \
+RUN apt-get update && apt-get install -y --no-install-recommends openssl libssl3 ca-certificates \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
