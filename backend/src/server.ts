@@ -40,11 +40,27 @@ console.log(`DATABASE_URL: ${mask(process.env.DATABASE_URL)}`);
 
 // Middleware
 console.log('Setting up middleware...');
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001')
+  .split(',')
+  .map((o) => o.trim());
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const xfh = req.headers['x-forwarded-host'];
+  const host = (Array.isArray(xfh) ? xfh[0] : xfh) || req.headers.host || '';
+  if (typeof host === 'string' && host.startsWith('www.')) {
+    const destHost = host.replace(/^www\./, '');
+    return res.redirect(301, `https://${destHost}${req.url}`);
+  }
+  next();
+});
 app.use(helmet());
 app.use(compression());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
@@ -70,13 +86,16 @@ app.use('/api/', limiter);
 app.use(requestLogger);
 
 // Health check
-app.get('/health', (_req: Request, res: Response) => {
+const healthResponse = (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   });
-});
+};
+
+app.get('/', healthResponse);
+app.get('/health', healthResponse);
 
 // API Routes - Portfolio
 console.log('Setting up routes...');

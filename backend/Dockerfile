@@ -42,8 +42,7 @@ ENV PRISMA_LOG_LEVEL=debug \
     PRISMA_QUERY_ENGINE_LOG_LEVEL=debug \
     RUST_LOG=info
 
-# Copiar shared
-COPY --from=builder /shared /shared
+# (No es necesario copiar shared en runtime)
 
 # Copiar dependencias y build desde builder
 COPY --from=builder /app/node_modules ./node_modules
@@ -73,8 +72,8 @@ npx prisma -v
 echo "DATABASE_URL: $(printenv DATABASE_URL | sed -e 's#://[^:]*:[^@]*@#://****@#')"
 echo "Validating schema..."
 npx prisma validate
-echo "Running migrations (deploy) or db push if none..."
-npx prisma migrate deploy || npx prisma db push
+echo "Running migrations (deploy)..."
+npx prisma migrate deploy
 exec npm start
 SH
 

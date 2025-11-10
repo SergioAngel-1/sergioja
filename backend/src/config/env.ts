@@ -11,13 +11,14 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   
   // Frontend
-  FRONTEND_URL: z.string().url(),
+  FRONTEND_URL: z.string().url().optional(),
+  FRONTEND_URLS: z.string().optional(),
   
   // Database
   DATABASE_URL: z.string().min(1, 'Database URL is required'),
   
   // JWT
-  JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters'),
+  JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters').optional(),
   
   // Email (optional)
   SMTP_HOST: z.string().optional(),
