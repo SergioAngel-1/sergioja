@@ -95,7 +95,7 @@ export default function WorkPage() {
         {/* Floating particles - Reducidas en móvil */}
         <FloatingParticles count={50} color="bg-white" />
 
-        <div className="relative z-10 mx-auto w-full pb-20 md:pb-8" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
+        <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg} 5rem`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
           {/* Header */}
           <div className="mb-8 md:mb-16">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
