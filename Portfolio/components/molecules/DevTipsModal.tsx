@@ -63,16 +63,22 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-background-surface border-2 border-cyber-blue-cyan/50 rounded-lg shadow-2xl max-w-md w-full overflow-hidden"
+            className="relative bg-background-dark border-2 border-white/30 rounded-lg shadow-2xl max-w-md w-full overflow-hidden"
           >
+            {/* Corner accents */}
+            <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
+            <div className="absolute top-0 right-0 border-t-2 border-r-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
+            <div className="absolute bottom-0 left-0 border-b-2 border-l-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
+            <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
+
             {/* Header */}
-            <div className="bg-gradient-to-r from-cyber-blue-cyan/20 to-cyber-purple/20 border-b border-cyber-blue-cyan/30" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
+            <div className="relative border-b border-white/30 bg-white/5" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center" style={{ gap: fluidSizing.space.md }}>
-                  <svg className="size-icon-md text-cyber-blue-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="size-icon-md text-cyber-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  <h2 className="font-orbitron font-bold text-cyber-blue-cyan text-fluid-lg">
+                  <h2 className="font-orbitron font-bold text-white text-fluid-lg">
                     {t('devTips.title')}
                   </h2>
                 </div>
@@ -95,27 +101,21 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
                   {t('devTips.description')}
                 </p>
                 <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-                  <svg className="size-icon-sm text-cyber-purple flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <span className="text-cyber-red font-mono">{'>'}</span>
                   <span className="text-text-secondary text-fluid-xs">{t('devTips.benefit1')}</span>
                 </div>
                 <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-                  <svg className="size-icon-sm text-cyber-purple flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <span className="text-cyber-red font-mono">{'>'}</span>
                   <span className="text-text-secondary text-fluid-xs">{t('devTips.benefit2')}</span>
                 </div>
                 <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-                  <svg className="size-icon-sm text-cyber-purple flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <span className="text-cyber-red font-mono">{'>'}</span>
                   <span className="text-text-secondary text-fluid-xs">{t('devTips.benefit3')}</span>
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}>
-                <label htmlFor="email" className="block font-mono text-cyber-blue-cyan text-fluid-sm">
+                <label htmlFor="email" className="block font-mono text-white text-fluid-sm">
                   {t('devTips.emailLabel')}
                 </label>
                 <input
@@ -124,7 +124,7 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('devTips.emailPlaceholder')}
-                  className="w-full bg-background-dark border border-cyber-blue-cyan/30 rounded text-text-primary placeholder-text-muted focus:outline-none focus:border-cyber-blue-cyan focus:ring-1 focus:ring-cyber-blue-cyan transition-all font-mono text-fluid-sm"
+                  className="w-full bg-background-elevated border border-white/30 rounded text-text-primary placeholder-text-muted focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all font-mono text-fluid-sm"
                   style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                   disabled={isSubmitting}
                 />
@@ -147,7 +147,7 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 rounded border border-text-muted/30 text-text-muted hover:bg-text-muted/10 transition-all duration-300 font-mono text-fluid-sm"
+                  className="flex-1 rounded border-2 border-white/30 text-white hover:bg-white/10 hover:border-white transition-all duration-300 font-mono text-fluid-sm"
                   style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                   disabled={isSubmitting}
                 >
@@ -156,7 +156,7 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 rounded bg-gradient-to-r from-cyber-blue-cyan to-cyber-purple text-white hover:shadow-lg hover:shadow-cyber-blue-cyan/50 transition-all duration-300 font-mono font-bold disabled:opacity-50 disabled:cursor-not-allowed text-fluid-sm"
+                  className="flex-1 rounded border-2 border-cyber-red bg-cyber-red/10 text-white hover:bg-cyber-red hover:shadow-lg hover:shadow-cyber-red/50 transition-all duration-300 font-mono font-bold disabled:opacity-50 disabled:cursor-not-allowed text-fluid-sm"
                   style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                 >
                   {isSubmitting ? (
