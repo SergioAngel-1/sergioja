@@ -14,17 +14,13 @@ import TerminalGames from '@/components/molecules/TerminalGames';
 import TerminalLanguage from '@/components/molecules/TerminalLanguage';
 import MatrixConfirmDialog from '@/components/molecules/MatrixConfirmDialog';
 import MobileTerminalModal from '@/components/molecules/MobileTerminalModal';
-import { api } from '@/lib/api-client';
 import { useLogger } from '@/lib/hooks/useLogger';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
-import type { Profile } from '../../shared/types';
-
 export default function Home() {
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [typedText, setTypedText] = useState('');
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [terminalInput, setTerminalInput] = useState('');
@@ -46,23 +42,6 @@ export default function Home() {
     () => [t('home.title'), t('home.developer'), t('home.automation'), t('home.scalability'), t('home.integration')],
     [language]
   );
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await api.getProfile();
-        if (response.success && response.data) {
-          setProfile(response.data as Profile);
-          log.info('Profile loaded successfully');
-        }
-      } catch (error) {
-        log.error('Failed to fetch profile', error);
-      }
-    };
-
-    fetchProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // reset typing when language changes
   useEffect(() => {
@@ -212,7 +191,7 @@ export default function Home() {
       <MobileTerminalModal
         isOpen={showMobileTerminal}
         onClose={() => setShowMobileTerminal(false)}
-        profileName={profile?.name}
+        profileName={t('home.name')}
         currentView={currentView}
         onViewChange={setCurrentView}
         onCommandExecute={handleTerminalCommand}
@@ -282,7 +261,7 @@ export default function Home() {
               transition={{ delay: 0.2, duration: 0.8 }}
             >
               <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
-                {profile?.name.split(' ')[0] || 'SERGIO'}
+                {t('home.firstName')}
                 <motion.span
                   className="absolute inset-0"
                   style={{ color: 'transparent', WebkitTextStroke: '2px black' } as any}
@@ -301,12 +280,12 @@ export default function Home() {
                     }
                   }
                 >
-                  {profile?.name.split(' ')[0] || 'SERGIO'}
+                  {t('home.firstName')}
                 </motion.span>
               </span>
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-text-secondary to-white animate-gradient relative inline-block" style={{ WebkitTextStroke: '1px white' }}>
-                {profile?.name.split(' ')[1] || 'JÁUREGUI'}
+                {t('home.lastName')}
               </span>
             </motion.h1>
 
@@ -350,7 +329,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.8 }}
             >
-              <Link href="/work" className="w-full sm:w-auto">
+              <Link href="/projects" className="w-full sm:w-auto">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white hover:text-black">
                   <span className="flex items-center justify-center gap-2">
                     {t('home.viewProjects')}
@@ -378,22 +357,20 @@ export default function Home() {
             </motion.div>
 
             {/* Status indicator */}
-            {profile?.availability === 'available' && (
-              <motion.div
-                className="flex items-center gap-fluid-sm justify-center sm:justify-start"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1, duration: 0.8 }}
-              >
-                <div className="relative">
-                  <div className="bg-cyber-red rounded-full animate-pulse" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
-                  <div className="absolute inset-0 bg-cyber-red rounded-full animate-ping" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
-                </div>
-                <span className="text-text-secondary font-rajdhani text-fluid-sm">
-                  {t('home.available')}
-                </span>
-              </motion.div>
-            )}
+            <motion.div
+              className="flex items-center gap-fluid-sm justify-center sm:justify-start"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.8 }}
+            >
+              <div className="relative">
+                <div className="bg-cyber-red rounded-full animate-pulse" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
+                <div className="absolute inset-0 bg-cyber-red rounded-full animate-ping" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
+              </div>
+              <span className="text-text-secondary font-rajdhani text-fluid-sm">
+                {t('home.available')}
+              </span>
+            </motion.div>
 
             {/* Focus areas */}
             <motion.div
@@ -489,7 +466,7 @@ export default function Home() {
                   {/* Render current view */}
                   {currentView === 'main' && (
                     <>
-                      <TerminalInit profileName={profile?.name} />
+                      <TerminalInit profileName={t('home.name')} />
                       <div style={{ paddingTop: fluidSizing.space.md }}>
                         <TerminalHelp onCommandSelect={(cmd) => handleTerminalCommand(cmd)} />
                       </div>
