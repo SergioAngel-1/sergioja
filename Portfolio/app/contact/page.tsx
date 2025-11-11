@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { useLogger } from '@/lib/hooks/useLogger';
 import PageHeader from '@/components/organisms/PageHeader';
 import Button from '@/components/atoms/Button';
@@ -22,9 +23,11 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const log = useLogger('ContactPage');
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const formRef = useRef<HTMLFormElement>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -45,6 +48,13 @@ export default function ContactPage() {
       return;
     }
 
+    // Validar reCAPTCHA
+    if (!recaptchaToken) {
+      setStatus('error');
+      setErrorMessage(t('contact.recaptchaRequired') || 'Por favor completa el reCAPTCHA');
+      return;
+    }
+
     setStatus('loading');
     log.interaction('submit_contact_form', 'contact_form', formData);
 
@@ -57,6 +67,8 @@ export default function ContactPage() {
       if (response.success) {
         setStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
         log.info('Contact form submitted successfully');
         
         // Mostrar alerta de éxito
@@ -105,6 +117,17 @@ export default function ContactPage() {
       [name]: value,
     }));
   }, []);
+
+  const handleRecaptchaChange = useCallback((token: string | null) => {
+    setRecaptchaToken(token);
+    if (token) {
+      // Limpiar error de reCAPTCHA si existe
+      if (errorMessage.includes('reCAPTCHA') || errorMessage.includes('completa')) {
+        setStatus('idle');
+        setErrorMessage('');
+      }
+    }
+  }, [errorMessage]);
 
   const contactMethods = [
     {
@@ -295,6 +318,17 @@ export default function ContactPage() {
                       className="flex-1 w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all resize-none text-text-primary font-rajdhani text-fluid-base"
                       style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, minHeight: 'clamp(120px, 20vw, 180px)' }}
                       placeholder={t('contact.messagePlaceholder')}
+                    />
+                  </div>
+
+                  {/* reCAPTCHA */}
+                  <div className="flex justify-center">
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+                      onChange={handleRecaptchaChange}
+                      hl={language}
+                      theme="dark"
                     />
                   </div>
 

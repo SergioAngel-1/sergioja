@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState, useRef, useCallback } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { api } from '@/lib/api-client';
 import type { ContactMessage } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
@@ -20,7 +21,9 @@ export default function ConnectionContent() {
     '> Esperando tu mensaje...'
   ]);
   const [sending, setSending] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   // Función para limpiar errores cuando el usuario modifica los campos
   const handleInputChange = useCallback((field: keyof ContactMessage, value: string) => {
@@ -32,6 +35,20 @@ export default function ConnectionContent() {
     
     setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
+
+  const handleRecaptchaChange = useCallback((token: string | null) => {
+    setRecaptchaToken(token);
+    if (token) {
+      // Limpiar error de reCAPTCHA si existe
+      const hasRecaptchaError = consoleHistory.some(line => line.includes('reCAPTCHA') || line.includes('verificación'));
+      if (hasRecaptchaError) {
+        setConsoleHistory([
+          '> Sistema de conexión iniciado...',
+          '> Esperando tu mensaje...'
+        ]);
+      }
+    }
+  }, [consoleHistory]);
 
   const handleConsoleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +67,15 @@ export default function ConnectionContent() {
         formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
       
+      return;
+    }
+
+    // Validar reCAPTCHA
+    if (!recaptchaToken) {
+      setConsoleHistory(prev => [
+        ...prev,
+        '> Error: Por favor completa la verificación reCAPTCHA'
+      ]);
       return;
     }
 
@@ -77,6 +103,8 @@ export default function ConnectionContent() {
           subject: 'Contacto desde landing',
           message: ''
         });
+        setRecaptchaToken(null);
+        recaptchaRef.current?.reset();
         
         // Mostrar alerta de éxito
         alerts.success(
@@ -236,6 +264,16 @@ export default function ConnectionContent() {
             className="w-full bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 resize-none text-fluid-xs"
             style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
           />
+
+          {/* reCAPTCHA */}
+          <div className="flex justify-center">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+              onChange={handleRecaptchaChange}
+              theme="dark"
+            />
+          </div>
 
           <button
             type="submit"
