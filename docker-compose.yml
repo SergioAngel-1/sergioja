@@ -1,3 +1,5 @@
+name: sergioja
+
 services:
   # Base de datos PostgreSQL
   postgres:
