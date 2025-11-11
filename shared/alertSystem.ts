@@ -100,7 +100,7 @@ export class AlertManager {
       title: config.title,
       message: config.message,
       duration: config.duration ?? 5000,
-      position: config.position ?? 'top-right',
+      position: config.position ?? 'bottom-left',
       timestamp: Date.now(),
       dismissible: config.dismissible ?? true,
     };

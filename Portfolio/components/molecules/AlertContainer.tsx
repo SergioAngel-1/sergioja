@@ -12,23 +12,30 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: -20, scale: 0.95 }}
+      initial={{ opacity: 0, y: 20, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, x: 100, scale: 0.95 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="relative bg-background-elevated/95 backdrop-blur-md rounded-lg shadow-xl overflow-hidden min-w-[320px] max-w-[400px]"
+      exit={{ opacity: 0, y: 20, scale: 0.9 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      className="relative bg-[#0a0a0a]/95 backdrop-blur-md rounded-none shadow-2xl overflow-hidden min-w-[320px] max-w-[400px] border-l-2 border-white"
       style={{
-        borderLeft: `4px solid ${style.color}`,
+        boxShadow: `0 0 20px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(0, 0, 0, 0.5)`,
       }}
     >
-      <div className="p-4">
-        <div className="flex items-start gap-3">
+      <div className="p-4 relative">
+        {/* Cyberpunk grid overlay */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none" 
+          style={{
+            backgroundImage: 'linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent)',
+            backgroundSize: '50px 50px'
+          }}
+        />
+        
+        <div className="flex items-start gap-3 relative z-10">
           {/* Icon */}
           <div 
-            className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg"
+            className="flex-shrink-0 w-8 h-8 rounded-none flex items-center justify-center font-bold text-lg border border-white/30 text-white/80"
             style={{
-              backgroundColor: style.bgColor,
-              color: style.color,
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
             }}
           >
             {style.icon}
@@ -37,17 +44,17 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <h4 className="font-orbitron font-bold text-sm text-text-primary">
+              <h4 className="font-orbitron font-bold text-sm text-white tracking-wide uppercase">
                 {alert.title}
               </h4>
               
               {alert.dismissible && (
                 <button
                   onClick={() => alertsAPI.dismiss(alert.id)}
-                  className="flex-shrink-0 w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center transition-colors group"
+                  className="flex-shrink-0 w-5 h-5 rounded-none hover:bg-white/10 flex items-center justify-center transition-all group border border-white/20 hover:border-white/40"
                   aria-label="Cerrar alerta"
                 >
-                  <svg className="w-3 h-3 text-text-muted group-hover:text-text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 text-white/60 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -55,27 +62,29 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
             </div>
             
             {alert.message && (
-              <p className="mt-1 text-xs text-text-secondary leading-relaxed">
+              <p className="mt-2 text-xs text-white/70 leading-relaxed font-mono">
                 {alert.message}
               </p>
             )}
             
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider">
-                {alert.type}
+            <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2">
+              <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
+                [{alert.type}]
               </span>
-              <span className="text-[10px] font-mono text-text-muted">
+              <span className="text-[10px] font-mono text-white/40">
                 {formatElapsedTime(alert.timestamp)}
               </span>
             </div>
           </div>
         </div>
         
-        {/* Progress bar para alertas con duración */}
+        {/* Progress bar cyberpunk para alertas con duración */}
         {alert.duration && alert.duration > 0 && (
           <motion.div
-            className="absolute bottom-0 left-0 h-1"
-            style={{ backgroundColor: style.color }}
+            className="absolute bottom-0 left-0 h-[2px] bg-white/60"
+            style={{ 
+              boxShadow: '0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3)',
+            }}
             initial={{ width: '100%' }}
             animate={{ width: '0%' }}
             transition={{ duration: alert.duration / 1000, ease: 'linear' }}
@@ -97,7 +106,7 @@ function AlertGroup({ position, alerts }: { position: AlertPosition; alerts: Ale
   };
 
   return (
-    <div className={`fixed z-50 flex flex-col gap-3 ${positionClasses[position]}`}>
+    <div className={`fixed z-[70] flex flex-col gap-3 ${positionClasses[position]}`}>
       <AnimatePresence mode="popLayout">
         {alerts.map((alert) => (
           <AlertItem key={alert.id} alert={alert} />
@@ -107,9 +116,16 @@ function AlertGroup({ position, alerts }: { position: AlertPosition; alerts: Ale
   );
 }
 
-export default function AlertContainer() {
+export default function AlertContainer({ defaultPosition = 'bottom-right' }: { defaultPosition?: AlertPosition }) {
   const alerts = useAlerts();
-  const groupedAlerts = groupAlertsByPosition(alerts);
+  
+  // Aplicar posición por defecto a alertas que tengan 'bottom-left' (el default del sistema compartido)
+  const alertsWithPosition = alerts.map(alert => ({
+    ...alert,
+    position: alert.position === 'bottom-left' ? defaultPosition : alert.position
+  }));
+  
+  const groupedAlerts = groupAlertsByPosition(alertsWithPosition);
 
   return (
     <>

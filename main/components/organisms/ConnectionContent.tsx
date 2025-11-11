@@ -43,17 +43,8 @@ export default function ConnectionContent() {
       `> Enviando mensaje de ${formData.name}...`
     ]);
 
-    // Mostrar alerta de procesamiento
-    const processingId = alerts.processing(
-      'Enviando mensaje...',
-      'Conectando con el servidor'
-    );
-
     try {
       const response = await api.submitContact(formData);
-      
-      // Dismissar alerta de procesamiento
-      alerts.dismiss(processingId);
       
       if (response.success) {
         setConsoleHistory(prev => [
@@ -90,9 +81,6 @@ export default function ConnectionContent() {
         );
       }
     } catch (error) {
-      // Dismissar alerta de procesamiento
-      alerts.dismiss(processingId);
-      
       setConsoleHistory(prev => [
         ...prev,
         '> ✗ Error de red. Verifica tu conexión',

@@ -60,7 +60,7 @@ export function groupAlertsByPosition(alerts: Alert[]): Map<AlertPosition, Alert
   const grouped = new Map<AlertPosition, Alert[]>();
   
   alerts.forEach(alert => {
-    const position = alert.position || 'top-right';
+    const position = alert.position || 'bottom-left';
     if (!grouped.has(position)) {
       grouped.set(position, []);
     }

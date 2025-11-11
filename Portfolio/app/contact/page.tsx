@@ -31,17 +31,8 @@ export default function ContactPage() {
 
     log.interaction('submit_contact_form', 'contact_form', formData);
 
-    // Mostrar alerta de procesamiento
-    const processingId = alerts.processing(
-      t('contact.sending') || 'Enviando mensaje...',
-      'Por favor espera mientras procesamos tu solicitud'
-    );
-
     try {
       const response = await api.submitContact(formData);
-      
-      // Dismissar alerta de procesamiento
-      alerts.dismiss(processingId);
       
       if (response.success) {
         setStatus('success');
@@ -68,9 +59,6 @@ export default function ContactPage() {
         );
       }
     } catch (error) {
-      // Dismissar alerta de procesamiento
-      alerts.dismiss(processingId);
-      
       setStatus('error');
       const errorMsg = 'Error de red. Por favor intenta de nuevo.';
       setErrorMessage(errorMsg);
@@ -180,138 +168,156 @@ export default function ContactPage() {
                 {t('contact.sendMessage')}
               </h2>
 
-              <form onSubmit={handleSubmit} className="flex-1 flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
-                {/* Name Input */}
-                <div>
-                  <label htmlFor="name" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
-                    {t('contact.name')} *
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
-                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
-                    placeholder={t('contact.namePlaceholder')}
-                  />
-                </div>
-
-                {/* Email Input */}
-                <div>
-                  <label htmlFor="email" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
-                    {t('contact.email')} *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
-                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
-                    placeholder={t('contact.emailPlaceholder')}
-                  />
-                </div>
-
-                {/* Subject Input */}
-                <div>
-                  <label htmlFor="subject" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
-                    {t('contact.subject')} *
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
-                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
-                    placeholder={t('contact.subjectPlaceholder')}
-                  />
-                </div>
-
-                {/* Message Textarea */}
-                <div className="flex-1 flex flex-col">
-                  <label htmlFor="message" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
-                    {t('contact.message')} *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    className="flex-1 w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all resize-none text-text-primary font-rajdhani text-fluid-base"
-                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, minHeight: 'clamp(120px, 20vw, 180px)' }}
-                    placeholder={t('contact.messagePlaceholder')}
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  variant="blue"
-                  size="lg"
-                  disabled={status === 'loading'}
-                  className="w-full"
+              {status === 'success' ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex-1 flex flex-col items-center justify-center text-center"
+                  style={{ gap: fluidSizing.space.xl }}
                 >
-                  {status === 'loading' ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <motion.div
-                        className="w-5 h-5 border-2 border-background-dark border-t-transparent rounded-full"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      />
-                      {t('contact.sending')}
-                    </span>
-                  ) : (
-                    t('contact.send')
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                  >
+                    <svg className="w-20 h-20 text-white/80 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </motion.div>
+                  
+                  <div>
+                    <h3 className="font-orbitron font-bold text-white text-fluid-xl mb-2">
+                      {t('contact.success')}
+                    </h3>
+                    <p className="text-white/70 font-rajdhani text-fluid-base">
+                      {t('contact.successMsg')}
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={() => setStatus('idle')}
+                    variant="blue"
+                    size="lg"
+                    className="w-full max-w-xs"
+                  >
+                    Enviar otro mensaje
+                  </Button>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex-1 flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
+                  {/* Name Input */}
+                  <div>
+                    <label htmlFor="name" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
+                      {t('contact.name')} *
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                      className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
+                      style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+                      placeholder={t('contact.namePlaceholder')}
+                    />
+                  </div>
+
+                  {/* Email Input */}
+                  <div>
+                    <label htmlFor="email" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
+                      {t('contact.email')} *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
+                      style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+                      placeholder={t('contact.emailPlaceholder')}
+                    />
+                  </div>
+
+                  {/* Subject Input */}
+                  <div>
+                    <label htmlFor="subject" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
+                      {t('contact.subject')} *
+                    </label>
+                    <input
+                      type="text"
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      required
+                      className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
+                      style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+                      placeholder={t('contact.subjectPlaceholder')}
+                    />
+                  </div>
+
+                  {/* Message Textarea */}
+                  <div className="flex-1 flex flex-col">
+                    <label htmlFor="message" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
+                      {t('contact.message')} *
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                      className="flex-1 w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all resize-none text-text-primary font-rajdhani text-fluid-base"
+                      style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, minHeight: 'clamp(120px, 20vw, 180px)' }}
+                      placeholder={t('contact.messagePlaceholder')}
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    variant="blue"
+                    size="lg"
+                    disabled={status === 'loading'}
+                    className="w-full"
+                  >
+                    {status === 'loading' ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <motion.div
+                          className="w-5 h-5 border-2 border-background-dark border-t-transparent rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        />
+                        {t('contact.sending')}
+                      </span>
+                    ) : (
+                      t('contact.send')
+                    )}
+                  </Button>
+
+                  {/* Error Message - Only show on error */}
+                  {status === 'error' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-3 bg-white/5 border border-white/20 rounded-lg backdrop-blur-sm"
+                    >
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 text-white/70 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="text-white/90 font-rajdhani font-medium text-sm">{t('contact.error')}</p>
+                          <p className="text-white/50 text-xs mt-0.5">{errorMessage}</p>
+                        </div>
+                      </div>
+                    </motion.div>
                   )}
-                </Button>
-
-                {/* Success Message */}
-                {status === 'success' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-green-500/20 border border-green-500/50 rounded-lg backdrop-blur-sm"
-                  >
-                    <div className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      <div>
-                        <p className="text-green-400 font-rajdhani font-semibold">{t('contact.success')}</p>
-                        <p className="text-green-400/80 text-sm mt-1">{t('contact.successMsg')}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* Error Message */}
-                {status === 'error' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-cyber-red/20 border border-cyber-red/50 rounded-lg backdrop-blur-sm"
-                  >
-                    <div className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-cyber-red flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                      </svg>
-                      <div>
-                        <p className="text-cyber-red font-rajdhani font-semibold">{t('contact.error')}</p>
-                        <p className="text-cyber-red/80 text-sm mt-1">{errorMessage}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </form>
+                </form>
+              )}
 
               {/* Corner accents */}
               <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
@@ -435,7 +441,7 @@ export default function ContactPage() {
                     transition={{ duration: 2, repeat: Infinity }}
                   />
                 </div>
-                <span className="font-orbitron font-bold text-cyber-red text-fluid-sm">
+                <span className="font-orbitron font-bold text-white text-fluid-sm">
                   {t('contact.available')}
                 </span>
               </div>
