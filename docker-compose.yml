@@ -93,6 +93,7 @@ services:
 
 networks:
   sergioja-network:
+    name: sergioja-network
     driver: bridge
 
 volumes:
