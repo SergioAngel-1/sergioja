@@ -280,8 +280,8 @@ const translations = {
     // Validations
     'validation.required': 'es requerido',
     'validation.emailRequired': 'El email es requerido',
-    'validation.emailInvalid': 'Incluye un signo "@" en la dirección de correo electrónico',
-    'validation.emailDomain': 'La dirección de correo debe incluir un dominio válido',
+    'validation.emailInvalid': 'Ingresa un correo válido',
+    'validation.emailDomain': 'El dominio debe incluir un punto (ej: gmail.com)',
     'validation.nameRequired': 'El nombre es requerido',
     'validation.nameInvalid': 'El nombre solo puede contener letras y espacios',
     'validation.nameMinLength': 'El nombre debe tener al menos 2 caracteres',
@@ -561,8 +561,8 @@ const translations = {
     // Validations
     'validation.required': 'is required',
     'validation.emailRequired': 'Email is required',
-    'validation.emailInvalid': 'Please include an "@" in the email address',
-    'validation.emailDomain': 'Email address must include a valid domain',
+    'validation.emailInvalid': 'Enter a valid email',
+    'validation.emailDomain': 'Domain must include a dot (e.g., gmail.com)',
     'validation.nameRequired': 'Name is required',
     'validation.nameInvalid': 'Name can only contain letters and spaces',
     'validation.nameMinLength': 'Name must be at least 2 characters',

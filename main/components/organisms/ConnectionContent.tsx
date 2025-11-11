@@ -1,11 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { api } from '@/lib/api-client';
 import type { ContactMessage } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '../../../shared/alertSystem';
+import { validateContactForm, sanitizeContactForm } from '../../../shared/formValidations';
 
 export default function ConnectionContent() {
   const [formData, setFormData] = useState<ContactMessage>({
@@ -19,21 +20,36 @@ export default function ConnectionContent() {
     '> Esperando tu mensaje...'
   ]);
   const [sending, setSending] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Función para limpiar errores cuando el usuario modifica los campos
+  const handleInputChange = useCallback((field: keyof ContactMessage, value: string) => {
+    // SIEMPRE limpiar mensajes de error del historial cuando el usuario escribe
+    setConsoleHistory([
+      '> Sistema de conexión iniciado...',
+      '> Esperando tu mensaje...'
+    ]);
+    
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   const handleConsoleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.message.trim() || !formData.name.trim() || !formData.email.trim()) {
+    
+    // Validar formulario
+    const validation = validateContactForm(formData);
+    if (!validation.isValid) {
+      const firstError = Object.values(validation.errors)[0];
       setConsoleHistory(prev => [
         ...prev,
-        '> Error: Por favor completa nombre, email y mensaje'
+        `> Error: ${firstError}`
       ]);
       
-      // Mostrar alerta de validación
-      alerts.warning(
-        'Campos incompletos',
-        'Por favor completa nombre, email y mensaje',
-        4000
-      );
+      // Scroll automático al formulario (sin alerta del sistema, solo consola)
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      
       return;
     }
 
@@ -43,8 +59,11 @@ export default function ConnectionContent() {
       `> Enviando mensaje de ${formData.name}...`
     ]);
 
+    // Sanitizar datos antes de enviar
+    const sanitizedData = sanitizeContactForm(formData);
+
     try {
-      const response = await api.submitContact(formData);
+      const response = await api.submitContact(sanitizedData);
       
       if (response.success) {
         setConsoleHistory(prev => [
@@ -189,36 +208,33 @@ export default function ConnectionContent() {
         <h4 className="text-white/80 font-mono text-fluid-xs">$ contact.send()</h4>
         
         {/* Form */}
-        <form onSubmit={handleConsoleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
+        <form ref={formRef} onSubmit={handleConsoleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }} noValidate>
           <div className="grid grid-cols-2" style={{ gap: fluidSizing.space.sm }}>
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Nombre"
               className="bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 text-fluid-xs"
               style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
-              required
             />
             <input
-              type="email"
+              type="text"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onChange={(e) => handleInputChange('email', e.target.value)}
               placeholder="Email"
               className="bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 text-fluid-xs"
               style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
-              required
             />
           </div>
           
           <textarea
             value={formData.message}
-            onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+            onChange={(e) => handleInputChange('message', e.target.value)}
             placeholder="Tu mensaje..."
             rows={3}
             className="w-full bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 resize-none text-fluid-xs"
             style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
-            required
           />
 
           <button
@@ -232,8 +248,8 @@ export default function ConnectionContent() {
         </form>
 
         {/* Console output */}
-        {consoleHistory.length > 2 && (
-          <div className="bg-black/40 rounded-lg border border-white/20" style={{ padding: fluidSizing.space.md }}>
+        <div className="bg-black/40 rounded-lg border border-white/20 h-full min-h-[80px]" style={{ padding: fluidSizing.space.md }}>
+          {consoleHistory.length > 2 ? (
             <div className="max-h-20 overflow-y-auto font-mono text-fluid-xs" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xs }}>
               {consoleHistory.slice(-4).map((line, index) => (
                 <div 
@@ -244,8 +260,12 @@ export default function ConnectionContent() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="h-full flex items-center justify-center text-white/30 font-mono text-fluid-xs">
+              Esperando respuesta...
+            </div>
+          )}
+        </div>
       </motion.div>
     </div>
   );

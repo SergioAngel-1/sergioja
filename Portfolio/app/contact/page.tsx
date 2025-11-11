@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useLogger } from '@/lib/hooks/useLogger';
 import PageHeader from '@/components/organisms/PageHeader';
@@ -11,6 +11,7 @@ import { api } from '@/lib/api-client';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '../../../shared/alertSystem';
+import { validateContactForm, sanitizeContactForm } from '../../../shared/formValidations';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -23,16 +24,35 @@ export default function ContactPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const log = useLogger('ContactPage');
   const { t } = useLanguage();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setStatus('loading');
     setErrorMessage('');
 
+    // Validar formulario con traducciones
+    const validation = validateContactForm(formData, t);
+    if (!validation.isValid) {
+      const firstError = Object.values(validation.errors)[0];
+      setStatus('error');
+      setErrorMessage(firstError || t('alerts.checkForm'));
+      
+      // Scroll automático al formulario (sin alerta del sistema)
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+      
+      return;
+    }
+
+    setStatus('loading');
     log.interaction('submit_contact_form', 'contact_form', formData);
 
+    // Sanitizar datos antes de enviar
+    const sanitizedData = sanitizeContactForm(formData);
+
     try {
-      const response = await api.submitContact(formData);
+      const response = await api.submitContact(sanitizedData);
       
       if (response.success) {
         setStatus('success');
@@ -41,44 +61,50 @@ export default function ContactPage() {
         
         // Mostrar alerta de éxito
         alerts.success(
-          '¡Mensaje enviado!',
-          'Te responderé lo antes posible. Revisa tu email para la confirmación.',
+          t('alerts.messageSent'),
+          t('alerts.messageSentDesc'),
           8000
         );
       } else {
         setStatus('error');
-        const errorMsg = response.error?.message || 'Error al enviar el mensaje';
+        const errorMsg = response.error?.message || t('contact.error');
         setErrorMessage(errorMsg);
         log.error('Contact form submission failed', response.error);
         
         // Mostrar alerta de error
         alerts.error(
-          'Error al enviar',
+          t('alerts.sendError'),
           errorMsg,
           6000
         );
       }
     } catch (error) {
       setStatus('error');
-      const errorMsg = 'Error de red. Por favor intenta de nuevo.';
+      const errorMsg = t('contact.error');
       setErrorMessage(errorMsg);
       log.error('Contact form network error', error);
       
       // Mostrar alerta de error de red
       alerts.error(
-        'Error de conexión',
-        'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
+        t('alerts.connectionError'),
+        t('alerts.connectionErrorDesc'),
         6000
       );
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
+    // Limpiar estado de error INMEDIATAMENTE cuando el usuario empiece a escribir
+    setStatus('idle');
+    setErrorMessage('');
+    
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
-  };
+  }, []);
 
   const contactMethods = [
     {
@@ -204,7 +230,7 @@ export default function ContactPage() {
                   </Button>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="flex-1 flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
+                <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }} noValidate>
                   {/* Name Input */}
                   <div>
                     <label htmlFor="name" className="block font-mono text-white uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
@@ -216,7 +242,6 @@ export default function ContactPage() {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      required
                       className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
                       style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                       placeholder={t('contact.namePlaceholder')}
@@ -229,12 +254,11 @@ export default function ContactPage() {
                       {t('contact.email')} *
                     </label>
                     <input
-                      type="email"
+                      type="text"
                       id="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      required
                       className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
                       style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                       placeholder={t('contact.emailPlaceholder')}
@@ -252,7 +276,6 @@ export default function ContactPage() {
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      required
                       className="w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani text-fluid-base"
                       style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                       placeholder={t('contact.subjectPlaceholder')}
@@ -269,7 +292,6 @@ export default function ContactPage() {
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
-                      required
                       className="flex-1 w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all resize-none text-text-primary font-rajdhani text-fluid-base"
                       style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, minHeight: 'clamp(120px, 20vw, 180px)' }}
                       placeholder={t('contact.messagePlaceholder')}
