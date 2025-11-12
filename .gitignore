@@ -21,13 +21,22 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# Environment variables
+# Environment variables - CRÍTICO: NO SUBIR CREDENCIALES
 .env
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
 .env*.local
+
+# Archivos de configuración con credenciales sensibles
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.template
 
 # IDEs
 .vscode/
@@ -61,6 +70,15 @@ tsconfig.tsbuildinfo
 
 # Docker
 docker-compose.override.yml
+
+# Traefik / Let's Encrypt (certificados SSL)
+letsencrypt/
+acme.json
+
+# Backups de base de datos
+backups/
+*.sql
+*.dump
 
 # Vercel
 .vercel
