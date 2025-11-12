@@ -1,10 +1,16 @@
-name: sergioja
+# ==============================================
+# DOCKER COMPOSE - DESARROLLO/TESTING LOCAL
+# ==============================================
+# Para producción usa: docker-compose.prod.yml
+# Comando: docker compose up -d
+
+name: sergioja-dev
 
 services:
   # Base de datos PostgreSQL
   postgres:
     image: postgres:14-alpine
-    container_name: sergioja-postgres
+    container_name: sergioja-postgres-dev
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
@@ -27,22 +33,30 @@ services:
     build:
       context: .
       dockerfile: ./backend/Dockerfile
-    container_name: sergioja-backend
+    container_name: sergioja-backend-dev
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 5000
       DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-password}@postgres:5432/${DB_NAME:-sergioja_bdd}?schema=public
       FRONTEND_URLS: ${FRONTEND_URLS:-http://localhost:3000,http://localhost:3001}
-      JWT_SECRET: your-super-secret-jwt-key-min-32-chars-long-for-production
+      JWT_SECRET: ${JWT_SECRET}
       RATE_LIMIT_WINDOW_MS: 900000
       RATE_LIMIT_MAX_REQUESTS: 100
-      # Email SMTP (opcional - si no se configura, los emails no se envían pero el sistema funciona)
+      # reCAPTCHA Enterprise
+      RECAPTCHA_ENTERPRISE_PROJECT_ID: ${RECAPTCHA_ENTERPRISE_PROJECT_ID}
+      RECAPTCHA_ENTERPRISE_API_KEY: ${RECAPTCHA_ENTERPRISE_API_KEY}
+      RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY}
+      RECAPTCHA_MIN_SCORE: ${RECAPTCHA_MIN_SCORE:-0.5}
+      RECAPTCHA_BYPASS_DEV: ${RECAPTCHA_BYPASS_DEV:-true}
+      # Email SMTP - Google Workspace
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       SMTP_FROM: ${SMTP_FROM}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME}
+      SMTP_ENCRYPTION: ${SMTP_ENCRYPTION}
     ports:
       - "5000:5000"
     depends_on:
@@ -60,11 +74,13 @@ services:
       dockerfile: ./Portfolio/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
-    container_name: portfolio-frontend
+        NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+    container_name: portfolio-frontend-dev
     restart: unless-stopped
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
+      NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
     ports:
       - "3000:3000"
     depends_on:
@@ -79,11 +95,13 @@ services:
       dockerfile: ./main/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
-    container_name: main-frontend
+        NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+    container_name: main-frontend-dev
     restart: unless-stopped
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
+      NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
     ports:
       - "3001:3000"
     depends_on:
@@ -93,9 +111,10 @@ services:
 
 networks:
   sergioja-network:
-    name: sergioja-network
+    name: sergioja-network-dev
     driver: bridge
 
 volumes:
   postgres_data:
+    name: sergioja-postgres-data-dev
     driver: local

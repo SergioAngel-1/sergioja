@@ -13,12 +13,14 @@ import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '../../../shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '../../../shared/formValidations';
 
-// Declarar tipo global para grecaptcha
+// Declarar tipo global para grecaptcha Enterprise
 declare global {
   interface Window {
     grecaptcha: {
-      ready: (callback: () => void) => void;
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+      enterprise: {
+        ready: (callback: () => void) => void;
+        execute: (siteKey: string, options: { action: string }) => Promise<string>;
+      };
     };
   }
 }
@@ -36,16 +38,15 @@ export default function ContactPage() {
   const { t, language } = useLanguage();
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Función para obtener token de reCAPTCHA v3
+  // Función para obtener token de reCAPTCHA Enterprise
   const getReCaptchaToken = useCallback(async (): Promise<string | null> => {
-    // En desarrollo, omitir reCAPTCHA
     if (process.env.NODE_ENV === 'development') {
       return 'dev-bypass-token';
     }
-    
     try {
-      if (typeof window !== 'undefined' && window.grecaptcha) {
-        return await window.grecaptcha.execute(
+      if (typeof window !== 'undefined' && window.grecaptcha?.enterprise) {
+        await new Promise<void>((resolve) => window.grecaptcha.enterprise.ready(() => resolve()));
+        return await window.grecaptcha.enterprise.execute(
           process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
           { action: 'submit_contact' }
         );
@@ -91,7 +92,7 @@ export default function ContactPage() {
     const sanitizedData = sanitizeContactForm(formData);
 
     try {
-      const response = await api.submitContact(sanitizedData);
+      const response = await api.submitContact({ ...sanitizedData, recaptchaToken, recaptchaAction: 'submit_contact' });
       
       if (response.success) {
         setStatus('success');

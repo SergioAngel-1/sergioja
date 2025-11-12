@@ -21,9 +21,11 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copiar código fuente de Portfolio
 COPY Portfolio/. .
 
-# Argumento de build para la URL de la API
+# Argumentos de build para variables públicas
 ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_RECAPTCHA_SITE_KEY
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_RECAPTCHA_SITE_KEY=$NEXT_PUBLIC_RECAPTCHA_SITE_KEY
 
 # Build de Next.js
 RUN npm run build

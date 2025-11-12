@@ -116,6 +116,12 @@ export interface ContactFormData {
   message: string;
 }
 
+// Payload extendido para envío desde el frontend con reCAPTCHA Enterprise
+export interface ContactSubmissionPayload extends ContactMessage {
+  recaptchaToken?: string;
+  recaptchaAction?: string;
+}
+
 export interface AnalyticsSummary {
   totalProjects: number;
   totalSkills: number;

@@ -53,8 +53,12 @@ class EmailService {
     }
 
     try {
+      const fromAddress = appConfig.email.fromName 
+        ? `"${appConfig.email.fromName}" <${appConfig.email.from || appConfig.email.user}>`
+        : appConfig.email.from || appConfig.email.user;
+
       const info = await this.transporter.sendMail({
-        from: appConfig.email.from || appConfig.email.user,
+        from: fromAddress,
         to: options.to,
         subject: options.subject,
         text: options.text,

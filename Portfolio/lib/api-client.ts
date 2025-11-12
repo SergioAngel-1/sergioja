@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
-import type { ApiResponse, PaginatedResponse } from '../../shared/types';
+import type { ApiResponse, PaginatedResponse, ContactSubmissionPayload } from '../../shared/types';
 import { logger } from './logger';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -112,9 +112,8 @@ export const api = {
   // Timeline
   getTimeline: (type?: string) => apiClient.get('/timeline', type ? { type } : undefined),
 
-  // Contact
-  submitContact: (data: { name: string; email: string; subject: string; message: string }) =>
-    apiClient.post('/contact', data),
+  // Contact (con reCAPTCHA Enterprise)
+  submitContact: (data: ContactSubmissionPayload) => apiClient.post('/contact', data),
 
   // Analytics
   getAnalytics: () => apiClient.get('/analytics/summary'),

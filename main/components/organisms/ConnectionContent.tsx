@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { api } from '@/lib/api-client';
-import type { ContactMessage } from '@/lib/types';
+import type { ContactMessage, ContactSubmissionPayload } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '../../../shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '../../../shared/formValidations';
@@ -13,8 +13,10 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 declare global {
   interface Window {
     grecaptcha: {
-      ready: (callback: () => void) => void;
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+      enterprise: {
+        ready: (callback: () => void) => void;
+        execute: (siteKey: string, options: { action: string }) => Promise<string>;
+      };
     };
   }
 }
@@ -54,21 +56,19 @@ export default function ConnectionContent() {
 
   // Función para obtener token de reCAPTCHA v3
   const getReCaptchaToken = useCallback(async (): Promise<string | null> => {
-    // En desarrollo, omitir reCAPTCHA
     if (process.env.NODE_ENV === 'development') {
       return 'dev-bypass-token';
     }
-    
     try {
-      if (typeof window !== 'undefined' && window.grecaptcha) {
-        return await window.grecaptcha.execute(
+      if (typeof window !== 'undefined' && window.grecaptcha?.enterprise) {
+        await new Promise<void>((resolve) => window.grecaptcha.enterprise.ready(() => resolve()));
+        return await window.grecaptcha.enterprise.execute(
           process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
           { action: 'submit_contact' }
         );
       }
       return null;
-    } catch (error) {
-      console.error('Error al obtener token de reCAPTCHA:', error);
+    } catch {
       return null;
     }
   }, []);
@@ -114,7 +114,12 @@ export default function ConnectionContent() {
     const sanitizedData = sanitizeContactForm(formData);
 
     try {
-      const response = await api.submitContact(sanitizedData);
+      const payload: ContactSubmissionPayload = {
+        ...sanitizedData,
+        recaptchaToken: recaptchaToken || undefined,
+        recaptchaAction: 'submit_contact',
+      };
+      const response = await api.submitContact(payload);
       
       if (response.success) {
         setConsoleHistory(prev => [

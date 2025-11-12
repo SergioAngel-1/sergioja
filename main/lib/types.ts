@@ -9,5 +9,6 @@ export type {
   Skill,
   TimelineItem,
   ContactMessage,
+  ContactSubmissionPayload,
   AnalyticsSummary,
 } from '../../shared/types';

@@ -1,9 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { ApiResponse, ContactFormData } from '../../../shared/types';
+import { ApiResponse, ContactSubmissionPayload } from '../../../shared/types';
 import { emailService } from '../services/emailService';
 import { logger } from '../lib/logger';
 import { prisma } from '../lib/prisma';
+import { verifyRecaptchaEnterprise } from '../services/recaptchaService';
 
 const router = Router();
 
@@ -31,7 +32,32 @@ router.post(
       });
     }
 
-    const formData: ContactFormData = req.body;
+    const formData: ContactSubmissionPayload = req.body;
+
+    // Verify reCAPTCHA Enterprise token if present (required in production)
+    try {
+      const token = formData.recaptchaToken;
+      const expectedAction = formData.recaptchaAction || 'submit_contact';
+      const { valid, score, reasons } = await verifyRecaptchaEnterprise(token || '', expectedAction);
+      if (!valid) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'reCAPTCHA verification failed',
+            code: 'RECAPTCHA_INVALID',
+            details: { score, reasons },
+          },
+          timestamp: new Date().toISOString(),
+        } satisfies ApiResponse);
+      }
+    } catch (err) {
+      logger.error('reCAPTCHA verification error', err as any);
+      return res.status(400).json({
+        success: false,
+        error: { message: 'reCAPTCHA error', code: 'RECAPTCHA_ERROR' },
+        timestamp: new Date().toISOString(),
+      } satisfies ApiResponse);
+    }
 
     try {
       // Save to database

@@ -26,6 +26,15 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().email().optional(),
+  SMTP_FROM_NAME: z.string().optional(),
+  SMTP_ENCRYPTION: z.enum(['tls', 'ssl']).optional(),
+
+  // reCAPTCHA Enterprise (optional)
+  RECAPTCHA_ENTERPRISE_PROJECT_ID: z.string().optional(),
+  RECAPTCHA_ENTERPRISE_API_KEY: z.string().optional(),
+  RECAPTCHA_SITE_KEY: z.string().optional(),
+  RECAPTCHA_MIN_SCORE: z.string().optional(),
+  RECAPTCHA_BYPASS_DEV: z.string().optional(),
   
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: z.string().default('900000'),
@@ -72,6 +81,15 @@ export const appConfig = {
     user: env.SMTP_USER,
     pass: env.SMTP_PASS,
     from: env.SMTP_FROM,
+    fromName: env.SMTP_FROM_NAME,
+    encryption: env.SMTP_ENCRYPTION,
+  },
+  recaptcha: {
+    projectId: env.RECAPTCHA_ENTERPRISE_PROJECT_ID,
+    apiKey: env.RECAPTCHA_ENTERPRISE_API_KEY,
+    siteKey: env.RECAPTCHA_SITE_KEY,
+    minScore: env.RECAPTCHA_MIN_SCORE ? parseFloat(env.RECAPTCHA_MIN_SCORE) : 0.5,
+    bypassDev: env.RECAPTCHA_BYPASS_DEV === 'true',
   },
   rateLimit: {
     windowMs: parseInt(env.RATE_LIMIT_WINDOW_MS, 10),

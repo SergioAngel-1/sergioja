@@ -1,4 +1,4 @@
-import type { ApiResponse, Profile, Project, ContactMessage } from './types';
+import type { ApiResponse, Profile, Project, ContactSubmissionPayload } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -82,6 +82,6 @@ export const api = {
   // Projects - for Projects modal (only featured)
   getFeaturedProjects: () => apiClient.get<Project[]>('/projects', { featured: true, limit: 6 }),
 
-  // Contact - for Connection modal
-  submitContact: (data: ContactMessage) => apiClient.post('/contact', data),
+  // Contact - for Connection modal (con reCAPTCHA Enterprise)
+  submitContact: (data: ContactSubmissionPayload) => apiClient.post('/contact', data),
 };
