@@ -8,7 +8,8 @@ export interface ValidationResult {
   errorKey?: string; // Key para traducción
 }
 
-export type TranslateFunction = (key: string) => string;
+// Tipo flexible para función de traducción
+export type TranslateFunction = (key: any) => string;
 
 /**
  * Valida que un campo no esté vacío

@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api-client';
 import type { Project } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 export default function ProjectsContent() {
+  const { t } = useLanguage();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export default function ProjectsContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center" style={{ padding: `${fluidSizing.space['2xl']} 0` }}>
-        <div className="animate-pulse text-white/60 text-fluid-sm">Cargando proyectos...</div>
+        <div className="animate-pulse text-white/60 text-fluid-sm">{t('projects.loading')}</div>
       </div>
     );
   }
@@ -41,12 +43,12 @@ export default function ProjectsContent() {
   if (error || projects.length === 0) {
     return (
       <div className="text-center" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md, padding: `${fluidSizing.space.xl} 0` }}>
-        <p className="text-white/60 text-fluid-sm">No hay proyectos disponibles en este momento.</p>
+        <p className="text-white/60 text-fluid-sm">{t('projects.noProjects')}</p>
         <a
           href="http://localhost:3000/projects"
           className="inline-block text-white/80 hover:text-white underline text-fluid-sm"
         >
-          Ver portafolio completo →
+          {t('projects.viewFull')}
         </a>
       </div>
     );
@@ -60,7 +62,7 @@ export default function ProjectsContent() {
         animate={{ opacity: 1, y: 0 }}
         style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}
       >
-        <h3 className="text-white font-bold text-fluid-sm">Proyectos Destacados</h3>
+        <h3 className="text-white font-bold text-fluid-sm">{t('projects.featured')}</h3>
         <div className="h-px bg-gradient-to-r from-white/30 via-white/10 to-transparent" />
       </motion.div>
 
@@ -82,7 +84,7 @@ export default function ProjectsContent() {
               </h4>
               {project.status === 'in-progress' && (
                 <span className="rounded-full bg-white/10 text-white/60 font-mono text-fluid-xs" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}>
-                  EN DESARROLLO
+                  {t('projects.inProgress')}
                 </span>
               )}
             </div>
@@ -121,7 +123,7 @@ export default function ProjectsContent() {
                   rel="noopener noreferrer"
                   className="text-[11px] text-white/60 hover:text-white transition-colors font-mono"
                 >
-                  Ver demo →
+                  {t('projects.viewDemo')}
                 </a>
               )}
               {project.githubUrl && (
@@ -131,7 +133,7 @@ export default function ProjectsContent() {
                   rel="noopener noreferrer"
                   className="text-[11px] text-white/60 hover:text-white transition-colors font-mono"
                 >
-                  GitHub →
+                  {t('projects.github')}
                 </a>
               )}
             </div>
@@ -151,7 +153,7 @@ export default function ProjectsContent() {
           href="http://localhost:3000/projects"
           className="inline-block text-white/60 hover:text-white transition-colors font-mono text-fluid-xs"
         >
-          Ver todos los proyectos →
+          {t('projects.viewAll')}
         </a>
       </motion.div>
     </div>

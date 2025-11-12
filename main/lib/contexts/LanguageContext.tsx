@@ -1,21 +1,16 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { Language, mergeTranslations } from '../../../shared/translations';
-import { portfolioTranslations, PortfolioTranslations } from '../translations/portfolio-translations';
-import type { BaseTranslations } from '../../../shared/translations';
+import { Language, translate, Translations } from '../../../shared/translations';
 
 interface LanguageContextType {
   language: Language;
-  toggleLanguage: () => void;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  toggleLanguage: () => void;
+  t: (key: keyof Translations) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
-// Combinar traducciones base (shared) con las específicas de Portfolio
-const translations: Record<Language, BaseTranslations & PortfolioTranslations> = mergeTranslations(portfolioTranslations);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('es');
@@ -30,24 +25,24 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const changeLanguage = (newLanguage: Language) => {
-    setLanguage(newLanguage);
+  const handleSetLanguage = useCallback((lang: Language) => {
+    setLanguage(lang);
     if (mounted) {
-      localStorage.setItem('language', newLanguage);
+      localStorage.setItem('language', lang);
     }
-  };
+  }, [mounted]);
 
-  const toggleLanguage = () => {
-    const newLanguage = language === 'es' ? 'en' : 'es';
-    changeLanguage(newLanguage);
-  };
+  const toggleLanguage = useCallback(() => {
+    const newLang: Language = language === 'es' ? 'en' : 'es';
+    handleSetLanguage(newLang);
+  }, [language, handleSetLanguage]);
 
-  const t = useCallback((key: string): string => {
-    return translations[language][key as keyof typeof translations['es']] || key;
+  const t = useCallback((key: keyof Translations): string => {
+    return translate(key, language);
   }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, setLanguage: changeLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, toggleLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );

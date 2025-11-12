@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import AlertContainer from '@/components/molecules/AlertContainer';
+import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -58,11 +59,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        {/* Google reCAPTCHA v3 - Solo en producción */}
+        {process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+          <script
+            src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
+            async
+            defer
+          />
+        )}
+      </head>
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-light text-text-primary antialiased`}
       >
-        <main className="h-screen overflow-hidden">{children}</main>
-        <AlertContainer />
+        <LanguageProvider>
+          <main className="h-screen overflow-hidden">{children}</main>
+          <AlertContainer />
+        </LanguageProvider>
       </body>
     </html>
   );

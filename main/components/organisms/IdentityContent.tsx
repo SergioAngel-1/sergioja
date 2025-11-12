@@ -2,8 +2,10 @@
 
 import { motion } from 'framer-motion';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 export default function IdentityContent() {
+  const { t } = useLanguage();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
       {/* Header */}
@@ -14,7 +16,7 @@ export default function IdentityContent() {
         style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
       >
         <h3 className="font-bold text-white text-fluid-lg">
-          Explorando el punto donde la tecnología se encuentra con las ideas
+          {t('identity.title')}
         </h3>
         <div className="h-px bg-gradient-to-r from-white/50 via-white/20 to-transparent" />
       </motion.div>
@@ -28,12 +30,10 @@ export default function IdentityContent() {
         className="text-white/80 leading-relaxed text-fluid-sm"
       >
         <p>
-          Creo en la tecnología como herramienta para materializar ideas que impacten positivamente. 
-          Mi enfoque está en crear experiencias digitales que combinen funcionalidad con diseño intencional.
+          {t('identity.paragraph1')}
         </p>
         <p>
-          Me motiva resolver problemas complejos con soluciones elegantes, siempre buscando el equilibrio 
-          entre innovación técnica y experiencia humana.
+          {t('identity.paragraph2')}
         </p>
       </motion.div>
 
@@ -46,7 +46,7 @@ export default function IdentityContent() {
         style={{ gap: fluidSizing.space.sm }}
       >
         <div className="bg-green-400 rounded-full animate-pulse" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
-        <span className="text-white/60">Disponible para nuevos proyectos</span>
+        <span className="text-white/60">{t('identity.available')}</span>
       </motion.div>
 
     </div>

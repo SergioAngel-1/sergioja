@@ -1,12 +1,14 @@
 'use client';
 
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 interface NavigationContentProps {
   onNavigate?: (modal: string) => void;
 }
 
 export default function NavigationContent({ onNavigate }: NavigationContentProps) {
+  const { language, toggleLanguage, t } = useLanguage();
   const handlePortfolioClick = () => {
     window.location.href = 'http://localhost:3000';
   };
@@ -18,9 +20,9 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
   };
 
   const secondaryLinks = [
-    { label: 'Identidad', modal: 'identity' },
-    { label: 'Proyectos', modal: 'projects' },
-    { label: 'Conexión', modal: 'connection' },
+    { label: t('nav.identity'), modal: 'identity' },
+    { label: t('nav.projects'), modal: 'projects' },
+    { label: t('nav.connection'), modal: 'connection' },
   ];
 
   return (
@@ -37,8 +39,8 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
           </svg>
         </div>
         <div className="flex-1 text-left">
-          <h3 className="text-white font-bold text-fluid-base">Portfolio</h3>
-          <p className="text-white/60 text-fluid-xs" style={{ marginTop: fluidSizing.space.xs }}>Ver trabajos y proyectos completos</p>
+          <h3 className="text-white font-bold text-fluid-base">{t('nav.portfolio')}</h3>
+          <p className="text-white/60 text-fluid-xs" style={{ marginTop: fluidSizing.space.xs }}>{t('nav.portfolioDesc')}</p>
         </div>
         <svg className="size-icon-md text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -51,7 +53,7 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
           <div className="w-full border-t border-white/10"></div>
         </div>
         <div className="relative flex justify-center text-fluid-xs">
-          <span className="bg-black text-white/40 font-mono" style={{ padding: `0 ${fluidSizing.space.sm}` }}>SECCIONES</span>
+          <span className="bg-black text-white/40 font-mono" style={{ padding: `0 ${fluidSizing.space.sm}` }}>{t('nav.sections')}</span>
         </div>
       </div>
 
@@ -72,10 +74,49 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
         ))}
       </div>
 
+      {/* Separador */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10"></div>
+        </div>
+        <div className="relative flex justify-center text-fluid-xs">
+          <span className="bg-black text-white/40 font-mono" style={{ padding: `0 ${fluidSizing.space.sm}` }}>{t('nav.language')}</span>
+        </div>
+      </div>
+
+      {/* Botón de cambio de idioma */}
+      <button
+        onClick={toggleLanguage}
+        className="group w-full flex items-center justify-between rounded-lg border border-white/20 hover:border-white/40 hover:bg-white/10 transition-all duration-300"
+        style={{ padding: fluidSizing.space.md }}
+      >
+        <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+          <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
+            <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+            </svg>
+          </div>
+          <div className="text-left">
+            <p className="text-white font-medium text-fluid-sm">
+              {language === 'es' ? 'Español' : 'English'}
+            </p>
+            <p className="text-white/60 text-fluid-xs">
+              {language === 'es' ? 'Cambiar a inglés' : 'Switch to Spanish'}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
+          <span className="text-white/40 font-mono text-fluid-xs uppercase">{language}</span>
+          <svg className="size-icon-sm text-white/40 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+        </div>
+      </button>
+
       {/* Nota informativa */}
       <div className="border-t border-white/10" style={{ paddingTop: fluidSizing.space.sm }}>
         <p className="text-white/40 text-center leading-relaxed text-fluid-xs">
-          Haz clic para ver cada sección
+          {t('nav.clickToView')}
         </p>
       </div>
     </div>
