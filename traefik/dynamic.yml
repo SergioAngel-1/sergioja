@@ -1,0 +1,69 @@
+http:
+  routers:
+    main:
+      rule: Host(`sergioja.com`) || Host(`www.sergioja.com`)
+      entryPoints:
+        - websecure
+      service: main
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - main-redirect
+
+    portfolio:
+      rule: Host(`portfolio.sergioja.com`) || Host(`www.portfolio.sergioja.com`)
+      entryPoints:
+        - websecure
+      service: portfolio
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - portfolio-redirect
+
+    backend:
+      rule: Host(`api.sergioja.com`)
+      entryPoints:
+        - websecure
+      service: backend
+      tls:
+        certResolver: letsencrypt
+
+    traefik:
+      rule: Host(`traefik.sergioja.com`)
+      entryPoints:
+        - websecure
+      service: api@internal
+      tls:
+        certResolver: letsencrypt
+      middlewares:
+        - auth
+
+  services:
+    main:
+      loadBalancer:
+        servers:
+          - url: http://main-frontend:3000
+    portfolio:
+      loadBalancer:
+        servers:
+          - url: http://portfolio-frontend:3000
+    backend:
+      loadBalancer:
+        servers:
+          - url: http://sergioja-backend:5000
+
+  middlewares:
+    main-redirect:
+      redirectRegex:
+        regex: "^https://www\\.sergioja\\.com/(.*)"
+        replacement: "https://sergioja.com/$1"
+        permanent: true
+    portfolio-redirect:
+      redirectRegex:
+        regex: "^https://www\\.portfolio\\.sergioja\\.com/(.*)"
+        replacement: "https://portfolio.sergioja.com/$1"
+        permanent: true
+    auth:
+      basicAuth:
+        users:
+          - "admin:$2y$05$4jKbN4eed3e9WhrFiETXcuItWP7YSnBeY4v2fE/rpgPbbizU5UYm6"
