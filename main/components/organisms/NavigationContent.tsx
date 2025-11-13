@@ -10,7 +10,9 @@ interface NavigationContentProps {
 export default function NavigationContent({ onNavigate }: NavigationContentProps) {
   const { language, toggleLanguage, t } = useLanguage();
   const handlePortfolioClick = () => {
-    window.location.href = 'http://localhost:3000';
+    const isDev = process.env.NODE_ENV === 'development';
+    const url = isDev ? 'http://localhost:3000' : 'https://portfolio.sergioja.com';
+    window.location.href = url;
   };
 
   const handleSecondaryClick = (modal: string) => {

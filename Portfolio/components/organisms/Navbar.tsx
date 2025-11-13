@@ -105,7 +105,11 @@ export default function Navbar() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
-        <a href="http://localhost:3001" target="_blank" rel="noopener noreferrer">
+        <a
+          href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://sergioja.com'}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <div className="relative">
             {/* Outer glow ring */}
             <motion.div
