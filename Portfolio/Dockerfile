@@ -32,6 +32,7 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_GTM_ID=$NEXT_PUBLIC_GTM_ID
 
 # Build de Next.js
+RUN ln -s /app/node_modules /shared/node_modules
 RUN npm run build
 
 # Etapa 3: Producción
