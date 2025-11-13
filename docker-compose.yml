@@ -75,12 +75,16 @@ services:
       args:
         NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+        NEXT_PUBLIC_SITE_URL: http://localhost:3000
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
     container_name: portfolio-frontend-dev
     restart: unless-stopped
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
     ports:
       - "3000:3000"
     depends_on:
@@ -96,12 +100,16 @@ services:
       args:
         NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+        NEXT_PUBLIC_SITE_URL: http://localhost:3001
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
     container_name: main-frontend-dev
     restart: unless-stopped
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+      NEXT_PUBLIC_SITE_URL: http://localhost:3001
+      NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
     ports:
       - "3001:3000"
     depends_on:
