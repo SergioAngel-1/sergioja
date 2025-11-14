@@ -34,7 +34,6 @@ const envSchema = z.object({
   RECAPTCHA_ENTERPRISE_API_KEY: z.string().optional(),
   RECAPTCHA_SITE_KEY: z.string().optional(),
   RECAPTCHA_MIN_SCORE: z.string().optional(),
-  RECAPTCHA_BYPASS_DEV: z.string().optional(),
   
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: z.string().default('900000'),
@@ -89,7 +88,6 @@ export const appConfig = {
     apiKey: env.RECAPTCHA_ENTERPRISE_API_KEY,
     siteKey: env.RECAPTCHA_SITE_KEY,
     minScore: env.RECAPTCHA_MIN_SCORE ? parseFloat(env.RECAPTCHA_MIN_SCORE) : 0.5,
-    bypassDev: env.RECAPTCHA_BYPASS_DEV === 'true',
   },
   rateLimit: {
     windowMs: parseInt(env.RATE_LIMIT_WINDOW_MS, 10),

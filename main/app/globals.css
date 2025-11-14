@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide reCAPTCHA badge - Must be outside layers for proper specificity */
+/* Legal disclaimer is added to all forms with reCAPTCHA */
+.grecaptcha-badge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 :root {
   --bg-light: 255 255 255;
   --bg-surface: 245 245 245;
@@ -231,9 +239,4 @@
   .text-fluid-4xl { font-size: clamp(2.5rem, 3vw, 4rem); }
   .text-fluid-5xl { font-size: clamp(3rem, 4vw, 5rem); }
   .text-fluid-6xl { font-size: clamp(3.5rem, 5vw, 6rem); }
-
-  /* Hide reCAPTCHA badge (legal disclaimer added to forms) */
-  .grecaptcha-badge {
-    visibility: hidden !important;
-  }
 }

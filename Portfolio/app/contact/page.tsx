@@ -361,14 +361,14 @@ export default function ContactPage() {
                     )}
                   </Button>
 
-                  {/* reCAPTCHA disclaimer */}
+                  {/* reCAPTCHA disclaimer - Required when hiding badge */}
                   <p className="text-text-muted text-center leading-relaxed font-mono text-fluid-xs">
                     {t('recaptcha.disclaimer')}{' '}
                     <a 
                       href="https://policies.google.com/privacy" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-text-secondary hover:text-text-primary underline transition-colors"
+                      className="text-cyber-blue-cyan hover:text-white underline transition-colors"
                     >
                       {t('recaptcha.privacy')}
                     </a>
@@ -377,7 +377,7 @@ export default function ContactPage() {
                       href="https://policies.google.com/terms" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-text-secondary hover:text-text-primary underline transition-colors"
+                      className="text-cyber-blue-cyan hover:text-white underline transition-colors"
                     >
                       {t('recaptcha.terms')}
                     </a>

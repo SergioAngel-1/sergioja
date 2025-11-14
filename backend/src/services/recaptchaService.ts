@@ -20,11 +20,7 @@ export async function verifyRecaptchaEnterprise(
   token: string,
   expectedAction = 'submit_contact'
 ): Promise<{ valid: boolean; score: number; reasons?: string[]; action?: string }> {
-  const { projectId, apiKey, siteKey, minScore, bypassDev } = appConfig.recaptcha;
-
-  if (bypassDev && process.env.NODE_ENV !== 'production') {
-    return { valid: true, score: 1 };
-  }
+  const { projectId, apiKey, siteKey, minScore } = appConfig.recaptcha;
 
   if (!projectId || !apiKey || !siteKey) {
     logger.warn('reCAPTCHA Enterprise not fully configured. Skipping verification.');

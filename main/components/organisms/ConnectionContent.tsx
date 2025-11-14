@@ -301,14 +301,14 @@ export default function ConnectionContent() {
             {sending ? t('connection.sendingButton') : t('connection.sendButton')}
           </button>
 
-          {/* reCAPTCHA disclaimer */}
-          <p className="text-white/40 text-center leading-relaxed font-mono" style={{ fontSize: 'clamp(0.625rem, 0.7vw, 0.7rem)' }}>
+          {/* reCAPTCHA disclaimer - Required when hiding badge */}
+          <p className="text-white/50 text-center leading-relaxed font-mono" style={{ fontSize: 'clamp(0.625rem, 0.7vw, 0.7rem)' }}>
             {t('recaptcha.disclaimer')}{' '}
             <a 
               href="https://policies.google.com/privacy" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-white/60 hover:text-white/80 underline transition-colors"
+              className="text-white/70 hover:text-white underline transition-colors"
             >
               {t('recaptcha.privacy')}
             </a>
@@ -317,11 +317,11 @@ export default function ConnectionContent() {
               href="https://policies.google.com/terms" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-white/60 hover:text-white/80 underline transition-colors"
+              className="text-white/70 hover:text-white underline transition-colors"
             >
               {t('recaptcha.terms')}
             </a>
-            {' '}{language === 'es' ? 'de Google se aplican' : 'apply'}.
+            {' '}{language === 'es' ? 'de Google' : 'apply'}.
           </p>
         </form>
 
