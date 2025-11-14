@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Breadcrumbs from '@/components/molecules/Breadcrumbs';
 import LanguageToggle from '@/components/molecules/LanguageToggle';
@@ -16,47 +17,80 @@ interface HeaderProps {
 
 export default function Header({ showBreadcrumbs = false, showHomeBadge = false, onTerminalOpen, isHomePage = false }: HeaderProps) {
   const { t } = useLanguage();
+  const inlineBadgeRef = useRef<HTMLDivElement>(null);
+  const [badgeHeight, setBadgeHeight] = useState<number | null>(null);
+
+  // Keep terminal button height exactly equal to inline home badge height on mobile
+  useEffect(() => {
+    if (!(isHomePage && showHomeBadge)) {
+      setBadgeHeight(null);
+      return;
+    }
+    const el = inlineBadgeRef.current;
+    if (!el) return;
+    const update = () => setBadgeHeight(el.offsetHeight);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [isHomePage, showHomeBadge]);
 
   return (
     <>
       {/* Mobile Terminal Button - Top Left */}
-      {onTerminalOpen && (
-        <motion.button
-          onClick={onTerminalOpen}
-          className={`lg:hidden ${isHomePage ? 'absolute' : 'fixed'} top-0 left-0 z-50 w-10 h-10 rounded-lg border-2 bg-white/10 border-white text-white hover:bg-white hover:text-black flex items-center justify-center transition-all duration-300 backdrop-blur-sm`}
+      {(onTerminalOpen || (showHomeBadge && isHomePage)) && (
+        <div
+          className={`lg:hidden ${isHomePage ? 'absolute' : 'fixed'} top-0 left-0 z-50 flex items-center`}
           style={{ margin: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.8, type: 'spring', stiffness: 400, damping: 25 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          aria-label="Open terminal"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          
-          {/* Pulse effect */}
-          <motion.div
-            className="absolute inset-0 rounded-lg border-2 border-white"
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 0, 0.5]
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        </motion.button>
+          {onTerminalOpen && (
+            <motion.button
+              onClick={onTerminalOpen}
+              className={`relative rounded-sm border-2 border-white text-white bg-transparent flex items-center justify-center transition-all duration-300`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.6, ease: 'easeOut' }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Open terminal"
+              style={{ padding: `0 ${fluidSizing.space.xs}`, height: badgeHeight ? `${badgeHeight}px` : undefined, boxSizing: 'border-box' }}
+            >
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                {/* Chevron ">" */}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 8l4 4-4 4" />
+                {/* Underscore */}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h5" />
+              </svg>
+            </motion.button>
+          )}
+
+          {/* Inline Home Badge next to terminal button on mobile home */}
+          {showHomeBadge && isHomePage && (
+            <motion.div
+              ref={inlineBadgeRef}
+              className="ml-3 inline-block border-2 border-white rounded-sm"
+              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+            >
+              <span className="font-mono text-fluid-xs text-white font-bold tracking-wider">
+                {'<'} {t('home.portfolioLabel')} {'/>'}
+              </span>
+            </motion.div>
+          )}
+        </div>
       )}
 
       {/* Breadcrumbs or Home Badge - Below terminal button on mobile */}
       {(showBreadcrumbs || showHomeBadge) && (
         <motion.div 
-          className="absolute left-0 md:left-20 right-0 z-30"
-          style={{ top: onTerminalOpen ? '60px' : '0' }}
+          className={`absolute left-0 md:left-20 right-0 z-30 ${showHomeBadge && !showBreadcrumbs ? 'hidden md:block' : ''}`}
+          style={{ top: onTerminalOpen ? `calc(env(safe-area-inset-top, 0px) + 2.5rem + ${fluidSizing.space.md})` : 'env(safe-area-inset-top, 0px)' }}
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -71,7 +105,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
           {showBreadcrumbs && <Breadcrumbs />}
           {showHomeBadge && (
             <motion.div
-              className="inline-block border-2 border-white rounded-sm"
+              className="hidden md:inline-block border-2 border-white rounded-sm"
               style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

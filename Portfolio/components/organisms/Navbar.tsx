@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -18,6 +18,7 @@ export default function Navbar() {
   const controls = useAnimation();
   const { lowPerformanceMode } = usePerformance();
   const { t } = useLanguage();
+  const navRef = useRef<HTMLDivElement>(null);
 
   // Generate particle positions once to avoid hydration mismatch
   const particles = useMemo(() => 
@@ -44,10 +45,54 @@ export default function Navbar() {
     return () => clearInterval(timer);
   }, []);
 
+  // Measure mobile nav height (excluding safe-area padding) and expose as CSS var
+  useEffect(() => {
+    const updateHeightVar = () => {
+      if (!navRef.current) return;
+      const cs = getComputedStyle(navRef.current);
+      const pb = parseFloat(cs.paddingBottom || '0') || 0; // includes safe-area
+      const h = Math.max(0, navRef.current.offsetHeight - pb);
+      document.documentElement.style.setProperty('--mobile-nav-height', `${h}px`);
+    };
+    updateHeightVar();
+    window.addEventListener('resize', updateHeightVar);
+    window.addEventListener('orientationchange', updateHeightVar);
+    return () => {
+      window.removeEventListener('resize', updateHeightVar);
+      window.removeEventListener('orientationchange', updateHeightVar);
+    };
+  }, []);
+
   // Log navigation changes
   useEffect(() => {
     log.info(`Navigated to ${pathname}`);
   }, [pathname]);
+
+  // iOS Safari: adjust bottom gap when browser UI is visible using VisualViewport
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const vv: any = (window as any).visualViewport;
+    if (!vv) return;
+
+    const updateGap = () => {
+      try {
+        const gap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        if (navRef.current) {
+          navRef.current.style.setProperty('--bottom-gap', `${gap}px`);
+        }
+      } catch {}
+    };
+
+    updateGap();
+    vv.addEventListener('resize', updateGap);
+    vv.addEventListener('scroll', updateGap);
+    window.addEventListener('orientationchange', updateGap);
+    return () => {
+      vv.removeEventListener('resize', updateGap);
+      vv.removeEventListener('scroll', updateGap);
+      window.removeEventListener('orientationchange', updateGap);
+    };
+  }, []);
 
   return (
     <>
@@ -355,10 +400,15 @@ export default function Navbar() {
 
     {/* Mobile Navigation - Bottom Bar */}
     <motion.nav
+      ref={navRef}
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="md:hidden fixed bottom-0 left-0 right-0 bg-background-surface/95 backdrop-blur-md border-t border-white/30 z-50 px-4 py-3 safe-area-bottom"
+      className="md:hidden fixed left-0 right-0 bg-background-surface/95 backdrop-blur-md border-t border-white/30 z-50 px-4 py-3 safe-area-bottom"
+      style={{
+        bottom: 0,
+        transform: 'translateY(calc(-1 * var(--bottom-gap, 0px)))',
+      }}
     >
       {/* Animated background gradient */}
       {mounted && (

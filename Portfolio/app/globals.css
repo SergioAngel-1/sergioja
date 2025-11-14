@@ -25,6 +25,32 @@
   a {
     -webkit-tap-highlight-color: transparent;
   }
+  
+  /* Fix for iOS Safari bottom navigation bar */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+}
+
+.with-bottom-nav-inset {
+  /* Reserve exactly the measured navbar height (which already includes safe-area padding) */
+  padding-bottom: var(--mobile-nav-height, 64px);
+}
+
+@media (min-width: 768px) {
+  .with-bottom-nav-inset {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Match breadcrumb height to floating round buttons on mobile */
+@media (max-width: 767.98px) {
+  .breadcrumb-equal-mobile {
+    height: var(--size-button-md);
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 :root {
@@ -220,6 +246,13 @@
 }
 
 @layer utilities {
+  /* Dynamic viewport fallback utilities */
+  .min-h-viewport { min-height: 100vh; min-height: 100svh; min-height: 100dvh; }
+  .max-h-50-viewport { max-height: 50vh; max-height: 50svh; max-height: 50dvh; }
+  .max-h-85-viewport { max-height: 85vh; max-height: 85svh; max-height: 85dvh; }
+  .max-h-90-viewport { max-height: 90vh; max-height: 90svh; max-height: 90dvh; }
+  .max-h-95-viewport { max-height: 95vh; max-height: 95svh; max-height: 95dvh; }
+
   .text-gradient-cyber {
     @apply bg-gradient-to-r from-cyber-red via-cyber-purple to-cyber-blue-cyan bg-clip-text text-transparent;
   }

@@ -39,12 +39,6 @@ const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 export const metadata: Metadata = {
   ...homeMetadata,
   metadataBase: new URL(SITE_URL),
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   icons: {
     icon: [
       { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -137,7 +131,7 @@ export default function RootLayout({
                   <PageLoader />
                   <HeaderWrapper />
                   <Navbar />
-                  <main className="min-h-screen">{children}</main>
+                  <main className="min-h-viewport">{children}</main>
                   <NextPageButton />
                   <AlertContainer />
                 </ErrorBoundary>

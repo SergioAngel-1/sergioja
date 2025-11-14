@@ -61,7 +61,7 @@ export default function GameModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-background-surface border-2 border-white/50 rounded-lg shadow-2xl w-full sm:w-auto max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-auto"
+            className="bg-background-surface border-2 border-white/50 rounded-lg shadow-2xl w-full sm:w-auto max-w-5xl max-h-95-viewport sm:max-h-90-viewport overflow-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/30 bg-background-elevated" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>

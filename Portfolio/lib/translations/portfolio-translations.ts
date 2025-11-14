@@ -421,7 +421,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'terminal.gamesAvailable': 'Juegos disponibles:',
     'terminal.interactiveExperience': 'EXPERIENCIA INTERACTIVA',
     'terminal.easterEgg': 'Psst... escribe dev para activar Easter Egg',
-    'terminal.easterEggHint': 'Tip: Prueba escribir "help" para ver comandos disponibles',
+    'terminal.easterEggHint': 'Tip: Prueba escribir "dev" para ver Easter Egg',
     'terminal.commandNotFound': 'Comando no encontrado. Escribe "help" para ver comandos disponibles.',
     'terminal.typeCommand': 'escribe un comando...',
 
@@ -642,7 +642,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'terminal.gamesAvailable': 'Available games:',
     'terminal.interactiveExperience': 'INTERACTIVE EXPERIENCE',
     'terminal.easterEgg': 'Psst... try typing "dev" to activate Easter Egg',
-    'terminal.easterEggHint': 'Tip: Try typing "help" to see available commands',
+    'terminal.easterEggHint': 'Tip: Try typing "dev" to see Easter Egg',
     'terminal.commandNotFound': 'Command not found. Type "help" to see available commands.',
     'terminal.typeCommand': 'type a command...',
 

@@ -68,7 +68,7 @@ export default function WorkPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
         {/* Cyber grid background */}
         <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -95,7 +95,7 @@ export default function WorkPage() {
         {/* Floating particles - Reducidas en móvil */}
         <FloatingParticles count={50} color="bg-white" />
 
-        <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg} 5rem`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
+        <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
           {/* Header */}
           <div className="mb-8 md:mb-16">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">

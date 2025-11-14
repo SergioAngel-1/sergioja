@@ -58,11 +58,11 @@ export default function TerminalInit({ profileName }: TerminalInitProps) {
         {initItems.map((item, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: item.delay, type: 'spring', stiffness: 200 }}
-            className="group relative flex items-center bg-background-elevated border border-white/20 rounded-full hover:border-cyber-blue-cyan/50 hover:bg-white/5 transition-all duration-300 w-full sm:w-auto"
-            style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, gap: fluidSizing.space.xs }}
+            initial={{ opacity: 0, y: lowPerformanceMode ? 0 : 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: item.delay, duration: lowPerformanceMode ? 0.25 : 0.3, ease: 'easeOut' }}
+            className="group relative flex items-center bg-background-elevated border border-white/20 rounded-full hover:border-cyber-blue-cyan/50 hover:bg-white/5 transition-colors duration-300 w-full sm:w-auto"
+            style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, gap: fluidSizing.space.xs, willChange: 'transform, opacity' }}
           >
             <div className="text-white flex-shrink-0">
               {item.icon}

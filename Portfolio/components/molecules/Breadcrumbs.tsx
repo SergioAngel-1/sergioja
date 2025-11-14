@@ -41,7 +41,7 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
       style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.lg }}
       aria-label="Breadcrumb"
     >
-      <div className="flex items-center bg-background-surface/30 backdrop-blur-sm border border-white/20 rounded-sm" style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
+      <div className="flex items-center bg-background-surface/30 backdrop-blur-sm border border-white/20 rounded-sm breadcrumb-equal-mobile" style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
         <span className="font-mono text-white text-fluid-xs">{'<'}</span>
         
         {breadcrumbItems.map((item, index) => (

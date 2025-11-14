@@ -186,7 +186,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
@@ -213,7 +213,7 @@ export default function ContactPage() {
       {/* Floating particles - Reducidas en móvil */}
       <FloatingParticles count={50} color="bg-white" />
 
-      <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg} 6rem`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
+      <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
         {/* Header */}
         <div className="mb-8 md:mb-16">
           <PageHeader 

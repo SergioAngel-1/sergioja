@@ -122,6 +122,8 @@ export default function MobileTerminalModal({
     if (e.key === 'Enter') {
       onCommandExecute(terminalInput);
       setTerminalInput('');
+      // Hide keyboard after sending command
+      terminalInputRef.current?.blur();
     }
   };
 
@@ -145,9 +147,8 @@ export default function MobileTerminalModal({
             animate={{ y: keyboardVisible ? '-10%' : 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-[101] md:hidden flex flex-col"
+            className={`fixed inset-x-0 bottom-0 z-[101] md:hidden flex flex-col ${keyboardVisible ? 'max-h-50-viewport' : 'max-h-85-viewport'}`}
             style={{ 
-              maxHeight: keyboardVisible ? '50vh' : '85vh',
               paddingBottom: 'env(safe-area-inset-bottom)',
               WebkitOverflowScrolling: 'touch',
             }}
@@ -262,35 +263,37 @@ export default function MobileTerminalModal({
                   </motion.div>
                 )}
 
-                {/* Input prompt */}
-                <div className="flex items-center" style={{ gap: fluidSizing.space.sm, paddingTop: fluidSizing.space.sm }}>
-                  <span className="text-cyber-red">{'>'}</span>
-                  <input
-                    ref={terminalInputRef}
-                    type="text"
-                    inputMode="text"
-                    value={terminalInput}
-                    onChange={(e) => setTerminalInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onFocus={(e) => {
-                      // Scroll input into view on iOS
-                      setTimeout(() => {
-                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }, 300);
-                    }}
-                    className="flex-1 bg-transparent border-none outline-none text-white font-mono caret-white text-fluid-sm"
-                    placeholder={t('terminal.typeCommand')}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck="false"
-                    style={{ 
-                      fontSize: '16px',
-                      WebkitAppearance: 'none',
-                      WebkitTapHighlightColor: 'transparent',
-                    }}
-                  />
-                </div>
+                {/* Input prompt - Only show in main and help views */}
+                {(currentView === 'main' || currentView === 'help') && (
+                  <div className="flex items-center" style={{ gap: fluidSizing.space.sm, paddingTop: fluidSizing.space.sm }}>
+                    <span className="text-cyber-red">{'>'}</span>
+                    <input
+                      ref={terminalInputRef}
+                      type="text"
+                      inputMode="text"
+                      value={terminalInput}
+                      onChange={(e) => setTerminalInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onFocus={(e) => {
+                        // Scroll input into view on iOS
+                        setTimeout(() => {
+                          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                      }}
+                      className="flex-1 bg-transparent border-none outline-none text-white font-mono caret-white text-fluid-sm"
+                      placeholder={t('terminal.typeCommand')}
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck="false"
+                      style={{ 
+                        fontSize: '16px',
+                        WebkitAppearance: 'none',
+                        WebkitTapHighlightColor: 'transparent',
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
