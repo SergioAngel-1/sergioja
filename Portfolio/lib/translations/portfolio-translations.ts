@@ -420,7 +420,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'terminal.helpStatus': 'Ver estado del sistema',
     'terminal.gamesAvailable': 'Juegos disponibles:',
     'terminal.interactiveExperience': 'EXPERIENCIA INTERACTIVA',
-    'terminal.easterEgg': 'Psst... hay un easter egg escondido aquí 👀',
+    'terminal.easterEgg': 'Psst... escribe dev para activar Easter Egg',
     'terminal.easterEggHint': 'Tip: Prueba escribir "help" para ver comandos disponibles',
     'terminal.commandNotFound': 'Comando no encontrado. Escribe "help" para ver comandos disponibles.',
     'terminal.typeCommand': 'escribe un comando...',
