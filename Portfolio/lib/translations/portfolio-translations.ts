@@ -19,6 +19,7 @@ export interface PortfolioTranslations {
   'common.of': string;
   'common.back': string;
   'common.cancel': string;
+  'common.close': string;
   
   // Home
   'home.title': string;
@@ -123,6 +124,7 @@ export interface PortfolioTranslations {
   'about.downloadCV': string;
   'about.viewLinkedIn': string;
   'about.viewGitHub': string;
+  'about.locationValue': string;
   
   // Contact
   'contact.title': string;
@@ -173,6 +175,56 @@ export interface PortfolioTranslations {
   'terminal.active': string;
   'terminal.languageNote': string;
   'terminal.inputPlaceholder': string;
+  
+  // Terminal Commands
+  'terminal.init': string;
+  'terminal.systemInit': string;
+  'terminal.portfolioLoaded': string;
+  'terminal.developer': string;
+  'terminal.status': string;
+  'terminal.availability': string;
+  'terminal.online': string;
+  'terminal.stack': string;
+  'terminal.location': string;
+  'terminal.uptime': string;
+  'terminal.years': string;
+  'terminal.projects': string;
+  'terminal.games': string;
+  'terminal.helpProjects': string;
+  'terminal.helpGames': string;
+  'terminal.helpMatrix': string;
+  'terminal.helpLanguage': string;
+  'terminal.helpStatus': string;
+  'terminal.gamesAvailable': string;
+  'terminal.interactiveExperience': string;
+  'terminal.easterEgg': string;
+  'terminal.easterEggHint': string;
+  'terminal.commandNotFound': string;
+  'terminal.typeCommand': string;
+
+  // Snake (Game modal labels)
+  'snake.controlsTitle': string;
+  'snake.pause': string;
+  'snake.resume': string;
+  'snake.reset': string;
+  'snake.score': string;
+  'snake.moveKeys': string;
+  'snake.moveKeysMobile': string;
+  'snake.pauseKey': string;
+  'snake.pauseKeyMobile': string;
+  'snake.escKey': string;
+  'snake.escKeyMobile': string;
+  'snake.requiresPerformance': string;
+  'snake.comingSoon': string;
+  'snake.gameOver': string;
+  'snake.playAgain': string;
+  'snake.paused': string;
+
+  // Tetris
+  'tetris.level': string;
+  'tetris.lines': string;
+  'tetris.moveKeys': string;
+  'tetris.moveKeysMobile': string;
 }
 
 export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
@@ -190,6 +242,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'common.of': 'de',
     'common.back': 'Volver',
     'common.cancel': 'Cancelar',
+    'common.close': 'Cerrar',
     
     // Home
     'home.title': 'FULL STACK',
@@ -294,6 +347,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'about.downloadCV': 'Descargar CV',
     'about.viewLinkedIn': 'Ver LinkedIn',
     'about.viewGitHub': 'Ver GitHub',
+    'about.locationValue': 'Chile / Remoto',
     
     // Contact
     'contact.title': 'CONTACTO',
@@ -344,6 +398,56 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'terminal.active': 'Activo',
     'terminal.languageNote': 'El idioma se aplicará en toda la aplicación',
     'terminal.inputPlaceholder': 'escribe un comando...',
+    
+    // Terminal Commands
+    'terminal.init': 'init',
+    'terminal.systemInit': 'Sistema inicializado',
+    'terminal.portfolioLoaded': 'Portfolio cargado',
+    'terminal.developer': 'Sergio Jáuregui',
+    'terminal.status': 'status',
+    'terminal.availability': 'Disponibilidad',
+    'terminal.online': 'En línea',
+    'terminal.stack': 'Stack',
+    'terminal.location': 'Ubicación',
+    'terminal.uptime': 'Experiencia',
+    'terminal.years': 'años',
+    'terminal.projects': 'projects',
+    'terminal.games': 'games',
+    'terminal.helpProjects': 'Navegar a proyectos',
+    'terminal.helpGames': 'Juegos interactivos',
+    'terminal.helpMatrix': 'Activar modo Matrix',
+    'terminal.helpLanguage': 'Cambiar idioma',
+    'terminal.helpStatus': 'Ver estado del sistema',
+    'terminal.gamesAvailable': 'Juegos disponibles:',
+    'terminal.interactiveExperience': 'EXPERIENCIA INTERACTIVA',
+    'terminal.easterEgg': 'Psst... hay un easter egg escondido aquí 👀',
+    'terminal.easterEggHint': 'Tip: Prueba escribir "help" para ver comandos disponibles',
+    'terminal.commandNotFound': 'Comando no encontrado. Escribe "help" para ver comandos disponibles.',
+    'terminal.typeCommand': 'escribe un comando...',
+
+    // Snake (Game modal labels)
+    'snake.controlsTitle': 'Controles',
+    'snake.pause': 'Pausa',
+    'snake.resume': 'Reanudar',
+    'snake.reset': 'Reiniciar',
+    'snake.score': 'Puntaje',
+    'snake.moveKeys': 'Flechas ← → ↑ ↓ para mover',
+    'snake.moveKeysMobile': 'Desliza para mover',
+    'snake.pauseKey': 'P para pausar / reanudar',
+    'snake.pauseKeyMobile': 'Toca el ícono para pausar / reanudar',
+    'snake.escKey': 'Esc para salir',
+    'snake.escKeyMobile': 'Cierra para salir',
+    'snake.requiresPerformance': 'Requiere modo de alto rendimiento',
+    'snake.comingSoon': 'Pronto',
+    'snake.gameOver': 'GAME OVER',
+    'snake.playAgain': 'Jugar de nuevo',
+    'snake.paused': 'PAUSADO',
+
+    // Tetris
+    'tetris.level': 'Nivel',
+    'tetris.lines': 'Líneas',
+    'tetris.moveKeys': 'Flechas ← → ↓ para mover, ↑ para rotar',
+    'tetris.moveKeysMobile': 'Desliza para mover, toca para rotar',
   },
   en: {
     // Navbar
@@ -359,6 +463,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'common.of': 'of',
     'common.back': 'Back',
     'common.cancel': 'Cancel',
+    'common.close': 'Close',
     
     // Home
     'home.title': 'FULL STACK',
@@ -463,6 +568,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'about.downloadCV': 'Download CV',
     'about.viewLinkedIn': 'View LinkedIn',
     'about.viewGitHub': 'View GitHub',
+    'about.locationValue': 'Chile / Remote',
     
     // Contact
     'contact.title': 'CONTACT',
@@ -513,5 +619,55 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'terminal.active': 'Active',
     'terminal.languageNote': 'Language will be applied throughout the application',
     'terminal.inputPlaceholder': 'type a command...',
+    
+    // Terminal Commands
+    'terminal.init': 'init',
+    'terminal.systemInit': 'System initialized',
+    'terminal.portfolioLoaded': 'Portfolio loaded',
+    'terminal.developer': 'Sergio Jáuregui',
+    'terminal.status': 'status',
+    'terminal.availability': 'Availability',
+    'terminal.online': 'Online',
+    'terminal.stack': 'Stack',
+    'terminal.location': 'Location',
+    'terminal.uptime': 'Experience',
+    'terminal.years': 'years',
+    'terminal.projects': 'projects',
+    'terminal.games': 'games',
+    'terminal.helpProjects': 'Navigate to projects',
+    'terminal.helpGames': 'Interactive games',
+    'terminal.helpMatrix': 'Activate Matrix mode',
+    'terminal.helpLanguage': 'Change language',
+    'terminal.helpStatus': 'View system status',
+    'terminal.gamesAvailable': 'Available games:',
+    'terminal.interactiveExperience': 'INTERACTIVE EXPERIENCE',
+    'terminal.easterEgg': 'Psst... there\'s an easter egg hidden here 👀',
+    'terminal.easterEggHint': 'Tip: Try typing "help" to see available commands',
+    'terminal.commandNotFound': 'Command not found. Type "help" to see available commands.',
+    'terminal.typeCommand': 'type a command...',
+
+    // Snake (Game modal labels)
+    'snake.controlsTitle': 'Controls',
+    'snake.pause': 'Pause',
+    'snake.resume': 'Resume',
+    'snake.reset': 'Reset',
+    'snake.score': 'Score',
+    'snake.moveKeys': 'Arrow keys ← → ↑ ↓ to move',
+    'snake.moveKeysMobile': 'Swipe to move',
+    'snake.pauseKey': 'P to pause / resume',
+    'snake.pauseKeyMobile': 'Tap icon to pause / resume',
+    'snake.escKey': 'Esc to exit',
+    'snake.escKeyMobile': 'Close to exit',
+    'snake.requiresPerformance': 'Requires high performance mode',
+    'snake.comingSoon': 'Coming soon',
+    'snake.gameOver': 'GAME OVER',
+    'snake.playAgain': 'Play Again',
+    'snake.paused': 'PAUSED',
+
+    // Tetris
+    'tetris.level': 'Level',
+    'tetris.lines': 'Lines',
+    'tetris.moveKeys': 'Arrow keys ← → ↓ to move, ↑ to rotate',
+    'tetris.moveKeysMobile': 'Swipe to move, tap to rotate',
   },
 };

@@ -146,8 +146,8 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
         updateGameModal({
           scores: [
             { label: t('snake.score'), value: tetrisScore, color: 'text-white' },
-            { label: 'Level', value: tetrisLevel, color: 'text-white' },
-            { label: 'Lines', value: tetrisLines, color: 'text-white' }
+            { label: t('tetris.level'), value: tetrisLevel, color: 'text-white' },
+            { label: t('tetris.lines'), value: tetrisLines, color: 'text-white' }
           ],
           isPaused: tetrisPaused,
           isGameOver: tetrisGameOver
@@ -276,8 +276,8 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
                 isGameOver: false,
                 scores: [
                   { label: t('snake.score'), value: 0, color: 'text-white' },
-                  { label: 'Level', value: 1, color: 'text-white' },
-                  { label: 'Lines', value: 0, color: 'text-white' },
+                  { label: t('tetris.level'), value: 1, color: 'text-white' },
+                  { label: t('tetris.lines'), value: 0, color: 'text-white' },
                 ],
               });
             },
@@ -286,8 +286,8 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
             controlsStacked: true,
             scores: [
               { label: t('snake.score'), value: tetrisScore, color: 'text-white' },
-              { label: 'Level', value: tetrisLevel, color: 'text-white' },
-              { label: 'Lines', value: tetrisLines, color: 'text-white' }
+              { label: t('tetris.level'), value: tetrisLevel, color: 'text-white' },
+              { label: t('tetris.lines'), value: tetrisLines, color: 'text-white' }
             ],
             controls: [
               {
@@ -296,7 +296,7 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                   </svg>
                 ),
-                label: '← → ↓ para mover, ↑ para rotar',
+                label: isMobile ? t('tetris.moveKeysMobile') : t('tetris.moveKeys'),
                 color: 'cyan' as const
               },
               {
@@ -305,7 +305,7 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 ),
-                label: t('snake.pauseKey'),
+                label: isMobile ? t('snake.pauseKeyMobile') : t('snake.pauseKey'),
                 color: 'purple' as const
               },
               {
@@ -314,20 +314,20 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 ),
-                label: t('snake.escKey'),
+                label: isMobile ? t('snake.escKeyMobile') : t('snake.escKey'),
                 color: 'red' as const
               }
             ]
           }}
           color="cyan"
         />
-        <GameButton
-          gameName="Hangman"
-          gameTitle="hangman.exe"
-          color="cyan"
-          comingSoon={true}
-        />
-      </motion.div>
-    </div>
+      <GameButton
+        gameName="Hangman"
+        gameTitle="hangman.exe"
+        color="cyan"
+        comingSoon={true}
+      />
+    </motion.div>
+  </div>
   );
 }

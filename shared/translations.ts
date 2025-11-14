@@ -107,6 +107,34 @@ export interface BaseTranslations {
   'recaptcha.disclaimer': string;
   'recaptcha.privacy': string;
   'recaptcha.terms': string;
+  
+  // Matrix mode
+  'matrix.warning': string;
+  'matrix.systemAlert': string;
+  'matrix.message': string;
+  'matrix.highCPU': string;
+  'matrix.highGPU': string;
+  'matrix.batteryDrain': string;
+  'matrix.recommendation': string;
+  'matrix.cancel': string;
+  'matrix.activate': string;
+  
+  // Dev Tips Modal
+  'devTips.title': string;
+  'devTips.description': string;
+  'devTips.benefit1': string;
+  'devTips.benefit2': string;
+  'devTips.benefit3': string;
+  'devTips.emailLabel': string;
+  'devTips.emailPlaceholder': string;
+  'devTips.emailRequired': string;
+  'devTips.emailInvalid': string;
+  'devTips.submitError': string;
+  'devTips.submitting': string;
+  'devTips.subscribe': string;
+  
+  // Common
+  'common.cancel': string;
 }
 
 // Alias para compatibilidad
@@ -212,6 +240,34 @@ export const translations: Record<Language, Translations> = {
     'recaptcha.disclaimer': 'Este sitio está protegido por reCAPTCHA y se aplican la',
     'recaptcha.privacy': 'Política de Privacidad',
     'recaptcha.terms': 'Términos de Servicio',
+    
+    // Matrix mode
+    'matrix.warning': 'ALERTA: MODO MATRIX',
+    'matrix.systemAlert': 'Alerta del sistema',
+    'matrix.message': 'El modo Matrix es visualmente intensivo y puede afectar el rendimiento de tu dispositivo, especialmente en móviles y laptops.',
+    'matrix.highCPU': 'Uso elevado de CPU',
+    'matrix.highGPU': 'Uso elevado de GPU',
+    'matrix.batteryDrain': 'Mayor consumo de batería',
+    'matrix.recommendation': 'Recomendación: úsalo solo si tu dispositivo es potente.',
+    'matrix.cancel': 'Cancelar',
+    'matrix.activate': 'Activar Matrix',
+    
+    // Dev Tips Modal
+    'devTips.title': 'Dev Tips',
+    'devTips.description': 'Recibe tips de desarrollo, mejores prácticas y recursos directamente en tu inbox.',
+    'devTips.benefit1': 'Tips semanales de desarrollo',
+    'devTips.benefit2': 'Recursos y herramientas útiles',
+    'devTips.benefit3': 'Actualizaciones de proyectos',
+    'devTips.emailLabel': 'Email',
+    'devTips.emailPlaceholder': 'tu@email.com',
+    'devTips.emailRequired': 'El email es requerido',
+    'devTips.emailInvalid': 'Email inválido',
+    'devTips.submitError': 'Error al suscribirse. Intenta de nuevo.',
+    'devTips.submitting': 'Enviando...',
+    'devTips.subscribe': 'Suscribirse',
+    
+    // Common
+    'common.cancel': 'Cancelar',
   },
   en: {
     // Navigation
@@ -312,6 +368,34 @@ export const translations: Record<Language, Translations> = {
     'recaptcha.disclaimer': 'This site is protected by reCAPTCHA and the Google',
     'recaptcha.privacy': 'Privacy Policy',
     'recaptcha.terms': 'Terms of Service',
+    
+    // Matrix mode
+    'matrix.warning': 'ALERT: MATRIX MODE',
+    'matrix.systemAlert': 'System alert',
+    'matrix.message': 'Matrix mode is visually intensive and may affect your device performance, especially on mobile and laptops.',
+    'matrix.highCPU': 'High CPU usage',
+    'matrix.highGPU': 'High GPU usage',
+    'matrix.batteryDrain': 'Battery drain',
+    'matrix.recommendation': 'Recommendation: use only on capable hardware.',
+    'matrix.cancel': 'Cancel',
+    'matrix.activate': 'Activate Matrix',
+    
+    // Dev Tips Modal
+    'devTips.title': 'Dev Tips',
+    'devTips.description': 'Get development tips, best practices, and resources directly in your inbox.',
+    'devTips.benefit1': 'Weekly development tips',
+    'devTips.benefit2': 'Useful resources and tools',
+    'devTips.benefit3': 'Project updates',
+    'devTips.emailLabel': 'Email',
+    'devTips.emailPlaceholder': 'your@email.com',
+    'devTips.emailRequired': 'Email is required',
+    'devTips.emailInvalid': 'Invalid email',
+    'devTips.submitError': 'Error subscribing. Please try again.',
+    'devTips.submitting': 'Submitting...',
+    'devTips.subscribe': 'Subscribe',
+    
+    // Common
+    'common.cancel': 'Cancel',
   },
 };
 
@@ -349,8 +433,12 @@ export function createExtendedTranslator<T extends Record<string, any>>(
 export function mergeTranslations<T extends Record<string, any>>(
   extendedTranslations: Record<Language, T>
 ): Record<Language, BaseTranslations & T> {
+  if (!extendedTranslations) {
+    return translations as Record<Language, BaseTranslations & T>;
+  }
+  
   return {
-    es: { ...translations.es, ...extendedTranslations.es },
-    en: { ...translations.en, ...extendedTranslations.en },
+    es: { ...translations.es, ...(extendedTranslations.es || {}) },
+    en: { ...translations.en, ...(extendedTranslations.en || {}) },
   };
 }

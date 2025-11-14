@@ -71,7 +71,7 @@ export default function GameModal({
                     className="rounded-full bg-cyber-red cursor-pointer hover:opacity-80 transition-opacity" 
                     style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }}
                     onClick={onClose}
-                    title="Close"
+                    title={t('common.close')}
                   />
                   <div className="rounded-full bg-white" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
                   <div className="rounded-full bg-white" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
@@ -81,7 +81,7 @@ export default function GameModal({
               <button
                 onClick={onClose}
                 className="text-text-muted hover:text-cyber-red transition-colors"
-                aria-label="Close"
+                aria-label={t('common.close')}
               >
                 <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
