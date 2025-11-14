@@ -361,6 +361,29 @@ export default function ContactPage() {
                     )}
                   </Button>
 
+                  {/* reCAPTCHA disclaimer */}
+                  <p className="text-text-muted text-center leading-relaxed font-mono text-fluid-xs">
+                    {t('recaptcha.disclaimer')}{' '}
+                    <a 
+                      href="https://policies.google.com/privacy" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-text-secondary hover:text-text-primary underline transition-colors"
+                    >
+                      {t('recaptcha.privacy')}
+                    </a>
+                    {' '}{language === 'es' ? 'y los' : 'and'}{' '}
+                    <a 
+                      href="https://policies.google.com/terms" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-text-secondary hover:text-text-primary underline transition-colors"
+                    >
+                      {t('recaptcha.terms')}
+                    </a>
+                    {' '}{language === 'es' ? 'de Google se aplican' : 'apply'}.
+                  </p>
+
                   {/* Error Message - Only show on error */}
                   {status === 'error' && (
                     <motion.div

@@ -323,4 +323,9 @@
   .text-fluid-2xl { font-size: var(--text-2xl); }
   .text-fluid-3xl { font-size: var(--text-3xl); }
   .text-fluid-4xl { font-size: var(--text-4xl); }
+
+  /* Hide reCAPTCHA badge (legal disclaimer added to forms) */
+  .grecaptcha-badge {
+    visibility: hidden !important;
+  }
 }

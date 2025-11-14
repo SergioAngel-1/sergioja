@@ -102,6 +102,11 @@ export interface BaseTranslations {
   'validation.messageRequired': string;
   'validation.messageMinLength': string;
   'validation.messageMaxLength': string;
+  
+  // reCAPTCHA disclaimer
+  'recaptcha.disclaimer': string;
+  'recaptcha.privacy': string;
+  'recaptcha.terms': string;
 }
 
 // Alias para compatibilidad
@@ -202,6 +207,11 @@ export const translations: Record<Language, Translations> = {
     'validation.messageRequired': 'El mensaje es requerido',
     'validation.messageMinLength': 'El mensaje debe tener al menos 10 caracteres',
     'validation.messageMaxLength': 'El mensaje no puede exceder 2000 caracteres',
+    
+    // reCAPTCHA disclaimer
+    'recaptcha.disclaimer': 'Este sitio está protegido por reCAPTCHA y se aplican la',
+    'recaptcha.privacy': 'Política de Privacidad',
+    'recaptcha.terms': 'Términos de Servicio',
   },
   en: {
     // Navigation
@@ -297,6 +307,11 @@ export const translations: Record<Language, Translations> = {
     'validation.messageRequired': 'Message is required',
     'validation.messageMinLength': 'Message must be at least 10 characters',
     'validation.messageMaxLength': 'Message cannot exceed 2000 characters',
+    
+    // reCAPTCHA disclaimer
+    'recaptcha.disclaimer': 'This site is protected by reCAPTCHA and the Google',
+    'recaptcha.privacy': 'Privacy Policy',
+    'recaptcha.terms': 'Terms of Service',
   },
 };
 
