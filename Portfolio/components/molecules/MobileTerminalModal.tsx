@@ -32,13 +32,77 @@ export default function MobileTerminalModal({
   matrixMessage,
 }: MobileTerminalModalProps) {
   const [terminalInput, setTerminalInput] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const terminalInputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
+  // Detect keyboard visibility - iOS compatible
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleResize = () => {
+      // Use visualViewport API for better iOS support
+      if (window.visualViewport) {
+        const viewportHeight = window.visualViewport.height;
+        const windowHeight = window.innerHeight;
+        // Keyboard is open if viewport is significantly smaller than window
+        const isKeyboardOpen = viewportHeight < windowHeight * 0.75;
+        setKeyboardVisible(isKeyboardOpen);
+      } else {
+        // Fallback for browsers without visualViewport
+        const isKeyboardOpen = window.innerHeight < window.screen.height * 0.75;
+        setKeyboardVisible(isKeyboardOpen);
+      }
+    };
+
+    // Listen to both resize and visualViewport events
+    window.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('resize', handleResize);
+    
+    // Initial check
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('resize', handleResize);
+    };
+  }, [isOpen]);
+
+  // Prevent body scroll on iOS when modal opens
   useEffect(() => {
     if (isOpen) {
-      terminalInputRef.current?.focus();
+      // Prevent body scroll on iOS
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      
+      // NO auto-focus to prevent keyboard from opening automatically
+    } else {
+      // Restore body scroll
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      
+      setKeyboardVisible(false);
     }
+
+    return () => {
+      // Cleanup on unmount
+      if (isOpen) {
+        const scrollY = document.body.style.top;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    };
   }, [isOpen]);
 
   const handleClose = () => {
@@ -48,7 +112,10 @@ export default function MobileTerminalModal({
   };
 
   const handleTerminalClick = () => {
-    terminalInputRef.current?.focus();
+    // Prevent double-tap zoom on iOS
+    if (terminalInputRef.current) {
+      terminalInputRef.current.focus({ preventScroll: true });
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -73,11 +140,17 @@ export default function MobileTerminalModal({
 
           {/* Modal */}
           <motion.div
+            ref={modalRef}
             initial={{ y: '100%' }}
-            animate={{ y: 0 }}
+            animate={{ y: keyboardVisible ? '-10%' : 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-[101] md:hidden max-h-[85vh] flex flex-col"
+            className="fixed inset-x-0 bottom-0 z-[101] md:hidden flex flex-col"
+            style={{ 
+              maxHeight: keyboardVisible ? '50vh' : '85vh',
+              paddingBottom: 'env(safe-area-inset-bottom)',
+              WebkitOverflowScrolling: 'touch',
+            }}
           >
             {/* Terminal window */}
             <div className="bg-background-surface/95 backdrop-blur-md border-t border-white/30 rounded-t-2xl overflow-hidden shadow-2xl flex flex-col h-full">
@@ -123,7 +196,14 @@ export default function MobileTerminalModal({
               {/* Terminal content */}
               <div 
                 className="flex-1 overflow-y-auto font-mono text-fluid-sm"
-                style={{ padding: fluidSizing.space.md, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
+                style={{ 
+                  padding: fluidSizing.space.md, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: fluidSizing.space.md,
+                  WebkitOverflowScrolling: 'touch',
+                  overscrollBehavior: 'contain',
+                }}
                 onClick={handleTerminalClick}
               >
                 {/* Render current view */}
@@ -188,15 +268,27 @@ export default function MobileTerminalModal({
                   <input
                     ref={terminalInputRef}
                     type="text"
+                    inputMode="text"
                     value={terminalInput}
                     onChange={(e) => setTerminalInput(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onFocus={(e) => {
+                      // Scroll input into view on iOS
+                      setTimeout(() => {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 300);
+                    }}
                     className="flex-1 bg-transparent border-none outline-none text-white font-mono caret-white text-fluid-sm"
                     placeholder={t('terminal.typeCommand')}
                     autoComplete="off"
                     autoCorrect="off"
                     autoCapitalize="off"
                     spellCheck="false"
+                    style={{ 
+                      fontSize: '16px',
+                      WebkitAppearance: 'none',
+                      WebkitTapHighlightColor: 'transparent',
+                    }}
                   />
                 </div>
               </div>

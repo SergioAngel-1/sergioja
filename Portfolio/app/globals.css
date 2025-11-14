@@ -10,6 +10,23 @@
   pointer-events: none !important;
 }
 
+/* iOS Safari compatibility fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Prevent rubber band scrolling on iOS */
+  body {
+    overscroll-behavior-y: none;
+  }
+  
+  /* Prevent iOS Safari from adding tap highlight */
+  input,
+  textarea,
+  button,
+  select,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 :root {
   --bg-light: 255 255 255;
   --bg-surface: 18 18 22;

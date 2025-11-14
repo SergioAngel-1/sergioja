@@ -15,6 +15,7 @@ export default function HeaderWrapper() {
   // Determinar si mostrar breadcrumbs o home badge según la ruta
   const showBreadcrumbs = pathname !== '/' && isValidRoute;
   const showHomeBadge = pathname === '/';
+  const isHomePage = pathname === '/';
 
   // Listen for terminal handler registration from home page
   useEffect(() => {
@@ -30,5 +31,5 @@ export default function HeaderWrapper() {
     };
   }, [pathname]);
 
-  return <Header showBreadcrumbs={showBreadcrumbs} showHomeBadge={showHomeBadge} onTerminalOpen={onTerminalOpen} />;
+  return <Header showBreadcrumbs={showBreadcrumbs} showHomeBadge={showHomeBadge} onTerminalOpen={onTerminalOpen} isHomePage={isHomePage} />;
 }

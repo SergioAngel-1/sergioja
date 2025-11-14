@@ -39,6 +39,12 @@ const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 export const metadata: Metadata = {
   ...homeMetadata,
   metadataBase: new URL(SITE_URL),
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
   icons: {
     icon: [
       { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -60,6 +66,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        {/* Additional iOS Safari meta tags */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="format-detection" content="telephone=no" />
+        
         {GTM_ID && (
           <script
             dangerouslySetInnerHTML={{

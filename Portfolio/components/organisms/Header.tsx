@@ -11,9 +11,10 @@ interface HeaderProps {
   showBreadcrumbs?: boolean;
   showHomeBadge?: boolean;
   onTerminalOpen?: () => void;
+  isHomePage?: boolean;
 }
 
-export default function Header({ showBreadcrumbs = false, showHomeBadge = false, onTerminalOpen }: HeaderProps) {
+export default function Header({ showBreadcrumbs = false, showHomeBadge = false, onTerminalOpen, isHomePage = false }: HeaderProps) {
   const { t } = useLanguage();
 
   return (
@@ -22,7 +23,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
       {onTerminalOpen && (
         <motion.button
           onClick={onTerminalOpen}
-          className="lg:hidden fixed top-0 left-0 z-50 w-10 h-10 rounded-lg border-2 bg-white/10 border-white text-white hover:bg-white hover:text-black flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
+          className={`lg:hidden ${isHomePage ? 'absolute' : 'fixed'} top-0 left-0 z-50 w-10 h-10 rounded-lg border-2 bg-white/10 border-white text-white hover:bg-white hover:text-black flex items-center justify-center transition-all duration-300 backdrop-blur-sm`}
           style={{ margin: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
