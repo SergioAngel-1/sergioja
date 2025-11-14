@@ -641,7 +641,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'terminal.helpStatus': 'View system status',
     'terminal.gamesAvailable': 'Available games:',
     'terminal.interactiveExperience': 'INTERACTIVE EXPERIENCE',
-    'terminal.easterEgg': 'Psst... there\'s an easter egg hidden here 👀',
+    'terminal.easterEgg': 'Psst... try typing "dev" to activate Easter Egg',
     'terminal.easterEggHint': 'Tip: Try typing "help" to see available commands',
     'terminal.commandNotFound': 'Command not found. Type "help" to see available commands.',
     'terminal.typeCommand': 'type a command...',
