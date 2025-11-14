@@ -79,6 +79,28 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up -d --bui
 docker compose --env-file .env.production -f docker-compose.prod.yml ps
 ```
 
+## Variables de Entorno Importantes
+
+### Para Producción (.env.production)
+
+Asegúrate de configurar correctamente estas variables:
+
+```bash
+# API debe apuntar al dominio público, NO a localhost
+API_URL=https://api.sergioja.com
+
+# Dominios frontend permitidos para CORS
+FRONTEND_URLS=https://sergioja.com,https://portfolio.sergioja.com
+
+# reCAPTCHA Enterprise
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=tu_site_key_real
+RECAPTCHA_SITE_KEY=tu_site_key_real
+RECAPTCHA_ENTERPRISE_PROJECT_ID=tu_project_id
+RECAPTCHA_ENTERPRISE_API_KEY=tu_api_key
+```
+
+**IMPORTANTE**: Si `API_URL` apunta a `localhost`, los frontends intentarán conectarse a la red local del dispositivo del usuario, causando errores de permisos de red.
+
 ## Desarrollo Local
 
 Para desarrollo local, usa el archivo `.env` y `docker-compose.yml`:
