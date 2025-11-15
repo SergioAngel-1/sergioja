@@ -407,7 +407,6 @@ export default function Navbar() {
       className="md:hidden fixed left-0 right-0 bg-background-surface/95 backdrop-blur-md border-t border-white/30 z-50 px-4 py-3 safe-area-bottom"
       style={{
         bottom: 0,
-        transform: 'translateY(calc(-1 * var(--bottom-gap, 0px)))',
       }}
     >
       {/* Animated background gradient */}
