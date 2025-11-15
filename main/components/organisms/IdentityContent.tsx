@@ -45,7 +45,7 @@ export default function IdentityContent() {
         className="flex items-center text-fluid-xs"
         style={{ gap: fluidSizing.space.sm }}
       >
-        <div className="bg-green-400 rounded-full animate-pulse" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
+        <div className="bg-[#ff0000] rounded-full animate-pulse" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
         <span className="text-white/60">{t('identity.available')}</span>
       </motion.div>
 
