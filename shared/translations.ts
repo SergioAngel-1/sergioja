@@ -18,6 +18,7 @@ export interface BaseTranslations {
   'nav.sections': string;
   'nav.language': string;
   'nav.clickToView': string;
+  'nav.clickToChangeLanguage': string;
   
   // Identity
   'identity.title': string;
@@ -155,6 +156,7 @@ export const translations: Record<Language, Translations> = {
     'nav.sections': 'SECCIONES',
     'nav.language': 'IDIOMA',
     'nav.clickToView': 'Haz clic para ver cada sección',
+    'nav.clickToChangeLanguage': 'Haz clic para cambiar de idioma',
     
     // Identity
     'identity.title': 'Explorando el punto donde la tecnología se encuentra con las ideas',
@@ -287,6 +289,7 @@ export const translations: Record<Language, Translations> = {
     'nav.sections': 'SECTIONS',
     'nav.language': 'LANGUAGE',
     'nav.clickToView': 'Click to view each section',
+    'nav.clickToChangeLanguage': 'Click to change language',
     
     // Identity
     'identity.title': 'Exploring where technology meets ideas',
