@@ -14,7 +14,9 @@ export interface BaseTranslations {
   'nav.portfolioDesc': string;
   'nav.identity': string;
   'nav.projects': string;
+  'nav.purpose': string;
   'nav.connection': string;
+  'nav.navigation': string;
   'nav.sections': string;
   'nav.language': string;
   'nav.clickToView': string;
@@ -25,6 +27,9 @@ export interface BaseTranslations {
   'identity.paragraph1': string;
   'identity.paragraph2': string;
   'identity.available': string;
+  'purpose.title': string;
+  'purpose.paragraph1': string;
+  'purpose.paragraph2': string;
   
   // Projects
   'projects.featured': string;
@@ -152,6 +157,8 @@ export const translations: Record<Language, Translations> = {
     'nav.portfolioDesc': 'Ver trabajos y proyectos completos',
     'nav.identity': 'Identidad',
     'nav.projects': 'Proyectos',
+    'nav.purpose': 'Propósito',
+    'nav.navigation': 'Navegación',
     'nav.connection': 'Conexión',
     'nav.sections': 'SECCIONES',
     'nav.language': 'IDIOMA',
@@ -159,10 +166,14 @@ export const translations: Record<Language, Translations> = {
     'nav.clickToChangeLanguage': 'Haz clic para cambiar de idioma',
     
     // Identity
-    'identity.title': 'Explorando el punto donde la tecnología se encuentra con las ideas',
-    'identity.paragraph1': 'Creo en la tecnología como herramienta para materializar ideas que impacten positivamente. Mi enfoque está en crear experiencias digitales que combinen funcionalidad con diseño intencional.',
-    'identity.paragraph2': 'Me motiva resolver problemas complejos con soluciones elegantes, siempre buscando el equilibrio entre innovación técnica y experiencia humana.',
-    'identity.available': 'Disponible para nuevos proyectos',
+    'identity.title': 'Ser el puente entre ideas abstractas y realidades digitales.',
+    'identity.paragraph1': 'Como explorador en la intersección de tecnología e innovación, valoro la simplicidad en medio de la complejidad, priorizando soluciones intuitivas que respeten al usuario y generen resultados.',
+    'identity.paragraph2': 'Mi esencia se define por una curiosidad incesante que me impulsa a desafiar límites. Siempre guiado por el deseo de inspirar a otros a materializar conceptos audaces que transformen sus necesidades.',
+    'identity.available': 'Creemos algo grande.',
+    
+    'purpose.title': 'Impulsar un futuro donde la tecnología eleve la humanidad.',
+    'purpose.paragraph1': 'Creo en la tecnología como catalizador para ideas que generen impacto positivo a escala global. Mi enfoque radica en fusionar innovación técnica con diseño empático, creando soluciones que resuelvan problemas complejos de manera sostenible y accesible.',
+    'purpose.paragraph2': 'Me motiva el equilibrio entre funcionalidad y experiencia humana, anticipando necesidades futuras para construir un ecosistema digital que inspire cambio',
     
     // Projects
     'projects.featured': 'Proyectos Destacados',
@@ -197,12 +208,12 @@ export const translations: Record<Language, Translations> = {
     'connection.emailLabel': 'Email',
     'connection.emailHandle': 'contact@sergioja.com',
     'connection.emailDesc': 'Contacto directo',
-    'connection.formTitle': '$ contact.send()',
+    'connection.formTitle': 'Envíame un mensaje',
     'connection.namePlaceholder': 'Nombre',
     'connection.emailPlaceholder': 'Email',
     'connection.messagePlaceholder': 'Tu mensaje...',
-    'connection.sendButton': '[ENVIAR MENSAJE]',
-    'connection.sendingButton': '[ENVIANDO...]',
+    'connection.sendButton': 'ENVIAR MENSAJE',
+    'connection.sendingButton': 'ENVIANDO...',
     'connection.consoleInit': '> Sistema de conexión iniciado...',
     'connection.consoleWaiting': '> Esperando tu mensaje...',
     'connection.consoleSending': '> Enviando mensaje de',
@@ -285,6 +296,8 @@ export const translations: Record<Language, Translations> = {
     'nav.portfolioDesc': 'View complete works and projects',
     'nav.identity': 'Identity',
     'nav.projects': 'Projects',
+    'nav.purpose': 'Purpose',
+    'nav.navigation': 'Navigation',
     'nav.connection': 'Connection',
     'nav.sections': 'SECTIONS',
     'nav.language': 'LANGUAGE',
@@ -292,10 +305,14 @@ export const translations: Record<Language, Translations> = {
     'nav.clickToChangeLanguage': 'Click to change language',
     
     // Identity
-    'identity.title': 'Exploring where technology meets ideas',
-    'identity.paragraph1': 'I believe in technology as a tool to materialize ideas that have a positive impact. My focus is on creating digital experiences that combine functionality with intentional design.',
-    'identity.paragraph2': 'I am motivated by solving complex problems with elegant solutions, always seeking balance between technical innovation and human experience.',
-    'identity.available': 'Available for new projects',
+    'identity.title': 'The bridge between abstract ideas and digital realities.',
+    'identity.paragraph1': 'As an explorer at the intersection of technology and innovation, I value simplicity amid complexity, prioritizing intuitive solutions that respect the user and drive results.',
+    'identity.paragraph2': 'My essence is defined by relentless curiosity that pushes me to challenge limits. Always guided by the desire to inspire others to bring bold concepts to life that transform their needs into reality.',
+    'identity.available': 'Let\'s build something great.',
+    
+    'purpose.title': 'Driving a future where technology elevates humanity.',
+    'purpose.paragraph1': 'I believe in technology as a catalyst for ideas that create positive, global-scale impact. My focus is on blending technical innovation with empathetic design to build solutions that solve complex problems sustainably and accessibly.',
+    'purpose.paragraph2': 'I am motivated by the balance between functionality and human experience, anticipating future needs to build a digital ecosystem that inspires change',
     
     // Projects
     'projects.featured': 'Featured Projects',
@@ -330,12 +347,12 @@ export const translations: Record<Language, Translations> = {
     'connection.emailLabel': 'Email',
     'connection.emailHandle': 'contact@sergioja.com',
     'connection.emailDesc': 'Direct contact',
-    'connection.formTitle': '$ contact.send()',
+    'connection.formTitle': 'Send me a message',
     'connection.namePlaceholder': 'Name',
     'connection.emailPlaceholder': 'Email',
     'connection.messagePlaceholder': 'Your message...',
-    'connection.sendButton': '[SEND MESSAGE]',
-    'connection.sendingButton': '[SENDING...]',
+    'connection.sendButton': 'SEND MESSAGE',
+    'connection.sendingButton': 'SENDING...',
     'connection.consoleInit': '> Connection system initialized...',
     'connection.consoleWaiting': '> Waiting for your message...',
     'connection.consoleSending': '> Sending message from',

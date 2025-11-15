@@ -9,9 +9,10 @@ import HexagonGrid from '@/components/atoms/HexagonGrid';
 import CenteredHero from '@/components/molecules/CenteredHero';
 import NavigationContent from '@/components/organisms/NavigationContent';
 import IdentityContent from '@/components/organisms/IdentityContent';
-import ProjectsContent from '@/components/organisms/ProjectsContent';
+import ProjectsContent from '@/components/organisms/PurposeContent';
 import ConnectionContent from '@/components/organisms/ConnectionContent';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 // Valores estáticos de partículas para evitar diferencias servidor/cliente
 const particles = [
@@ -40,6 +41,7 @@ const particles = [
 export default function Home() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const heroCenterRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   // Track visual viewport center to keep hero perfectly centered on iOS/Android when browser UI shows/hides
   useEffect(() => {
@@ -90,7 +92,7 @@ export default function Home() {
       {/* Hex Buttons - Botones esquineros */}
       <HexButton
         position="top-left"
-        label="NAVEGACIÓN"
+        label={t('nav.navigation')}
         delay={0.2}
         onClick={() => setActiveModal(activeModal === 'navigation' ? null : 'navigation')}
         isActive={activeModal === 'navigation'}
@@ -103,7 +105,7 @@ export default function Home() {
 
       <HexButton
         position="top-right"
-        label="IDENTIDAD"
+        label={t('nav.identity')}
         delay={0.3}
         onClick={() => setActiveModal(activeModal === 'identity' ? null : 'identity')}
         isActive={activeModal === 'identity'}
@@ -116,20 +118,23 @@ export default function Home() {
 
       <HexButton
         position="bottom-left"
-        label="PROYECTOS"
+        label={t('nav.purpose')}
         delay={0.4}
         onClick={() => setActiveModal(activeModal === 'projects' ? null : 'projects')}
         isActive={activeModal === 'projects'}
         icon={
           <svg className="size-icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <circle cx="12" cy="12" r="8" strokeWidth={2} />
+            <circle cx="12" cy="12" r="5" strokeWidth={2} />
+            <circle cx="12" cy="12" r="2" strokeWidth={2} />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v2m0 16v2M2 12h2m16 0h2" />
           </svg>
         }
       />
 
       <HexButton
         position="bottom-right"
-        label="CONEXIÓN"
+        label={t('nav.connection')}
         delay={0.5}
         onClick={() => setActiveModal(activeModal === 'connection' ? null : 'connection')}
         isActive={activeModal === 'connection'}
@@ -144,7 +149,7 @@ export default function Home() {
       <Modal
         isOpen={activeModal === 'navigation'}
         onClose={closeModal}
-        title="NAVEGACIÓN"
+        title={t('nav.navigation')}
         position="top-left"
         icon={
           <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,7 +163,7 @@ export default function Home() {
       <Modal
         isOpen={activeModal === 'identity'}
         onClose={closeModal}
-        title="IDENTIDAD"
+        title={t('nav.identity')}
         position="top-right"
         icon={
           <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,11 +177,14 @@ export default function Home() {
       <Modal
         isOpen={activeModal === 'projects'}
         onClose={closeModal}
-        title="PROYECTOS"
+        title={t('nav.purpose')}
         position="bottom-left"
         icon={
           <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <circle cx="12" cy="12" r="8" strokeWidth={2} />
+            <circle cx="12" cy="12" r="5" strokeWidth={2} />
+            <circle cx="12" cy="12" r="2" strokeWidth={2} />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v2m0 16v2M2 12h2m16 0h2" />
           </svg>
         }
       >
@@ -186,7 +194,7 @@ export default function Home() {
       <Modal
         isOpen={activeModal === 'connection'}
         onClose={closeModal}
-        title="CONEXIÓN"
+        title={t('nav.connection')}
         position="bottom-right"
         icon={
           <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">

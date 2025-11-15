@@ -18,7 +18,7 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
 
   const secondaryLinks = [
     { label: t('nav.identity'), modal: 'identity' },
-    { label: t('nav.projects'), modal: 'projects' },
+    { label: t('nav.purpose'), modal: 'projects' },
     { label: t('nav.connection'), modal: 'connection' },
   ];
 
@@ -44,7 +44,7 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
             style={{ gap: fluidSizing.space.xs, padding: fluidSizing.space.sm }}
           >
             <div className="rounded-full bg-white/40 group-hover:bg-white transition-colors" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
-            <span className="text-white/70 group-hover:text-white font-medium text-center leading-tight text-fluid-xs">
+            <span className="text-white/70 group-hover:text-white font-medium text-center leading-tight text-fluid-sm">
               {link.label}
             </span>
           </button>

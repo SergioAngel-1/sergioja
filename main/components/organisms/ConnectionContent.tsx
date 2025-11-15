@@ -214,10 +214,10 @@ export default function ConnectionContent() {
         animate={{ opacity: 1, y: 0 }}
         style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
       >
-        <h3 className="text-white font-bold text-fluid-sm">
+        <h3 className="text-white font-bold text-fluid-lg">
           {t('connection.title')}
         </h3>
-        <p className="text-white/70 leading-relaxed text-fluid-xs">
+        <p className="text-white/70 leading-relaxed text-fluid-sm">
           {t('connection.subtitle')}
         </p>
         <div className="h-px bg-gradient-to-r from-white/30 via-white/10 to-transparent" />
@@ -300,7 +300,7 @@ export default function ConnectionContent() {
           <a
             key={index}
             href="#"
-            className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg_white/5 transition-all duration-300"
+            className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
             style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
           >
             <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
@@ -308,7 +308,7 @@ export default function ConnectionContent() {
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-white font-medium text-fluid-sm">{connection.platform}</h4>
-              <p className="text-white/60 truncate text-fluid-xs">{connection.handle}</p>
+              <p className="text-white/60 truncate text-fluid-sm">{connection.handle}</p>
             </div>
             <div className="text-white/40 group-hover:text-white/60 transition-colors">
               <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
