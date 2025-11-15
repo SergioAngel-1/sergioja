@@ -26,18 +26,18 @@ export default function Modal({
   const getModalPositionStyles = () => {
     const baseOffset = fluidSizing.space.lg;
     const modalOffset = 'clamp(1rem, 10vw, 10rem)';
-    
-    switch(position) {
+
+    switch (position) {
       case 'top-left':
-        return { top: baseOffset, left: modalOffset };
+        return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
       case 'top-right':
-        return { top: baseOffset, right: modalOffset };
+        return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
       case 'bottom-left':
-        return { bottom: baseOffset, left: modalOffset };
+        return { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
       case 'bottom-right':
-        return { bottom: baseOffset, right: modalOffset };
+        return { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
       default:
-        return { top: baseOffset, left: modalOffset };
+        return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
     }
   };
 
@@ -68,7 +68,7 @@ export default function Modal({
               ...getModalPositionStyles(),
               width: 'min(calc(100vw - 2rem), clamp(320px, 35vw, 380px))',
               maxWidth: 'calc(100vw - 2rem)',
-              maxHeight: 'clamp(calc(100vh - 8rem), 70vh, calc(100vh - 200px))'
+              maxHeight: 'calc(100dvh - 8rem)'
             }}
             initial={{ x: getInitialX(), opacity: 0, scale: 0.8, rotateY: -15 }}
             animate={{ x: 0, opacity: 1, scale: 1, rotateY: 0 }}

@@ -110,7 +110,7 @@ export default function RootLayout({
           />
         )}
         <LanguageProvider>
-          <main className="h-screen overflow-hidden">{children}</main>
+          <main className="min-h-viewport with-safe-insets overflow-hidden">{children}</main>
           <AlertContainer />
         </LanguageProvider>
       </body>

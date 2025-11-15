@@ -47,7 +47,7 @@ export default function Home() {
   const closeModal = () => setActiveModal(null);
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
+    <div className="relative w-full min-h-viewport bg-black overflow-hidden">
       {/* Background layers */}
       <div className="absolute inset-0 cyber-grid opacity-10 z-0" />
       <div className="absolute inset-0 z-0">

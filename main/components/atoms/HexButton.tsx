@@ -32,10 +32,22 @@ export default function HexButton({
   isActive = false
 }: HexButtonProps) {
   const positionStyles = {
-    'top-left': { top: fluidSizing.space.lg, left: fluidSizing.space.lg },
-    'top-right': { top: fluidSizing.space.lg, right: fluidSizing.space.lg },
-    'bottom-left': { bottom: fluidSizing.space.lg, left: fluidSizing.space.lg },
-    'bottom-right': { bottom: fluidSizing.space.lg, right: fluidSizing.space.lg },
+    'top-left': { 
+      top: `calc(${fluidSizing.space.lg} + env(safe-area-inset-top))`, 
+      left: `calc(${fluidSizing.space.lg} + env(safe-area-inset-left))` 
+    },
+    'top-right': { 
+      top: `calc(${fluidSizing.space.lg} + env(safe-area-inset-top))`, 
+      right: `calc(${fluidSizing.space.lg} + env(safe-area-inset-right))` 
+    },
+    'bottom-left': { 
+      bottom: `calc(${fluidSizing.space.lg} + env(safe-area-inset-bottom))`, 
+      left: `calc(${fluidSizing.space.lg} + env(safe-area-inset-left))` 
+    },
+    'bottom-right': { 
+      bottom: `calc(${fluidSizing.space.lg} + env(safe-area-inset-bottom))`, 
+      right: `calc(${fluidSizing.space.lg} + env(safe-area-inset-right))` 
+    },
   };
 
   return (

@@ -96,17 +96,31 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
 });
 
 function AlertGroup({ position, alerts }: { position: AlertPosition; alerts: Alert[] }) {
-  const positionClasses = {
-    'top-left': 'top-4 left-4',
-    'top-center': 'top-4 left-1/2 -translate-x-1/2',
-    'top-right': 'top-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
-    'bottom-right': 'bottom-4 right-4',
-  };
+  const inset = '1rem';
+  const positionStyle: React.CSSProperties = (() => {
+    switch (position) {
+      case 'top-left':
+        return { top: `calc(${inset} + env(safe-area-inset-top))`, left: `calc(${inset} + env(safe-area-inset-left))` };
+      case 'top-right':
+        return { top: `calc(${inset} + env(safe-area-inset-top))`, right: `calc(${inset} + env(safe-area-inset-right))` };
+      case 'bottom-left':
+        return { bottom: `calc(${inset} + env(safe-area-inset-bottom))`, left: `calc(${inset} + env(safe-area-inset-left))` };
+      case 'bottom-right':
+        return { bottom: `calc(${inset} + env(safe-area-inset-bottom))`, right: `calc(${inset} + env(safe-area-inset-right))` };
+      case 'top-center':
+        return { top: `calc(${inset} + env(safe-area-inset-top))` };
+      case 'bottom-center':
+        return { bottom: `calc(${inset} + env(safe-area-inset-bottom))` };
+      default:
+        return {};
+    }
+  })();
+
+  // Extra classes to keep centered groups centered
+  const centerClasses = position.includes('center') ? 'left-1/2 -translate-x-1/2' : '';
 
   return (
-    <div className={`fixed z-[70] flex flex-col gap-3 ${positionClasses[position]}`}>
+    <div className={`fixed z-[70] flex flex-col gap-3 ${centerClasses}`} style={positionStyle}>
       <AnimatePresence mode="popLayout">
         {alerts.map((alert) => (
           <AlertItem key={alert.id} alert={alert} />
