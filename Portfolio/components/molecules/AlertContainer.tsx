@@ -16,12 +16,12 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.9 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="relative bg-[#0a0a0a]/95 backdrop-blur-md rounded-none shadow-2xl overflow-hidden min-w-[320px] max-w-[400px] border-l-2 border-white"
+      className="relative bg-[#0a0a0a]/95 backdrop-blur-md rounded-none shadow-lg sm:shadow-2xl overflow-hidden w-[88vw] max-w-[380px] sm:min-w-[320px] sm:max-w-[400px] border-l sm:border-l-2 border-white"
       style={{
         boxShadow: `0 0 20px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(0, 0, 0, 0.5)`,
       }}
     >
-      <div className="p-4 relative">
+      <div className="p-3 sm:p-4 relative">
         {/* Cyberpunk grid overlay */}
         <div className="absolute inset-0 opacity-5 pointer-events-none" 
           style={{
@@ -30,10 +30,10 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
           }}
         />
         
-        <div className="flex items-start gap-3 relative z-10">
+        <div className="flex items-start gap-2 sm:gap-3 relative z-10">
           {/* Icon */}
           <div 
-            className="flex-shrink-0 w-8 h-8 rounded-none flex items-center justify-center font-bold text-lg border border-white/30 text-white/80"
+            className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-none flex items-center justify-center font-bold text-sm sm:text-lg border border-white/30 text-white/80"
             style={{
               backgroundColor: 'rgba(255, 255, 255, 0.05)',
             }}
@@ -44,7 +44,7 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
           {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <h4 className="font-orbitron font-bold text-sm text-white tracking-wide uppercase">
+              <h4 className="font-orbitron font-bold text-xs sm:text-sm text-white tracking-wide uppercase">
                 {alert.title}
               </h4>
               
@@ -62,12 +62,12 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
             </div>
             
             {alert.message && (
-              <p className="mt-2 text-xs text-white/70 leading-relaxed font-mono">
+              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-white/70 leading-relaxed font-mono">
                 {alert.message}
               </p>
             )}
             
-            <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2">
+            <div className="mt-2 sm:mt-3 flex items-center justify-between border-t border-white/10 pt-2">
               <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
                 [{alert.type}]
               </span>
@@ -81,7 +81,7 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
         {/* Progress bar cyberpunk para alertas con duración */}
         {alert.duration && alert.duration > 0 && (
           <motion.div
-            className="absolute bottom-0 left-0 h-[2px] bg-white/60"
+            className="absolute bottom-0 left-0 h-[1px] sm:h-[2px] bg-white/60"
             style={{ 
               boxShadow: '0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3)',
             }}
@@ -97,16 +97,16 @@ const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) 
 
 function AlertGroup({ position, alerts }: { position: AlertPosition; alerts: Alert[] }) {
   const positionClasses = {
-    'top-left': 'top-4 left-4',
-    'top-center': 'top-4 left-1/2 -translate-x-1/2',
-    'top-right': 'top-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
-    'bottom-right': 'bottom-4 right-4',
+    'top-left': 'top-3 left-3 sm:top-4 sm:left-4',
+    'top-center': 'top-3 left-1/2 -translate-x-1/2 sm:top-4',
+    'top-right': 'top-3 right-3 sm:top-4 sm:right-4',
+    'bottom-left': 'bottom-3 left-3 sm:bottom-4 sm:left-4',
+    'bottom-center': 'bottom-3 left-1/2 -translate-x-1/2 sm:bottom-4',
+    'bottom-right': 'bottom-3 right-3 sm:bottom-4 sm:right-4',
   };
 
   return (
-    <div className={`fixed z-[70] flex flex-col gap-3 ${positionClasses[position]}`}>
+    <div className={`fixed z-[70] flex flex-col gap-2 sm:gap-3 ${positionClasses[position]}`}>
       <AnimatePresence mode="popLayout">
         {alerts.map((alert) => (
           <AlertItem key={alert.id} alert={alert} />

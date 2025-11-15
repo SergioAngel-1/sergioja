@@ -84,6 +84,12 @@ export default function ConnectionContent() {
         ...prev,
         `> Error: ${firstError}`
       ]);
+      // Mostrar alerta visual
+      alerts.error(
+        t('alerts.validationError'),
+        firstError || t('alerts.checkForm'),
+        6000
+      );
       
       // Scroll automático al formulario (sin alerta del sistema, solo consola)
       setTimeout(() => {
@@ -102,6 +108,12 @@ export default function ConnectionContent() {
         ...prev,
         `> Error: ${t('contact.recaptchaRequired')}`
       ]);
+      // Mostrar alerta visual
+      alerts.error(
+        t('alerts.sendError'),
+        t('contact.recaptchaRequired'),
+        6000
+      );
       setSending(false);
       return;
     }

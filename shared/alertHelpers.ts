@@ -17,10 +17,10 @@ export function getAlertClasses(type: AlertType): {
   message: string;
 } {
   const baseClasses = {
-    container: 'rounded-lg border backdrop-blur-sm shadow-lg transition-all duration-300',
-    icon: 'text-2xl',
-    title: 'font-orbitron font-bold text-sm',
-    message: 'font-mono text-xs opacity-80',
+    container: 'rounded-lg border backdrop-blur-sm shadow-md sm:shadow-lg transition-all duration-300',
+    icon: 'text-xl sm:text-2xl',
+    title: 'font-orbitron font-bold text-xs sm:text-sm',
+    message: 'font-mono text-[11px] sm:text-xs opacity-80',
   };
 
   const typeClasses = {

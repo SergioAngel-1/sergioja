@@ -67,12 +67,12 @@ export const alertStyles = {
  * Posiciones disponibles para las alertas
  */
 export const alertPositions = {
-  'top-left': { top: '1rem', left: '1rem' },
-  'top-center': { top: '1rem', left: '50%', transform: 'translateX(-50%)' },
-  'top-right': { top: '1rem', right: '1rem' },
-  'bottom-left': { bottom: '1rem', left: '1rem' },
-  'bottom-center': { bottom: '1rem', left: '50%', transform: 'translateX(-50%)' },
-  'bottom-right': { bottom: '1rem', right: '1rem' },
+  'top-left': { top: 'clamp(0.5rem, 3vw, 1rem)', left: 'clamp(0.5rem, 3vw, 1rem)' },
+  'top-center': { top: 'clamp(0.5rem, 3vw, 1rem)', left: '50%', transform: 'translateX(-50%)' },
+  'top-right': { top: 'clamp(0.5rem, 3vw, 1rem)', right: 'clamp(0.5rem, 3vw, 1rem)' },
+  'bottom-left': { bottom: 'clamp(0.5rem, 3vw, 1rem)', left: 'clamp(0.5rem, 3vw, 1rem)' },
+  'bottom-center': { bottom: 'clamp(0.5rem, 3vw, 1rem)', left: '50%', transform: 'translateX(-50%)' },
+  'bottom-right': { bottom: 'clamp(0.5rem, 3vw, 1rem)', right: 'clamp(0.5rem, 3vw, 1rem)' },
 } as const;
 
 /**
