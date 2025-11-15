@@ -19,7 +19,7 @@ interface AnimatedModelProps {
 function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
-  const [deviceOrientation, setDeviceOrientation] = useState({ beta: 0, gamma: 0 });
+  const deviceOrientationRef = useRef<{ beta: number; gamma: number }>({ beta: 0, gamma: 0 });
   const [isMobile, setIsMobile] = useState(false);
   const [needsPermission, setNeedsPermission] = useState(false);
   
@@ -40,10 +40,10 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
     const mobile = checkMobile();
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      setDeviceOrientation({
+      deviceOrientationRef.current = {
         beta: event.beta || 0,   // Inclinación adelante-atrás (-180 a 180)
         gamma: event.gamma || 0  // Inclinación izquierda-derecha (-90 a 90)
-      });
+      };
     };
 
     if (mobile && typeof DeviceOrientationEvent !== 'undefined') {
@@ -53,11 +53,11 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
       if (permissionNeeded) {
         // En iOS, solo adjuntar listener cuando el padre indique que el permiso fue otorgado
         if (gyroEnabled) {
-          window.addEventListener('deviceorientation', handleOrientation);
+          window.addEventListener('deviceorientation', handleOrientation, { passive: true } as any);
         }
       } else {
         // Android o iOS antiguo - activar directamente
-        window.addEventListener('deviceorientation', handleOrientation);
+        window.addEventListener('deviceorientation', handleOrientation, { passive: true } as any);
       }
     }
 
@@ -73,12 +73,7 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
         const permissionState = await (DeviceOrientationEvent as any).requestPermission();
         if (permissionState === 'granted') {
           setNeedsPermission(false);
-          window.addEventListener('deviceorientation', (event: DeviceOrientationEvent) => {
-            setDeviceOrientation({
-              beta: event.beta || 0,
-              gamma: event.gamma || 0
-            });
-          });
+          // El listener se adjunta desde el efecto cuando gyroEnabled es true en el padre
         }
       } catch (error) {
         console.error('Error requesting gyroscope permission:', error);
@@ -120,16 +115,17 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
           // Mobile: usar giroscopio
           // gamma: -90 (izquierda) a 90 (derecha)
           // beta: -180 (atrás) a 180 (adelante)
-          targetRotationY = (deviceOrientation.gamma / 90) * 0.5;  // Normalizar a -0.5 a 0.5
-          targetRotationX = (deviceOrientation.beta / 180) * 0.3;  // Normalizar a -0.3 a 0.3
+          const { beta, gamma } = deviceOrientationRef.current;
+          targetRotationY = (gamma / 90) * 0.5;  // Normalizar a -0.5 a 0.5
+          targetRotationX = (beta / 180) * 0.3;  // Normalizar a -0.3 a 0.3
         } else {
           // Desktop: usar mouse
           targetRotationY = mousePosition.x * 0.5;
           targetRotationX = mousePosition.y * 0.3;
         }
         
-        groupRef.current.rotation.y += (targetRotationY - groupRef.current.rotation.y) * 0.05;
-        groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.05;
+        groupRef.current.rotation.y += (targetRotationY - groupRef.current.rotation.y) * 0.08;
+        groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.08;
       }
     }
   });
@@ -176,7 +172,7 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
       
       {/* Iluminación optimizada para modelo monocromático */}
       <ambientLight intensity={1} />
-      <directionalLight position={[5, 5, 5]} intensity={1.5} castShadow />
+      <directionalLight position={[5, 5, 5]} intensity={1.5} castShadow={!isMobile} />
       <directionalLight position={[-5, -5, -5]} intensity={0.5} />
       <pointLight position={[0, 2, 2]} intensity={1.5} color="#FFFFFF" />
     </group>
@@ -251,10 +247,12 @@ export default function Model3D({ mousePosition }: Model3DProps) {
           <div className="absolute inset-0 z-10">
             <Canvas
               camera={{ position: [0, 0, 4], fov: 50 }}
+              dpr={[1, 1.5]}
               gl={{ 
                 antialias: true, 
                 alpha: true,
-                preserveDrawingBuffer: true
+                preserveDrawingBuffer: false,
+                powerPreference: 'high-performance'
               }}
               style={{ background: 'transparent' }}
             >
