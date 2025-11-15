@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
 
 interface ModalProps {
@@ -22,20 +22,42 @@ export default function Modal({
   position = 'top-left'
 }: ModalProps) {
 
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const isCoarse = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(pointer: coarse)').matches : false;
+      const isNarrow = typeof window !== 'undefined' ? window.innerWidth <= 768 : false;
+      setIsMobile(isCoarse || isNarrow);
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   // Determinar posición del modal según el hexágono
   const getModalPositionStyles = () => {
     const baseOffset = fluidSizing.space.lg;
     const modalOffset = 'clamp(1rem, 10vw, 10rem)';
+    const hexButtonSize = 'clamp(4rem, 6vw, 6rem)';
+    const gap = fluidSizing.space.md;
 
     switch (position) {
       case 'top-left':
-        return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
+        return isMobile
+          ? { top: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-top))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
+          : { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
       case 'top-right':
-        return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
+        return isMobile
+          ? { top: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-top))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
+          : { top: `calc(${baseOffset} + env(safe-area-inset-top))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
       case 'bottom-left':
-        return { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
+        return isMobile
+          ? { bottom: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-bottom))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
+          : { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
       case 'bottom-right':
-        return { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
+        return isMobile
+          ? { bottom: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-bottom))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
+          : { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
       default:
         return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
     }
@@ -68,7 +90,8 @@ export default function Modal({
               ...getModalPositionStyles(),
               width: 'min(calc(100vw - 2rem), clamp(320px, 35vw, 380px))',
               maxWidth: 'calc(100vw - 2rem)',
-              maxHeight: 'calc(100dvh - 8rem)'
+              maxHeight: 'calc(100dvh - 8rem)',
+              zIndex: isMobile ? 45 : undefined
             }}
             initial={{ x: getInitialX(), opacity: 0, scale: 0.8, rotateY: -15 }}
             animate={{ x: 0, opacity: 1, scale: 1, rotateY: 0 }}
