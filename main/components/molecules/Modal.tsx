@@ -64,6 +64,16 @@ export default function Modal({
   };
 
 
+  const getModalMaxHeight = () => {
+    const baseOffset = fluidSizing.space.lg;
+    const hexButtonSize = 'clamp(4rem, 6vw, 6rem)';
+    const gap = fluidSizing.space.md;
+    const topReserved = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-top))`;
+    const bottomReserved = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-bottom))`;
+    return `calc(100dvh - ${topReserved} - ${bottomReserved})`;
+  };
+
+
   // Animación de entrada según posición
   // Los modales vienen desde el lado del HexButton
   const getInitialX = () => {
@@ -90,7 +100,9 @@ export default function Modal({
               ...getModalPositionStyles(),
               width: 'min(calc(100vw - 2rem), clamp(320px, 35vw, 380px))',
               maxWidth: 'calc(100vw - 2rem)',
-              maxHeight: 'calc(100dvh - 8rem)',
+              maxHeight: isMobile ? getModalMaxHeight() : 'calc(100dvh - 8rem)',
+              height: isMobile ? getModalMaxHeight() : 'calc(100dvh - 8rem)',
+              // No height fija: que el modal crezca hasta maxHeight y, si lo supera, scrollee el contenido
               zIndex: isMobile ? 45 : undefined
             }}
             initial={{ x: getInitialX(), opacity: 0, scale: 0.8, rotateY: -15 }}
@@ -98,7 +110,7 @@ export default function Modal({
             exit={{ x: getInitialX(), opacity: 0, scale: 0.8, rotateY: 15 }}
             transition={{ type: 'spring', stiffness: 250, damping: 25 }}
           >
-            <div className="relative bg-black/95 backdrop-blur-xl border-2 border-white/30 shadow-2xl overflow-hidden">
+            <div className="relative bg-black/95 backdrop-blur-xl border-2 border-white/30 shadow-2xl overflow-hidden" style={{ display: 'flex', flexDirection: 'column', maxHeight: '100%', height: '100%' }}>
               {/* Header */}
               <div className="relative border-b border-white/10" style={{ padding: `${fluidSizing.space.lg} ${fluidSizing.space.lg}` }}>
                 {/* Líneas decorativas de fondo */}
@@ -179,7 +191,7 @@ export default function Modal({
               </div>
 
               {/* Contenido scrollable */}
-              <div className="max-h-[calc(100vh-320px)] overflow-y-auto custom-scrollbar" style={{ padding: `${fluidSizing.space.lg} ${fluidSizing.space.lg}` }}>
+              <div className="overflow-y-auto custom-scrollbar flex-1" style={{ padding: `${fluidSizing.space.lg} ${fluidSizing.space.lg}`, WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain', minHeight: 0 }}>
                 <div className="font-mono text-white/90 leading-relaxed text-fluid-sm">
                   {children}
                 </div>
