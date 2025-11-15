@@ -158,3 +158,18 @@ model PageView {
   @@index([createdAt])
   @@map("page_views")
 }
+
+// Newsletter Subscriptions
+model NewsletterSubscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  ipAddress String?
+  userAgent String?
+  status    String   @default("active") // active, unsubscribed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("newsletter_subscriptions")
+}

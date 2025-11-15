@@ -122,6 +122,13 @@ export interface ContactSubmissionPayload extends ContactMessage {
   recaptchaAction?: string;
 }
 
+// Payload for newsletter subscription from frontends with optional reCAPTCHA Enterprise
+export interface NewsletterSubscriptionPayload {
+  email: string;
+  recaptchaToken?: string;
+  recaptchaAction?: string;
+}
+
 export interface AnalyticsSummary {
   totalProjects: number;
   totalSkills: number;

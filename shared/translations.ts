@@ -138,6 +138,7 @@ export interface BaseTranslations {
   'devTips.submitError': string;
   'devTips.submitting': string;
   'devTips.subscribe': string;
+  'devTips.success': string;
   
   // Common
   'common.cancel': string;
@@ -283,6 +284,7 @@ export const translations: Record<Language, Translations> = {
     'devTips.submitError': 'Error al suscribirse. Intenta de nuevo.',
     'devTips.submitting': 'Enviando...',
     'devTips.subscribe': 'Suscribirse',
+    'devTips.success': '¡Suscripción completada!',
     
     // Common
     'common.cancel': 'Cancelar',
@@ -423,6 +425,7 @@ export const translations: Record<Language, Translations> = {
     'devTips.submitError': 'Error subscribing. Please try again.',
     'devTips.submitting': 'Submitting...',
     'devTips.subscribe': 'Subscribe',
+    'devTips.success': 'Subscription completed!',
     
     // Common
     'common.cancel': 'Cancel',

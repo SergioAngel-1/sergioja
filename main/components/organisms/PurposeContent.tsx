@@ -5,10 +5,30 @@ import { useState } from 'react';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { api } from '@/lib/api-client';
+import { alerts } from '../../../shared/alertSystem';
 
 export default function PurposeContent() {
   const { t, language } = useLanguage();
   const [newsletterOpen, setNewsletterOpen] = useState(false);
+
+  const getReCaptchaToken = async (): Promise<string | null> => {
+    if (process.env.NODE_ENV === 'development') {
+      return 'dev-bypass-token';
+    }
+    try {
+      if (typeof window !== 'undefined' && (window as any).grecaptcha?.enterprise) {
+        await new Promise<void>((resolve) => (window as any).grecaptcha.enterprise.ready(() => resolve()));
+        return await (window as any).grecaptcha.enterprise.execute(
+          process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
+          { action: 'subscribe_newsletter' }
+        );
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  };
 
   // Tarjetas fijas: Portfolio, Blog y Newsletter
   const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
@@ -127,7 +147,32 @@ export default function PurposeContent() {
       <DevTipsModal
         isOpen={newsletterOpen}
         onClose={() => setNewsletterOpen(false)}
-        onSubmit={async (_email: string) => {}}
+        onSubmit={async (email: string) => {
+          const recaptchaToken = await getReCaptchaToken();
+          try {
+            const res = await api.subscribeNewsletter({
+              email,
+              recaptchaToken: recaptchaToken || undefined,
+              recaptchaAction: 'subscribe_newsletter',
+            });
+            if (res.success) {
+              alerts.success(
+                t('alerts.success'),
+                language === 'es' ? 'Suscripción completada' : 'Subscription completed',
+                6000
+              );
+              return;
+            }
+            throw new Error(res.error?.message || 'Subscription failed');
+          } catch (err) {
+            alerts.error(
+              t('alerts.error'),
+              language === 'es' ? 'No se pudo suscribir' : 'Could not subscribe',
+              6000
+            );
+            throw err;
+          }
+        }}
       />
     </div>
   );

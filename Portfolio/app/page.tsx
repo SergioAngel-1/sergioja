@@ -19,6 +19,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
+import { api } from '@/lib/api-client';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 export default function Home() {
   const [typedText, setTypedText] = useState('');
@@ -157,21 +158,29 @@ export default function Home() {
 
   const handleDevTipsSubmit = async (email: string) => {
     try {
-      // TODO: Implement API call to save email to database
-      const response = await fetch('/api/newsletter/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+      let recaptchaToken: string | null = 'dev-bypass-token';
+      if (process.env.NODE_ENV !== 'development') {
+        recaptchaToken = null;
+        if (typeof window !== 'undefined' && (window as any).grecaptcha?.enterprise) {
+          await new Promise<void>((resolve) => (window as any).grecaptcha.enterprise.ready(() => resolve()));
+          recaptchaToken = await (window as any).grecaptcha.enterprise.execute(
+            process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
+            { action: 'subscribe_newsletter' }
+          );
+        }
+      }
+
+      const response = await api.subscribeNewsletter({
+        email,
+        recaptchaToken: recaptchaToken || undefined,
+        recaptchaAction: 'subscribe_newsletter',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to subscribe');
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Failed to subscribe');
       }
 
       log.info('Email subscribed:', email);
-      // Show success message
       setMatrixMessage(t('devTips.success'));
     } catch (error) {
       log.error('Error subscribing email:', error);

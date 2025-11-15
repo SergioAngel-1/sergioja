@@ -1,4 +1,4 @@
-import type { ApiResponse, Profile, Project, ContactSubmissionPayload } from './types';
+import type { ApiResponse, Profile, Project, ContactSubmissionPayload, NewsletterSubscriptionPayload } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -84,4 +84,6 @@ export const api = {
 
   // Contact - for Connection modal (con reCAPTCHA Enterprise)
   submitContact: (data: ContactSubmissionPayload) => apiClient.post('/contact', data),
+  // Newsletter - shared endpoint
+  subscribeNewsletter: (data: NewsletterSubscriptionPayload) => apiClient.post('/newsletter/subscribe', data),
 };

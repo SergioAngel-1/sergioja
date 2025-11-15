@@ -10,5 +10,6 @@ export type {
   TimelineItem,
   ContactMessage,
   ContactSubmissionPayload,
+  NewsletterSubscriptionPayload,
   AnalyticsSummary,
 } from '../../shared/types';

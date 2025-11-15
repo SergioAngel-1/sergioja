@@ -3,6 +3,8 @@ import { appConfig } from '../config/env';
 import { logger } from '../lib/logger';
 import { contactNotificationTemplate } from './email/templates/contactNotification';
 import { contactConfirmationTemplate } from './email/templates/contactConfirmation';
+import { newsletterNotificationTemplate } from './email/templates/newsletterNotification';
+import { newsletterWelcomeTemplate } from './email/templates/newsletterWelcome';
 
 interface EmailOptions {
   to: string;
@@ -99,6 +101,28 @@ class EmailService {
     return this.sendEmail({
       to: data.email,
       subject: '✓ Gracias por contactarme - Sergio Jáuregui',
+      text,
+      html,
+    });
+  }
+
+  async sendNewsletterNotification(data: { email: string }): Promise<boolean> {
+    const { html, text } = newsletterNotificationTemplate({ email: data.email });
+
+    return this.sendEmail({
+      to: appConfig.email.user || 'contact@sergioja.com',
+      subject: 'New Newsletter Subscriber',
+      text,
+      html,
+    });
+  }
+
+  async sendNewsletterWelcome(data: { email: string }): Promise<boolean> {
+    const { html, text } = newsletterWelcomeTemplate({ email: data.email });
+
+    return this.sendEmail({
+      to: data.email,
+      subject: 'Welcome to the Newsletter - Sergio Jáuregui',
       text,
       html,
     });

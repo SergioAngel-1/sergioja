@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
-import type { ApiResponse, PaginatedResponse, ContactSubmissionPayload } from '../../shared/types';
+import type { ApiResponse, PaginatedResponse, ContactSubmissionPayload, NewsletterSubscriptionPayload } from '../../shared/types';
 import { logger } from './logger';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -114,6 +114,8 @@ export const api = {
 
   // Contact (con reCAPTCHA Enterprise)
   submitContact: (data: ContactSubmissionPayload) => apiClient.post('/contact', data),
+  // Newsletter (shared endpoint)
+  subscribeNewsletter: (data: NewsletterSubscriptionPayload) => apiClient.post('/newsletter/subscribe', data),
 
   // Analytics
   getAnalytics: () => apiClient.get('/analytics/summary'),
