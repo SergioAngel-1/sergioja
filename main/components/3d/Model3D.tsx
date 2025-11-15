@@ -11,7 +11,12 @@ interface Model3DProps {
   mousePosition: { x: number; y: number };
 }
 
-function AnimatedModel({ mousePosition }: Model3DProps) {
+interface AnimatedModelProps {
+  mousePosition: { x: number; y: number };
+  gyroEnabled: boolean;
+}
+
+function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
   const [deviceOrientation, setDeviceOrientation] = useState({ beta: 0, gamma: 0 });
@@ -34,27 +39,32 @@ function AnimatedModel({ mousePosition }: Model3DProps) {
 
     const mobile = checkMobile();
 
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      setDeviceOrientation({
+        beta: event.beta || 0,   // Inclinación adelante-atrás (-180 a 180)
+        gamma: event.gamma || 0  // Inclinación izquierda-derecha (-90 a 90)
+      });
+    };
+
     if (mobile && typeof DeviceOrientationEvent !== 'undefined') {
       // Solicitar permiso en iOS 13+
-      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        setNeedsPermission(true);
+      const permissionNeeded = typeof (DeviceOrientationEvent as any).requestPermission === 'function';
+      setNeedsPermission(permissionNeeded);
+      if (permissionNeeded) {
+        // En iOS, solo adjuntar listener cuando el padre indique que el permiso fue otorgado
+        if (gyroEnabled) {
+          window.addEventListener('deviceorientation', handleOrientation);
+        }
       } else {
         // Android o iOS antiguo - activar directamente
         window.addEventListener('deviceorientation', handleOrientation);
       }
     }
 
-    function handleOrientation(event: DeviceOrientationEvent) {
-      setDeviceOrientation({
-        beta: event.beta || 0,   // Inclinación adelante-atrás (-180 a 180)
-        gamma: event.gamma || 0  // Inclinación izquierda-derecha (-90 a 90)
-      });
-    }
-
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
     };
-  }, []);
+  }, [gyroEnabled]);
 
   // Función para solicitar permisos de giroscopio (iOS)
   const requestGyroPermission = async () => {
@@ -177,6 +187,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showGyroButton, setShowGyroButton] = useState(false);
+  const [gyroEnabled, setGyroEnabled] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -199,6 +210,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
         const permissionState = await (DeviceOrientationEvent as any).requestPermission();
         if (permissionState === 'granted') {
           setShowGyroButton(false);
+          setGyroEnabled(true);
         }
       } catch (error) {
         console.error('Error requesting gyroscope permission:', error);
@@ -246,7 +258,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
               }}
               style={{ background: 'transparent' }}
             >
-              <AnimatedModel mousePosition={mousePosition} />
+              <AnimatedModel mousePosition={mousePosition} gyroEnabled={gyroEnabled} />
             </Canvas>
           </div>
 
