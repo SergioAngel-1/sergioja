@@ -145,6 +145,7 @@ export interface BaseTranslations {
   // Gyroscope
   'gyro.movePhone': string;
   'gyro.enable': string;
+  'newsletter.label': string;
 }
 
 // Alias para compatibilidad
@@ -289,6 +290,7 @@ export const translations: Record<Language, Translations> = {
     // Gyroscope
     'gyro.movePhone': 'Mueve tu móvil',
     'gyro.enable': 'ACTIVAR GIROSCOPIO',
+    'newsletter.label': 'Newsletter',
   },
   en: {
     // Navigation
@@ -428,6 +430,7 @@ export const translations: Record<Language, Translations> = {
     // Gyroscope
     'gyro.movePhone': 'Move your phone',
     'gyro.enable': 'ENABLE GYROSCOPE',
+    'newsletter.label': 'Newsletter',
   },
 };
 
