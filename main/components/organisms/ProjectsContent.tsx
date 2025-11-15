@@ -40,19 +40,32 @@ export default function ProjectsContent() {
     );
   }
 
-  if (error || projects.length === 0) {
-    return (
-      <div className="text-center" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md, padding: `${fluidSizing.space.xl} 0` }}>
-        <p className="text-white/60 text-fluid-sm">{t('projects.noProjects')}</p>
-        <a
-          href="http://localhost:3000/projects"
-          className="inline-block text-white/80 hover:text-white underline text-fluid-sm"
-        >
-          {t('projects.viewFull')}
-        </a>
-      </div>
-    );
-  }
+  // Proyecto "quemado": Portfolio (siempre visible además de los de BDD)
+  const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
+  const portfolioProject: Project = {
+    id: 'portfolio-static',
+    title: t('nav.portfolio'),
+    slug: 'portfolio',
+    description: t('nav.portfolioDesc'),
+    longDescription: undefined,
+    image: undefined,
+    images: undefined,
+    technologies: ['Next.js', 'React', 'Three.js', 'Framer Motion', 'TailwindCSS', 'TypeScript'],
+    tech: ['Next.js', 'React', 'Three.js', 'Framer Motion', 'TailwindCSS', 'TypeScript'],
+    category: 'personal',
+    featured: true,
+    demoUrl: isDev ? 'http://localhost:3000' : 'https://portfolio.sergioja.com',
+    githubUrl: undefined,
+    repoUrl: undefined,
+    status: 'completed',
+    startDate: '2024-01-01T00:00:00.000Z',
+    endDate: undefined,
+    metrics: undefined,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+  };
+
+  const combinedProjects = [portfolioProject, ...projects];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
@@ -68,7 +81,7 @@ export default function ProjectsContent() {
 
       {/* Projects grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
-        {projects.map((project, index) => (
+        {combinedProjects.map((project, index) => (
           <motion.div
             key={project.id}
             initial={{ opacity: 0, y: 10 }}
