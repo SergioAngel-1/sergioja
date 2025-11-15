@@ -131,7 +131,7 @@ export default function RootLayout({
                   <PageLoader />
                   <HeaderWrapper />
                   <Navbar />
-                  <main className="min-h-viewport">{children}</main>
+                  <main className="min-h-viewport with-safe-insets overflow-hidden">{children}</main>
                   <NextPageButton />
                   <AlertContainer />
                 </ErrorBoundary>

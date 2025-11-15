@@ -70,7 +70,7 @@ export default function Modal({
     const gap = fluidSizing.space.md;
     const topReserved = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-top))`;
     const bottomReserved = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-bottom))`;
-    return `calc(100dvh - ${topReserved} - ${bottomReserved})`;
+    return `calc(var(--vh-form) - ${topReserved} - ${bottomReserved})`;
   };
 
 
@@ -100,8 +100,8 @@ export default function Modal({
               ...getModalPositionStyles(),
               width: 'min(calc(100vw - 2rem), clamp(320px, 35vw, 380px))',
               maxWidth: 'calc(100vw - 2rem)',
-              maxHeight: isMobile ? getModalMaxHeight() : 'calc(100dvh - 8rem)',
-              height: isMobile ? getModalMaxHeight() : 'calc(100dvh - 8rem)',
+              maxHeight: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
+              height: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
               // No height fija: que el modal crezca hasta maxHeight y, si lo supera, scrollee el contenido
               zIndex: isMobile ? 45 : undefined
             }}

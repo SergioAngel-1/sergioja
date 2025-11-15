@@ -34,6 +34,14 @@
   --text-primary: 10 10 15;
   --text-secondary: 64 64 80;
   --text-muted: 112 112 128;
+
+  /* Safe-area and viewport logical units */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --vh-app: 100dvh;
+  --vh-form: 100svh;
 }
 
 @layer base {
@@ -181,6 +189,7 @@
 
 @layer utilities {
   .min-h-viewport { min-height: 100vh; min-height: 100svh; min-height: 100dvh; }
+  .min-h-viewport-form { min-height: var(--vh-form); }
   .text-gradient-cyber {
     @apply bg-gradient-to-r from-cyber-red via-cyber-purple to-cyber-blue-cyan bg-clip-text text-transparent;
   }
