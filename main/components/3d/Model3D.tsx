@@ -6,6 +6,7 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 interface Model3DProps {
   mousePosition: { x: number; y: number };
@@ -184,13 +185,12 @@ export default function Model3D({ mousePosition }: Model3DProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [showGyroButton, setShowGyroButton] = useState(false);
   const [gyroEnabled, setGyroEnabled] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     setMounted(true);
-    // Simular tiempo de carga mínimo para mostrar el loader
     const timer = setTimeout(() => {
       setIsLoading(false);
-      // Verificar si necesita permisos de giroscopio
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       if (isMobile && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
         setShowGyroButton(true);
@@ -238,9 +238,35 @@ export default function Model3D({ mousePosition }: Model3DProps) {
 
       {/* Contenido: Loader o Canvas */}
       {!mounted || isLoading ? (
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <Loader size="md" message="CARGANDO MODELO" />
-        </div>
+        <>
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <Loader size="md" message="CARGANDO MODELO" />
+          </div>
+          {gyroEnabled ? (
+            <div
+              className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm"
+              style={{
+                top: `min(calc(var(--vv-center-y, 50%) + calc(var(--hero-size, clamp(280px, 40vw, 500px)) / 2) + ${fluidSizing.space.sm}), calc(var(--vh-app, 100dvh) - var(--sab, 0px) - 48px))`,
+                padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+              }}
+            >
+              {t('gyro.movePhone')}
+            </div>
+          ) : (
+            showGyroButton && (
+              <button
+                onClick={handleGyroPermission}
+                className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-10 text-fluid-sm"
+                style={{
+                  top: `min(calc(var(--vv-center-y, 50%) + calc(var(--hero-size, clamp(280px, 40vw, 500px)) / 2) + ${fluidSizing.space.md}), calc(var(--vh-app, 100dvh) - var(--sab, 0px) - 64px))`,
+                  padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+                }}
+              >
+                {t('gyro.enable')}
+              </button>
+            )
+          )}
+        </>
       ) : (
         <>
           {/* Canvas 3D con fondo transparente */}
@@ -260,18 +286,30 @@ export default function Model3D({ mousePosition }: Model3DProps) {
             </Canvas>
           </div>
 
-          {/* Botón para activar giroscopio en iOS */}
-          {showGyroButton && (
-            <button
-              onClick={handleGyroPermission}
-              className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-30 text-fluid-sm"
+          {/* CTA o disclaimer en estado listo */}
+          {gyroEnabled ? (
+            <div
+              className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm"
               style={{
-                top: `calc(var(--vv-center-y, 50%) + calc(clamp(280px, 40vw, 500px) / 2) + ${fluidSizing.space.md})`,
-                padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+                top: `min(calc(var(--vv-center-y, 50%) + calc(var(--hero-size, clamp(280px, 40vw, 500px)) / 2) + ${fluidSizing.space.sm}), calc(var(--vh-app, 100dvh) - var(--sab, 0px) - 48px))`,
+                padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
               }}
             >
-              ACTIVAR GIROSCOPIO
-            </button>
+              {t('gyro.movePhone')}
+            </div>
+          ) : (
+            showGyroButton && (
+              <button
+                onClick={handleGyroPermission}
+                className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-10 text-fluid-sm"
+                style={{
+                  top: `min(calc(var(--vv-center-y, 50%) + calc(var(--hero-size, clamp(280px, 40vw, 500px)) / 2) + ${fluidSizing.space.md}), calc(var(--vh-app, 100dvh) - var(--sab, 0px) - 64px))`,
+                  padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+                }}
+              >
+                {t('gyro.enable')}
+              </button>
+            )
           )}
         </>
       )}

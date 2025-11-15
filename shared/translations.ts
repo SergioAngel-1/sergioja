@@ -135,6 +135,10 @@ export interface BaseTranslations {
   
   // Common
   'common.cancel': string;
+
+  // Gyroscope
+  'gyro.movePhone': string;
+  'gyro.enable': string;
 }
 
 // Alias para compatibilidad
@@ -268,6 +272,10 @@ export const translations: Record<Language, Translations> = {
     
     // Common
     'common.cancel': 'Cancelar',
+
+    // Gyroscope
+    'gyro.movePhone': 'Mueve tu móvil',
+    'gyro.enable': 'ACTIVAR GIROSCOPIO',
   },
   en: {
     // Navigation
@@ -396,6 +404,10 @@ export const translations: Record<Language, Translations> = {
     
     // Common
     'common.cancel': 'Cancel',
+
+    // Gyroscope
+    'gyro.movePhone': 'Move your phone',
+    'gyro.enable': 'ENABLE GYROSCOPE',
   },
 };
 

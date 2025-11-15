@@ -49,6 +49,10 @@ export default function Home() {
       if (heroCenterRef.current) {
         heroCenterRef.current.style.setProperty('--vv-center-y', `${centerY}px`);
       }
+      // Also expose globally to ensure fixed descendants can read it regardless of stacking contexts
+      document.documentElement.style.setProperty('--vv-center-y', `${centerY}px`);
+      // Expose hero size globally for CTA positioning
+      document.documentElement.style.setProperty('--hero-size', 'clamp(280px, 40vw, 500px)');
     };
     updateCenter();
     window.addEventListener('resize', updateCenter);
