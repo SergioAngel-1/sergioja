@@ -38,11 +38,19 @@ export default function CenteredHero() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // No dynamic centering needed; wrapper compensates safe-areas symmetrically
+
   if (!mounted) return null;
 
   return (
-    <div className="relative w-full h-screen flex items-center justify-center" style={{ padding: `0 ${fluidSizing.space.md}` }}>
-      <div className="relative" style={{ width: 'clamp(280px, 40vw, 500px)', height: 'clamp(280px, 40vw, 500px)' }}>
+    <div className="relative">
+      <div
+        className="relative"
+        style={{
+          width: 'clamp(280px, 40vw, 500px)',
+          height: 'clamp(280px, 40vw, 500px)',
+        }}
+      >
         
         {/* Simplified outer ring */}
         <motion.div
@@ -157,7 +165,7 @@ export default function CenteredHero() {
         ].map((corner, index) => (
           <motion.div
             key={corner}
-            className={`absolute border-white ${
+            className={`hidden md:block absolute border-white ${
               corner === 'top-left' ? 'border-l-2 border-t-2' :
               corner === 'top-right' ? 'border-r-2 border-t-2' :
               corner === 'bottom-left' ? 'border-l-2 border-b-2' :

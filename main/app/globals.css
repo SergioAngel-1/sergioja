@@ -190,6 +190,8 @@
 @layer utilities {
   .min-h-viewport { min-height: 100vh; min-height: 100svh; min-height: 100dvh; }
   .min-h-viewport-form { min-height: var(--vh-form); }
+  .h-viewport { height: 100vh; height: 100svh; height: 100dvh; }
+  .h-viewport-safe { height: calc(var(--vh-app) - var(--sat) - var(--sab)); }
   .text-gradient-cyber {
     @apply bg-gradient-to-r from-cyber-red via-cyber-purple to-cyber-blue-cyan bg-clip-text text-transparent;
   }

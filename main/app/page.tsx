@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import HexButton from '@/components/atoms/HexButton';
 import Modal from '@/components/molecules/Modal';
 import DataStream from '@/components/atoms/DataStream';
@@ -39,6 +39,29 @@ const particles = [
 
 export default function Home() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  const heroCenterRef = useRef<HTMLDivElement>(null);
+
+  // Track visual viewport center to keep hero perfectly centered on iOS/Android when browser UI shows/hides
+  useEffect(() => {
+    const updateCenter = () => {
+      const vv: any = (window as any).visualViewport;
+      const centerY = (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight) / 2;
+      if (heroCenterRef.current) {
+        heroCenterRef.current.style.setProperty('--vv-center-y', `${centerY}px`);
+      }
+    };
+    updateCenter();
+    window.addEventListener('resize', updateCenter);
+    window.addEventListener('orientationchange', updateCenter);
+    (window as any).visualViewport?.addEventListener('resize', updateCenter);
+    (window as any).visualViewport?.addEventListener('scroll', updateCenter);
+    return () => {
+      window.removeEventListener('resize', updateCenter);
+      window.removeEventListener('orientationchange', updateCenter);
+      (window as any).visualViewport?.removeEventListener('resize', updateCenter);
+      (window as any).visualViewport?.removeEventListener('scroll', updateCenter);
+    };
+  }, []);
 
   const handlePortfolioClick = () => {
     window.location.href = 'http://localhost:3000';
@@ -47,7 +70,7 @@ export default function Home() {
   const closeModal = () => setActiveModal(null);
 
   return (
-    <div className="relative w-full min-h-viewport bg-black overflow-hidden">
+    <div className="relative w-full h-full bg-black overflow-hidden">
       {/* Background layers */}
       <div className="absolute inset-0 cyber-grid opacity-10 z-0" />
       <div className="absolute inset-0 z-0">
@@ -170,9 +193,15 @@ export default function Home() {
         <ConnectionContent />
       </Modal>
 
-      {/* Main content */}
-      <main className="relative z-20">
-        <CenteredHero />
+      {/* Main content - centered across full page */}
+      <main className="relative z-20 h-full">
+        <div
+          ref={heroCenterRef}
+          className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+          style={{ top: 'var(--vv-center-y, 50%)' }}
+        >
+          <CenteredHero />
+        </div>
       </main>
 
       {/* Floating particles - white dots */}

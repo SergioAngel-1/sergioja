@@ -264,8 +264,11 @@ export default function Model3D({ mousePosition }: Model3DProps) {
           {showGyroButton && (
             <button
               onClick={handleGyroPermission}
-              className="absolute left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-20 text-fluid-sm"
-              style={{ bottom: fluidSizing.space.md, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+              className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-30 text-fluid-sm"
+              style={{
+                top: `calc(var(--vv-center-y, 50%) + calc(clamp(280px, 40vw, 500px) / 2) + ${fluidSizing.space.md})`,
+                padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+              }}
             >
               ACTIVAR GIROSCOPIO
             </button>
