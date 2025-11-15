@@ -111,13 +111,6 @@ export default function MobileTerminalModal({
     onClose();
   };
 
-  const handleTerminalClick = () => {
-    // Prevent double-tap zoom on iOS
-    if (terminalInputRef.current) {
-      terminalInputRef.current.focus({ preventScroll: true });
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       onCommandExecute(terminalInput);
@@ -205,7 +198,6 @@ export default function MobileTerminalModal({
                   WebkitOverflowScrolling: 'touch',
                   overscrollBehavior: 'contain',
                 }}
-                onClick={handleTerminalClick}
               >
                 {/* Render current view */}
                 {currentView === 'main' && (
