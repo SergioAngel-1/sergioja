@@ -223,36 +223,6 @@ export default function ConnectionContent() {
         <div className="h-px bg-gradient-to-r from-white/30 via-white/10 to-transparent" />
       </motion.div>
 
-      {/* Plataformas de conexión */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}
-      >
-        {connections.map((connection, index) => (
-          <a
-            key={index}
-            href="#"
-            className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
-            style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
-          >
-            <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
-              {connection.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-white font-medium text-fluid-sm">{connection.platform}</h4>
-              <p className="text-white/60 truncate text-fluid-xs">{connection.handle}</p>
-            </div>
-            <div className="text-white/40 group-hover:text-white/60 transition-colors">
-              <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </a>
-        ))}
-      </motion.div>
-
       {/* Formulario de contacto */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -300,29 +270,6 @@ export default function ConnectionContent() {
           >
             {sending ? t('connection.sendingButton') : t('connection.sendButton')}
           </button>
-
-          {/* reCAPTCHA disclaimer - Required when hiding badge */}
-          <p className="text-white/50 text-center leading-relaxed font-mono" style={{ fontSize: 'clamp(0.625rem, 0.7vw, 0.7rem)' }}>
-            {t('recaptcha.disclaimer')}{' '}
-            <a 
-              href="https://policies.google.com/privacy" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-white/70 hover:text-white underline transition-colors"
-            >
-              {t('recaptcha.privacy')}
-            </a>
-            {' '}{language === 'es' ? 'y los' : 'and'}{' '}
-            <a 
-              href="https://policies.google.com/terms" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-white/70 hover:text-white underline transition-colors"
-            >
-              {t('recaptcha.terms')}
-            </a>
-            {' '}{language === 'es' ? 'de Google' : 'apply'}.
-          </p>
         </form>
 
         {/* Console output - solo mostrar si hay más de 2 mensajes (más allá de los iniciales) */}
@@ -341,6 +288,60 @@ export default function ConnectionContent() {
           </div>
         )}
       </motion.div>
+
+      {/* Plataformas de conexión */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}
+      >
+        {connections.map((connection, index) => (
+          <a
+            key={index}
+            href="#"
+            className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg_white/5 transition-all duration-300"
+            style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
+          >
+            <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
+              {connection.icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="text-white font-medium text-fluid-sm">{connection.platform}</h4>
+              <p className="text-white/60 truncate text-fluid-xs">{connection.handle}</p>
+            </div>
+            <div className="text-white/40 group-hover:text-white/60 transition-colors">
+              <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </a>
+        ))}
+      </motion.div>
+
+      {/* reCAPTCHA disclaimer - Required when hiding badge */}
+      <p className="text-white/50 text-center leading-relaxed font-mono" style={{ fontSize: 'clamp(0.625rem, 0.7vw, 0.7rem)' }}>
+        {t('recaptcha.disclaimer')}{' '}
+        <a 
+          href="https://policies.google.com/privacy" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-white/70 hover:text-white underline transition-colors"
+        >
+          {t('recaptcha.privacy')}
+        </a>
+        {' '}{language === 'es' ? 'y los' : 'and'}{' '}
+        <a 
+          href="https://policies.google.com/terms" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-white/70 hover:text-white underline transition-colors"
+        >
+          {t('recaptcha.terms')}
+        </a>
+        {' '}{language === 'es' ? 'de Google' : 'apply'}.
+      </p>
+
     </div>
   );
 }
