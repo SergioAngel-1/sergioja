@@ -1,5 +1,10 @@
+/**
+ * Newsletter Notification Email Template - SergioJA Brand
+ * Email de notificación de nuevo suscriptor con diseño monocromático
+ */
+
 import { emailLayout } from './emailLayout';
-import { Divider, InfoBox, Icon, Text } from '../components/emailComponents';
+import { Divider, InfoBox, Icon, Text, Header } from '../components/emailComponents';
 
 interface NewsletterNotificationData {
   email: string;
@@ -10,38 +15,80 @@ export function newsletterNotificationTemplate(data: NewsletterNotificationData)
   text: string;
 } {
   const content = `
-    ${Icon({ type: 'info', size: 64 })}
+    ${Icon({ type: 'info', size: 80 })}
 
-    <h2 style="
-      color: #00BFFF;
-      font-size: 22px;
-      font-weight: 700;
-      text-align: center;
-      margin: 20px 0;
-    ">
-      Nuevo suscriptor del Newsletter
-    </h2>
+    ${Header({
+      title: 'NUEVO SUSCRIPTOR',
+      subtitle: new Date().toLocaleString('es-ES', {
+        dateStyle: 'full',
+        timeStyle: 'short',
+      })
+    })}
 
-    ${Divider('#00BFFF')}
+    ${Divider()}
 
-    ${InfoBox({ label: 'Email', value: data.email, color: '#00BFFF' })}
+    ${InfoBox({ 
+      label: 'Email', 
+      value: data.email 
+    })}
+
+    ${Divider()}
 
     ${Text({
-      content: 'Se ha registrado un nuevo suscriptor en el newsletter desde el sitio web.',
+      content: 'Se ha registrado un nuevo suscriptor en el newsletter DevTips desde el sitio web.',
       align: 'center',
-      color: '#a0a0b0',
       size: 'base',
     })}
+    
+    <div style="
+      margin: 30px 0;
+      padding: 20px;
+      background: #1a1a1a;
+      border: 2px solid #FFFFFF;
+      border-left: 4px solid #FFFFFF;
+      position: relative;
+    ">
+      <div style="
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        background: #000000;
+        border: 2px solid #FFFFFF;
+        border-left: none;
+        border-bottom: none;
+      "></div>
+      
+      ${Text({
+        content: '<strong>ACCIÓN SUGERIDA</strong>',
+        size: 'sm',
+        bold: true,
+        mono: true,
+      })}
+      
+      ${Text({
+        content: 'Considera agregar este contacto a tu lista de correo para futuras comunicaciones.',
+        size: 'sm',
+      })}
+    </div>
   `;
 
   const html = emailLayout({
-    title: '📰 Nuevo Suscriptor - Newsletter',
+    title: 'NUEVO SUSCRIPTOR',
     content,
-    accentColor: '#00BFFF',
-    showFooter: true,
+    showFooter: false,
   });
 
-  const text = `Nuevo suscriptor del Newsletter\nEmail: ${data.email}`.trim();
+  const text = `
+NUEVO SUSCRIPTOR - NEWSLETTER
+==============================
+
+Email: ${data.email}
+Fecha: ${new Date().toLocaleString('es-ES')}
+
+Se ha registrado un nuevo suscriptor en el newsletter DevTips.
+  `.trim();
 
   return { html, text };
 }

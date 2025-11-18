@@ -1,10 +1,10 @@
 /**
- * Contact Confirmation Email Template
- * Email de confirmación enviado al usuario que envió el mensaje
+ * Contact Confirmation Email Template - SergioJA Brand
+ * Email de confirmación monocromático con diseño hexagonal
  */
 
 import { emailLayout } from './emailLayout';
-import { Text, Divider, Icon, SocialLinks } from '../components/emailComponents';
+import { Text, Divider, Icon, Header, Footer } from '../components/emailComponents';
 
 interface ContactConfirmationData {
   name: string;
@@ -16,135 +16,154 @@ export function contactConfirmationTemplate(data: ContactConfirmationData): {
   text: string;
 } {
   const content = `
-    ${Icon({ type: 'success', size: 72 })}
+    ${Icon({ type: 'success', size: 80 })}
     
-    <h2 style="
-      color: #8B00FF;
-      font-size: 26px;
-      font-weight: 700;
-      text-align: center;
-      margin: 20px 0;
-      letter-spacing: -0.5px;
-    ">
-      ¡Mensaje recibido!
-    </h2>
+    ${Header({
+      title: 'MENSAJE RECIBIDO',
+      subtitle: 'Confirmación de contacto'
+    })}
     
-    ${Divider('#8B00FF')}
+    ${Divider()}
     
     ${Text({
-      content: `Hola <strong style="color: #8B00FF;">${data.name}</strong>,`,
+      content: `Hola <strong>${data.name}</strong>,`,
       size: 'lg',
       bold: false,
     })}
     
     ${Text({
-      content: 'Gracias por ponerte en contacto conmigo. He recibido tu mensaje y lo revisaré lo antes posible.',
+      content: 'Gracias por ponerte en contacto. He recibido tu mensaje y lo revisaré lo antes posible.',
       size: 'base',
     })}
     
     ${Text({
-      content: 'Normalmente respondo en un plazo de <strong>24-48 horas</strong>. Si tu consulta es urgente, no dudes en contactarme directamente por email.',
+      content: 'Normalmente respondo en un plazo de <strong>24-48 horas</strong>. Si tu consulta es urgente, contáctame directamente por email.',
       size: 'base',
     })}
     
-    ${Divider('#8B00FF')}
+    ${Divider()}
     
     <div style="
-      background: linear-gradient(135deg, #8B00FF15 0%, #00BFFF15 100%);
-      border: 1px solid #8B00FF40;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 25px 0;
+      background: #1a1a1a;
+      border: 2px solid #FFFFFF;
+      border-left: 4px solid #FFFFFF;
+      padding: 24px;
+      margin: 30px 0;
+      position: relative;
     ">
+      <div style="
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        background: #000000;
+        border: 2px solid #FFFFFF;
+        border-left: none;
+        border-bottom: none;
+      "></div>
+      
       ${Text({
-        content: '💡 <strong>Mientras tanto...</strong>',
+        content: '<strong>MIENTRAS TANTO...</strong>',
         size: 'base',
-        color: '#8B00FF',
         bold: true,
+        mono: true,
       })}
       
       ${Text({
-        content: 'Te invito a explorar mis proyectos más recientes y conectar conmigo en redes sociales.',
+        content: 'Explora mis proyectos más recientes en mi portfolio.',
         size: 'sm',
-        color: '#a0a0b0',
       })}
+      
+      <a href="https://portfolio.sergioja.com" style="
+        display: inline-block;
+        margin-top: 16px;
+        padding: 12px 28px;
+        background: #FFFFFF;
+        color: #000000;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-family: 'Courier New', monospace;
+        border: 2px solid #FFFFFF;
+        clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
+      ">
+        VER PORTFOLIO
+      </a>
     </div>
     
-    ${SocialLinks({
-      github: 'https://github.com/sergiojaregui',
-      linkedin: 'https://linkedin.com/in/sergiojaregui',
-      website: 'https://sergioja.com',
-    })}
-    
-    ${Divider('#8B00FF')}
+    ${Divider()}
     
     ${Text({
-      content: 'Saludos cordiales,',
+      content: 'Saludos,',
       size: 'base',
       align: 'left',
     })}
     
-    <div style="margin: 20px 0;">
+    <div style="margin: 24px 0;">
       <p style="
-        color: #8B00FF;
+        color: #FFFFFF;
         font-size: 20px;
         font-weight: 700;
         margin: 0;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 1px;
       ">
-        Sergio Jáuregui
+        SERGIO JÁUREGUI
       </p>
       <p style="
-        color: #a0a0b0;
-        font-size: 14px;
-        margin: 5px 0 0 0;
+        color: #FFFFFF;
+        font-size: 13px;
+        margin: 8px 0 0 0;
+        opacity: 0.6;
+        letter-spacing: 0.5px;
       ">
         Full Stack Developer
       </p>
     </div>
     
     <p style="
-      color: #666;
-      font-size: 12px;
-      margin-top: 30px;
+      color: #FFFFFF;
+      font-size: 11px;
+      margin-top: 40px;
       padding-top: 20px;
-      border-top: 1px solid #ffffff20;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
       text-align: center;
+      opacity: 0.5;
+      font-family: 'Courier New', monospace;
     ">
-      Este es un email automático de confirmación. Por favor no respondas a este mensaje.
+      EMAIL AUTOMÁTICO · NO RESPONDER
     </p>
   `;
 
   const html = emailLayout({
-    title: '✓ Confirmación de Contacto',
+    title: 'CONFIRMACIÓN',
     content,
-    accentColor: '#8B00FF',
-    showFooter: true,
+    showFooter: false,
   });
 
   const text = `
-¡MENSAJE RECIBIDO!
+MENSAJE RECIBIDO
 ==================
 
 Hola ${data.name},
 
-Gracias por ponerte en contacto conmigo. He recibido tu mensaje y lo revisaré lo antes posible.
+Gracias por ponerte en contacto. He recibido tu mensaje y lo revisaré lo antes posible.
 
-Normalmente respondo en un plazo de 24-48 horas. Si tu consulta es urgente, no dudes en contactarme directamente por email.
+Normalmente respondo en un plazo de 24-48 horas. Si tu consulta es urgente, contáctame directamente por email.
 
 MIENTRAS TANTO...
-Te invito a explorar mis proyectos más recientes y conectar conmigo en redes sociales:
+Explora mis proyectos más recientes en: https://portfolio.sergioja.com
 
-- GitHub: https://github.com/sergiojaregui
-- LinkedIn: https://linkedin.com/in/sergiojaregui
-- Website: https://sergioja.com
+Saludos,
 
-Saludos cordiales,
-
-Sergio Jáuregui
+SERGIO JÁUREGUI
 Full Stack Developer
 
 ---
-Este es un email automático de confirmación.
+EMAIL AUTOMÁTICO · NO RESPONDER
   `.trim();
 
   return { html, text };

@@ -1,10 +1,10 @@
 /**
- * Contact Notification Email Template
- * Email enviado al propietario cuando recibe un mensaje de contacto
+ * Contact Notification Email Template - SergioJA Brand
+ * Email de notificación monocromático con diseño hexagonal
  */
 
 import { emailLayout } from './emailLayout';
-import { InfoBox, MessageBox, Divider, Icon } from '../components/emailComponents';
+import { InfoBox, MessageBox, Divider, Icon, Header } from '../components/emailComponents';
 
 interface ContactNotificationData {
   name: string;
@@ -18,84 +18,71 @@ export function contactNotificationTemplate(data: ContactNotificationData): {
   text: string;
 } {
   const content = `
-    ${Icon({ type: 'info', size: 64 })}
+    ${Icon({ type: 'info', size: 80 })}
     
-    <h2 style="
-      color: #00BFFF;
-      font-size: 22px;
-      font-weight: 700;
-      text-align: center;
-      margin: 20px 0;
-    ">
-      Nuevo mensaje de contacto
-    </h2>
-    
-    <p style="
-      color: #a0a0b0;
-      font-size: 14px;
-      text-align: center;
-      margin-bottom: 30px;
-    ">
-      Recibido el ${new Date().toLocaleString('es-ES', {
+    ${Header({
+      title: 'NUEVO CONTACTO',
+      subtitle: new Date().toLocaleString('es-ES', {
         dateStyle: 'full',
         timeStyle: 'short',
-      })}
-    </p>
+      })
+    })}
     
-    ${Divider('#00BFFF')}
+    ${Divider()}
     
     ${InfoBox({
       label: 'Remitente',
       value: data.name,
-      color: '#00BFFF',
     })}
     
     ${InfoBox({
       label: 'Email',
       value: data.email,
-      color: '#00BFFF',
     })}
     
     ${InfoBox({
       label: 'Asunto',
       value: data.subject,
-      color: '#00BFFF',
     })}
     
-    ${Divider('#00BFFF')}
+    ${Divider()}
     
     <div style="
-      color: #8B00FF;
+      color: #FFFFFF;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
-      margin: 20px 0 10px 0;
+      letter-spacing: 2px;
+      margin: 24px 0 12px 0;
+      font-family: 'Courier New', monospace;
+      opacity: 0.7;
     ">
       Mensaje
     </div>
     
     ${MessageBox({
       message: data.message,
-      color: '#00BFFF',
     })}
     
     <p style="
-      color: #a0a0b0;
+      color: #FFFFFF;
       font-size: 13px;
       text-align: center;
       margin-top: 30px;
-      font-style: italic;
+      padding: 16px;
+      background: #1a1a1a;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: 'Courier New', monospace;
+      opacity: 0.8;
     ">
-      💡 Responde directamente a <strong style="color: #00BFFF;">${data.email}</strong> para contactar al remitente
+      → Responde a <strong>${data.email}</strong>
     </p>
   `;
 
   const html = emailLayout({
-    title: '🚀 Nuevo Mensaje de Contacto',
+    title: 'NUEVO CONTACTO',
     content,
-    accentColor: '#00BFFF',
-    showFooter: true,
+    showFooter: false,
   });
 
   const text = `

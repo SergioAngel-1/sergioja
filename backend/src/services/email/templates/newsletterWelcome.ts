@@ -1,5 +1,10 @@
+/**
+ * Newsletter Welcome Email Template - SergioJA Brand
+ * Email de bienvenida monocromático con diseño hexagonal
+ */
+
 import { emailLayout } from './emailLayout';
-import { Divider, Icon, Text } from '../components/emailComponents';
+import { Divider, Icon, Text, Header } from '../components/emailComponents';
 
 interface NewsletterWelcomeData {
   email: string;
@@ -10,36 +15,66 @@ export function newsletterWelcomeTemplate(data: NewsletterWelcomeData): {
   text: string;
 } {
   const content = `
-    ${Icon({ type: 'success', size: 64 })}
+    ${Icon({ type: 'success', size: 80 })}
 
-    <h2 style="
-      color: #00BFFF;
-      font-size: 22px;
-      font-weight: 700;
-      text-align: center;
-      margin: 20px 0;
-    ">
-      ¡Bienvenido al Newsletter!
-    </h2>
+    ${Header({
+      title: 'BIENVENIDO',
+      subtitle: 'Newsletter DevTips'
+    })}
 
-    ${Divider('#00BFFF')}
+    ${Divider()}
 
     ${Text({
-      content: 'Gracias por suscribirte. Te enviaré tips de desarrollo, ideas y recursos útiles. Puedes darte de baja en cualquier momento.',
+      content: 'Gracias por suscribirte. Recibirás tips de desarrollo, ideas y recursos útiles directamente en tu inbox.',
       align: 'center',
-      color: '#a0a0b0',
       size: 'base',
     })}
+    
+    ${Text({
+      content: 'Puedes darte de baja en cualquier momento.',
+      align: 'center',
+      size: 'sm',
+    })}
+    
+    ${Divider()}
+    
+    <div style="
+      text-align: center;
+      margin: 30px 0;
+    ">
+      <a href="https://sergioja.com" style="
+        display: inline-block;
+        padding: 14px 32px;
+        background: #FFFFFF;
+        color: #000000;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-family: 'Courier New', monospace;
+        border: 2px solid #FFFFFF;
+        clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
+      ">
+        VISITAR WEB
+      </a>
+    </div>
   `;
 
   const html = emailLayout({
-    title: '✅ Suscripción confirmada',
+    title: 'SUSCRIPCIÓN',
     content,
-    accentColor: '#00BFFF',
-    showFooter: true,
+    showFooter: false,
   });
 
-  const text = `Bienvenido al newsletter. Gracias por suscribirte.`;
+  const text = `
+BIENVENIDO AL NEWSLETTER
+========================
+
+Gracias por suscribirte. Recibirás tips de desarrollo, ideas y recursos útiles.
+
+Visita: https://sergioja.com
+  `.trim();
 
   return { html, text };
 }
