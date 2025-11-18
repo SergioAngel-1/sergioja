@@ -151,7 +151,7 @@ export default function Navbar() {
         whileTap={{ scale: 0.95 }}
       >
         <a
-          href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : 'https://sergioja.com'}
+          href="https://sergioja.com"
           target="_blank"
           rel="noopener noreferrer"
         >

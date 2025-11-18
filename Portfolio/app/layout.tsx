@@ -6,7 +6,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import NextPageButton from '@/components/molecules/NextPageButton';
 import PageLoader from '@/components/molecules/PageLoader';
 import HeaderWrapper from '@/components/organisms/HeaderWrapper';
-import AlertContainer from '@/components/molecules/AlertContainer';
+import AlertContainer from '@/components/molecules/alerts/AlertContainer';
 import { PerformanceProvider } from '@/lib/contexts/PerformanceContext';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { MatrixProvider } from '@/lib/contexts/MatrixContext';

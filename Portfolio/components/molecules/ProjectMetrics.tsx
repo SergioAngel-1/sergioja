@@ -52,7 +52,7 @@ export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4, duration: 0.6 }}
-      className="flex flex-col w-full"
+      className="grid grid-cols-3 lg:flex lg:flex-col w-full"
       style={{ gap: fluidSizing.space.sm }}
     >
       {metricsData.map((metric, index) => (

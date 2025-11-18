@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import Badge from '../atoms/Badge';
 import StatCard from '../atoms/StatCard';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
@@ -16,6 +18,7 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
   const { t } = useLanguage();
+  const [imageError, setImageError] = useState(false);
 
   return (
     <Link href={`/projects/${project.slug}`}>
@@ -48,21 +51,23 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
 
           {/* Image/Screenshot Section */}
           <div className="relative w-full aspect-video bg-background-elevated overflow-hidden">
-            {/* Placeholder gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-text-secondary/10 to-white/10" />
-            
-            {/* Grid pattern overlay */}
-            <div className="absolute inset-0 opacity-20">
-              <div className="w-full h-full" style={{
-                backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
-                backgroundSize: '20px 20px'
-              }} />
-            </div>
-            
-            {/* Project icon/emoji */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-6xl opacity-30">🚀</span>
-            </div>
+            {project.image && !imageError ? (
+              <Image
+                src={project.image}
+                alt={project.title}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                onError={() => setImageError(true)}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-background-elevated">
+                <span className="text-6xl sm:text-7xl opacity-30">🚀</span>
+              </div>
+            )}
+
+            {/* Overlay gradient for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
             {/* Category badge */}
             <div className="absolute z-20" style={{ bottom: fluidSizing.space.sm, left: fluidSizing.space.sm }}>
@@ -153,7 +158,6 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
               className="w-full bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white rounded-lg text-white font-rajdhani font-semibold text-xs sm:text-sm transition-all duration-300 flex items-center justify-center group/btn"
               style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, gap: fluidSizing.space.sm }}
               whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
             >
               <span className="hidden sm:inline">{t('projects.viewNow') || 'Ver Ahora'}</span>
               <span className="sm:hidden">Ver</span>

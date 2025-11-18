@@ -13,15 +13,13 @@ const SERGIOJA_PROJECT: Project = {
   slug: 'sergioja',
   description: 'Landing page minimalista con diseño cyberpunk y arquitectura hexagonal interactiva.',
   longDescription: 'Sitio principal con diseño cyberpunk minimalista, featuring un hero hexagonal central con 4 modales esquineros (Navigation, Identity, Purpose, Connection). Construido con Next.js 14, Framer Motion, y sistema de diseño fluido sin breakpoints. Incluye efectos visuales avanzados como scanlines CRT, partículas flotantes, y un sistema de navegación único basado en hexágonos.',
-  image: '/media/logo sergioja.png',
-  images: ['/media/logo sergioja.png'],
+  image: '/media/projects/SergioJA.com.png',
+  images: ['/media/projects/SergioJA.com.png'],
   technologies: ['Next.js', 'React', 'TypeScript', 'Framer Motion', 'TailwindCSS', 'Three.js'],
   tech: ['Next.js', 'React', 'TypeScript', 'Framer Motion', 'TailwindCSS', 'Three.js'],
   category: 'web',
   featured: true,
-  demoUrl: typeof window !== 'undefined' && process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:3001' 
-    : 'https://sergioja.com',
+  demoUrl: 'https://sergioja.com',
   githubUrl: 'https://github.com/SergioAngel-1/sergioja',
   repoUrl: 'https://github.com/SergioAngel-1/sergioja',
   status: 'completed' as const,

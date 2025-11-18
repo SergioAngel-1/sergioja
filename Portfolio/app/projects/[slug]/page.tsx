@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useProject, useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/lib/hooks/useLogger';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import PageLoader from '@/components/molecules/PageLoader';
@@ -24,6 +25,7 @@ export default function ProjectDetailPage() {
   const { projects } = useProjects();
   const log = useLogger('ProjectDetailPage');
   const { t } = useLanguage();
+  const { lowPerformanceMode } = usePerformance();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -136,33 +138,44 @@ export default function ProjectDetailPage() {
                 {t('projects.preview')}
               </h2>
               
-              {project.demoUrl ? (
+              {/* Preview iframe - only if URL exists and not in low performance mode */}
+              {project.demoUrl && !lowPerformanceMode && (
                 <div className="aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10">
                   <iframe
                     src={project.demoUrl}
                     className="w-full h-full"
                     title={project.title}
+                    loading="lazy"
                     sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
                   />
                 </div>
-              ) : (
+              )}
+
+              {/* Low Performance Mode Message */}
+              {lowPerformanceMode && project.demoUrl && (
                 <div className="relative aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10">
-                  {/* Placeholder gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-text-secondary/10 to-white/10" />
-                  
-                  {/* Grid pattern overlay */}
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="w-full h-full" style={{
-                      backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
-                      backgroundSize: '20px 20px'
-                    }} />
-                  </div>
-                  
-                  {/* Project icon/emoji */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <span className="text-6xl sm:text-7xl md:text-8xl opacity-30">🚀</span>
-                      <p className="text-text-muted font-mono text-xs sm:text-sm mt-4">{t('projects.previewNotAvailable')}</p>
+                    <div className="text-center px-4">
+                      <svg className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-white mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <p className="text-text-muted font-mono text-xs sm:text-sm">
+                        {t('projects.previewDisabledPerformance') || 'Vista previa deshabilitada en modo de bajo rendimiento'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* No preview available */}
+              {!project.demoUrl && (
+                <div className="relative aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center px-4">
+                      <svg className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-white mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                      </svg>
+                      <p className="text-text-muted font-mono text-xs sm:text-sm">{t('projects.previewNotAvailable')}</p>
                     </div>
                   </div>
                 </div>

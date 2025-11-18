@@ -89,6 +89,8 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.7 + index * 0.05 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
             >
               {/* Mobile: Solo icono sin badge */}
               <div className="sm:hidden text-white/80">
