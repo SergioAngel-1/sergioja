@@ -5,8 +5,11 @@ import Link from 'next/link';
 import HexagonGrid from '@/components/atoms/HexagonGrid';
 import DataStream from '@/components/atoms/DataStream';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 export default function NotFound() {
+  const { t } = useLanguage();
+  
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden">
       {/* Hexagon grid background */}
@@ -57,10 +60,10 @@ export default function NotFound() {
               transition={{ delay: 0.4, duration: 0.8 }}
             >
               <h2 className="font-orbitron text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-white">
-                PÁGINA NO ENCONTRADA
+                {t('notfound.title')}
               </h2>
               <p className="text-gray-400 text-base sm:text-lg font-rajdhani max-w-2xl mx-auto">
-                La página que buscas no existe o ha sido movida. Verifica la URL o regresa al inicio.
+                {t('notfound.description')}
               </p>
             </motion.div>
 
@@ -102,7 +105,7 @@ export default function NotFound() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  VOLVER AL INICIO
+                  {t('notfound.backHome')}
                 </motion.button>
               </Link>
             </motion.div>
@@ -114,7 +117,7 @@ export default function NotFound() {
               animate={{ opacity: 1 }}
               transition={{ delay: 1, duration: 0.8 }}
             >
-              ERROR CODE: <span className="text-white">PAGE_NOT_FOUND</span> | STATUS: <span className="text-white">404</span>
+              {t('notfound.errorCodeLabel')}: <span className="text-white">{t('notfound.errorCode')}</span> | {t('notfound.statusLabel')}: <span className="text-white">{t('notfound.subtitle')}</span>
             </motion.p>
           </motion.div>
         </div>

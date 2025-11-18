@@ -171,10 +171,14 @@ export interface PortfolioTranslations {
   // Not Found 404
   'notfound.title': string;
   'notfound.subtitle': string;
+  'notfound.message': string;
   'notfound.description': string;
   'notfound.backHome': string;
   'notfound.viewProjects': string;
   'notfound.contact': string;
+  'notfound.errorCodeLabel': string;
+  'notfound.errorCode': string;
+  'notfound.statusLabel': string;
   
   // Performance
   'performance.lowMode': string;
@@ -411,10 +415,14 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     // Not Found 404
     'notfound.title': 'PÁGINA NO ENCONTRADA',
     'notfound.subtitle': '404',
+    'notfound.message': 'La página que buscas no existe o ha sido movida. Verifica la URL o regresa al inicio.',
     'notfound.description': 'La página que buscas no existe o ha sido movida.',
     'notfound.backHome': 'Volver al Inicio',
     'notfound.viewProjects': 'Ver Proyectos',
     'notfound.contact': 'Contactar',
+    'notfound.errorCodeLabel': 'ERROR CODE',
+    'notfound.errorCode': 'PAGE_NOT_FOUND',
+    'notfound.statusLabel': 'STATUS',
     
     // Performance
     'performance.lowMode': 'Modo de bajo rendimiento activado',
@@ -649,10 +657,14 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     // Not Found 404
     'notfound.title': 'PAGE NOT FOUND',
     'notfound.subtitle': '404',
+    'notfound.message': 'The page you are looking for does not exist or has been moved. Check the URL or return to home.',
     'notfound.description': 'The page you are looking for does not exist or has been moved.',
     'notfound.backHome': 'Back to Home',
     'notfound.viewProjects': 'View Projects',
     'notfound.contact': 'Contact',
+    'notfound.errorCodeLabel': 'ERROR CODE',
+    'notfound.errorCode': 'PAGE_NOT_FOUND',
+    'notfound.statusLabel': 'STATUS',
     
     // Performance
     'performance.lowMode': 'Low performance mode activated',

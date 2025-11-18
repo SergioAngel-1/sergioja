@@ -143,6 +143,18 @@ export interface BaseTranslations {
   // Common
   'common.cancel': string;
 
+  // Not Found 404
+  'notfound.title': string;
+  'notfound.subtitle': string;
+  'notfound.message': string;
+  'notfound.description': string;
+  'notfound.backHome': string;
+  'notfound.viewProjects': string;
+  'notfound.contact': string;
+  'notfound.errorCodeLabel': string;
+  'notfound.errorCode': string;
+  'notfound.statusLabel': string;
+
   // Gyroscope
   'gyro.movePhone': string;
   'gyro.enable': string;
@@ -289,6 +301,18 @@ export const translations: Record<Language, Translations> = {
     // Common
     'common.cancel': 'Cancelar',
 
+    // Not Found 404
+    'notfound.title': 'PÁGINA NO ENCONTRADA',
+    'notfound.subtitle': '404',
+    'notfound.message': 'La página que buscas no existe o ha sido movida. Verifica la URL o regresa al inicio.',
+    'notfound.description': 'La página que buscas no existe o ha sido movida.',
+    'notfound.backHome': 'VOLVER AL INICIO',
+    'notfound.viewProjects': 'Ver Proyectos',
+    'notfound.contact': 'Contactar',
+    'notfound.errorCodeLabel': 'ERROR CODE',
+    'notfound.errorCode': 'PAGE_NOT_FOUND',
+    'notfound.statusLabel': 'STATUS',
+
     // Gyroscope
     'gyro.movePhone': 'Mueve tu móvil',
     'gyro.enable': 'ACTIVAR GIROSCOPIO',
@@ -429,6 +453,18 @@ export const translations: Record<Language, Translations> = {
     
     // Common
     'common.cancel': 'Cancel',
+
+    // Not Found 404
+    'notfound.title': 'PAGE NOT FOUND',
+    'notfound.subtitle': '404',
+    'notfound.message': 'The page you are looking for does not exist or has been moved. Check the URL or return to home.',
+    'notfound.description': 'The page you are looking for does not exist or has been moved.',
+    'notfound.backHome': 'BACK TO HOME',
+    'notfound.viewProjects': 'View Projects',
+    'notfound.contact': 'Contact',
+    'notfound.errorCodeLabel': 'ERROR CODE',
+    'notfound.errorCode': 'PAGE_NOT_FOUND',
+    'notfound.statusLabel': 'STATUS',
 
     // Gyroscope
     'gyro.movePhone': 'Move your phone',
