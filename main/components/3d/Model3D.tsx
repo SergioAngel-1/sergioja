@@ -246,7 +246,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
             <div
               className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm"
               style={{
-                top: `min(calc(var(--vv-center-y, 50%) + calc(var(--hero-size, clamp(280px, 40vw, 500px)) / 2) + ${fluidSizing.space.sm}), calc(var(--vh-app, 100dvh) - var(--sab, 0px) - 48px))`,
+                bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`,
                 padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
               }}
             >
@@ -258,7 +258,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
                 onClick={handleGyroPermission}
                 className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-10 text-fluid-sm"
                 style={{
-                  top: `min(calc(var(--vv-center-y, 50%) + calc(var(--hero-size, clamp(280px, 40vw, 500px)) / 2) + ${fluidSizing.space.md}), calc(var(--vh-app, 100dvh) - var(--sab, 0px) - 64px))`,
+                  bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`,
                   padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
                 }}
               >
@@ -291,7 +291,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
             <div
               className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm"
               style={{
-                top: `min(calc(var(--vv-center-y, 50%) + calc(var(--hero-size, clamp(280px, 40vw, 500px)) / 2) + ${fluidSizing.space.sm}), calc(var(--vh-app, 100dvh) - var(--sab, 0px) - 48px))`,
+                bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`,
                 padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
               }}
             >
@@ -303,7 +303,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
                 onClick={handleGyroPermission}
                 className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-10 text-fluid-sm"
                 style={{
-                  top: `min(calc(var(--vv-center-y, 50%) + calc(var(--hero-size, clamp(280px, 40vw, 500px)) / 2) + ${fluidSizing.space.md}), calc(var(--vh-app, 100dvh) - var(--sab, 0px) - 64px))`,
+                  bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`,
                   padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
                 }}
               >
