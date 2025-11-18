@@ -324,7 +324,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'work.next': 'Siguiente',
     
     // Projects
-    'projects.viewNow': 'Ver Ahora',
+    'projects.viewNow': 'Ver Proyecto',
     'projects.loading': 'Cargando proyecto...',
     'projects.backToProjects': 'Volver a Proyectos',
     'projects.viewDemo': 'Ver Demo',
@@ -571,7 +571,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'work.next': 'Next',
     
     // Projects
-    'projects.viewNow': 'View Now',
+    'projects.viewNow': 'View Project',
     'projects.loading': 'Loading project...',
     'projects.backToProjects': 'Back to Projects',
     'projects.viewDemo': 'View Demo',
