@@ -272,7 +272,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     
     // Home
     'home.title': 'FULL STACK',
-    'home.developer': 'DESARROLLADOR',
+    'home.developer': 'DESARROLLO',
     'home.automation': 'AUTOMATIZACIÓN',
     'home.engineer': 'ESCALABILIDAD',
     'home.scalability': 'ESCALABILIDAD',
@@ -519,7 +519,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     
     // Home
     'home.title': 'FULL STACK',
-    'home.developer': 'DEVELOPER',
+    'home.developer': 'DEVELOPMENT',
     'home.automation': 'AUTOMATION',
     'home.engineer': 'SCALABILITY',
     'home.scalability': 'SCALABILITY',
