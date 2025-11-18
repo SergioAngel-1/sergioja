@@ -79,7 +79,20 @@ export interface PortfolioTranslations {
   'projects.loading': string;
   'projects.backToProjects': string;
   'projects.viewDemo': string;
+  'projects.viewPage': string;
   'projects.viewCode': string;
+  'projects.preview': string;
+  'projects.previewNotAvailable': string;
+  'projects.status': string;
+  'projects.category': string;
+  'projects.date': string;
+  'projects.info': string;
+  'projects.completed': string;
+  'projects.inProgress': string;
+  'projects.planned': string;
+  'projects.relatedProjects': string;
+  'projects.relatedProjectsDesc': string;
+  'projects.viewAllProjects': string;
   
   // Next Page Button
   'nextpage.home': string;
@@ -306,7 +319,20 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.loading': 'Cargando proyecto...',
     'projects.backToProjects': 'Volver a Proyectos',
     'projects.viewDemo': 'Ver Demo',
+    'projects.viewPage': 'Ver Página',
     'projects.viewCode': 'Ver Código',
+    'projects.preview': 'Vista Previa',
+    'projects.previewNotAvailable': 'Vista previa no disponible',
+    'projects.info': 'Información del Proyecto',
+    'projects.status': 'Estado',
+    'projects.category': 'Categoría',
+    'projects.date': 'Fecha',
+    'projects.completed': 'Completado',
+    'projects.inProgress': 'En Progreso',
+    'projects.planned': 'Planeado',
+    'projects.relatedProjects': 'Proyectos Relacionados',
+    'projects.relatedProjectsDesc': 'Descubre más proyectos similares',
+    'projects.viewAllProjects': 'Ver Todos los Proyectos',
     
     // Next Page Button
     'nextpage.home': 'Inicio',
@@ -531,7 +557,20 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.loading': 'Loading project...',
     'projects.backToProjects': 'Back to Projects',
     'projects.viewDemo': 'View Demo',
+    'projects.viewPage': 'View Page',
     'projects.viewCode': 'View Code',
+    'projects.preview': 'Preview',
+    'projects.previewNotAvailable': 'Preview not available',
+    'projects.info': 'Project Information',
+    'projects.status': 'Status',
+    'projects.category': 'Category',
+    'projects.date': 'Date',
+    'projects.completed': 'Completed',
+    'projects.inProgress': 'In Progress',
+    'projects.planned': 'Planned',
+    'projects.relatedProjects': 'Related Projects',
+    'projects.relatedProjectsDesc': 'Discover more similar projects',
+    'projects.viewAllProjects': 'View All Projects',
     
     // Next Page Button
     'nextpage.home': 'Home',
