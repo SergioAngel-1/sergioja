@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
@@ -39,7 +40,8 @@ export default function TerminalInit({ profileName }: TerminalInitProps) {
         </svg>
       ),
       label: t('terminal.developer'),
-      delay: 0.4
+      delay: 0.4,
+      isLink: true
     }
   ];
 
@@ -55,26 +57,40 @@ export default function TerminalInit({ profileName }: TerminalInitProps) {
       </motion.div>
 
       <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center" style={{ paddingLeft: fluidSizing.space.md, gap: fluidSizing.space.xs }}>
-        {initItems.map((item, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: lowPerformanceMode ? 0 : 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: item.delay, duration: lowPerformanceMode ? 0.25 : 0.3, ease: 'easeOut' }}
-            className="group relative flex items-center bg-background-elevated border border-white/20 rounded-full hover:border-cyber-blue-cyan/50 hover:bg-white/5 transition-colors duration-300 w-full sm:w-auto"
-            style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, gap: fluidSizing.space.xs, willChange: 'transform, opacity' }}
-          >
-            <div className="text-white flex-shrink-0">
-              {item.icon}
-            </div>
-            <div className="text-text-secondary font-mono text-fluid-xs flex-1 sm:flex-initial">
-              {item.label}
-            </div>
-            <svg className={`size-icon-sm text-cyber-blue-cyan flex-shrink-0 ${lowPerformanceMode ? '' : 'animate-pulse'}`} fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-          </motion.div>
-        ))}
+        {initItems.map((item, index) => {
+          const content = (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: lowPerformanceMode ? 0 : 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: item.delay, duration: lowPerformanceMode ? 0.25 : 0.3, ease: 'easeOut' }}
+              className="group relative flex items-center bg-background-elevated border border-white/20 rounded-full hover:border-cyber-blue-cyan/50 hover:bg-white/5 transition-colors duration-300 w-full sm:w-auto"
+              style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, gap: fluidSizing.space.xs, willChange: 'transform, opacity' }}
+            >
+              <div className="text-white flex-shrink-0">
+                {item.icon}
+              </div>
+              <div className="text-text-secondary font-mono text-fluid-xs flex-1 sm:flex-initial">
+                {item.label}
+              </div>
+              {item.isLink ? (
+                <svg className={`size-icon-sm text-cyber-blue-cyan flex-shrink-0 ${lowPerformanceMode ? '' : 'group-hover:translate-x-0.5'} transition-transform`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              ) : (
+                <svg className={`size-icon-sm text-cyber-blue-cyan flex-shrink-0 ${lowPerformanceMode ? '' : 'animate-pulse'}`} fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              )}
+            </motion.div>
+          );
+
+          return item.isLink ? (
+            <Link key={index} href="https://sergioja.com" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+              {content}
+            </Link>
+          ) : content;
+        })}
       </div>
     </div>
   );
