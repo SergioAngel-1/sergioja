@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import Badge from '../atoms/Badge';
+import Button from '../atoms/Button';
 import StatCard from '../atoms/StatCard';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { TechIcon } from '@/lib/utils/techIcons';
@@ -154,24 +155,10 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
             )}
 
             {/* View Now Button */}
-            <motion.button
-              className="w-full bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white rounded-lg text-white font-rajdhani font-semibold text-xs sm:text-sm transition-all duration-300 flex items-center justify-center group/btn"
-              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, gap: fluidSizing.space.sm }}
-              whileHover={{ scale: 1.02 }}
-            >
+            <Button variant="outline" size="md" className="w-full border-white text-white hover:bg-white hover:text-black">
               <span className="hidden sm:inline">{t('projects.viewNow') || 'Ver Ahora'}</span>
-              <span className="sm:hidden">Ver</span>
-              <motion.svg
-                className="w-3 h-3 sm:w-4 sm:h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                animate={{ x: [0, 3, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </motion.svg>
-            </motion.button>
+              <span className="sm:inline-block md:hidden">Ver</span>
+            </Button>
           </div>
 
           {/* Corner accents */}
