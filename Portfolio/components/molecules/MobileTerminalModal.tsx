@@ -272,7 +272,7 @@ export default function MobileTerminalModal({
                           e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }, 300);
                       }}
-                      className="flex-1 bg-transparent border-none outline-none text-white font-mono caret-white text-fluid-sm"
+                      className="flex-1 bg-transparent border-none outline-none text-white font-mono caret-white text-fluid-sm placeholder:text-xs"
                       placeholder={t('terminal.typeCommand')}
                       autoComplete="off"
                       autoCorrect="off"

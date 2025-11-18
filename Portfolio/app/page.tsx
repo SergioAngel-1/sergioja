@@ -19,6 +19,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
+import { alerts } from '../../shared/alertSystem';
 import { api } from '@/lib/api-client';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 export default function Home() {
@@ -182,8 +183,10 @@ export default function Home() {
 
       log.info('Email subscribed:', email);
       setMatrixMessage(t('devTips.success'));
+      alerts.success(t('alerts.success'), t('devTips.success'), 6000);
     } catch (error) {
       log.error('Error subscribing email:', error);
+      alerts.error(t('alerts.sendError'), t('devTips.submitError'), 6000);
       throw error;
     }
   };

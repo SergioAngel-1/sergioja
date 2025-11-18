@@ -252,16 +252,16 @@ export default function ConnectionContent() {
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder={t('connection.namePlaceholder')}
-              className="bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 text-fluid-xs"
-              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+              className="bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 placeholder:text-xs text-fluid-xs"
+              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: 16 }}
             />
             <input
               type="text"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
               placeholder={t('connection.emailPlaceholder')}
-              className="bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 text-fluid-xs"
-              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+              className="bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 placeholder:text-xs text-fluid-xs"
+              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: 16 }}
             />
           </div>
           
@@ -270,8 +270,8 @@ export default function ConnectionContent() {
             onChange={(e) => handleInputChange('message', e.target.value)}
             placeholder={t('connection.messagePlaceholder')}
             rows={3}
-            className="w-full bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 resize-none text-fluid-xs"
-            style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+            className="w-full bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 placeholder:text-xs resize-none text-fluid-xs"
+            style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: 16 }}
           />
 
           <button

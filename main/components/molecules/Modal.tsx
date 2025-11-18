@@ -34,6 +34,27 @@ export default function Modal({
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const body = document.body as HTMLBodyElement;
+    const prevOverflow = body.style.overflow;
+    const prevPosition = body.style.position;
+    const prevTop = body.style.top;
+    const prevWidth = body.style.width;
+    const scrollY = window.scrollY;
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    return () => {
+      body.style.overflow = prevOverflow;
+      body.style.position = prevPosition;
+      body.style.top = prevTop;
+      body.style.width = prevWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isOpen]);
+
   // Determinar posición del modal según el hexágono
   const getModalPositionStyles = () => {
     const baseOffset = fluidSizing.space.lg;
