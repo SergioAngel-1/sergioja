@@ -140,15 +140,40 @@ export default function ProjectDetailPage() {
               
               {/* Preview iframe - only if URL exists and not in low performance mode */}
               {project.demoUrl && !lowPerformanceMode && (
-                <div className="aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10">
-                  <iframe
-                    src={project.demoUrl}
-                    className="w-full h-full"
-                    title={project.title}
-                    loading="lazy"
-                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                  />
-                </div>
+                <>
+                  {/* Desktop/Tablet View */}
+                  <div className="hidden sm:block aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10">
+                    <iframe
+                      src={project.demoUrl}
+                      className="w-full h-full"
+                      title={project.title}
+                      loading="lazy"
+                      sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                    />
+                  </div>
+                  
+                  {/* Mobile View - Simulated Phone */}
+                  <div className="sm:hidden flex justify-center">
+                    <div className="relative bg-background-dark rounded-[2.5rem] p-3 border-4 border-white/20 shadow-2xl" style={{ width: '320px', height: '640px' }}>
+                      {/* Phone notch */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-background-dark rounded-b-2xl z-10 border-x-4 border-b-4 border-white/20" />
+                      
+                      {/* Screen */}
+                      <div className="relative w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
+                        <iframe
+                          src={project.demoUrl}
+                          className="w-full h-full"
+                          title={project.title}
+                          loading="lazy"
+                          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                        />
+                      </div>
+                      
+                      {/* Home indicator */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-white/30 rounded-full" />
+                    </div>
+                  </div>
+                </>
               )}
 
               {/* Low Performance Mode Message */}
