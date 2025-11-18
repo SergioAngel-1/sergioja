@@ -27,6 +27,11 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
 
   // Auto-generate breadcrumbs from pathname if not provided
   const breadcrumbItems = items || generateBreadcrumbs(pathname, t);
+  
+  // En mobile, mostrar solo los últimos 2 niveles (anterior y actual)
+  const mobileBreadcrumbs = breadcrumbItems.length > 2 
+    ? breadcrumbItems.slice(-2) 
+    : breadcrumbItems;
 
   if (!mounted) {
     return null;
@@ -41,7 +46,36 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
       style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.lg }}
       aria-label="Breadcrumb"
     >
-      <div className="flex items-center bg-background-surface/30 backdrop-blur-sm border border-white/20 rounded-sm breadcrumb-equal-mobile" style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
+      {/* Mobile: Solo 2 niveles */}
+      <div className="flex sm:hidden items-center bg-background-surface/30 backdrop-blur-sm border border-white/20 rounded-sm breadcrumb-equal-mobile" style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
+        <span className="font-mono text-white text-fluid-xs">{'<'}</span>
+        
+        {mobileBreadcrumbs.map((item, index) => (
+          <div key={index} className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+            {item.href ? (
+              <Link
+                href={item.href}
+                className="font-mono text-text-muted hover:text-white transition-colors text-fluid-xs"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <span className="font-mono text-white font-semibold text-fluid-xs">
+                {item.label}
+              </span>
+            )}
+            
+            {index < mobileBreadcrumbs.length - 1 && (
+              <span className="font-mono text-text-muted text-fluid-xs">/</span>
+            )}
+          </div>
+        ))}
+        
+        <span className="font-mono text-white text-fluid-xs">{'/>'}</span>
+      </div>
+
+      {/* Desktop: Todos los niveles */}
+      <div className="hidden sm:flex items-center bg-background-surface/30 backdrop-blur-sm border border-white/20 rounded-sm" style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
         <span className="font-mono text-white text-fluid-xs">{'<'}</span>
         
         {breadcrumbItems.map((item, index) => (
