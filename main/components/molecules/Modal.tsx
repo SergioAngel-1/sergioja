@@ -102,18 +102,19 @@ export default function Modal({
   };
 
   // Animación adaptativa (mobile vs desktop) para mayor fluidez en móviles
+  // Eliminado rotateY y scale para evitar texto borroso causado por transformaciones 3D
   const initialAnim = isMobile
     ? { x: getInitialX() * 0.6, opacity: 0 }
-    : { x: getInitialX(), opacity: 0, scale: 0.96, rotateY: -8 };
+    : { x: getInitialX(), opacity: 0 };
   const animateAnim = isMobile
     ? { x: 0, opacity: 1 }
-    : { x: 0, opacity: 1, scale: 1, rotateY: 0 };
+    : { x: 0, opacity: 1 };
   const exitAnim = isMobile
     ? { x: getInitialX() * 0.5, opacity: 0 }
-    : { x: getInitialX(), opacity: 0, scale: 0.96, rotateY: 8 };
+    : { x: getInitialX(), opacity: 0 };
   const transitionAnim = isMobile
     ? { duration: 0.2, ease: 'easeOut' }
-    : { type: 'spring', stiffness: 280, damping: 24 };
+    : { duration: 0.3, ease: [0.4, 0, 0.2, 1] };
 
   return (
     <AnimatePresence>
@@ -138,15 +139,26 @@ export default function Modal({
               maxHeight: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
               height: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
               // No height fija: que el modal crezca hasta maxHeight y, si lo supera, scrollee el contenido
-              zIndex: isMobile ? 45 : undefined,
-              willChange: 'transform, opacity'
+              zIndex: isMobile ? 45 : undefined
             }}
             initial={initialAnim}
             animate={animateAnim}
             exit={exitAnim}
             transition={transitionAnim}
           >
-            <div className="relative bg-black/95 backdrop-blur-xl border-2 border-white/30 shadow-2xl overflow-hidden" style={{ display: 'flex', flexDirection: 'column', maxHeight: '100%', height: '100%' }}>
+            <div 
+              className="relative bg-black/95 backdrop-blur-xl border-2 border-white/30 shadow-2xl overflow-hidden" 
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                maxHeight: '100%', 
+                height: '100%',
+                // Anti-blur optimizations for text rendering
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+                textRendering: 'optimizeLegibility'
+              }}
+            >
               {/* Header */}
               <div className="relative border-b border-white/10" style={{ padding: `${fluidSizing.space.lg} ${fluidSizing.space.lg}` }}>
                 {/* Líneas decorativas de fondo */}

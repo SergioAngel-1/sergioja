@@ -69,10 +69,6 @@ export default function Home() {
     };
   }, []);
 
-  const handlePortfolioClick = () => {
-    window.location.href = 'http://localhost:3000';
-  };
-
   const closeModal = () => setActiveModal(null);
 
   return (
