@@ -13,6 +13,7 @@ interface HexButtonProps {
   isActive?: boolean;
   showMenuLabel?: boolean;
   menuLabel?: string;
+  anyModalOpen?: boolean;
 }
 
 // Valores precalculados estáticos para evitar diferencias servidor/cliente
@@ -33,7 +34,8 @@ export default function HexButton({
   delay = 0,
   isActive = false,
   showMenuLabel = false,
-  menuLabel = ''
+  menuLabel = '',
+  anyModalOpen = false
 }: HexButtonProps) {
   const positionStyles = {
     'top-left': { 
@@ -265,8 +267,8 @@ export default function HexButton({
           }}
           initial={{ opacity: 0, y: -5 }}
           animate={{ 
-            opacity: isActive ? 0 : 1, 
-            y: isActive ? -5 : 0 
+            opacity: anyModalOpen ? 0 : 1, 
+            y: anyModalOpen ? -5 : 0 
           }}
           transition={{ 
             duration: 0.3,
