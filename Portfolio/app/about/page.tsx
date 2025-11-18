@@ -4,20 +4,21 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useSkills } from '@/lib/hooks/useSkills';
 import { useLogger } from '@/lib/hooks/useLogger';
+import { useSkillCategories } from '@/lib/hooks/useCategories';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import PageLoader from '@/components/molecules/PageLoader';
+import CategoryFilter from '@/components/molecules/CategoryFilter';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import ExperienceCarousel from '@/components/molecules/ExperienceCarousel';
-import MobileFilterDropdown from '@/components/molecules/MobileFilterDropdown';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 export default function AboutPage() {
   const { skills, loading } = useSkills();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>('all');
   const log = useLogger('AboutPage');
   const { t } = useLanguage();
 
@@ -33,15 +34,12 @@ export default function AboutPage() {
     [skills]
   );
 
-  // Memoizar lista de categorías
-  const categories = useMemo(() => 
-    ['all', ...Object.keys(skillsByCategory)],
-    [skillsByCategory]
-  );
+  // Obtener categorías dinámicas desde los skills
+  const categories = useSkillCategories(skills);
 
   // Memoizar skills filtradas por categoría
   const displayedSkills = useMemo(() => 
-    selectedCategory === 'all' 
+    selectedCategory === 'all' || !selectedCategory
       ? skills 
       : skillsByCategory[selectedCategory] || [],
     [selectedCategory, skills, skillsByCategory]
@@ -185,57 +183,18 @@ export default function AboutPage() {
           </div>
 
           {/* Category filters */}
-          {/* Mobile: Dropdown */}
-          <div className="md:hidden mb-6">
-            <MobileFilterDropdown
-              options={categories.map((cat) => ({
-                value: cat,
-                label: cat === 'all' ? t('about.all') : cat,
-              }))}
-              selectedValue={selectedCategory}
-              onSelect={(value) => {
-                setSelectedCategory(value || 'all');
-                log.interaction('filter_skill_category', value || 'all');
+          <div className="mb-6 md:mb-8">
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={(category) => {
+                setSelectedCategory(category || 'all');
+                log.interaction('filter_skill_category', category || 'all');
               }}
               label={t('about.filter')}
+              showCount={true}
+              animationDelay={1.5}
             />
-          </div>
-
-          {/* Desktop: Buttons */}
-          <div className="hidden md:flex flex-wrap gap-2 md:gap-3 mb-6 md:mb-8">
-            {categories.map((category, index) => {
-              const isActive = selectedCategory === category;
-              return (
-                <motion.button
-                  key={category}
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    log.interaction('filter_skill_category', category);
-                  }}
-                  className={`relative px-4 sm:px-5 py-2 rounded-lg font-rajdhani font-semibold text-xs sm:text-sm transition-all duration-300 overflow-hidden group ${
-                    isActive
-                      ? 'bg-white/10 text-white border border-white/50'
-                      : 'bg-background-surface/50 text-text-secondary hover:text-text-primary border border-white/20 hover:border-white/50'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.5 + index * 0.05 }}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeSkillCategory"
-                      className="absolute inset-0 bg-white/10"
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10 uppercase text-sm">
-                    {category === 'all' ? t('about.all') : category}
-                  </span>
-                </motion.button>
-              );
-            })}
           </div>
 
           {loading ? (

@@ -62,6 +62,10 @@ export interface PortfolioTranslations {
   'work.web': string;
   'work.ai': string;
   'work.mobile': string;
+  'work.backend': string;
+  'work.frontend': string;
+  'work.automation': string;
+  'work.devops': string;
   'work.loading': string;
   'work.noProjects': string;
   'work.viewAll': string;
@@ -285,6 +289,10 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'work.web': 'Web',
     'work.ai': 'IA/ML',
     'work.mobile': 'Móvil',
+    'work.backend': 'Backend',
+    'work.frontend': 'Frontend',
+    'work.automation': 'Automatización',
+    'work.devops': 'DevOps',
     'work.loading': 'Cargando proyectos',
     'work.noProjects': 'No se encontraron proyectos en esta categoría.',
     'work.viewAll': 'Ver Todos los Proyectos',
@@ -506,6 +514,10 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'work.web': 'Web',
     'work.ai': 'AI/ML',
     'work.mobile': 'Mobile',
+    'work.backend': 'Backend',
+    'work.frontend': 'Frontend',
+    'work.automation': 'Automation',
+    'work.devops': 'DevOps',
     'work.loading': 'Loading projects',
     'work.noProjects': 'No projects found in this category.',
     'work.viewAll': 'View All Projects',

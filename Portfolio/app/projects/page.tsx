@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/lib/hooks/useLogger';
+import { useProjectCategories } from '@/lib/hooks/useCategories';
 import ProjectCard from '@/components/molecules/ProjectCard';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
@@ -12,8 +13,8 @@ import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import PageLoader from '@/components/molecules/PageLoader';
 import Pagination from '@/components/molecules/Pagination';
+import CategoryFilter from '@/components/molecules/CategoryFilter';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
-import MobileFilterDropdown from '@/components/molecules/MobileFilterDropdown';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 export default function WorkPage() {
@@ -44,20 +45,15 @@ export default function WorkPage() {
     };
   }, [projects]);
 
+  // Obtener categorías dinámicas desde los proyectos
+  const categories = useProjectCategories(projects);
+
   // Pagination
   const totalPages = Math.ceil(projects.length / projectsPerPage);
   const paginatedProjects = useMemo(() => {
     const startIndex = (currentPage - 1) * projectsPerPage;
     return projects.slice(startIndex, startIndex + projectsPerPage);
   }, [projects, currentPage, projectsPerPage]);
-
-  const categories = [
-    { value: undefined, label: t('work.all') },
-    { value: 'fullstack', label: t('work.fullstackCat') },
-    { value: 'web', label: t('work.web') },
-    { value: 'ai', label: t('work.ai') },
-    { value: 'mobile', label: t('work.mobile') },
-  ];
 
   if (!mounted) {
     return (
@@ -127,53 +123,17 @@ export default function WorkPage() {
           transition={{ delay: 0.6, duration: 0.6 }}
           className="mb-8 md:mb-12"
         >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
-              {/* Category filters - Mobile: Dropdown */}
-              <div className="md:hidden">
-                <MobileFilterDropdown
-                  options={categories.map((cat) => ({
-                    value: cat.value,
-                    label: cat.label,
-                  }))}
-                  selectedValue={selectedCategory}
-                  onSelect={(value) => {
-                    handleCategoryChange(value);
-                    log.interaction('filter_category', value || 'all');
-                  }}
-                  label={t('work.filter')}
-                />
-              </div>
-
-            {/* Category filters - Desktop: Buttons */}
-            <div className="hidden md:flex flex-wrap gap-3 md:gap-4">
-              {categories.map((category, index) => {
-                const isActive = selectedCategory === category.value;
-                return (
-                  <motion.button
-                    key={category.label}
-                    onClick={() => {
-                      handleCategoryChange(category.value);
-                      log.interaction('filter_category', category.label);
-                    }}
-                    className={`relative px-4 sm:px-5 md:px-6 py-2 md:py-2.5 rounded-lg font-rajdhani font-semibold text-xs sm:text-sm transition-all duration-300 overflow-hidden ${
-                      isActive
-                        ? 'bg-white/10 text-white border border-white/50 backdrop-blur-sm'
-                        : 'bg-background-surface/50 text-text-secondary hover:text-text-primary border border-white/20 hover:border-white/50 hover:bg-white/5'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 + index * 0.05 }}
-                  >
-                    <span className="relative z-10 uppercase tracking-wide">
-                      {category.label}
-                    </span>
-                  </motion.button>
-                );
-              })}
-            </div>
-          </div>
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={(category) => {
+              handleCategoryChange(category);
+              log.interaction('filter_category', category || 'all');
+            }}
+            label={t('work.filter')}
+            showCount={true}
+            animationDelay={0.7}
+          />
         </motion.div>
 
         {/* Projects display */}
