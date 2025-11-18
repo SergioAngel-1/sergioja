@@ -190,12 +190,12 @@ export default function HexButton({
         <motion.div
           className="absolute rounded-full bg-white flex items-center justify-center shadow-lg"
           style={{
-            width: fluidSizing.space.lg,
-            height: fluidSizing.space.lg,
-            ...(position.includes('top') && { top: `calc(-1 * ${fluidSizing.space.sm})` }),
-            ...(position.includes('bottom') && { bottom: `calc(-1 * ${fluidSizing.space.sm})` }),
-            ...(position.includes('left') && { left: `calc(-1 * ${fluidSizing.space.sm})` }),
-            ...(position.includes('right') && { right: `calc(-1 * ${fluidSizing.space.sm})` }),
+            width: fluidSizing.space.md,
+            height: fluidSizing.space.md,
+            ...(position.includes('top') && { top: `calc(-1 * ${fluidSizing.space.xs})` }),
+            ...(position.includes('bottom') && { bottom: `calc(-1 * ${fluidSizing.space.xs})` }),
+            ...(position.includes('left') && { left: `calc(-1 * ${fluidSizing.space.xs})` }),
+            ...(position.includes('right') && { right: `calc(-1 * ${fluidSizing.space.xs})` }),
           }}
           initial={{ scale: 0, opacity: 0 }}
           animate={{
@@ -210,7 +210,7 @@ export default function HexButton({
         >
           <motion.div
             className="rounded-full bg-black"
-            style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }}
+            style={{ width: fluidSizing.space.xs, height: fluidSizing.space.xs }}
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.8, 1, 0.8]
