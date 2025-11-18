@@ -17,6 +17,7 @@ export interface BaseTranslations {
   'nav.purpose': string;
   'nav.connection': string;
   'nav.navigation': string;
+  'nav.menu': string;
   'nav.sections': string;
   'nav.language': string;
   'nav.clickToView': string;
@@ -173,6 +174,7 @@ export const translations: Record<Language, Translations> = {
     'nav.projects': 'Proyectos',
     'nav.purpose': 'Propósito',
     'nav.navigation': 'Navegación',
+    'nav.menu': 'Menú',
     'nav.connection': 'Conexión',
     'nav.sections': 'SECCIONES',
     'nav.language': 'IDIOMA',
@@ -183,7 +185,7 @@ export const translations: Record<Language, Translations> = {
     'identity.title': 'Ser el puente entre ideas abstractas y realidades digitales.',
     'identity.paragraph1': 'Como explorador en la intersección de tecnología e innovación, valoro la simplicidad en medio de la complejidad, priorizando soluciones intuitivas que respeten al usuario y generen resultados.',
     'identity.paragraph2': 'Mi esencia se define por una curiosidad incesante que me impulsa a desafiar límites. Siempre guiado por el deseo de inspirar a otros a materializar conceptos audaces que transformen sus necesidades.',
-    'identity.available': 'Creemos algo grande.',
+    'identity.available': 'Hagamos algo grande.',
     
     'purpose.title': 'Impulsar un futuro donde la tecnología eleve la humanidad.',
     'purpose.paragraph1': 'Creo en la tecnología como catalizador para ideas que generen impacto positivo a escala global. Mi enfoque radica en fusionar innovación técnica con diseño empático, creando soluciones que resuelvan problemas complejos de manera sostenible y accesible.',
@@ -326,6 +328,7 @@ export const translations: Record<Language, Translations> = {
     'nav.projects': 'Projects',
     'nav.purpose': 'Purpose',
     'nav.navigation': 'Navigation',
+    'nav.menu': 'Menu',
     'nav.connection': 'Connection',
     'nav.sections': 'SECTIONS',
     'nav.language': 'LANGUAGE',
