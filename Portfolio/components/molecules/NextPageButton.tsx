@@ -26,8 +26,18 @@ export default function NextPageButton() {
   const router = useRouter();
   const { t } = useLanguage();
 
+  // Detectar si estamos en una página de proyecto individual
+  const isProjectDetailPage = pathname?.startsWith('/projects/') && pathname !== '/projects';
+  
+  // Si estamos en detalle de proyecto, configurar ruta de retorno
+  const projectBackRoute = isProjectDetailPage ? {
+    path: '/projects',
+    labelKey: 'nextpage.projects',
+    isBack: true
+  } : null;
+
   const currentRoute = routes.find((route) => route.path === pathname);
-  const nextRoute = routes.find((route) => route.path === currentRoute?.next);
+  const nextRoute = projectBackRoute || routes.find((route) => route.path === currentRoute?.next);
 
   useEffect(() => {
     // Iniciar desactivado
@@ -82,6 +92,8 @@ export default function NextPageButton() {
     }
   };
 
+  const isBackButton = projectBackRoute !== null;
+
   // Don't show if there's no next page
   if (!nextRoute) return null;
 
@@ -94,8 +106,12 @@ export default function NextPageButton() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.3 }}
-          className="group fixed z-[60] hidden md:flex items-center"
-          style={{ bottom: fluidSizing.space.lg, right: fluidSizing.space.lg, gap: fluidSizing.space.md }}
+          className="group fixed z-[60] flex items-center"
+          style={{ 
+            bottom: 'calc(var(--mobile-nav-height, 4rem) + 1.5rem)', 
+            right: fluidSizing.space.lg, 
+            gap: fluidSizing.space.md 
+          }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           whileHover={{ scale: 1.05 }}
@@ -114,7 +130,15 @@ export default function NextPageButton() {
           >
             <div className="bg-background-surface/90 backdrop-blur-md border border-white/30 rounded-lg whitespace-nowrap shadow-lg" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
               <span className="font-mono text-text-secondary text-fluid-xs">
-                {t('nextpage.next')}: <span className="font-orbitron font-semibold text-white">{t(nextRoute.labelKey)}</span>
+                {isBackButton ? (
+                  <>
+                    <span className="font-orbitron font-semibold text-white">{t('common.back')}</span> {t('nextpage.next')}: <span className="font-orbitron font-semibold text-white">{t(nextRoute.labelKey)}</span>
+                  </>
+                ) : (
+                  <>
+                    {t('nextpage.next')}: <span className="font-orbitron font-semibold text-white">{t(nextRoute.labelKey)}</span>
+                  </>
+                )}
               </span>
             </div>
           </motion.div>
@@ -128,8 +152,25 @@ export default function NextPageButton() {
               transition={{ duration: 2, repeat: Infinity }}
             />
 
-            {/* Arrow icon - changes based on if it's going back to home */}
-            {pathname === '/contact' ? (
+            {/* Arrow icon - changes based on context */}
+            {isBackButton ? (
+              // Back arrow for project detail pages
+              <motion.svg
+                className="size-icon-md text-white relative z-10"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                animate={isHovered ? { x: [0, -2, 0] } : {}}
+                transition={{ duration: 1, repeat: Infinity }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </motion.svg>
+            ) : pathname === '/contact' ? (
               // Home icon for Contact page
               <svg
                 className="size-icon-md text-white relative z-10"
