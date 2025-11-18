@@ -81,18 +81,22 @@ export interface PortfolioTranslations {
   'projects.viewDemo': string;
   'projects.viewPage': string;
   'projects.viewCode': string;
+  'projects.actions': string;
   'projects.preview': string;
   'projects.previewNotAvailable': string;
+  'projects.info': string;
   'projects.status': string;
   'projects.category': string;
   'projects.date': string;
-  'projects.info': string;
   'projects.completed': string;
   'projects.inProgress': string;
   'projects.planned': string;
   'projects.relatedProjects': string;
   'projects.relatedProjectsDesc': string;
   'projects.viewAllProjects': string;
+  'projects.performance': string;
+  'projects.accessibility': string;
+  'projects.seo': string;
   
   // Next Page Button
   'nextpage.home': string;
@@ -325,6 +329,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.viewDemo': 'Ver Demo',
     'projects.viewPage': 'Ver Página',
     'projects.viewCode': 'Ver Código',
+    'projects.actions': 'Acciones',
     'projects.preview': 'Vista Previa',
     'projects.previewNotAvailable': 'Vista previa no disponible',
     'projects.info': 'Información del Proyecto',
@@ -337,6 +342,9 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.relatedProjects': 'Proyectos Relacionados',
     'projects.relatedProjectsDesc': 'Descubre más proyectos similares',
     'projects.viewAllProjects': 'Ver Todos los Proyectos',
+    'projects.performance': 'Rendimiento',
+    'projects.accessibility': 'Accesibilidad',
+    'projects.seo': 'SEO',
     
     // Next Page Button
     'nextpage.home': 'Inicio',
@@ -567,6 +575,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.viewDemo': 'View Demo',
     'projects.viewPage': 'View Page',
     'projects.viewCode': 'View Code',
+    'projects.actions': 'Actions',
     'projects.preview': 'Preview',
     'projects.previewNotAvailable': 'Preview not available',
     'projects.info': 'Project Information',
@@ -579,6 +588,9 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.relatedProjects': 'Related Projects',
     'projects.relatedProjectsDesc': 'Discover more similar projects',
     'projects.viewAllProjects': 'View All Projects',
+    'projects.performance': 'Performance',
+    'projects.accessibility': 'Accessibility',
+    'projects.seo': 'SEO',
     
     // Next Page Button
     'nextpage.home': 'Home',

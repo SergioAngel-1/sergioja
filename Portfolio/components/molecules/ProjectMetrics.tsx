@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface Metrics {
@@ -14,9 +15,11 @@ interface ProjectMetricsProps {
 }
 
 export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
+  const { t } = useLanguage();
+  
   const metricsData = [
     { 
-      label: 'Performance', 
+      label: t('projects.performance'), 
       value: metrics.performance,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,7 +28,7 @@ export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
       )
     },
     { 
-      label: 'Accessibility', 
+      label: t('projects.accessibility'), 
       value: metrics.accessibility,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +37,7 @@ export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
       )
     },
     { 
-      label: 'SEO', 
+      label: t('projects.seo'), 
       value: metrics.seo,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +52,7 @@ export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4, duration: 0.6 }}
-      className="flex flex-col"
+      className="flex flex-col w-full"
       style={{ gap: fluidSizing.space.sm }}
     >
       {metricsData.map((metric, index) => (

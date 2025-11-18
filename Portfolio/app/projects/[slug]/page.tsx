@@ -12,6 +12,7 @@ import PageLoader from '@/components/molecules/PageLoader';
 import ProjectHero from '@/components/organisms/ProjectHero';
 import ProjectMetrics from '@/components/molecules/ProjectMetrics';
 import ProjectInfo from '@/components/molecules/ProjectInfo';
+import ProjectActions from '@/components/molecules/ProjectActions';
 import RelatedProjects from '@/components/molecules/RelatedProjects';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
@@ -100,25 +101,26 @@ export default function ProjectDetailPage() {
         </motion.div>
 
         {/* Project Hero & Metrics Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-stretch gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Project Hero */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 flex">
             <ProjectHero project={project} />
           </div>
 
           {/* Project Metrics */}
           {project.metrics && (
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 flex">
               <ProjectMetrics metrics={project.metrics} />
             </div>
           )}
         </div>
 
-        {/* Grid Layout: Info + Preview */}
+        {/* Grid Layout: Info + Actions + Preview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          {/* Project Info */}
-          <div className="lg:col-span-1">
+          {/* Left Column: Project Info + Actions */}
+          <div className="lg:col-span-1 flex flex-col gap-6 sm:gap-8">
             <ProjectInfo project={project} />
+            <ProjectActions project={project} />
           </div>
 
           {/* Project Preview/Description */}
