@@ -11,6 +11,8 @@ interface HexButtonProps {
   onClick: () => void;
   delay?: number;
   isActive?: boolean;
+  showMenuLabel?: boolean;
+  menuLabel?: string;
 }
 
 // Valores precalculados estáticos para evitar diferencias servidor/cliente
@@ -29,7 +31,9 @@ export default function HexButton({
   label,
   onClick,
   delay = 0,
-  isActive = false
+  isActive = false,
+  showMenuLabel = false,
+  menuLabel = ''
 }: HexButtonProps) {
   const positionStyles = {
     'top-left': { 
@@ -52,7 +56,7 @@ export default function HexButton({
 
   return (
     <motion.div
-      className="fixed z-50"
+      className="fixed z-50 flex flex-col items-center"
       style={positionStyles[position]}
       initial={{ opacity: 0, scale: 0, rotate: -180 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -251,6 +255,29 @@ export default function HexButton({
           transition={{ duration: 0.3 }}
         />
       </motion.button>
+
+      {/* Menu label for accessibility - only for navigation button */}
+      {showMenuLabel && menuLabel && (
+        <motion.div
+          className="pointer-events-none"
+          style={{
+            marginTop: fluidSizing.space.xs,
+          }}
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ 
+            opacity: isActive ? 0 : 1, 
+            y: isActive ? -5 : 0 
+          }}
+          transition={{ 
+            duration: 0.3,
+            ease: 'easeOut'
+          }}
+        >
+          <span className="font-mono text-white/50 text-fluid-xs tracking-wider uppercase">
+            {menuLabel}
+          </span>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
