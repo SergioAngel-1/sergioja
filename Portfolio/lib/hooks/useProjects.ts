@@ -6,6 +6,36 @@ import { logger } from '../logger';
 import { cache, CacheTTL } from '../cache';
 import type { Project, PaginatedResponse } from '../../../shared/types';
 
+// Proyecto hardcodeado: SergioJA (main landing)
+const SERGIOJA_PROJECT: Project = {
+  id: 'sergioja-main',
+  title: 'SergioJA',
+  slug: 'sergioja-main',
+  description: 'Landing page minimalista con diseño cyberpunk y arquitectura hexagonal interactiva.',
+  longDescription: 'Sitio principal con diseño cyberpunk minimalista, featuring un hero hexagonal central con 4 modales esquineros (Navigation, Identity, Purpose, Connection). Construido con Next.js 14, Framer Motion, y sistema de diseño fluido sin breakpoints. Incluye efectos visuales avanzados como scanlines CRT, partículas flotantes, y un sistema de navegación único basado en hexágonos.',
+  image: '/media/logo sergioja.png',
+  images: ['/media/logo sergioja.png'],
+  technologies: ['Next.js', 'React', 'TypeScript', 'Framer Motion', 'TailwindCSS', 'Three.js'],
+  tech: ['Next.js', 'React', 'TypeScript', 'Framer Motion', 'TailwindCSS', 'Three.js'],
+  category: 'web',
+  featured: true,
+  demoUrl: typeof window !== 'undefined' && process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3001' 
+    : 'https://sergioja.com',
+  githubUrl: 'https://github.com/SergioAngel-1/sergioja',
+  repoUrl: 'https://github.com/SergioAngel-1/sergioja',
+  status: 'completed' as const,
+  startDate: '2024-11-01',
+  endDate: '2024-11-18',
+  metrics: {
+    performance: 98,
+    accessibility: 100,
+    seo: 100,
+  },
+  createdAt: new Date('2024-11-01').toISOString(),
+  updatedAt: new Date().toISOString(),
+};
+
 interface UseProjectsOptions {
   tech?: string;
   category?: string;
@@ -71,18 +101,40 @@ export function useProjects(options?: UseProjectsOptions) {
         
         if (response.success && response.data) {
           const data = response.data as PaginatedResponse<Project>;
-          setProjects(data.data);
+          
+          // Agregar proyecto hardcodeado al inicio si cumple con los filtros
+          const shouldIncludeHardcoded = 
+            (!stableOptions?.category || stableOptions.category === SERGIOJA_PROJECT.category) &&
+            (!stableOptions?.featured || SERGIOJA_PROJECT.featured) &&
+            (!stableOptions?.tech || SERGIOJA_PROJECT.tech.includes(stableOptions.tech));
+          
+          const projectsWithHardcoded = shouldIncludeHardcoded 
+            ? [SERGIOJA_PROJECT, ...data.data]
+            : data.data;
+          
+          setProjects(projectsWithHardcoded);
           setPagination(data.pagination);
-          logger.info(`Loaded ${data.data.length} projects ${shouldUseCache ? '(cached)' : ''}`, undefined, 'useProjects');
+          logger.info(`Loaded ${projectsWithHardcoded.length} projects ${shouldUseCache ? '(cached)' : ''}`, undefined, 'useProjects');
         } else {
           const errorMsg = response.error?.message || 'Failed to fetch projects';
           setError(errorMsg);
           logger.warn('Failed to fetch projects', response.error, 'useProjects');
         }
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'An error occurred';
-        setError(errorMsg);
-        logger.error('Error fetching projects', err, 'useProjects');
+        // Si hay error de red, mostrar solo el proyecto hardcodeado si cumple filtros
+        const shouldIncludeHardcoded = 
+          (!stableOptions?.category || stableOptions.category === SERGIOJA_PROJECT.category) &&
+          (!stableOptions?.featured || SERGIOJA_PROJECT.featured) &&
+          (!stableOptions?.tech || SERGIOJA_PROJECT.tech.includes(stableOptions.tech));
+        
+        if (shouldIncludeHardcoded) {
+          setProjects([SERGIOJA_PROJECT]);
+          logger.warn('API unavailable, showing hardcoded project only', err, 'useProjects');
+        } else {
+          const errorMsg = err instanceof Error ? err.message : 'An error occurred';
+          setError(errorMsg);
+          logger.error('Error fetching projects', err, 'useProjects');
+        }
       } finally {
         setLoading(false);
       }
@@ -104,6 +156,14 @@ export function useProject(slug: string) {
       try {
         setLoading(true);
         setError(null);
+        
+        // Si el slug es del proyecto hardcodeado, retornarlo directamente
+        if (slug === SERGIOJA_PROJECT.slug) {
+          setProject(SERGIOJA_PROJECT);
+          logger.info(`Loaded hardcoded project: ${slug}`, undefined, 'useProject');
+          setLoading(false);
+          return;
+        }
         
         logger.debug(`Fetching project: ${slug}`, undefined, 'useProject');
         const response = await api.getProjectBySlug(slug);
