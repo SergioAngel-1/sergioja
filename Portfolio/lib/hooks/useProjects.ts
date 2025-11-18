@@ -8,9 +8,9 @@ import type { Project, PaginatedResponse } from '../../../shared/types';
 
 // Proyecto hardcodeado: SergioJA (main landing)
 const SERGIOJA_PROJECT: Project = {
-  id: 'sergioja-main',
+  id: 'sergioja',
   title: 'SergioJA',
-  slug: 'sergioja-main',
+  slug: 'sergioja',
   description: 'Landing page minimalista con diseño cyberpunk y arquitectura hexagonal interactiva.',
   longDescription: 'Sitio principal con diseño cyberpunk minimalista, featuring un hero hexagonal central con 4 modales esquineros (Navigation, Identity, Purpose, Connection). Construido con Next.js 14, Framer Motion, y sistema de diseño fluido sin breakpoints. Incluye efectos visuales avanzados como scanlines CRT, partículas flotantes, y un sistema de navegación único basado en hexágonos.',
   image: '/media/logo sergioja.png',

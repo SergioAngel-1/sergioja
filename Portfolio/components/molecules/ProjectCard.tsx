@@ -6,6 +6,7 @@ import Badge from '../atoms/Badge';
 import StatCard from '../atoms/StatCard';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { TechIcon } from '@/lib/utils/techIcons';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
 import type { Project } from '../../../shared/types';
 
 interface ProjectCardProps {
@@ -23,18 +24,17 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
+        whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+        whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
         className="group h-full"
       >
-        <div className="relative h-full bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg overflow-hidden transition-all duration-300 hover:border-white hover:shadow-glow-white flex flex-col">
-          {/* Hover glow effect */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-white/0 opacity-0 group-hover:opacity-10 transition-opacity duration-500"
-          />
+        <div className="relative h-full bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg overflow-hidden transition-all duration-300 flex flex-col">
 
           {/* Featured badge */}
           {project.featured && (
             <motion.div
-              className="absolute top-2 right-2 z-50 px-1.5 py-0.5 sm:px-2 sm:py-1 bg-white/10 backdrop-blur-sm text-white text-[8px] sm:text-[10px] font-orbitron font-bold rounded border border-white/50 flex items-center gap-0.5 sm:gap-1 shadow-lg shadow-white/20"
+              className="absolute z-50 bg-white/10 backdrop-blur-sm text-white text-[8px] sm:text-[10px] font-orbitron font-bold rounded border border-white/50 flex items-center shadow-lg shadow-white/20"
+              style={{ top: fluidSizing.space.sm, right: fluidSizing.space.sm, padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, gap: fluidSizing.space.xs }}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ type: 'spring', stiffness: 150, delay: 0.2 }}
@@ -65,27 +65,27 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
             </div>
 
             {/* Category badge */}
-            <div className="absolute bottom-2 left-2 z-20">
-              <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-background-dark/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-mono rounded-full border border-white/50">
+            <div className="absolute z-20" style={{ bottom: fluidSizing.space.sm, left: fluidSizing.space.sm }}>
+              <span className="bg-background-dark/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-mono rounded-full border border-white/50" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}>
                 {project.category.toUpperCase()}
               </span>
             </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 flex flex-col p-3 sm:p-4 relative z-10">
+          <div className="flex-1 flex flex-col relative z-10" style={{ padding: fluidSizing.space.md }}>
             {/* Title */}
-            <h3 className="font-orbitron text-sm sm:text-base md:text-lg font-bold mb-1.5 sm:mb-2 text-white transition-all duration-300 line-clamp-1">
+            <h3 className="font-orbitron text-sm sm:text-base md:text-lg font-bold text-white transition-all duration-300 line-clamp-1" style={{ marginBottom: fluidSizing.space.sm }}>
               {project.title}
             </h3>
             
             {/* Description */}
-            <p className="text-text-secondary text-xs sm:text-sm mb-2 sm:mb-3 leading-relaxed flex-1 line-clamp-2">
+            <p className="text-text-secondary text-xs sm:text-sm leading-relaxed flex-1 line-clamp-2" style={{ marginBottom: fluidSizing.space.sm }}>
               {project.description}
             </p>
 
             {/* Tech stack */}
-            <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-3">
+            <div className="flex flex-wrap" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.sm }}>
               {project.tech.slice(0, 6).map((tech, index) => (
                 <motion.div
                   key={tech}
@@ -120,14 +120,14 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
             {project.metrics && (
               <>
                 {/* Desktop: Grid */}
-                <div className="hidden sm:grid grid-cols-3 gap-1.5 mb-3">
+                <div className="hidden sm:grid grid-cols-3" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.md }}>
                   <StatCard label="Perf" value={project.metrics.performance} index={0} compact />
                   <StatCard label="A11y" value={project.metrics.accessibility} index={1} compact />
                   <StatCard label="SEO" value={project.metrics.seo} index={2} compact />
                 </div>
                 
                 {/* Mobile: Vertical List con contenedor */}
-                <div className="sm:hidden mb-2 bg-background-elevated/50 border border-white/10 rounded-md p-2">
+                <div className="sm:hidden bg-background-elevated/50 border border-white/10 rounded-md" style={{ marginBottom: fluidSizing.space.sm, padding: fluidSizing.space.sm }}>
                   <div className="flex flex-col gap-1 text-[10px] font-mono">
                     <div className="flex items-center justify-between">
                       <span className="text-text-secondary">Perf</span>
@@ -150,7 +150,8 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
 
             {/* View Now Button */}
             <motion.button
-              className="w-full py-2 sm:py-2.5 px-3 sm:px-4 bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white rounded-lg text-white font-rajdhani font-semibold text-xs sm:text-sm transition-all duration-300 flex items-center justify-center gap-1.5 sm:gap-2 group/btn"
+              className="w-full bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white rounded-lg text-white font-rajdhani font-semibold text-xs sm:text-sm transition-all duration-300 flex items-center justify-center group/btn"
+              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, gap: fluidSizing.space.sm }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
