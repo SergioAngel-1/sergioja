@@ -3,28 +3,38 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Button from '@/components/atoms/Button';
+import GlowEffect from '@/components/atoms/GlowEffect';
+import FloatingParticles from '@/components/atoms/FloatingParticles';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 export default function NotFound() {
   const { t } = useLanguage();
+  const { lowPerformanceMode } = usePerformance();
+  
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20">
       {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-15" />
 
       {/* Animated glow effects */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.15, scale: 1 }}
-        transition={{ duration: 4, repeat: Infinity, repeatType: 'reverse' }}
-        className="absolute top-1/3 right-1/3 w-64 h-64 md:w-96 md:h-96 bg-white rounded-full blur-[90px] md:blur-[120px]"
+      <GlowEffect
+        color="white"
+        size="lg"
+        position={{ top: '33%', right: '33%' }}
+        opacity={0.15}
+        duration={4}
+        animationType="pulse"
       />
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.1, scale: 1 }}
-        transition={{ duration: 5, repeat: Infinity, repeatType: 'reverse', delay: 1 }}
-        className="absolute bottom-1/3 left-1/3 w-64 h-64 md:w-96 md:h-96 bg-white rounded-full blur-[90px] md:blur-[120px]"
+      <GlowEffect
+        color="white"
+        size="lg"
+        position={{ bottom: '33%', left: '33%' }}
+        opacity={0.1}
+        duration={5}
+        delay={1}
+        animationType="pulse"
       />
 
       {/* Content */}
@@ -71,11 +81,11 @@ export default function NotFound() {
                 key={i}
                 className="h-1 bg-cyber-red"
                 style={{ width: `${Math.random() * 60 + 20}px` }}
-                animate={{
+                animate={lowPerformanceMode ? {} : {
                   opacity: [0.3, 1, 0.3],
                   scaleX: [1, 1.2, 1],
                 }}
-                transition={{
+                transition={lowPerformanceMode ? {} : {
                   duration: 2,
                   repeat: Infinity,
                   delay: i * 0.2,
@@ -116,28 +126,8 @@ export default function NotFound() {
         </motion.div>
       </div>
 
-      {/* Animated particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-white rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
-      </div>
+      {/* Floating particles */}
+      <FloatingParticles count={20} color="bg-white" />
     </div>
   );
 }
