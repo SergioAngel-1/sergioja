@@ -101,15 +101,15 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
                   {t('devTips.description')}
                 </p>
                 <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-                  <span className="text-cyber-red font-mono">{'>'}</span>
+                  <span className="text-white font-mono">{'>'}</span>
                   <span className="text-text-secondary text-fluid-sm">{t('devTips.benefit1')}</span>
                 </div>
                 <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-                  <span className="text-cyber-red font-mono">{'>'}</span>
+                  <span className="text-white font-mono">{'>'}</span>
                   <span className="text-text-secondary text-fluid-sm">{t('devTips.benefit2')}</span>
                 </div>
                 <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-                  <span className="text-cyber-red font-mono">{'>'}</span>
+                  <span className="text-white font-mono">{'>'}</span>
                   <span className="text-text-secondary text-fluid-sm">{t('devTips.benefit3')}</span>
                 </div>
               </div>
@@ -156,7 +156,7 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 rounded border-2 border-white bg-white text-black hover:bg-white/90 hover:border-white transition-all duration-300 font-mono font-bold disabled:opacity-50 disabled:cursor-not-allowed text-fluid-base"
+                  className="flex-1 rounded border-2 border-white text-white hover:bg-white hover:text-black transition-all duration-300 font-mono font-bold disabled:opacity-50 disabled:cursor-not-allowed text-fluid-base"
                   style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                 >
                   {isSubmitting ? (
