@@ -6,7 +6,7 @@
 import type { SEOMetadata } from '@/shared/seo';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sergioja.com';
-const SITE_NAME = 'Sergio Jáuregui';
+const SITE_NAME = 'SergioJA';
 const SITE_DESCRIPTION = 'Desarrollador Full Stack especializado en React, Next.js, Node.js y TypeScript. Creando experiencias web modernas y escalables.';
 
 export const defaultSEO: SEOMetadata = {

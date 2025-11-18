@@ -6,7 +6,7 @@
 import type { SEOMetadata } from '@/shared/seo';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://portfolio.sergioja.com';
-const SITE_NAME = 'Sergio Jáuregui - Portfolio';
+const SITE_NAME = 'Portfolio Sergio Jáuregui';
 const SITE_DESCRIPTION = 'Portfolio profesional de Sergio Jáuregui. Explora mis proyectos, habilidades técnicas y experiencia en desarrollo Full Stack.';
 
 export const defaultSEO: SEOMetadata = {
