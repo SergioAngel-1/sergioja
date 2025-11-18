@@ -6,6 +6,15 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 export default function IdentityContent() {
   const { t } = useLanguage();
+  
+  // Portfolio card
+  const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
+  const portfolioCard = {
+    id: 'portfolio',
+    title: t('nav.portfolio'),
+    description: t('nav.portfolioDesc'),
+    href: isDev ? 'http://localhost:3000' : 'https://portfolio.sergioja.com',
+  } as const;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
       {/* Header */}
@@ -48,6 +57,38 @@ export default function IdentityContent() {
         <div className="bg-[#ff0000] rounded-full animate-pulse" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
         <span className="text-white/60">{t('identity.available')}</span>
       </motion.div>
+
+      {/* Portfolio Card */}
+      <motion.a
+        href={portfolioCard.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
+        style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
+      >
+        {/* Icono */}
+        <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
+          <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 7a2 2 0 012-2h14a2 2 0 012 2M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7m-9 4h6" />
+          </svg>
+        </div>
+
+        {/* Contenido */}
+        <div className="flex-1 min-w-0">
+          <h4 className="text-white font-medium text-fluid-sm">{portfolioCard.title}</h4>
+          <p className="text-white/60 truncate text-fluid-sm">{portfolioCard.description}</p>
+        </div>
+
+        {/* Flecha */}
+        <div className="text-white/40 group-hover:text-white/60 transition-colors">
+          <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </motion.a>
 
     </div>
   );

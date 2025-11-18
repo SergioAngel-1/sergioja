@@ -30,14 +30,8 @@ export default function PurposeContent() {
     }
   };
 
-  // Tarjetas fijas: Portfolio, Blog y Newsletter
+  // Tarjetas fijas: Blog y Newsletter
   const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
-  const portfolioCard = {
-    id: 'portfolio',
-    title: t('nav.portfolio'),
-    description: t('nav.portfolioDesc'),
-    href: isDev ? 'http://localhost:3000' : 'https://portfolio.sergioja.com',
-  } as const;
 
   const blogCard = {
     id: 'blog',
@@ -52,7 +46,7 @@ export default function PurposeContent() {
     description: t('devTips.description'),
   } as const;
 
-  const cards = [portfolioCard, blogCard, newsletterCard] as const;
+  const cards = [blogCard, newsletterCard] as const;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
@@ -72,7 +66,7 @@ export default function PurposeContent() {
         <p className="text-white/70 leading-relaxed text-fluid-sm">{t('purpose.paragraph2')}</p>
       </div>
 
-      {/* Tarjetas: Portfolio, Blog y Newsletter (estilo conexiones) */}
+      {/* Tarjetas: Blog y Newsletter */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
         {cards.map((item, index) => (
           item.id === 'newsletter' ? (
@@ -113,17 +107,11 @@ export default function PurposeContent() {
               className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
               style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
             >
-              {/* Icono */}
+              {/* Icono Blog */}
               <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
-                {item.id === 'portfolio' ? (
-                  <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 7a2 2 0 012-2h14a2 2 0 012 2M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7m-9 4h6" />
-                  </svg>
-                ) : (
-                  <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h10M7 11h10M7 15h6M5 5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V9l-6-4H5z" />
-                  </svg>
-                )}
+                <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h10M7 11h10M7 15h6M5 5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V9l-6-4H5z" />
+                </svg>
               </div>
 
               {/* Contenido */}
