@@ -39,11 +39,22 @@ export default function ProjectActions({ project }: ProjectActionsProps) {
         )}
         
         {project.repoUrl && (
-          <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="w-full">
-            <Button variant="outline" size="lg" className="w-full bg-white text-black border-white hover:bg-transparent hover:text-white">
-              {t('projects.viewCode')}
+          project.isCodePublic !== false ? (
+            <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="w-full">
+              <Button variant="outline" size="lg" className="w-full bg-white text-black border-white hover:bg-transparent hover:text-white">
+                {t('projects.viewCode')}
+              </Button>
+            </Link>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full bg-white/10 text-white/40 border-white/20 cursor-not-allowed"
+              disabled
+            >
+              {t('projects.privateCode')}
             </Button>
-          </Link>
+          )
         )}
       </div>
 

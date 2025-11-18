@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Badge from '../atoms/Badge';
 import Button from '../atoms/Button';
 import StatCard from '../atoms/StatCard';
@@ -19,10 +20,18 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
   const { t } = useLanguage();
+  const pathname = usePathname();
   const [imageError, setImageError] = useState(false);
 
+  const handleClick = () => {
+    const targetPath = `/projects/${project.slug}`;
+    if (pathname !== targetPath) {
+      window.dispatchEvent(new Event('app:navigation-start'));
+    }
+  };
+
   return (
-    <Link href={`/projects/${project.slug}`}>
+    <Link href={`/projects/${project.slug}`} onClick={handleClick}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

@@ -42,6 +42,7 @@ model Project {
   demoUrl         String?
   repoUrl         String?
   githubUrl       String?   // Alias for repoUrl
+  isCodePublic    Boolean   @default(true) // Indica si el código fuente es público
   performanceScore Int?
   accessibilityScore Int?
   seoScore        Int?

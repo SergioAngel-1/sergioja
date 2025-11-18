@@ -81,6 +81,7 @@ export interface PortfolioTranslations {
   'projects.viewDemo': string;
   'projects.viewPage': string;
   'projects.viewCode': string;
+  'projects.privateCode': string;
   'projects.actions': string;
   'projects.preview': string;
   'projects.previewNotAvailable': string;
@@ -330,6 +331,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.viewDemo': 'Ver Demo',
     'projects.viewPage': 'Ver Página',
     'projects.viewCode': 'Ver Código',
+    'projects.privateCode': 'Código Privado',
     'projects.actions': 'Acciones',
     'projects.preview': 'Vista Previa',
     'projects.previewNotAvailable': 'Vista previa no disponible',
@@ -577,6 +579,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.viewDemo': 'View Demo',
     'projects.viewPage': 'View Page',
     'projects.viewCode': 'View Code',
+    'projects.privateCode': 'Private Code',
     'projects.actions': 'Actions',
     'projects.preview': 'Preview',
     'projects.previewNotAvailable': 'Preview not available',

@@ -61,6 +61,7 @@ export interface Project {
   demoUrl?: string;
   githubUrl?: string;
   repoUrl?: string; // Alias para githubUrl
+  isCodePublic?: boolean; // Indica si el código fuente es público
   status: 'completed' | 'in-progress' | 'planned';
   startDate?: string;
   endDate?: string;

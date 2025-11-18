@@ -22,6 +22,7 @@ const SERGIOJA_PROJECT: Project = {
   demoUrl: 'https://sergioja.com',
   githubUrl: 'https://github.com/SergioAngel-1/sergioja',
   repoUrl: 'https://github.com/SergioAngel-1/sergioja',
+  isCodePublic: false,
   status: 'completed' as const,
   startDate: '2024-11-01',
   endDate: '2024-11-18',
