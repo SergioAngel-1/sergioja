@@ -8,6 +8,7 @@ import { useSkillCategories } from '@/lib/hooks/useCategories';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
+import Button from '@/components/atoms/Button';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import PageLoader from '@/components/molecules/PageLoader';
@@ -143,6 +144,24 @@ export default function AboutPage() {
                     {t('about.bio3')} <span className="text-text-primary font-semibold">{t('about.bio3b')}</span>{t('about.bio3c')}
                   </p>
                 </div>
+
+                {/* Download CV Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2, duration: 0.6 }}
+                  style={{ marginTop: fluidSizing.space.xl }}
+                >
+                  <a
+                    href="/docs/HV%20Sergio%20J%C3%A1uregui.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline" size="lg" className="bg-white text-black border-white hover:bg-transparent hover:text-white">
+                      {t('about.downloadCV')}
+                    </Button>
+                  </a>
+                </motion.div>
 
                 {/* Corner accents */}
                 <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white" />
