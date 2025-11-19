@@ -244,7 +244,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
           </div>
           {gyroEnabled ? (
             <div
-              className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm"
+              className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm whitespace-nowrap"
               style={{
                 bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`,
                 padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
@@ -256,7 +256,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
             showGyroButton && (
               <button
                 onClick={handleGyroPermission}
-                className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-10 text-fluid-sm"
+                className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-10 text-fluid-sm whitespace-nowrap"
                 style={{
                   bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`,
                   padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
@@ -289,7 +289,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
           {/* CTA o disclaimer en estado listo */}
           {gyroEnabled ? (
             <div
-              className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm"
+              className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm whitespace-nowrap"
               style={{
                 bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`,
                 padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
@@ -301,7 +301,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
             showGyroButton && (
               <button
                 onClick={handleGyroPermission}
-                className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-10 text-fluid-sm"
+                className="fixed left-1/2 -translate-x-1/2 bg-black text-white rounded-lg border-2 border-white shadow-lg hover:bg-white hover:text-black transition-colors duration-200 font-bold z-10 text-fluid-sm whitespace-nowrap"
                 style={{
                   bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`,
                   padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
