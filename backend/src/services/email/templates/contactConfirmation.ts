@@ -4,7 +4,7 @@
  */
 
 import { emailLayout } from './emailLayout';
-import { Text, Divider, Icon, Header, Footer } from '../components/emailComponents';
+import { Text, Divider, Icon, Header } from '../components';
 
 interface ContactConfirmationData {
   name: string;
@@ -75,23 +75,25 @@ export function contactConfirmationTemplate(data: ContactConfirmationData): {
         size: 'sm',
       })}
       
-      <a href="https://portfolio.sergioja.com" style="
-        display: inline-block;
-        margin-top: 16px;
-        padding: 12px 28px;
-        background: #FFFFFF;
-        color: #000000;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        font-family: 'Courier New', monospace;
-        border: 2px solid #FFFFFF;
-        clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
-      ">
-        VER PORTFOLIO
-      </a>
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 16px;">
+        <tr>
+          <td align="center" style="background-color: #FFFFFF; border: 2px solid #FFFFFF;">
+            <a href="https://portfolio.sergioja.com" style="
+              display: block;
+              padding: 12px 28px;
+              color: #000000;
+              text-decoration: none;
+              font-weight: 700;
+              font-size: 13px;
+              text-transform: uppercase;
+              letter-spacing: 1.5px;
+              font-family: 'Courier New', Courier, monospace;
+            ">
+              VER PORTFOLIO
+            </a>
+          </td>
+        </tr>
+      </table>
     </div>
     
     ${Divider()}

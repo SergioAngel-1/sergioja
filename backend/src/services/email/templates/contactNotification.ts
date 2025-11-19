@@ -4,7 +4,7 @@
  */
 
 import { emailLayout } from './emailLayout';
-import { InfoBox, MessageBox, Divider, Icon, Header } from '../components/emailComponents';
+import { InfoBox, MessageBox, Divider, Icon, Header } from '../components';
 
 interface ContactNotificationData {
   name: string;

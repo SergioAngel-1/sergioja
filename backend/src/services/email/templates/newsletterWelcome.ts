@@ -4,7 +4,7 @@
  */
 
 import { emailLayout } from './emailLayout';
-import { Divider, Icon, Text, Header } from '../components/emailComponents';
+import { Divider, Icon, Text, Header } from '../components';
 
 interface NewsletterWelcomeData {
   email: string;
@@ -38,27 +38,31 @@ export function newsletterWelcomeTemplate(data: NewsletterWelcomeData): {
     
     ${Divider()}
     
-    <div style="
-      text-align: center;
-      margin: 30px 0;
-    ">
-      <a href="https://sergioja.com" style="
-        display: inline-block;
-        padding: 14px 32px;
-        background: #FFFFFF;
-        color: #000000;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        font-family: 'Courier New', monospace;
-        border: 2px solid #FFFFFF;
-        clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
-      ">
-        VISITAR WEB
-      </a>
-    </div>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 30px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+              <td align="center" style="background-color: #FFFFFF; border: 2px solid #FFFFFF;">
+                <a href="https://sergioja.com" style="
+                  display: block;
+                  padding: 14px 32px;
+                  color: #000000;
+                  text-decoration: none;
+                  font-weight: 700;
+                  font-size: 13px;
+                  text-transform: uppercase;
+                  letter-spacing: 1.5px;
+                  font-family: 'Courier New', Courier, monospace;
+                ">
+                  VISITAR WEB
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   `;
 
   const html = emailLayout({
