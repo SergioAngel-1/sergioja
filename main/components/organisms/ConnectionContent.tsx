@@ -7,19 +7,9 @@ import type { ContactMessage, ContactSubmissionPayload } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '../../../shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '../../../shared/formValidations';
+import { getReCaptchaToken } from '../../../shared/recaptchaHelpers';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 
-// Declarar tipo global para grecaptcha
-declare global {
-  interface Window {
-    grecaptcha: {
-      enterprise: {
-        ready: (callback: () => void) => void;
-        execute: (siteKey: string, options: { action: string }) => Promise<string>;
-      };
-    };
-  }
-}
 
 export default function ConnectionContent() {
   const [formData, setFormData] = useState<ContactMessage>({
@@ -54,24 +44,6 @@ export default function ConnectionContent() {
     setFormData(prev => ({ ...prev, [field]: value }));
   }, [initConsole]);
 
-  // Función para obtener token de reCAPTCHA v3
-  const getReCaptchaToken = useCallback(async (): Promise<string | null> => {
-    if (process.env.NODE_ENV === 'development') {
-      return 'dev-bypass-token';
-    }
-    try {
-      if (typeof window !== 'undefined' && window.grecaptcha?.enterprise) {
-        await new Promise<void>((resolve) => window.grecaptcha.enterprise.ready(() => resolve()));
-        return await window.grecaptcha.enterprise.execute(
-          process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
-          { action: 'submit_contact' }
-        );
-      }
-      return null;
-    } catch {
-      return null;
-    }
-  }, []);
 
   const handleConsoleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +74,10 @@ export default function ConnectionContent() {
     setSending(true);
     
     // Obtener token de reCAPTCHA v3
-    const recaptchaToken = await getReCaptchaToken();
+    const recaptchaToken = await getReCaptchaToken(
+      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
+      'submit_contact'
+    );
     if (!recaptchaToken) {
       setConsoleHistory(prev => [
         ...prev,

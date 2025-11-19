@@ -70,7 +70,7 @@ export default function RootLayout({
         )}
         {process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
           <script
-            src={`https://www.google.com/recaptcha/enterprise.js`}
+            src={`https://www.google.com/recaptcha/enterprise.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
             async
             defer
           />

@@ -21,6 +21,7 @@ import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
 import { alerts } from '../../shared/alertSystem';
 import { api } from '@/lib/api-client';
+import { getReCaptchaToken } from '../../shared/recaptchaHelpers';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 export default function Home() {
   const [typedText, setTypedText] = useState('');
@@ -159,17 +160,10 @@ export default function Home() {
 
   const handleDevTipsSubmit = async (email: string) => {
     try {
-      let recaptchaToken: string | null = 'dev-bypass-token';
-      if (process.env.NODE_ENV !== 'development') {
-        recaptchaToken = null;
-        if (typeof window !== 'undefined' && (window as any).grecaptcha?.enterprise) {
-          await new Promise<void>((resolve) => (window as any).grecaptcha.enterprise.ready(() => resolve()));
-          recaptchaToken = await (window as any).grecaptcha.enterprise.execute(
-            process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
-            { action: 'subscribe_newsletter' }
-          );
-        }
-      }
+      const recaptchaToken = await getReCaptchaToken(
+        process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
+        'subscribe_newsletter'
+      );
 
       const response = await api.subscribeNewsletter({
         email,

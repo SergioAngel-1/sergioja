@@ -13,18 +13,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '../../../shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '../../../shared/formValidations';
-
-// Declarar tipo global para grecaptcha Enterprise
-declare global {
-  interface Window {
-    grecaptcha: {
-      enterprise: {
-        ready: (callback: () => void) => void;
-        execute: (siteKey: string, options: { action: string }) => Promise<string>;
-      };
-    };
-  }
-}
+import { getReCaptchaToken } from '../../../shared/recaptchaHelpers';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -40,29 +29,13 @@ export default function ContactPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
 
-  // Función para obtener token de reCAPTCHA Enterprise
-  const getReCaptchaToken = useCallback(async (action: string = 'submit_contact'): Promise<string | null> => {
-    if (process.env.NODE_ENV === 'development') {
-      return 'dev-bypass-token';
-    }
-    try {
-      if (typeof window !== 'undefined' && window.grecaptcha?.enterprise) {
-        await new Promise<void>((resolve) => window.grecaptcha.enterprise.ready(() => resolve()));
-        return await window.grecaptcha.enterprise.execute(
-          process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
-          { action }
-        );
-      }
-      return null;
-    } catch (error) {
-      console.error('Error al obtener token de reCAPTCHA:', error);
-      return null;
-    }
-  }, []);
 
   const handleNewsletterSubmit = async (email: string) => {
     // Suscripción al newsletter con reCAPTCHA Enterprise
-    const recaptchaToken = await getReCaptchaToken('subscribe_newsletter');
+    const recaptchaToken = await getReCaptchaToken(
+      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
+      'subscribe_newsletter'
+    );
     if (!recaptchaToken) {
       alerts.error(t('alerts.sendError'), t('contact.recaptchaRequired'), 6000);
       throw new Error('Missing reCAPTCHA token');
@@ -105,7 +78,10 @@ export default function ContactPage() {
     setStatus('loading');
     
     // Obtener token de reCAPTCHA v3
-    const recaptchaToken = await getReCaptchaToken();
+    const recaptchaToken = await getReCaptchaToken(
+      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
+      'submit_contact'
+    );
     if (!recaptchaToken) {
       setStatus('error');
       setErrorMessage(t('contact.recaptchaRequired') || 'Por favor completa el reCAPTCHA');
