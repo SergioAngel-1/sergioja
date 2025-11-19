@@ -137,9 +137,9 @@ export default function Modal({
               width: 'min(calc(100vw - 2rem), clamp(320px, 35vw, 380px))',
               maxWidth: 'calc(100vw - 2rem)',
               maxHeight: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
-              height: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
-              // No height fija: que el modal crezca hasta maxHeight y, si lo supera, scrollee el contenido
-              zIndex: isMobile ? 45 : undefined
+              // No height fija en mobile: que el modal crezca hasta maxHeight y, si lo supera, scrollee el contenido
+              zIndex: isMobile ? 45 : undefined,
+              overflow: isMobile ? 'hidden' : undefined
             }}
             initial={initialAnim}
             animate={animateAnim}
@@ -147,12 +147,13 @@ export default function Modal({
             transition={transitionAnim}
           >
             <div 
-              className="relative bg-black/95 backdrop-blur-xl border-2 border-white/30 shadow-2xl overflow-hidden" 
+              className="relative bg-black/95 backdrop-blur-xl border-2 border-white/30 shadow-2xl" 
               style={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
-                maxHeight: '100%', 
+                maxHeight: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
                 height: '100%',
+                overflow: 'hidden',
                 // Anti-blur optimizations for text rendering
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
