@@ -6,9 +6,11 @@
 // Templates
 export { contactNotificationTemplate } from './templates/contactNotification';
 export { contactConfirmationTemplate } from './templates/contactConfirmation';
+export { newsletterWelcomeTemplate } from './templates/newsletterWelcome';
+export { newsletterNotificationTemplate } from './templates/newsletterNotification';
 export { emailLayout } from './templates/emailLayout';
 
-// Components
+// Components (Gmail Compatible)
 export {
   Button,
   InfoBox,
@@ -17,4 +19,6 @@ export {
   SocialLinks,
   Divider,
   Text,
-} from './components/emailComponents';
+  Header,
+  Footer,
+} from './components';
