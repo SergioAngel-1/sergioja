@@ -32,6 +32,7 @@ const envSchema = z.object({
   // reCAPTCHA Enterprise (optional)
   RECAPTCHA_ENTERPRISE_PROJECT_ID: z.string().optional(),
   RECAPTCHA_ENTERPRISE_API_KEY: z.string().optional(),
+  RECAPTCHA_ENTERPRISE_SERVICE_ACCOUNT: z.string().optional(),
   RECAPTCHA_SITE_KEY: z.string().optional(),
   RECAPTCHA_MIN_SCORE: z.string().optional(),
   
@@ -86,6 +87,7 @@ export const appConfig = {
   recaptcha: {
     projectId: env.RECAPTCHA_ENTERPRISE_PROJECT_ID,
     apiKey: env.RECAPTCHA_ENTERPRISE_API_KEY,
+    serviceAccountKey: env.RECAPTCHA_ENTERPRISE_SERVICE_ACCOUNT,
     siteKey: env.RECAPTCHA_SITE_KEY,
     minScore: env.RECAPTCHA_MIN_SCORE ? parseFloat(env.RECAPTCHA_MIN_SCORE) : 0.5,
   },
