@@ -68,18 +68,13 @@ router.post(
 
       logger.info('Newsletter subscription saved', { id: subscription.id, email: subscription.email });
 
-      emailService
-        .sendNewsletterNotification({ email })
-        .then((ok: boolean) => {
-          if (ok) logger.info('Newsletter notification email sent');
-          else logger.warn('Failed to send newsletter notification email');
-        })
-        .catch((e: unknown) => logger.error('Newsletter notification send error', e));
+      const notifOk = await emailService.sendNewsletterNotification({ email });
+      if (notifOk) logger.info('Newsletter notification email sent');
+      else logger.warn('Failed to send newsletter notification email');
 
-      emailService
-        .sendNewsletterWelcome({ email })
-        .then((ok: boolean) => ok && logger.info('Newsletter welcome email sent'))
-        .catch((e: unknown) => logger.error('Newsletter welcome send error', e));
+      const welcomeOk = await emailService.sendNewsletterWelcome({ email });
+      if (welcomeOk) logger.info('Newsletter welcome email sent');
+      else logger.warn('Failed to send newsletter welcome email');
 
       const response: ApiResponse<{ message: string }> = {
         success: true,
