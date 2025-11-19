@@ -108,7 +108,7 @@ export default function NextPageButton() {
           transition={{ duration: 0.3 }}
           className="group fixed z-[60] flex items-center"
           style={{ 
-            bottom: 'calc(var(--mobile-nav-height, 4rem) + 1.5rem)', 
+            bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`, 
             right: fluidSizing.space.lg, 
             gap: fluidSizing.space.md 
           }}
