@@ -40,8 +40,9 @@ export default function NextPageButton() {
   const nextRoute = projectBackRoute || routes.find((route) => route.path === currentRoute?.next);
 
   useEffect(() => {
-    // Iniciar desactivado
+    // Reiniciar estado cuando cambia la página
     setIsVisible(false);
+    setIsHovered(false);
 
     const handleScroll = () => {
       const scrollHeight = document.documentElement.scrollHeight;
@@ -108,7 +109,7 @@ export default function NextPageButton() {
           transition={{ duration: 0.3 }}
           className="group fixed z-40 flex items-center md:bottom-8 lg:bottom-12"
           style={{ 
-            bottom: `calc(var(--mobile-nav-height, 4rem) + ${fluidSizing.space.lg} + env(safe-area-inset-bottom))`, 
+            bottom: `calc(var(--mobile-nav-height, 4rem) + ${fluidSizing.space['2xl']} + env(safe-area-inset-bottom))`, 
             right: fluidSizing.space.lg, 
             gap: fluidSizing.space.md 
           }}
