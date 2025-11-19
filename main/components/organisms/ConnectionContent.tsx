@@ -291,7 +291,7 @@ export default function ConnectionContent() {
         {connections.map((connection, index) => (
           <a
             key={index}
-            href="#"
+            href="mailto:sergio.jauregui@sergioja.com"
             className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
             style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
           >
