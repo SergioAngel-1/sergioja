@@ -52,8 +52,8 @@ export default function NextPageButton() {
       const hasScroll = scrollHeight > clientHeight;
       
       if (!hasScroll) {
-        // Si no hay scroll, mostrar el botón siempre
-        setIsVisible(true);
+        // Si no hay scroll, NO mostrar el botón automáticamente
+        setIsVisible(false);
       } else {
         // Si hay scroll, solo mostrar cuando esté cerca del final (90% scrolled)
         const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
@@ -106,9 +106,9 @@ export default function NextPageButton() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.3 }}
-          className="group fixed z-[60] flex items-center"
+          className="group fixed z-40 flex items-center md:bottom-8 lg:bottom-12"
           style={{ 
-            bottom: `calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom))`, 
+            bottom: `calc(var(--mobile-nav-height, 4rem) + ${fluidSizing.space.lg} + env(safe-area-inset-bottom))`, 
             right: fluidSizing.space.lg, 
             gap: fluidSizing.space.md 
           }}
