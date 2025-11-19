@@ -53,7 +53,7 @@ export default function NextPageButton() {
       
       if (!hasScroll) {
         // Si no hay scroll, NO mostrar el botón automáticamente
-        setIsVisible(false);
+        setIsVisible(true);
       } else {
         // Si hay scroll, solo mostrar cuando esté cerca del final (90% scrolled)
         const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
