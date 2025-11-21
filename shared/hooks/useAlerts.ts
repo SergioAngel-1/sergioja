@@ -1,11 +1,11 @@
 /**
  * useAlerts Hook
- * Hook de React para usar el sistema de alertas
+ * Hook de React para usar el sistema de alertas centralizado
  */
 
 import { useState, useEffect } from 'react';
-import { alertManager } from '@/shared/alertSystem';
-import type { Alert } from '@/shared/alertSystem';
+import { alertManager } from '../alertSystem';
+import type { Alert } from '../alertSystem';
 
 export function useAlerts() {
   const [alerts, setAlerts] = useState<Alert[]>([]);

@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { forwardRef } from 'react';
-import { useAlerts } from '@/lib/hooks/useAlerts';
+import { useAlerts } from '@/shared/hooks/useAlerts';
 import { alerts as alertsAPI, alertStyles, type Alert, type AlertPosition } from '@/shared/alertSystem';
 import { groupAlertsByPosition, formatElapsedTime } from '@/shared/alertHelpers';
 
