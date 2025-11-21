@@ -7,7 +7,7 @@ import type { ContactMessage, ContactSubmissionPayload } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
-import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
+import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 
@@ -73,7 +73,13 @@ export default function ConnectionContent() {
 
     setSending(true);
     
-    // Obtener token de reCAPTCHA v3
+    // Cargar script de reCAPTCHA Enterprise bajo demanda y obtener token
+    if (process.env.NODE_ENV === 'production') {
+      const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+      if (key) {
+        try { await loadRecaptchaEnterprise(key); } catch {}
+      }
+    }
     const recaptchaToken = await getReCaptchaToken(
       process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
       'submit_contact'

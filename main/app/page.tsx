@@ -13,6 +13,7 @@ import ProjectsContent from '@/components/organisms/PurposeContent';
 import ConnectionContent from '@/components/organisms/ConnectionContent';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 
 // Valores estáticos de partículas para evitar diferencias servidor/cliente
 const particles = [
@@ -42,6 +43,15 @@ export default function Home() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const heroCenterRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    if (activeModal === 'connection' && process.env.NODE_ENV === 'production') {
+      const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+      if (key) {
+        loadRecaptchaEnterprise(key).catch(() => {});
+      }
+    }
+  }, [activeModal]);
 
   // Track visual viewport center to keep hero perfectly centered on iOS/Android when browser UI shows/hides
   useEffect(() => {

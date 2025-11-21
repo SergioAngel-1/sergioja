@@ -82,13 +82,7 @@ export default function RootLayout({
             }}
           />
         )}
-        {process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
-          <script
-            src="https://www.google.com/recaptcha/enterprise.js"
-            async
-            defer
-          />
-        )}
+        
         {(() => {
           const person = generatePersonSchema({
             name: siteConfig.author.name,

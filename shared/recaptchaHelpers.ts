@@ -96,6 +96,37 @@ export async function getReCaptchaToken(
   }
 }
 
+export async function loadRecaptchaEnterprise(siteKey: string, timeoutMs: number = 10000): Promise<void> {
+  if (typeof window === 'undefined') return;
+  if (!siteKey) throw new Error('reCAPTCHA site key not provided');
+
+  if (isRecaptchaLoaded()) {
+    await waitForRecaptchaReady(timeoutMs);
+    return;
+  }
+
+  const existing = document.querySelector('script[src*="recaptcha/enterprise.js"]') as HTMLScriptElement | null;
+  if (!existing) {
+    const s = document.createElement('script');
+    s.src = `https://www.google.com/recaptcha/enterprise.js?render=${siteKey}`;
+    s.async = true;
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const start = Date.now();
+    const check = () => {
+      if (isRecaptchaLoaded()) return resolve();
+      if (Date.now() - start > timeoutMs) return reject(new Error('reCAPTCHA script load timeout'));
+      setTimeout(check, 50);
+    };
+    check();
+  });
+
+  await waitForRecaptchaReady(timeoutMs);
+}
+
 /**
  * Constantes de acciones reCAPTCHA para mantener consistencia
  */

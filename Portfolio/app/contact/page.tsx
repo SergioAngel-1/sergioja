@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent, useRef, useCallback } from 'react';
+import { useState, FormEvent, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLogger } from '@/lib/hooks/useLogger';
 import PageHeader from '@/components/organisms/PageHeader';
@@ -13,7 +13,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
-import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
+import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -28,6 +28,15 @@ export default function ContactPage() {
   const { t, language } = useLanguage();
   const formRef = useRef<HTMLFormElement>(null);
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+      if (key) {
+        loadRecaptchaEnterprise(key).catch(() => {});
+      }
+    }
+  }, []);
 
 
   const handleNewsletterSubmit = async (email: string) => {
