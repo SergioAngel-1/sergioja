@@ -2,7 +2,7 @@
 
 import { useState, FormEvent, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 import PageHeader from '@/components/organisms/PageHeader';
 import Button from '@/components/atoms/Button';
 import FloatingParticles from '@/components/atoms/FloatingParticles';

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter, notFound } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useProject, useProjects } from '@/lib/hooks/useProjects';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import FloatingParticles from '@/components/atoms/FloatingParticles';

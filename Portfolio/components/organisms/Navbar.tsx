@@ -5,7 +5,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import NavLink from '../molecules/NavLink';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';

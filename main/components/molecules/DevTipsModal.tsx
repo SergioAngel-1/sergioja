@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { createPortal } from 'react-dom';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 
 interface DevTipsModalProps {
   isOpen: boolean;

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useProjects } from '@/lib/hooks/useProjects';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 import { useProjectCategories } from '@/lib/hooks/useCategories';
 import ProjectCard from '@/components/molecules/ProjectCard';
 import PageHeader from '@/components/organisms/PageHeader';

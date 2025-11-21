@@ -14,7 +14,7 @@ import TerminalGames from '@/components/molecules/TerminalGames';
 import TerminalLanguage from '@/components/molecules/TerminalLanguage';
 import MatrixConfirmDialog from '@/components/molecules/MatrixConfirmDialog';
 import MobileTerminalModal from '@/components/molecules/MobileTerminalModal';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';

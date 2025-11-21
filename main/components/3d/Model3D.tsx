@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 interface Model3DProps {

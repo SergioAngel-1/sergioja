@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode, useEffect, useState } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 interface ModalProps {

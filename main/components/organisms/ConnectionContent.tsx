@@ -9,7 +9,7 @@ import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 
 
 export default function ConnectionContent() {

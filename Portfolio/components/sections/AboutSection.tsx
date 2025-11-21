@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSkills } from '@/lib/hooks/useSkills';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 
 export default function AboutSection() {
   const { skills, loading } = useSkills();

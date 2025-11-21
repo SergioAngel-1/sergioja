@@ -14,7 +14,7 @@ import ConnectionContent from '@/components/organisms/ConnectionContent';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
-import { useLogger } from '@/lib/hooks/useLogger';
+import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 // Valores estáticos de partículas para evitar diferencias servidor/cliente
