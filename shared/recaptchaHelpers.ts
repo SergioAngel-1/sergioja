@@ -66,41 +66,32 @@ export async function getReCaptchaToken(
   siteKey: string,
   action: string = 'submit'
 ): Promise<string | null> {
-  // Bypass en desarrollo
-  if (process.env.NODE_ENV === 'development') {
-    return 'dev-bypass-token';
+  if (!siteKey) {
+    console.error('reCAPTCHA site key not provided');
+    return null;
   }
 
   try {
     // Verificar que grecaptcha Enterprise esté disponible
     if (!isRecaptchaLoaded()) {
-      console.warn('reCAPTCHA Enterprise not loaded');
+      console.error('reCAPTCHA Enterprise not loaded. Ensure the script is loaded in production.');
       return null;
     }
 
-    // Esperar a que reCAPTCHA esté listo (con timeout)
+    // Esperar a que reCAPTCHA esté listo (con timeout de 10s)
     await waitForRecaptchaReady();
 
-    // Intento 1: Ejecutar con el site key directamente
-    try {
-      return await window.grecaptcha.enterprise.execute(siteKey, { action });
-    } catch (error) {
-      // Si falla (e.g., "No reCAPTCHA clients exist"), crear un cliente explícito
-      console.warn('Direct execute failed, rendering explicit client:', error);
-      
-      // Crear contenedor oculto para el cliente
-      const container = document.createElement('div');
-      container.style.display = 'none';
-      document.body.appendChild(container);
-
-      // Renderizar cliente explícito
-      const clientId = window.grecaptcha.enterprise.render(container, { sitekey: siteKey });
-
-      // Ejecutar con el clientId
-      return await window.grecaptcha.enterprise.execute(clientId, { action });
+    // Ejecutar reCAPTCHA Enterprise con el site key
+    const token = await window.grecaptcha.enterprise.execute(siteKey, { action });
+    
+    if (!token) {
+      console.error('reCAPTCHA Enterprise returned empty token');
+      return null;
     }
+
+    return token;
   } catch (error) {
-    console.error('Error al obtener token de reCAPTCHA:', error);
+    console.error('Error obtaining reCAPTCHA token:', error);
     return null;
   }
 }

@@ -104,15 +104,25 @@ export async function verifyRecaptchaEnterprise(
     return { valid: false, score: 0 };
   }
 
-  // Obtener access token de Google
+  if (!serviceAccountKey) {
+    logger.error('Service Account not configured for reCAPTCHA Enterprise');
+    return { valid: false, score: 0 };
+  }
+
+  // Obtener access token usando Service Account
   const accessToken = await getGoogleAccessToken();
   
   if (!accessToken) {
-    logger.error('Failed to authenticate with Google Cloud');
+    logger.error('Failed to authenticate with Google Cloud using Service Account');
     return { valid: false, score: 0 };
   }
 
   const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments`;
+  const authHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${accessToken}`,
+  };
+
   const body = {
     event: {
       token,
@@ -124,10 +134,7 @@ export async function verifyRecaptchaEnterprise(
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers: authHeaders,
       body: JSON.stringify(body),
     });
 
