@@ -3,4 +3,4 @@
  * Mantiene compatibilidad con imports existentes en Portfolio
  */
 
-export { fluidSizing, clamp, fluidStyle } from '../../../shared/fluidSizing';
+export { fluidSizing, clamp, fluidStyle } from '@/shared/fluidSizing';

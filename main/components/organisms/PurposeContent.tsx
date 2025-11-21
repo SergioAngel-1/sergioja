@@ -6,8 +6,8 @@ import DevTipsModal from '@/components/molecules/DevTipsModal';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { api } from '@/lib/api-client';
-import { alerts } from '../../../shared/alertSystem';
-import { getReCaptchaToken } from '../../../shared/recaptchaHelpers';
+import { alerts } from '@/shared/alertSystem';
+import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 
 export default function PurposeContent() {
   const { t, language } = useLanguage();

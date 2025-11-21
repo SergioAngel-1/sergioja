@@ -19,9 +19,9 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
-import { alerts } from '../../shared/alertSystem';
+import { alerts } from '@/shared/alertSystem';
 import { api } from '@/lib/api-client';
-import { getReCaptchaToken } from '../../shared/recaptchaHelpers';
+import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 export default function Home() {
   const [typedText, setTypedText] = useState('');

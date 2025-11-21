@@ -12,4 +12,4 @@ export type {
   ContactSubmissionPayload,
   NewsletterSubscriptionPayload,
   AnalyticsSummary,
-} from '../../shared/types';
+} from '@/shared/types';

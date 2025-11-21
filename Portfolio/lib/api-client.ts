@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
-import type { ApiResponse, PaginatedResponse, ContactSubmissionPayload, NewsletterSubscriptionPayload } from '../../shared/types';
+import type { ApiResponse, PaginatedResponse, ContactSubmissionPayload, NewsletterSubscriptionPayload } from '@/shared/types';
 import { logger } from './logger';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';

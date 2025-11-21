@@ -5,7 +5,7 @@ import Badge from '../atoms/Badge';
 import { TechIcon } from '@/lib/utils/techIcons';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
-import type { Project } from '../../../shared/types';
+import type { Project } from '@/shared/types';
 
 interface ProjectHeroProps {
   project: Project;

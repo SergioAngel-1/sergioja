@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Button from '@/components/atoms/Button';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
-import type { Project } from '../../../shared/types';
+import type { Project } from '@/shared/types';
 
 interface ProjectActionsProps {
   project: Project;

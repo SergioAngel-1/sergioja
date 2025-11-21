@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { Language, translate, Translations } from '../../../shared/translations';
+import { Language, translate, Translations } from '@/shared/translations';
 
 interface LanguageContextType {
   language: Language;

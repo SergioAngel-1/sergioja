@@ -3,8 +3,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { forwardRef } from 'react';
 import { useAlerts } from '@/lib/hooks/useAlerts';
-import { alerts as alertsAPI, alertStyles, type Alert, type AlertPosition } from '../../../../shared/alertSystem';
-import { groupAlertsByPosition, formatElapsedTime } from '../../../../shared/alertHelpers';
+import { alerts as alertsAPI, alertStyles, type Alert, type AlertPosition } from '@/shared/alertSystem';
+import { groupAlertsByPosition, formatElapsedTime } from '@/shared/alertHelpers';
 
 const AlertItem = forwardRef<HTMLDivElement, { alert: Alert }>(({ alert }, ref) => {
   const style = alertStyles[alert.type];

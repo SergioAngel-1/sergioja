@@ -5,9 +5,9 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { api } from '@/lib/api-client';
 import type { ContactMessage, ContactSubmissionPayload } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
-import { alerts } from '../../../shared/alertSystem';
-import { validateContactForm, sanitizeContactForm } from '../../../shared/formValidations';
-import { getReCaptchaToken } from '../../../shared/recaptchaHelpers';
+import { alerts } from '@/shared/alertSystem';
+import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
+import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 

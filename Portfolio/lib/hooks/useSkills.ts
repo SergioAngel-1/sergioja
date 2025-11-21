@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { api } from '../api-client';
 import { logger } from '../logger';
 import { cache, CacheTTL } from '../cache';
-import type { Skill } from '../../../shared/types';
+import type { Skill } from '@/shared/types';
 
 interface UseSkillsOptions {
   category?: string;

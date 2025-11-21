@@ -11,9 +11,9 @@ import { api } from '@/lib/api-client';
 import DevTipsModal from '@/components/molecules/DevTipsModal';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
-import { alerts } from '../../../shared/alertSystem';
-import { validateContactForm, sanitizeContactForm } from '../../../shared/formValidations';
-import { getReCaptchaToken } from '../../../shared/recaptchaHelpers';
+import { alerts } from '@/shared/alertSystem';
+import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
+import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({

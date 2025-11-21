@@ -1,9 +1,9 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { Language, mergeTranslations } from '../../../shared/translations';
+import { Language, mergeTranslations } from '@/shared/translations';
 import { portfolioTranslations, PortfolioTranslations } from '../translations/portfolio-translations';
-import type { BaseTranslations } from '../../../shared/translations';
+import type { BaseTranslations } from '@/shared/translations';
 
 interface LanguageContextType {
   language: Language;

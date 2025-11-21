@@ -11,7 +11,7 @@ import StatCard from '../atoms/StatCard';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { TechIcon } from '@/lib/utils/techIcons';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
-import type { Project } from '../../../shared/types';
+import type { Project } from '@/shared/types';
 
 interface ProjectCardProps {
   project: Project;

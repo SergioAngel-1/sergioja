@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { api } from '../api-client';
 import { logger } from '../logger';
 import { cache, CacheTTL } from '../cache';
-import type { Project, PaginatedResponse } from '../../../shared/types';
+import type { Project, PaginatedResponse } from '@/shared/types';
 
 // Proyecto hardcodeado: SergioJA (main landing)
 const SERGIOJA_PROJECT: Project = {

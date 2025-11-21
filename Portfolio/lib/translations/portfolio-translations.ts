@@ -3,7 +3,7 @@
  * Estas se combinan con las traducciones base de shared/translations.ts
  */
 
-import { Language } from '../../../shared/translations';
+import { Language } from '@/shared/translations';
 
 export interface PortfolioTranslations {
   // Navbar

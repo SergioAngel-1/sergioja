@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import ProjectCard from './ProjectCard';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
-import type { Project } from '../../../shared/types';
+import type { Project } from '@/shared/types';
 
 interface RelatedProjectsProps {
   projects: Project[];
