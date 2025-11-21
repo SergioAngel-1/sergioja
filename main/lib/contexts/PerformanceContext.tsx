@@ -3,8 +3,8 @@
 import { ReactNode } from 'react';
 
 /**
- * Portfolio Performance Context - Now a thin wrapper over shared performance system
- * Re-exports the shared hook for backward compatibility
+ * Main Performance Context - Wrapper over shared performance system
+ * Re-exports the shared hook for use in Main
  */
 export { usePerformance } from '@/shared/hooks/usePerformance';
 

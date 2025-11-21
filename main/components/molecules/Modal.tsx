@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode, useEffect, useState } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLogger } from '@/lib/hooks/useLogger';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 interface ModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export default function Modal({
 }: ModalProps) {
 
   const log = useLogger('Modal');
+  const { lowPerformanceMode } = usePerformance();
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => {
@@ -118,18 +120,27 @@ export default function Modal({
 
   // Animación adaptativa (mobile vs desktop) para mayor fluidez en móviles
   // Eliminado rotateY y scale para evitar texto borroso causado por transformaciones 3D
-  const initialAnim = isMobile
-    ? { x: getInitialX() * 0.6, opacity: 0 }
-    : { x: getInitialX(), opacity: 0 };
-  const animateAnim = isMobile
-    ? { x: 0, opacity: 1 }
-    : { x: 0, opacity: 1 };
-  const exitAnim = isMobile
-    ? { x: getInitialX() * 0.5, opacity: 0 }
-    : { x: getInitialX(), opacity: 0 };
-  const transitionAnim = isMobile
-    ? { duration: 0.2, ease: 'easeOut' }
-    : { duration: 0.3, ease: [0.4, 0, 0.2, 1] };
+  // En bajo rendimiento, simplificar aún más las animaciones
+  const initialAnim = lowPerformanceMode
+    ? { opacity: 0 }
+    : isMobile
+      ? { x: getInitialX() * 0.6, opacity: 0 }
+      : { x: getInitialX(), opacity: 0 };
+  const animateAnim = lowPerformanceMode
+    ? { opacity: 1 }
+    : isMobile
+      ? { x: 0, opacity: 1 }
+      : { x: 0, opacity: 1 };
+  const exitAnim = lowPerformanceMode
+    ? { opacity: 0 }
+    : isMobile
+      ? { x: getInitialX() * 0.5, opacity: 0 }
+      : { x: getInitialX(), opacity: 0 };
+  const transitionAnim = lowPerformanceMode
+    ? { duration: 0.15 }
+    : isMobile
+      ? { duration: 0.2, ease: 'easeOut' }
+      : { duration: 0.3, ease: [0.4, 0, 0.2, 1] };
 
   return (
     <AnimatePresence>

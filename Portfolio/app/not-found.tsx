@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useState, useEffect, useMemo } from 'react';
 import Button from '@/components/atoms/Button';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
@@ -11,6 +12,17 @@ import { usePerformance } from '@/lib/contexts/PerformanceContext';
 export default function NotFound() {
   const { t } = useLanguage();
   const { lowPerformanceMode } = usePerformance();
+  const [mounted, setMounted] = useState(false);
+  
+  // Generate random widths only on client
+  const barWidths = useMemo(() => {
+    if (!mounted) return [40, 50, 60, 45, 55];
+    return Array.from({ length: 5 }, () => Math.random() * 60 + 20);
+  }, [mounted]);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20">
@@ -80,7 +92,7 @@ export default function NotFound() {
               <motion.div
                 key={i}
                 className="h-1 bg-cyber-red"
-                style={{ width: `${Math.random() * 60 + 20}px` }}
+                style={{ width: `${barWidths[i]}px` }}
                 animate={lowPerformanceMode ? {} : {
                   opacity: [0.3, 1, 0.3],
                   scaleX: [1, 1.2, 1],

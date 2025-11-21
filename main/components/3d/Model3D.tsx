@@ -8,6 +8,7 @@ import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLogger } from '@/lib/hooks/useLogger';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 interface Model3DProps {
   mousePosition: { x: number; y: number };
@@ -16,9 +17,10 @@ interface Model3DProps {
 interface AnimatedModelProps {
   mousePosition: { x: number; y: number };
   gyroEnabled: boolean;
+  lowPerformanceMode: boolean;
 }
 
-function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
+function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode }: AnimatedModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
   const deviceOrientationRef = useRef<{ beta: number; gamma: number }>({ beta: 0, gamma: 0 });
@@ -85,8 +87,14 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
     }
   };
 
-  // Animación de entrada
+  // Animación de entrada - deshabilitada en bajo rendimiento
   useEffect(() => {
+    if (lowPerformanceMode) {
+      // En bajo rendimiento, aparecer instantáneamente
+      setAnimationProgress(1);
+      return;
+    }
+    
     let startTime = Date.now();
     const duration = 1500; // 1.5 segundos
     
@@ -104,15 +112,15 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
     };
     
     animate();
-  }, []);
+  }, [lowPerformanceMode]);
 
   useFrame(() => {
     if (groupRef.current) {
       if (animationProgress < 1) {
         // Durante la animación de entrada, rotar suavemente
         groupRef.current.rotation.y = animationProgress * Math.PI * 2;
-      } else {
-        // Después de la animación
+      } else if (!lowPerformanceMode) {
+        // Después de la animación - solo si NO es bajo rendimiento
         let targetRotationY, targetRotationX;
 
         if (isMobile) {
@@ -131,6 +139,7 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
         groupRef.current.rotation.y += (targetRotationY - groupRef.current.rotation.y) * 0.08;
         groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.08;
       }
+      // En bajo rendimiento, el modelo queda estático después de la animación inicial
     }
   });
 
@@ -190,6 +199,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
   const [gyroEnabled, setGyroEnabled] = useState(false);
   const { t } = useLanguage();
   const log = useLogger('Model3D');
+  const { lowPerformanceMode } = usePerformance();
 
   useEffect(() => {
     setMounted(true);
@@ -197,15 +207,18 @@ export default function Model3D({ mousePosition }: Model3DProps) {
     const timer = setTimeout(() => {
       setIsLoading(false);
       log.info('model_ready');
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (isMobile && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        log.info('gyro_button_shown');
-        setShowGyroButton(true);
+      // Solo mostrar botón de giroscopio si NO está en bajo rendimiento
+      if (!lowPerformanceMode) {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+          log.info('gyro_button_shown');
+          setShowGyroButton(true);
+        }
       }
     }, 1500);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [lowPerformanceMode]);
 
   const handleGyroPermission = async () => {
     log.interaction('gyro_enable_click');
@@ -291,7 +304,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
               }}
               style={{ background: 'transparent' }}
             >
-              <AnimatedModel mousePosition={mousePosition} gyroEnabled={gyroEnabled} />
+              <AnimatedModel mousePosition={mousePosition} gyroEnabled={gyroEnabled} lowPerformanceMode={lowPerformanceMode} />
             </Canvas>
           </div>
 

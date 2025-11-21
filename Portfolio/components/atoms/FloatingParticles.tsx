@@ -21,10 +21,14 @@ export default function FloatingParticles({
   const { lowPerformanceMode } = usePerformance();
   const { matrixMode } = useMatrix();
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const [particles, setParticles] = useState<Array<{
+    id: number;
+    left: number;
+    top: number;
+    duration: number;
+    delay: number;
+    xOffset: number;
+  }>>([]);
 
   // Reducir/aumentar partículas según el modo
   const effectiveCount = useMemo(() => {
@@ -34,20 +38,24 @@ export default function FloatingParticles({
     return count;
   }, [count, isMobile, lowPerformanceMode, matrixMode]);
 
-  // Generate particle positions once to avoid hydration mismatch
-  const particles = useMemo(() => 
-    Array.from({ length: effectiveCount }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      duration: matrixMode ? 0.5 + Math.random() * 0.5 : 3 + Math.random() * 2,
-      delay: matrixMode ? Math.random() * 0.3 : Math.random() * 2,
-    })),
-    [effectiveCount, matrixMode]
-  );
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Generate particle positions only on client side
+    setParticles(
+      Array.from({ length: effectiveCount }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: matrixMode ? 0.5 + Math.random() * 0.5 : 3 + Math.random() * 2,
+        delay: matrixMode ? Math.random() * 0.3 : Math.random() * 2,
+        xOffset: Math.random() * 20 - 10,
+      }))
+    );
+  }, [effectiveCount, matrixMode]);
 
   // No renderizar hasta que esté montado en el cliente
-  if (!isMounted) {
+  if (!isMounted || particles.length === 0) {
     return null;
   }
 
@@ -63,7 +71,7 @@ export default function FloatingParticles({
           }}
           animate={lowPerformanceMode ? {} : matrixMode ? {
             y: [0, -60, 0],
-            x: [0, Math.random() * 20 - 10, 0],
+            x: [0, particle.xOffset, 0],
             opacity: [0, 1, 0],
             scale: [0, 1.5, 0],
           } : {

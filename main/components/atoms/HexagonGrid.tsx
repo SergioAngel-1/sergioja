@@ -1,52 +1,91 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
+import { logger } from '@/lib/logger';
 
 export default function HexagonGrid() {
+  const { config, mode } = usePerformance();
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 }); // Iniciar fuera de pantalla
   const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 });
   const [centerLightIntensity, setCenterLightIntensity] = useState(0); // Animación de luz central
+  const [mounted, setMounted] = useState(false);
+  
+  // En modo bajo rendimiento, deshabilitar efectos
+  const lowPerformanceMode = mode === 'low';
+  
+  // Evitar errores de hidratación
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   useEffect(() => {
+    if (!mounted) return;
+    
+    logger.debug('HexagonGrid mounted', { lowPerformanceMode, mode }, 'HexagonGrid');
+    
     // Set initial dimensions and center mouse
     const width = window.innerWidth;
     const height = window.innerHeight;
     setDimensions({ width, height });
     setMousePos({ x: width / 2, y: height / 2 }); // Centrar mouse
     
-    // Animar la luz central gradualmente
-    const animateLight = () => {
-      let intensity = 0;
-      const interval = setInterval(() => {
-        intensity += 0.02;
-        if (intensity >= 1) {
-          intensity = 1;
-          clearInterval(interval);
-        }
-        setCenterLightIntensity(intensity);
-      }, 30);
-      return interval;
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
     };
     
-    const lightInterval = animateLight();
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mounted]);
+  
+  // Manejar animación de luz central
+  useEffect(() => {
+    if (!mounted) return;
+    
+    if (lowPerformanceMode) {
+      setCenterLightIntensity(1); // Luz fija sin animación
+      return;
+    }
+    
+    let intensity = 0;
+    const interval = setInterval(() => {
+      intensity += 0.02;
+      if (intensity >= 1) {
+        intensity = 1;
+        clearInterval(interval);
+      }
+      setCenterLightIntensity(intensity);
+    }, 30);
+    
+    return () => clearInterval(interval);
+  }, [mounted, lowPerformanceMode]);
+  
+  // Manejar seguimiento del mouse
+  useEffect(() => {
+    if (!mounted || lowPerformanceMode) return;
     
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
     
-    const handleResize = () => {
-      setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    };
-    
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('resize', handleResize);
     
     return () => {
-      clearInterval(lightInterval);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [mounted, lowPerformanceMode]);
+  
+  if (!mounted) {
+    // Renderizar versión estática durante SSR
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" />
+      </div>
+    );
+  }
 
   // Generar grid de hexágonos
   const hexSize = 100;
@@ -64,6 +103,18 @@ export default function HexagonGrid() {
   }
 
   const calculateOpacity = (hexX: number, hexY: number) => {
+    // En bajo rendimiento, opacidad uniforme baja
+    if (lowPerformanceMode) {
+      const centerX = dimensions.width / 2;
+      const centerY = dimensions.height / 2;
+      const distanceFromCenter = Math.sqrt(
+        Math.pow(centerX - hexX, 2) + Math.pow(centerY - hexY, 2)
+      );
+      const centerMaxDistance = 400;
+      const opacityFromCenter = Math.max(0, 1 - distanceFromCenter / centerMaxDistance);
+      return opacityFromCenter * 0.3; // Opacidad reducida y fija
+    }
+    
     // Distancia desde el mouse
     const distanceFromMouse = Math.sqrt(
       Math.pow(mousePos.x - hexX, 2) + Math.pow(mousePos.y - hexY, 2)
@@ -110,8 +161,8 @@ export default function HexagonGrid() {
               stroke="white"
               strokeWidth="1.5"
               opacity={opacity}
-              filter="url(#softGlow)"
-              style={{ transition: 'opacity 0.2s ease-out' }}
+              filter={lowPerformanceMode ? undefined : "url(#softGlow)"}
+              style={{ transition: lowPerformanceMode ? 'none' : 'opacity 0.2s ease-out' }}
             />
           );
         })}

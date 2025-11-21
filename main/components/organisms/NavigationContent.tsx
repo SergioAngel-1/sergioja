@@ -2,6 +2,8 @@
 
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
+import { logger } from '@/lib/logger';
 
 interface NavigationContentProps {
   onNavigate?: (modal: string) => void;
@@ -9,6 +11,7 @@ interface NavigationContentProps {
 
 export default function NavigationContent({ onNavigate }: NavigationContentProps) {
   const { language, setLanguage, t } = useLanguage();
+  const { mode, setMode } = usePerformance();
 
   const handleSecondaryClick = (modal: string) => {
     if (onNavigate) {
@@ -95,6 +98,79 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
       <div style={{ paddingTop: fluidSizing.space.sm }}>
         <p className="text-white/40 text-center leading-relaxed text-fluid-xs">
           {t('nav.clickToChangeLanguage')}
+        </p>
+      </div>
+
+      {/* Separador */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10"></div>
+        </div>
+        <div className="relative flex justify-center text-fluid-xs">
+          <span className="bg-black text-white/40 font-mono" style={{ padding: `0 ${fluidSizing.space.sm}` }}>{t('performance.title')}</span>
+        </div>
+      </div>
+
+      {/* Botones de modo de rendimiento */}
+      <div className="grid grid-cols-3" style={{ gap: fluidSizing.space.sm }}>
+        <button
+          onClick={() => {
+            logger.info('Performance mode changed to low', undefined, 'NavigationContent');
+            setMode('low');
+          }}
+          className={`${
+            mode === 'low'
+              ? 'border-white/40 bg-white/10 text-white'
+              : 'border-white/20 text-white/60 hover:text-white hover:border-white/40 hover:bg-white/5'
+          } rounded-lg border transition-all duration-300 flex flex-col items-center justify-center`}
+          style={{ padding: fluidSizing.space.sm, gap: fluidSizing.space.xs }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="font-medium text-fluid-xs">{t('performance.low')}</span>
+        </button>
+        <button
+          onClick={() => {
+            logger.info('Performance mode changed to high', undefined, 'NavigationContent');
+            setMode('high');
+          }}
+          className={`${
+            mode === 'high'
+              ? 'border-white/40 bg-white/10 text-white'
+              : 'border-white/20 text-white/60 hover:text-white hover:border-white/40 hover:bg-white/5'
+          } rounded-lg border transition-all duration-300 flex flex-col items-center justify-center`}
+          style={{ padding: fluidSizing.space.sm, gap: fluidSizing.space.xs }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span className="font-medium text-fluid-xs">{t('performance.high')}</span>
+        </button>
+        <button
+          onClick={() => {
+            logger.info('Matrix mode disabled - coming soon', undefined, 'NavigationContent');
+          }}
+          disabled
+          aria-disabled="true"
+          className={`group relative rounded-lg border transition-all duration-300 flex flex-col items-center justify-center cursor-not-allowed opacity-50 border-white/20 text-white/40`}
+          style={{ padding: fluidSizing.space.sm, gap: fluidSizing.space.xs }}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+          <span className="font-medium text-fluid-xs">{t('performance.matrix')}</span>
+          <span className="absolute -top-2 right-2 text-[10px] font-mono bg-white/10 border border-white/20 rounded px-2 py-0.5 text-white/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            {t('performance.comingSoon')}
+          </span>
+        </button>
+      </div>
+
+      <div style={{ paddingTop: fluidSizing.space.sm }}>
+        <p className="text-white/40 text-center leading-relaxed text-fluid-xs">
+          {mode === 'low' && t('performance.lowDesc')}
+          {mode === 'high' && t('performance.highDesc')}
+          {mode === 'matrix' && t('performance.matrixDesc')}
         </p>
       </div>
 

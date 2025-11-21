@@ -25,6 +25,17 @@ export interface BaseTranslations {
   'nav.clickToView': string;
   'nav.clickToChangeLanguage': string;
   
+  // Performance
+  'performance.title': string;
+  'performance.low': string;
+  'performance.high': string;
+  'performance.matrix': string;
+  'performance.lowDesc': string;
+  'performance.highDesc': string;
+  'performance.matrixDesc': string;
+  'performance.comingSoon': string;
+  'performance.modeActive': string;
+  
   // Identity
   'identity.title': string;
   'identity.paragraph1': string;
@@ -183,6 +194,17 @@ export const translations: Record<Language, Translations> = {
     'nav.clickToView': 'Haz clic para ver cada sección',
     'nav.clickToChangeLanguage': 'Haz clic para cambiar de idioma',
     
+    // Performance
+    'performance.title': 'RENDIMIENTO',
+    'performance.low': 'Bajo',
+    'performance.high': 'Alto',
+    'performance.matrix': 'Matrix',
+    'performance.lowDesc': 'Animaciones deshabilitadas para mejor rendimiento',
+    'performance.highDesc': 'Todas las animaciones activas',
+    'performance.matrixDesc': '⚠️ Modo intensivo - Alto consumo de recursos',
+    'performance.comingSoon': 'Próximamente',
+    'performance.modeActive': 'Modo de bajo rendimiento activo',
+    
     // Identity
     'identity.title': 'Ser el puente entre ideas abstractas y realidades digitales.',
     'identity.paragraph1': 'Como explorador en la intersección de tecnología e innovación, valoro la simplicidad en medio de la complejidad, priorizando soluciones intuitivas que respeten al usuario y generen resultados.',
@@ -336,6 +358,17 @@ export const translations: Record<Language, Translations> = {
     'nav.language': 'LANGUAGE',
     'nav.clickToView': 'Click to view each section',
     'nav.clickToChangeLanguage': 'Click to change language',
+    
+    // Performance
+    'performance.title': 'PERFORMANCE',
+    'performance.low': 'Low',
+    'performance.high': 'High',
+    'performance.matrix': 'Matrix',
+    'performance.lowDesc': 'Animations disabled for better performance',
+    'performance.highDesc': 'All animations enabled',
+    'performance.matrixDesc': '⚠️ Intensive mode - High resource usage',
+    'performance.comingSoon': 'Coming soon',
+    'performance.modeActive': 'Low performance mode active',
     
     // Identity
     'identity.title': 'The bridge between abstract ideas and digital realities.',

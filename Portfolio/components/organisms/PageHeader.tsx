@@ -23,25 +23,33 @@ export default function PageHeader({ title, subtitle }: PageHeaderProps) {
         className="font-orbitron font-black relative inline-block text-4xl sm:text-5xl md:text-6xl lg:text-7xl" 
         style={{ marginBottom: fluidSizing.space.md }}
       >
-        <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
-          {title}
-          <motion.span
-            className="absolute inset-0"
-            style={{ color: 'transparent', WebkitTextStroke: '2px black' } as any}
-            animate={lowPerformanceMode ? {} : {
-              x: [0, -5, 5, -3, 3, 0],
-              y: [0, 2, -2, 1, -1, 0],
-              opacity: [0, 0.8, 0.8, 0.6, 0.6, 0],
-            }}
-            transition={lowPerformanceMode ? {} : {
-              duration: 0.4,
-              repeat: Infinity,
-              repeatDelay: 4,
-            }}
-          >
+        {lowPerformanceMode ? (
+          // Bajo rendimiento: texto blanco sólido sin animación
+          <span className="text-white">
             {title}
-          </motion.span>
-        </span>
+          </span>
+        ) : (
+          // Alto rendimiento: texto con efecto de distorsión
+          <span className="relative inline-block" style={{ color: 'transparent', WebkitTextStroke: '2px white' }}>
+            {title}
+            <motion.span
+              className="absolute inset-0"
+              style={{ color: 'transparent', WebkitTextStroke: '2px black' } as any}
+              animate={{
+                x: [0, -5, 5, -3, 3, 0],
+                y: [0, 2, -2, 1, -1, 0],
+                opacity: [0, 0.8, 0.8, 0.6, 0.6, 0],
+              }}
+              transition={{
+                duration: 0.4,
+                repeat: Infinity,
+                repeatDelay: 4,
+              }}
+            >
+              {title}
+            </motion.span>
+          </span>
+        )}
       </h1>
       
       {subtitle && (

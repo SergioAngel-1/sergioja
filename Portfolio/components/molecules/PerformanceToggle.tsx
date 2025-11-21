@@ -1,24 +1,32 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { logger } from '@/shared/logger';
 
 export default function PerformanceToggle() {
-  const { lowPerformanceMode, togglePerformanceMode } = usePerformance();
+  const { lowPerformanceMode, toggleMode } = usePerformance();
   const { matrixMode, setMatrixMode } = useMatrix();
   const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Si Matrix está activo, el botón solo desactiva Matrix
   const handleClick = () => {
     if (matrixMode) {
+      logger.info('Deactivating Matrix mode from toggle', undefined, 'PerformanceToggle');
       setMatrixMode(false);
     } else {
-      togglePerformanceMode();
+      logger.info('Toggling performance mode from toggle', { currentMode: lowPerformanceMode ? 'low' : 'high' }, 'PerformanceToggle');
+      toggleMode();
     }
   };
 
@@ -73,31 +81,22 @@ export default function PerformanceToggle() {
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          {matrixMode ? (
-            // Matrix icon (code/binary)
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-            />
-          ) : lowPerformanceMode ? (
-            // Turtle icon (slow mode)
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          ) : (
-            // Lightning icon (fast mode)
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          )}
+          {(() => {
+            // Ensure the same path during SSR and first client render
+            let d = "M13 10V3L4 14h7v7l9-11h-7z"; // default: high (lightning)
+            if (mounted) {
+              if (matrixMode) d = "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"; // matrix
+              else if (lowPerformanceMode) d = "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"; // low
+            }
+            return (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d={d}
+              />
+            );
+          })()}
         </svg>
 
         {/* Tooltip on mobile */}

@@ -15,6 +15,7 @@ import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLogger } from '@/lib/hooks/useLogger';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 // Valores estáticos de partículas para evitar diferencias servidor/cliente
 const particles = [
@@ -43,8 +44,17 @@ const particles = [
 export default function Home() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const heroCenterRef = useRef<HTMLDivElement>(null);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const log = useLogger('Home');
+  const { lowPerformanceMode } = usePerformance();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    };
+    checkMobile();
+  }, []);
 
   useEffect(() => {
     if (activeModal === 'connection' && process.env.NODE_ENV === 'production') {
@@ -96,11 +106,13 @@ export default function Home() {
         <HexagonGrid />
       </div>
       
-      {/* Data streams */}
-      <div className="absolute inset-0 z-0">
-        <DataStream position="left" />
-        <DataStream position="right" />
-      </div>
+      {/* Data streams - disabled in low performance mode */}
+      {!lowPerformanceMode && (
+        <div className="absolute inset-0 z-0">
+          <DataStream position="left" />
+          <DataStream position="right" />
+        </div>
+      )}
 
       {/* Hex Buttons - Botones esquineros */}
       <HexButton
@@ -118,6 +130,28 @@ export default function Home() {
           </svg>
         }
       />
+
+      {/* Low performance mode indicator */}
+      {lowPerformanceMode && (
+        <div 
+          className="fixed top-0 left-1/2 -translate-x-1/2 z-30 bg-black/80 backdrop-blur-sm border border-white/30 rounded-b-lg"
+          style={{ 
+            marginTop: fluidSizing.space.sm,
+            padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+            maxWidth: 'calc(100vw - 2rem)'
+          }}
+        >
+          <p 
+            className="text-white/70 font-mono text-center"
+            style={{ 
+              fontSize: fluidSizing.text.xs,
+              whiteSpace: isMobile ? 'normal' : 'nowrap'
+            }}
+          >
+            {t('performance.modeActive')}
+          </p>
+        </div>
+      )}
 
       <HexButton
         position="top-right"
@@ -232,8 +266,8 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Floating particles - white dots */}
-      {particles.map((particle, i) => (
+      {/* Floating particles - white dots - disabled on mobile and low performance */}
+      {!isMobile && !lowPerformanceMode && particles.map((particle, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full pointer-events-none z-0"
