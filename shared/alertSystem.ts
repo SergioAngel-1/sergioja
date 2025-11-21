@@ -94,12 +94,19 @@ export class AlertManager {
    * Añade una nueva alerta
    */
   add(config: AlertConfig): string {
+    const baseDuration = typeof config.duration === 'number' ? config.duration : 5000;
+    const mobile = (typeof window !== 'undefined') && (
+      (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 640px)').matches) ||
+      (typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent))
+    );
+    const finalDuration = mobile ? Math.max(2000, Math.round(baseDuration * 0.75)) : baseDuration;
+
     const alert: Alert = {
       id: this.generateId(),
       type: config.type,
       title: config.title,
       message: config.message,
-      duration: config.duration ?? 5000,
+      duration: finalDuration,
       position: config.position ?? 'bottom-left',
       timestamp: Date.now(),
       dismissible: config.dismissible ?? true,
