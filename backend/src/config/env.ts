@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
+import { logger } from '@shared/logger';
 
 // Load environment variables
 dotenv.config();
@@ -49,9 +50,9 @@ const parseEnv = () => {
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('❌ Environment validation failed:');
+      logger.error('❌ Environment validation failed:');
       error.errors.forEach((err: z.ZodIssue) => {
-        console.error(`  - ${err.path.join('.')}: ${err.message}`);
+        logger.error(`  - ${err.path.join('.')}: ${err.message}`);
       });
       process.exit(1);
     }

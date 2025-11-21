@@ -20,7 +20,7 @@ import newsletterRoutes from './routes/newsletter';
 
 dotenv.config();
 
-console.log('Starting server initialization...');
+logger.info('Starting server initialization...');
 
 // Extra diagnostics
 process.on('unhandledRejection', (reason: unknown) => {
@@ -34,14 +34,14 @@ const app: Application = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
-console.log(`Port configured: ${PORT}`);
+logger.info(`Port configured: ${PORT}`);
 const mask = (url?: string) => (url ? url.replace(/:(?:[^:@/]+)@/, ':****@') : 'undefined');
-console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
-console.log(`FRONTEND_URL: ${process.env.FRONTEND_URL}`);
-console.log(`DATABASE_URL: ${mask(process.env.DATABASE_URL)}`);
+logger.info(`NODE_ENV: ${process.env.NODE_ENV}`);
+logger.info(`FRONTEND_URL: ${process.env.FRONTEND_URL}`);
+logger.info(`DATABASE_URL: ${mask(process.env.DATABASE_URL)}`);
 
 // Middleware
-console.log('Setting up middleware...');
+logger.info('Setting up middleware...');
 const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001')
   .split(',')
   .map((o) => o.trim());
@@ -105,7 +105,7 @@ app.get('/', healthResponse);
 app.get('/health', healthResponse);
 
 // API Routes - Portfolio
-console.log('Setting up routes...');
+logger.info('Setting up routes...');
 app.use('/api/portfolio/profile', profileRoutes);
 app.use('/api/portfolio/projects', projectsRoutes);
 app.use('/api/portfolio/skills', skillsRoutes);
@@ -113,7 +113,7 @@ app.use('/api/portfolio/contact', contactRoutes);
 app.use('/api/portfolio/newsletter', newsletterRoutes);
 app.use('/api/portfolio/timeline', timelineRoutes);
 app.use('/api/portfolio/analytics', analyticsRoutes);
-console.log('Routes configured successfully');
+logger.info('Routes configured successfully');
 
 // 404 handler
 app.use(notFoundHandler);
@@ -125,9 +125,9 @@ app.use(errorHandler);
 // Pre-flight DB connectivity test (non-fatal)
 (async () => {
   try {
-    console.log('Testing database connectivity...');
+    logger.info('Testing database connectivity...');
     await prisma.$queryRaw`SELECT 1`;
-    console.log('Database connectivity: OK');
+    logger.info('Database connectivity: OK');
   } catch (err) {
     logger.error('Database connectivity failed', err as any);
   } finally {
@@ -139,7 +139,7 @@ app.use(errorHandler);
       });
     } catch (error) {
       logger.error('Failed to start server', error as any);
-      console.error('Server startup error:', error);
+      logger.error('Server startup error', error);
       process.exit(1);
     }
   }

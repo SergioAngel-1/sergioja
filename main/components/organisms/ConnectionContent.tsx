@@ -9,9 +9,11 @@ import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useLogger } from '@/lib/hooks/useLogger';
 
 
 export default function ConnectionContent() {
+  const log = useLogger('ConnectionContent');
   const [formData, setFormData] = useState<ContactMessage>({
     name: '',
     email: '',
@@ -47,6 +49,7 @@ export default function ConnectionContent() {
 
   const handleConsoleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    log.interaction('contact_submit_click', 'connection_form');
     
     // Validar formulario con traducciones
     const validation = validateContactForm(formData, t);
@@ -56,6 +59,7 @@ export default function ConnectionContent() {
         ...prev,
         `> Error: ${firstError}`
       ]);
+      log.warn('contact_validation_error', { firstError });
       // Mostrar alerta visual
       alerts.error(
         t('alerts.validationError'),
@@ -72,6 +76,7 @@ export default function ConnectionContent() {
     }
 
     setSending(true);
+    log.info('contact_submit_start');
     
     // Cargar script de reCAPTCHA Enterprise bajo demanda y obtener token
     if (process.env.NODE_ENV === 'production') {
@@ -96,6 +101,7 @@ export default function ConnectionContent() {
         6000
       );
       setSending(false);
+      log.error('recaptcha_token_missing');
       return;
     }
     setConsoleHistory(prev => [
@@ -126,6 +132,7 @@ export default function ConnectionContent() {
           subject: 'Contacto desde landing',
           message: ''
         });
+        log.info('contact_submit_success');
         
         // Mostrar alerta de éxito
         alerts.success(
@@ -140,6 +147,7 @@ export default function ConnectionContent() {
           `${t('connection.consoleError')} ${errorMsg}`,
           t('connection.consoleErrorRetry')
         ]);
+        log.error('contact_submit_failed', { message: errorMsg, code: response.error?.code });
         
         // Mostrar alerta de error
         alerts.error(
@@ -154,6 +162,7 @@ export default function ConnectionContent() {
         t('connection.consoleNetError'),
         t('connection.consoleNetErrorMsg')
       ]);
+      log.error('contact_submit_network_error', error as any);
       
       // Mostrar alerta de error de red
       alerts.error(
@@ -163,6 +172,7 @@ export default function ConnectionContent() {
       );
     } finally {
       setSending(false);
+      log.info('contact_submit_end');
     }
   };
 

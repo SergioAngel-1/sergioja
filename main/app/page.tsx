@@ -14,6 +14,7 @@ import ConnectionContent from '@/components/organisms/ConnectionContent';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
+import { useLogger } from '@/lib/hooks/useLogger';
 
 // Valores estáticos de partículas para evitar diferencias servidor/cliente
 const particles = [
@@ -43,6 +44,7 @@ export default function Home() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const heroCenterRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
+  const log = useLogger('Home');
 
   useEffect(() => {
     if (activeModal === 'connection' && process.env.NODE_ENV === 'production') {
@@ -50,6 +52,11 @@ export default function Home() {
       if (key) {
         loadRecaptchaEnterprise(key).catch(() => {});
       }
+    }
+    if (activeModal) {
+      log.interaction('open_modal', activeModal);
+    } else {
+      log.interaction('close_modal');
     }
   }, [activeModal]);
 

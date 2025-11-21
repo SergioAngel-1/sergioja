@@ -1,4 +1,5 @@
 import type { ApiResponse, Profile, Project, ContactSubmissionPayload, NewsletterSubscriptionPayload } from './types';
+import { logger } from '@/lib/logger';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -20,6 +21,7 @@ class ApiClient {
     }
 
     try {
+      logger.apiRequest('GET', url.toString(), params);
       const response = await fetch(url.toString(), {
         method: 'GET',
         headers: {
@@ -31,9 +33,10 @@ class ApiClient {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      logger.apiResponse('GET', url.toString(), response.status);
       return await response.json();
     } catch (error) {
-      console.error('API GET Error:', error);
+      logger.apiError('GET', url.toString(), error);
       return {
         success: false,
         error: {
@@ -46,7 +49,9 @@ class ApiClient {
 
   async post<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
     try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
+      const fullUrl = `${this.baseURL}${endpoint}`;
+      logger.apiRequest('POST', fullUrl, data);
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,9 +63,10 @@ class ApiClient {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      logger.apiResponse('POST', fullUrl, response.status);
       return await response.json();
     } catch (error) {
-      console.error('API POST Error:', error);
+      logger.apiError('POST', `${this.baseURL}${endpoint}`, error);
       return {
         success: false,
         error: {

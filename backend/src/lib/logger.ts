@@ -1,5 +1,6 @@
 import winston from 'winston';
 import { appConfig } from '../config/env';
+import { logger as sharedLogger, setLoggerAdapter } from '@shared/logger';
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 
@@ -9,7 +10,7 @@ const logFormat = printf(({ level, message, timestamp, stack }) => {
 });
 
 // Create logger instance
-export const logger = winston.createLogger({
+const winstonLogger = winston.createLogger({
   level: appConfig.logging.level,
   format: combine(
     errors({ stack: true }),
@@ -42,6 +43,27 @@ export const logger = winston.createLogger({
     new winston.transports.File({ filename: 'logs/rejections.log' }),
   ],
 });
+
+setLoggerAdapter({
+  debug: (message, data, context) => {
+    const ctx = context ? `[${context}] ` : '';
+    winstonLogger.debug(`${ctx}${message}`, data);
+  },
+  info: (message, data, context) => {
+    const ctx = context ? `[${context}] ` : '';
+    winstonLogger.info(`${ctx}${message}`, data);
+  },
+  warn: (message, data, context) => {
+    const ctx = context ? `[${context}] ` : '';
+    winstonLogger.warn(`${ctx}${message}`, data);
+  },
+  error: (message, error, context) => {
+    const ctx = context ? `[${context}] ` : '';
+    winstonLogger.error(`${ctx}${message}`, error);
+  },
+});
+
+export const logger = sharedLogger;
 
 // Stream for Morgan HTTP logger
 export const morganStream = {

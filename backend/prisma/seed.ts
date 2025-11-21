@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { logger } from '../src/lib/logger';
 
 // Declaración de tipo para process en Node.js
 declare const process: {
@@ -8,10 +9,10 @@ declare const process: {
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Iniciando seed de la base de datos...');
+  logger.info('🌱 Iniciando seed de la base de datos...');
 
   // Limpiar datos existentes
-  console.log('🗑️  Limpiando datos existentes...');
+  logger.info('🗑️  Limpiando datos existentes...');
   await prisma.projectView.deleteMany();
   await prisma.pageView.deleteMany();
   await prisma.contactSubmission.deleteMany();
@@ -21,10 +22,10 @@ async function main() {
   await prisma.timelineEvent.deleteMany();
   await prisma.profile.deleteMany();
   
-  console.log('✅ Datos existentes eliminados');
+  logger.info('✅ Datos existentes eliminados');
 
   // Crear perfil
-  console.log('👤 Creando perfil...');
+  logger.info('👤 Creando perfil...');
   await prisma.profile.create({
     data: {
       name: 'Sergio Jáuregui',
@@ -39,10 +40,10 @@ async function main() {
       twitterUrl: 'https://twitter.com/sergiojaregui',
     },
   });
-  console.log('✅ Perfil creado');
+  logger.info('✅ Perfil creado');
 
   // Crear tecnologías
-  console.log('🛠️  Creando tecnologías...');
+  logger.info('🛠️  Creando tecnologías...');
   const techData = [
     { name: 'React', category: 'frontend', proficiency: 95, yearsOfExperience: 5, color: '#61DAFB' },
     { name: 'Next.js', category: 'frontend', proficiency: 90, yearsOfExperience: 3, color: '#000000' },
@@ -58,10 +59,10 @@ async function main() {
   const technologies = await Promise.all(
     techData.map(data => prisma.technology.create({ data }))
   );
-  console.log(`✅ ${technologies.length} tecnologías creadas`);
+  logger.info(`✅ ${technologies.length} tecnologías creadas`);
 
   // Crear proyectos
-  console.log('📁 Creando proyectos...');
+  logger.info('📁 Creando proyectos...');
   const projects = await Promise.all([
     prisma.project.create({
       data: {
@@ -106,10 +107,10 @@ async function main() {
       },
     }),
   ]);
-  console.log(`✅ ${projects.length} proyectos creados`);
+  logger.info(`✅ ${projects.length} proyectos creados`);
 
   // Relacionar proyectos con tecnologías
-  console.log('🔗 Relacionando proyectos con tecnologías...');
+  logger.info('🔗 Relacionando proyectos con tecnologías...');
   const relations = [
     // Portfolio: React, Next.js, TypeScript, Tailwind, Node.js, PostgreSQL
     { projectId: projects[0].id, technologyId: technologies[0].id },
@@ -131,10 +132,10 @@ async function main() {
   ];
   
   await prisma.projectTechnology.createMany({ data: relations });
-  console.log(`✅ ${relations.length} relaciones creadas`);
+  logger.info(`✅ ${relations.length} relaciones creadas`);
 
   // Crear eventos de timeline
-  console.log('📅 Creando timeline...');
+  logger.info('📅 Creando timeline...');
   const timelineEvents = [
     {
       type: 'work',
@@ -158,20 +159,20 @@ async function main() {
   ];
   
   await prisma.timelineEvent.createMany({ data: timelineEvents });
-  console.log(`✅ ${timelineEvents.length} eventos de timeline creados`);
+  logger.info(`✅ ${timelineEvents.length} eventos de timeline creados`);
 
-  console.log('\n✅ Seed completado exitosamente!');
-  console.log('📊 Resumen:');
-  console.log('   - 1 perfil');
-  console.log(`   - ${technologies.length} tecnologías`);
-  console.log(`   - ${projects.length} proyectos`);
-  console.log(`   - ${relations.length} relaciones proyecto-tecnología`);
-  console.log(`   - ${timelineEvents.length} eventos de timeline`);
+  logger.info('\n✅ Seed completado exitosamente!');
+  logger.info('📊 Resumen:');
+  logger.info('   - 1 perfil');
+  logger.info(`   - ${technologies.length} tecnologías`);
+  logger.info(`   - ${projects.length} proyectos`);
+  logger.info(`   - ${relations.length} relaciones proyecto-tecnología`);
+  logger.info(`   - ${timelineEvents.length} eventos de timeline`);
 }
 
 main()
   .catch((e: Error) => {
-    console.error('❌ Error durante el seed:', e);
+    logger.error('❌ Error durante el seed:', e);
     if (typeof process !== 'undefined') {
       process.exit(1);
     }

@@ -3,6 +3,8 @@
  * Cada frontend puede extender estas traducciones base con las suyas propias
  */
 
+import { logger } from './logger';
+
 export type Language = 'es' | 'en';
 
 /**
@@ -480,7 +482,15 @@ export const translations: Record<Language, Translations> = {
  * Función de traducción base
  */
 export function translate(key: keyof BaseTranslations, language: Language = 'es'): string {
-  return translations[language][key] || key;
+  const translation = translations[language][key];
+  
+  if (!translation) {
+    logger.warn(`Translation key not found: ${key}`, { language, key }, 'Translations');
+    return key;
+  }
+  
+  logger.debug(`Translation lookup: ${key}`, { language, value: translation }, 'Translations');
+  return translation;
 }
 
 /**
@@ -490,16 +500,25 @@ export function createExtendedTranslator<T extends Record<string, any>>(
   language: Language,
   extendedTranslations: Record<Language, T>
 ) {
+  logger.info('Creating extended translator', { language, hasExtended: !!extendedTranslations }, 'Translations');
+  
   return (key: string): string => {
     // Primero buscar en traducciones extendidas
     const extended = extendedTranslations[language]?.[key];
-    if (extended !== undefined) return extended;
+    if (extended !== undefined) {
+      logger.debug(`Extended translation found: ${key}`, { language, source: 'extended' }, 'Translations');
+      return extended;
+    }
     
     // Luego buscar en traducciones base
     const base = translations[language]?.[key as keyof BaseTranslations];
-    if (base !== undefined) return base;
+    if (base !== undefined) {
+      logger.debug(`Base translation found: ${key}`, { language, source: 'base' }, 'Translations');
+      return base;
+    }
     
     // Fallback: retornar la key
+    logger.warn(`Translation key not found in extended translator: ${key}`, { language, key }, 'Translations');
     return key;
   };
 }
@@ -511,8 +530,14 @@ export function mergeTranslations<T extends Record<string, any>>(
   extendedTranslations: Record<Language, T>
 ): Record<Language, BaseTranslations & T> {
   if (!extendedTranslations) {
+    logger.debug('No extended translations provided, using base only', undefined, 'Translations');
     return translations as Record<Language, BaseTranslations & T>;
   }
+  
+  const esKeys = Object.keys(extendedTranslations.es || {}).length;
+  const enKeys = Object.keys(extendedTranslations.en || {}).length;
+  
+  logger.info('Merging translations', { esExtendedKeys: esKeys, enExtendedKeys: enKeys }, 'Translations');
   
   return {
     es: { ...translations.es, ...(extendedTranslations.es || {}) },

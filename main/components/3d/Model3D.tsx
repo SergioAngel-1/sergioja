@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useLogger } from '@/lib/hooks/useLogger';
 
 interface Model3DProps {
   mousePosition: { x: number; y: number };
@@ -23,6 +24,7 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
   const deviceOrientationRef = useRef<{ beta: number; gamma: number }>({ beta: 0, gamma: 0 });
   const [isMobile, setIsMobile] = useState(false);
   const [needsPermission, setNeedsPermission] = useState(false);
+  const log = useLogger('AnimatedModel3D');
   
   // Cargar modelo GLTF de Blender
   const { scene } = useGLTF('/models/SergioJAModel.glb');
@@ -74,10 +76,11 @@ function AnimatedModel({ mousePosition, gyroEnabled }: AnimatedModelProps) {
         const permissionState = await (DeviceOrientationEvent as any).requestPermission();
         if (permissionState === 'granted') {
           setNeedsPermission(false);
+          log.info('gyro_permission_granted');
           // El listener se adjunta desde el efecto cuando gyroEnabled es true en el padre
         }
       } catch (error) {
-        console.error('Error requesting gyroscope permission:', error);
+        log.error('gyro_permission_error', error as any);
       }
     }
   };
@@ -186,13 +189,17 @@ export default function Model3D({ mousePosition }: Model3DProps) {
   const [showGyroButton, setShowGyroButton] = useState(false);
   const [gyroEnabled, setGyroEnabled] = useState(false);
   const { t } = useLanguage();
+  const log = useLogger('Model3D');
 
   useEffect(() => {
     setMounted(true);
+    log.info('model_mount');
     const timer = setTimeout(() => {
       setIsLoading(false);
+      log.info('model_ready');
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       if (isMobile && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        log.info('gyro_button_shown');
         setShowGyroButton(true);
       }
     }, 1500);
@@ -201,15 +208,17 @@ export default function Model3D({ mousePosition }: Model3DProps) {
   }, []);
 
   const handleGyroPermission = async () => {
+    log.interaction('gyro_enable_click');
     if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
       try {
         const permissionState = await (DeviceOrientationEvent as any).requestPermission();
         if (permissionState === 'granted') {
           setShowGyroButton(false);
           setGyroEnabled(true);
+          log.info('gyro_permission_granted');
         }
       } catch (error) {
-        console.error('Error requesting gyroscope permission:', error);
+        log.error('gyro_permission_error', error as any);
       }
     }
   };

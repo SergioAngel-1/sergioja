@@ -7,6 +7,7 @@
 
 import { MetadataRoute } from 'next';
 import type { ApiResponse, PaginatedResponse, Project } from '@/shared/types';
+import { logger } from '@/lib/logger';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://portfolio.sergioja.com';
@@ -70,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch (e) {
     // Si la API falla, retornamos solo rutas estáticas
-    console.error('Error fetching projects for sitemap:', e);
+    logger.error('Error fetching projects for sitemap', e as any);
   }
 
   return staticRoutes;

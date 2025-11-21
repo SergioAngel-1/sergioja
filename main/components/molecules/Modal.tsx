@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode, useEffect, useState } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useLogger } from '@/lib/hooks/useLogger';
 
 interface ModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export default function Modal({
   position = 'top-left'
 }: ModalProps) {
 
+  const log = useLogger('Modal');
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => {
@@ -33,6 +35,14 @@ export default function Modal({
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      log.interaction('open_modal', title || position);
+    } else {
+      log.interaction('close_modal', title || position);
+    }
+  }, [isOpen, title, position]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -54,6 +64,11 @@ export default function Modal({
       window.scrollTo(0, scrollY);
     };
   }, [isOpen]);
+
+  const handleClose = () => {
+    log.interaction('modal_close_click', title || position);
+    onClose();
+  };
 
   // Determinar posición del modal según el hexágono
   const getModalPositionStyles = () => {
@@ -126,7 +141,7 @@ export default function Modal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
           />
 
           {/* Modal */}
@@ -214,7 +229,7 @@ export default function Modal({
 
                   {/* Botón cerrar */}
                   <motion.button
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="border border-white/30 hover:border-white/60 flex items-center justify-center transition-all duration-300 group relative overflow-hidden"
                     style={{ 
                       width: fluidSizing.size.buttonMd, 

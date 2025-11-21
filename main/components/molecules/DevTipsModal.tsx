@@ -1,10 +1,11 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { createPortal } from 'react-dom';
+import { useLogger } from '@/lib/hooks/useLogger';
 
 interface DevTipsModalProps {
   isOpen: boolean;
@@ -17,6 +18,15 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const log = useLogger('DevTipsModal');
+
+  useEffect(() => {
+    if (isOpen) {
+      log.interaction('open_modal', 'dev_tips');
+    } else {
+      log.interaction('close_modal', 'dev_tips');
+    }
+  }, [isOpen]);
 
   const validateEmail = (val: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -26,13 +36,16 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    log.interaction('devtips_submit_click');
 
     if (!email.trim()) {
       setError(t('devTips.emailRequired'));
+      log.warn('devtips_validation_error', { reason: 'email_required' });
       return;
     }
     if (!validateEmail(email)) {
       setError(t('devTips.emailInvalid'));
+      log.warn('devtips_validation_error', { reason: 'email_invalid' });
       return;
     }
 
@@ -40,15 +53,22 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
     try {
       await onSubmit(email);
       setEmail('');
+      log.info('devtips_subscribe_success');
       onClose();
     } catch (err) {
       setError(t('devTips.submitError'));
+      log.error('devtips_subscribe_failed', err as any);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    log.interaction('devtips_close_click');
+    onClose();
+  };
 
   return createPortal(
     <AnimatePresence>
@@ -58,7 +78,7 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-xl backdrop-brightness-50 backdrop-contrast-75 backdrop-saturate-150 p-4"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -85,7 +105,7 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
                   </h2>
                 </div>
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="text-white/70 hover:text-white transition-colors"
                   aria-label="Close"
                 >
