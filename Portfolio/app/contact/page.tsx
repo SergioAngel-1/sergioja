@@ -108,6 +108,9 @@ export default function ContactPage() {
         setStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
         log.info('Contact form submitted successfully');
+        if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 640px)').matches) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
         
         // Mostrar alerta de éxito
         alerts.success(
