@@ -45,19 +45,19 @@ const winstonLogger = winston.createLogger({
 });
 
 setLoggerAdapter({
-  debug: (message, data, context) => {
+  debug: (message, data?, context?) => {
     const ctx = context ? `[${context}] ` : '';
     winstonLogger.debug(`${ctx}${message}`, data);
   },
-  info: (message, data, context) => {
+  info: (message, data?, context?) => {
     const ctx = context ? `[${context}] ` : '';
     winstonLogger.info(`${ctx}${message}`, data);
   },
-  warn: (message, data, context) => {
+  warn: (message, data?, context?) => {
     const ctx = context ? `[${context}] ` : '';
     winstonLogger.warn(`${ctx}${message}`, data);
   },
-  error: (message, error, context) => {
+  error: (message, error?, context?) => {
     const ctx = context ? `[${context}] ` : '';
     winstonLogger.error(`${ctx}${message}`, error);
   },

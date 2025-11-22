@@ -115,7 +115,7 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
       <div className="grid grid-cols-3" style={{ gap: fluidSizing.space.sm }}>
         <button
           onClick={() => {
-            logger.info('Performance mode changed to low', undefined, 'NavigationContent');
+            logger.info('Performance mode changed to low', 'NavigationContent');
             setMode('low');
           }}
           className={`${
@@ -132,7 +132,7 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
         </button>
         <button
           onClick={() => {
-            logger.info('Performance mode changed to high', undefined, 'NavigationContent');
+            logger.info('Performance mode changed to high', 'NavigationContent');
             setMode('high');
           }}
           className={`${
@@ -149,7 +149,7 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
         </button>
         <button
           onClick={() => {
-            logger.info('Matrix mode disabled - coming soon', undefined, 'NavigationContent');
+            logger.info('Matrix mode disabled - coming soon', 'NavigationContent');
           }}
           disabled
           aria-disabled="true"

@@ -44,7 +44,7 @@ export function usePerformance() {
     });
 
     return () => {
-      logger.debug('usePerformance hook unmounted', undefined, 'Performance');
+      logger.debug('usePerformance hook unmounted', {}, 'Performance');
       unsubscribe();
     };
   }, [manager]);

@@ -88,7 +88,7 @@ export class PerformanceManager {
     }
 
     // Si no hay preferencia guardada, detectar automáticamente el modo recomendado
-    logger.info('No saved preference, detecting device capabilities', undefined, 'Performance');
+    logger.info('No saved preference, detecting device capabilities', {}, 'Performance');
     const recommendedMode = PerformanceManager.recommendMode(this.frontend);
     const config = PERFORMANCE_PRESETS[recommendedMode];
     

@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   handleReset = () => {
-    logger.info('Error boundary reset', undefined, 'ErrorBoundary');
+    logger.info('Error boundary reset', 'ErrorBoundary');
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
   };
 

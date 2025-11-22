@@ -15,7 +15,7 @@ export interface SharedLogger {
   error: (message: string, error?: any, context?: string) => void;
   apiRequest: (method: string, url: string, data?: any) => void;
   apiResponse: (method: string, url: string, status: number, data?: any) => void;
-  apiError: (method: string, url: string, error: any) => void;
+  apiError: (method: string, url: string, error?: any) => void;
   navigation: (from: string, to: string) => void;
   interaction: (action: string, target?: string, data?: any) => void;
   performance: (metric: string, value: number, unit?: string) => void;
@@ -60,8 +60,8 @@ const IGNORED_ERRORS_PRODUCTION = [
 function shouldIgnoreError(message: string, error?: any): boolean {
   if (getIsDev()) return false; // En desarrollo, mostrar todos los errores
   
-  const errorString = String(message).toLowerCase();
-  const errorDataString = error ? String(error).toLowerCase() : '';
+  const errorString = (message || '').toString().toLowerCase();
+  const errorDataString = error ? (error.toString ? error.toString() : JSON.stringify(error)).toLowerCase() : '';
   
   return IGNORED_ERRORS_PRODUCTION.some(pattern => 
     errorString.includes(pattern) || errorDataString.includes(pattern)
@@ -72,42 +72,50 @@ function shouldLog(level: LogLevel): boolean {
   return levels.indexOf(level) >= levels.indexOf(currentLevel);
 }
 
-function baseLog(level: LogLevel, message: string, data?: any, context?: string): void {
+function baseLog(level: LogLevel, message: string, data: any = {}, context?: string): void {
   if (!shouldLog(level)) return;
   const ts = new Date().toISOString();
   const ctx = context ? `[${context}] ` : '';
   const text = `${ts} ${level.toUpperCase()} ${ctx}${message}`;
+  
+  // Solo mostrar data si no está vacío
+  const hasData = data && Object.keys(data).length > 0;
+  
   switch (level) {
     case 'debug':
       // eslint-disable-next-line no-console
-      console.debug(text, data ?? '');
+      if (hasData) console.debug(text, data);
+      else console.debug(text);
       break;
     case 'info':
       // eslint-disable-next-line no-console
-      console.info(text, data ?? '');
+      if (hasData) console.info(text, data);
+      else console.info(text);
       break;
     case 'warn':
       // eslint-disable-next-line no-console
-      console.warn(text, data ?? '');
+      if (hasData) console.warn(text, data);
+      else console.warn(text);
       break;
     case 'error':
       // eslint-disable-next-line no-console
-      console.error(text, data ?? '');
+      if (hasData) console.error(text, data);
+      else console.error(text);
       break;
   }
 }
 
 export const logger: SharedLogger = {
-  debug: (message, data, context) => baseLog('debug', message, data, context),
-  info: (message, data, context) => baseLog('info', message, data, context),
-  warn: (message, data, context) => baseLog('warn', message, data, context),
-  error: (message, error, context) => {
+  debug: (message, data?, context?) => baseLog('debug', message, data, context),
+  info: (message, data?, context?) => baseLog('info', message, data, context),
+  warn: (message, data?, context?) => baseLog('warn', message, data, context),
+  error: (message, error?, context?) => {
     // Filtrar errores conocidos en producción
     if (shouldIgnoreError(message, error)) return;
     baseLog('error', message, error, context);
   },
-  apiRequest: (method, url, data) => baseLog('debug', `API Request: ${method} ${url}`, data, 'API'),
-  apiResponse: (method, url, status, data) => {
+  apiRequest: (method, url, data?) => baseLog('debug', `API Request: ${method} ${url}`, data, 'API'),
+  apiResponse: (method, url, status, data?) => {
     const msg = `API Response: ${method} ${url} - ${status}`;
     if (status >= 400) {
       // Filtrar errores de API conocidos en producción
@@ -117,14 +125,14 @@ export const logger: SharedLogger = {
       baseLog('debug', msg, data, 'API');
     }
   },
-  apiError: (method, url, error) => {
+  apiError: (method, url, error?) => {
     const msg = `API Error: ${method} ${url}`;
     // Filtrar errores de API conocidos en producción
     if (shouldIgnoreError(msg, error)) return;
     baseLog('error', msg, error, 'API');
   },
   navigation: (from, to) => baseLog('debug', `Navigation: ${from} → ${to}`, undefined, 'Navigation'),
-  interaction: (action, target, data) => baseLog('debug', `User Interaction: ${action}${target ? ` on ${target}` : ''}`, data, 'Interaction'),
+  interaction: (action, target?, data?) => baseLog('debug', `User Interaction: ${action}${target ? ` on ${target}` : ''}`, data, 'Interaction'),
   performance: (metric, value, unit = 'ms') => baseLog('info', `Performance: ${metric} = ${value}${unit}`, undefined, 'Performance'),
 };
 

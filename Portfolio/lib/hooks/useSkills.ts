@@ -60,7 +60,7 @@ export function useSkills(categoryOrOptions?: string | UseSkillsOptions) {
         if (response.success && response.data) {
           const skillsData = response.data as Skill[];
           setSkills(skillsData);
-          logger.info(`Loaded ${skillsData.length} skills${category ? ` (category: ${category})` : ''} ${shouldUseCache ? '(cached)' : ''}`, undefined, 'useSkills');
+          logger.info(`Loaded ${skillsData.length} skills${category ? ` (category: ${category})` : ''} ${shouldUseCache ? '(cached)' : ''}`, 'useSkills');
         } else {
           const errorMsg = response.error?.message || 'Failed to fetch skills';
           setError(errorMsg);

@@ -22,7 +22,7 @@ export default function PerformanceToggle() {
   // Si Matrix está activo, el botón solo desactiva Matrix
   const handleClick = () => {
     if (matrixMode) {
-      logger.info('Deactivating Matrix mode from toggle', undefined, 'PerformanceToggle');
+      logger.info('Deactivating Matrix mode from toggle', 'PerformanceToggle');
       setMatrixMode(false);
     } else {
       logger.info('Toggling performance mode from toggle', { currentMode: lowPerformanceMode ? 'low' : 'high' }, 'PerformanceToggle');

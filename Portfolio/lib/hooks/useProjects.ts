@@ -113,7 +113,7 @@ export function useProjects(options?: UseProjectsOptions) {
           
           setProjects(projectsWithHardcoded);
           setPagination(data.pagination);
-          logger.info(`Loaded ${projectsWithHardcoded.length} projects ${shouldUseCache ? '(cached)' : ''}`, undefined, 'useProjects');
+          logger.info(`Loaded ${projectsWithHardcoded.length} projects ${shouldUseCache ? '(cached)' : ''}`, 'useProjects');
         } else {
           const errorMsg = response.error?.message || 'Failed to fetch projects';
           setError(errorMsg);
@@ -159,17 +159,17 @@ export function useProject(slug: string) {
         // Si el slug es del proyecto hardcodeado, retornarlo directamente
         if (slug === SERGIOJA_PROJECT.slug) {
           setProject(SERGIOJA_PROJECT);
-          logger.info(`Loaded hardcoded project: ${slug}`, undefined, 'useProject');
+          logger.info(`Loaded hardcoded project: ${slug}`, 'useProject');
           setLoading(false);
           return;
         }
         
-        logger.debug(`Fetching project: ${slug}`, undefined, 'useProject');
+        logger.debug(`Fetching project: ${slug}`, 'useProject');
         const response = await api.getProjectBySlug(slug);
         
         if (response.success && response.data) {
           setProject(response.data as Project);
-          logger.info(`Loaded project: ${slug}`, undefined, 'useProject');
+          logger.info(`Loaded project: ${slug}`, 'useProject');
         } else {
           const errorMsg = response.error?.message || 'Project not found';
           setError(errorMsg);

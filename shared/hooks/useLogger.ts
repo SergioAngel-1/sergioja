@@ -57,7 +57,7 @@ export function usePerformanceLogger(componentName: string) {
 
     // Increment render count
     renderCount.current += 1;
-    logger.debug(`${componentName} rendered (${renderCount.current} times)`, undefined, componentName);
+    logger.debug(`${componentName} rendered (${renderCount.current} times)`, {}, componentName);
 
     // Log unmount
     return () => {

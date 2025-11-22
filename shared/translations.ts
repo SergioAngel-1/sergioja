@@ -563,7 +563,7 @@ export function mergeTranslations<T extends Record<string, any>>(
   extendedTranslations: Record<Language, T>
 ): Record<Language, BaseTranslations & T> {
   if (!extendedTranslations) {
-    logger.debug('No extended translations provided, using base only', undefined, 'Translations');
+    logger.debug('No extended translations provided, using base only', {}, 'Translations');
     return translations as Record<Language, BaseTranslations & T>;
   }
   
