@@ -72,12 +72,13 @@ export class PerformanceManager {
    * Cargar configuración desde localStorage
    */
   private loadConfig(): PerformanceConfig {
-    if (typeof window === 'undefined') {
+    const g: any = typeof globalThis !== 'undefined' ? (globalThis as any) : undefined;
+    if (!g || !g.localStorage) {
       return PERFORMANCE_PRESETS.high;
     }
 
     try {
-      const saved = localStorage.getItem(this.storageKey);
+      const saved = g.localStorage?.getItem(this.storageKey);
       if (saved) {
         const parsed = JSON.parse(saved) as PerformanceConfig;
         logger.debug('Performance config loaded from storage', parsed, 'Performance');
@@ -103,10 +104,11 @@ export class PerformanceManager {
    * Guardar configuración en localStorage
    */
   private saveConfig(): void {
-    if (typeof window === 'undefined') return;
+    const g: any = typeof globalThis !== 'undefined' ? (globalThis as any) : undefined;
+    if (!g || !g.localStorage) return;
 
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(this.config));
+      g.localStorage?.setItem(this.storageKey, JSON.stringify(this.config));
       logger.debug('Performance config saved to storage', this.config, 'Performance');
     } catch (error) {
       logger.error('Error saving performance config', error, 'Performance');
@@ -202,7 +204,8 @@ export class PerformanceManager {
     deviceMemory: number | undefined;
     lowEndReasons: string[];
   } {
-    if (typeof window === 'undefined') {
+    const g: any = typeof globalThis !== 'undefined' ? (globalThis as any) : undefined;
+    if (!g) {
       return {
         isMobile: false,
         isLowEnd: false,
@@ -214,22 +217,21 @@ export class PerformanceManager {
       };
     }
 
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
+    const ua: string = (g.navigator && typeof g.navigator.userAgent === 'string') ? g.navigator.userAgent : '';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = !!(g.matchMedia && g.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
     // Detectar GPU (aproximado)
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const canvas = g.document?.createElement?.('canvas');
+    const gl = canvas ? (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) : null;
     const hasGPU = !!gl;
 
     // Detectar CPU cores
-    const cpuCores = navigator.hardwareConcurrency || 0;
+    const cpuCores = (g.navigator && typeof g.navigator.hardwareConcurrency === 'number') ? g.navigator.hardwareConcurrency : 0;
     
     // Detectar memoria del dispositivo (solo en Chrome/Edge)
-    const deviceMemory = (navigator as any).deviceMemory;
+    const deviceMemory = g.navigator ? (g.navigator as any).deviceMemory : undefined;
 
     // Detectar dispositivos de gama baja con criterios muy relajados
     // NO consideramos prefers-reduced-motion para evitar falsos positivos
@@ -290,19 +292,20 @@ let globalManager: PerformanceManager | null = null;
  * Detectar automáticamente el frontend basándose en la URL
  */
 function detectFrontend(): 'main' | 'portfolio' {
-  if (typeof window === 'undefined') return 'portfolio';
+  const g: any = typeof globalThis !== 'undefined' ? (globalThis as any) : undefined;
+  if (!g || !g.location) return 'portfolio';
   
   // Detectar por hostname o pathname
-  const hostname = window.location.hostname;
-  const pathname = window.location.pathname;
+  const hostname = g.location?.hostname || '';
+  const pathname = g.location?.pathname || '';
   
   // Si la URL contiene 'portfolio' o está en puerto 3001
-  if (hostname.includes('portfolio') || window.location.port === '3001') {
+  if (hostname.includes('portfolio') || g.location?.port === '3001') {
     return 'portfolio';
   }
   
   // Si la URL contiene 'main' o está en puerto 3000
-  if (hostname.includes('main') || window.location.port === '3000') {
+  if (hostname.includes('main') || g.location?.port === '3000') {
     return 'main';
   }
   

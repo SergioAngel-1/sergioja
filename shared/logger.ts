@@ -28,8 +28,9 @@ function getIsDev(): boolean {
     }
   } catch {}
   try {
-    if (typeof window !== 'undefined' && (window as any).NEXT_PUBLIC_ENV) {
-      return (window as any).NEXT_PUBLIC_ENV !== 'production';
+    const g: any = typeof globalThis !== 'undefined' ? (globalThis as any) : undefined;
+    if (g && g.NEXT_PUBLIC_ENV) {
+      return g.NEXT_PUBLIC_ENV !== 'production';
     }
   } catch {}
   return false;

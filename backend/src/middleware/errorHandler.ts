@@ -23,13 +23,17 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   // Log error
-  logger.error({
-    message: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method,
-    ip: req.ip,
-  });
+  logger.error(
+    'Unhandled server error',
+    {
+      message: err.message,
+      stack: err.stack,
+      url: req.url,
+      method: req.method,
+      ip: req.ip,
+    },
+    'Express'
+  );
 
   // Determine status code
   const statusCode = err instanceof AppError ? err.statusCode : 500;

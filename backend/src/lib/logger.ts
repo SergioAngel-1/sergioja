@@ -5,7 +5,8 @@ import { logger as sharedLogger, setLoggerAdapter } from '@shared/logger';
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 
 // Custom log format
-const logFormat = printf(({ level, message, timestamp, stack }) => {
+const logFormat = printf((info: winston.Logform.TransformableInfo & { timestamp?: string; stack?: string }) => {
+  const { level, message, timestamp, stack } = info as any;
   return `${timestamp} [${level}]: ${stack || message}`;
 });
 

@@ -95,10 +95,11 @@ export class AlertManager {
    */
   add(config: AlertConfig): string {
     const baseDuration = typeof config.duration === 'number' ? config.duration : 5000;
-    const mobile = (typeof window !== 'undefined') && (
-      (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 640px)').matches) ||
-      (typeof navigator !== 'undefined' && /Mobi|Android/i.test(navigator.userAgent))
-    );
+    const g: any = typeof globalThis !== 'undefined' ? (globalThis as any) : undefined;
+    const mobile = !!(g && (
+      (typeof g.matchMedia === 'function' && g.matchMedia('(max-width: 640px)').matches) ||
+      (g.navigator && typeof g.navigator.userAgent === 'string' && /Mobi|Android/i.test(g.navigator.userAgent))
+    ));
     const finalDuration = mobile ? Math.max(2000, Math.round(baseDuration * 0.75)) : baseDuration;
 
     const alert: Alert = {
