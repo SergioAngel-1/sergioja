@@ -264,7 +264,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <Loader size="md" message="CARGANDO MODELO" />
           </div>
-          {gyroEnabled ? (
+          {gyroEnabled && !lowPerformanceMode ? (
             <div
               className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm whitespace-nowrap"
               style={{
@@ -309,7 +309,7 @@ export default function Model3D({ mousePosition }: Model3DProps) {
           </div>
 
           {/* CTA o disclaimer en estado listo */}
-          {gyroEnabled ? (
+          {gyroEnabled && !lowPerformanceMode ? (
             <div
               className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/40 border border-white/20 rounded-full backdrop-blur-sm whitespace-nowrap"
               style={{
