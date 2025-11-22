@@ -225,7 +225,7 @@ export default function AboutPage() {
           ) : selectedCategory === 'all' ? (
             // Vista por categorías cuando está en "all"
             <div className="space-y-8 md:space-y-10">
-              {Object.entries(skillsByCategory).map(([category, categorySkills], catIndex) => (
+              {Object.entries(skillsByCategory).map(([category, categorySkills]: [string, any[]], catIndex) => (
                 <motion.div
                   key={category}
                   initial={{ opacity: 0, y: 10 }}
