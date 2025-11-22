@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import AlertContainer from '@/components/molecules/AlertContainer';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
-import { generateMetadata, toJsonLd, generatePersonSchema, generateWebSiteSchema } from '@/shared/seo';
+import { generateMetadata } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
 
 const orbitron = Orbitron({
@@ -50,52 +51,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <head>
-        {GTM_ID && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(
-                function(w,d,s,l,i){
-                  w[l]=w[l]||[];
-                  w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
-                  var f=d.getElementsByTagName(s)[0],
-                  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
-                  j.async=true;
-                  j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-                  f.parentNode.insertBefore(j,f);
-                }
-              )(window,document,'script','dataLayer','${GTM_ID}');`,
-            }}
-          />
-        )}
-        
-        {(() => {
-          const person = generatePersonSchema({
-            name: siteConfig.author.name,
-            url: siteConfig.url,
-            jobTitle: 'Full Stack Developer',
-            email: siteConfig.author.email,
-            sameAs: [
-              siteConfig.author.social.github,
-              siteConfig.author.social.linkedin,
-            ],
-          });
-          const website = generateWebSiteSchema({
-            name: siteConfig.name,
-            url: siteConfig.url,
-            description: siteConfig.description,
-          });
-          return (
-            <>
-              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(person) }} />
-              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(website) }} />
-            </>
-          );
-        })()}
-      </head>
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-light text-text-primary antialiased`}
       >
+        {GTM_ID && (
+          <Script id="gtm-base" strategy="afterInteractive">
+            {`(function(w,d,s,l,i){
+              w[l]=w[l]||[];
+              w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+              var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'? '&l='+l : '';
+              j.async=true;
+              j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+              f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','${GTM_ID}');`}
+          </Script>
+        )}
         {GTM_ID && (
           <noscript
             dangerouslySetInnerHTML={{
