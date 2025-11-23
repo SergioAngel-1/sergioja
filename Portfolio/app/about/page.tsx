@@ -18,7 +18,7 @@ import ExperienceCarousel from '@/components/molecules/ExperienceCarousel';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 export default function AboutPage() {
-  const { skills, loading } = useSkills();
+  const { skills, loading, error } = useSkills();
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>('all');
   const log = useLogger('AboutPage');
   const { t } = useLanguage();
@@ -201,20 +201,22 @@ export default function AboutPage() {
             </h2>
           </div>
 
-          {/* Category filters */}
-          <div className="mb-6 md:mb-8">
-            <CategoryFilter
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onCategoryChange={(category) => {
-                setSelectedCategory(category || 'all');
-                log.interaction('filter_skill_category', category || 'all');
-              }}
-              label={t('about.filter')}
-              showCount={true}
-              animationDelay={1.5}
-            />
-          </div>
+          {/* Category filters (hidden when there are no skills or on error) */}
+          {skills.length > 0 && !error && categories.length > 0 && (
+            <div className="mb-6 md:mb-8">
+              <CategoryFilter
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategoryChange={(category) => {
+                  setSelectedCategory(category || 'all');
+                  log.interaction('filter_skill_category', category || 'all');
+                }}
+                label={t('about.filter')}
+                showCount={true}
+                animationDelay={1.5}
+              />
+            </div>
+          )}
 
           {loading ? (
             <PageLoader 
@@ -222,6 +224,19 @@ export default function AboutPage() {
               isLoading={loading} 
               message={t('about.loading')} 
             />
+          ) : (error || skills.length === 0) ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-8 md:py-20"
+            >
+              <div className="inline-block p-8 bg-background-surface/50 border border-white/30 rounded-lg">
+                <svg className="w-16 h-16 text-white mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <p className="text-text-secondary text-lg font-rajdhani">{t('about.noSkills')}</p>
+              </div>
+            </motion.div>
           ) : selectedCategory === 'all' ? (
             // Vista por categorías cuando está en "all"
             <div className="space-y-8 md:space-y-10">

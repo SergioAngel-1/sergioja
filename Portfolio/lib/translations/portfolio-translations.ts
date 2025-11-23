@@ -140,6 +140,7 @@ export interface PortfolioTranslations {
   'about.filter': string;
   'about.skillsCount': string;
   'about.loading': string;
+  'about.noSkills': string;
   'about.education': string;
   'about.certifications': string;
   'about.languages': string;
@@ -317,7 +318,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'work.automation': 'Automatización',
     'work.devops': 'DevOps',
     'work.loading': 'Cargando proyectos',
-    'work.noProjects': 'No se encontraron proyectos en esta categoría.',
+    'work.noProjects': 'No se encontraron proyectos.',
     'work.viewAll': 'Ver Todos los Proyectos',
     'work.page': 'Página',
     'work.of': 'de',
@@ -390,6 +391,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'about.filter': 'Filtrar',
     'about.skillsCount': 'habilidades',
     'about.loading': 'Cargando habilidades',
+    'about.noSkills': 'Aún no hay habilidades.',
     'about.education': 'Educación',
     'about.certifications': 'Certificaciones',
     'about.languages': 'Idiomas',
@@ -565,7 +567,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'work.automation': 'Automation',
     'work.devops': 'DevOps',
     'work.loading': 'Loading projects',
-    'work.noProjects': 'No projects found in this category.',
+    'work.noProjects': 'No projects found.',
     'work.viewAll': 'View All Projects',
     'work.page': 'Page',
     'work.of': 'of',
@@ -638,6 +640,7 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'about.filter': 'Filter',
     'about.skillsCount': 'skills',
     'about.loading': 'Loading skills',
+    'about.noSkills': 'No skills yet.',
     'about.education': 'Education',
     'about.certifications': 'Certifications',
     'about.languages': 'Languages',
