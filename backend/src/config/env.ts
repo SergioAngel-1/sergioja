@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
-import { logger } from '@shared/logger';
+import { logger } from '../lib/logger';
 
 // Load environment variables
 dotenv.config();

@@ -1,8 +1,9 @@
 import winston from 'winston';
-import { appConfig } from '../config/env';
-import { logger as sharedLogger, setLoggerAdapter } from '@shared/logger';
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
+
+// Resolve log level from env to avoid circular deps
+const LOG_LEVEL = (process.env.LOG_LEVEL as string) || 'info';
 
 // Custom log format
 const logFormat = printf((info: winston.Logform.TransformableInfo & { timestamp?: string; stack?: string }) => {
@@ -10,61 +11,38 @@ const logFormat = printf((info: winston.Logform.TransformableInfo & { timestamp?
   return `${timestamp} [${level}]: ${stack || message}`;
 });
 
-// Create logger instance
+// Winston instance
 const winstonLogger = winston.createLogger({
-  level: appConfig.logging.level,
-  format: combine(
-    errors({ stack: true }),
-    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    logFormat
-  ),
+  level: LOG_LEVEL,
+  format: combine(errors({ stack: true }), timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), logFormat),
   transports: [
-    // Console transport
-    new winston.transports.Console({
-      format: combine(colorize(), logFormat),
-    }),
-    // File transport for errors
-    new winston.transports.File({
-      filename: 'logs/error.log',
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-    // File transport for all logs
-    new winston.transports.File({
-      filename: 'logs/combined.log',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
+    new winston.transports.Console({ format: combine(colorize(), logFormat) }),
+    new winston.transports.File({ filename: 'logs/error.log', level: 'error', maxsize: 5242880, maxFiles: 5 }),
+    new winston.transports.File({ filename: 'logs/combined.log', maxsize: 5242880, maxFiles: 5 }),
   ],
-  exceptionHandlers: [
-    new winston.transports.File({ filename: 'logs/exceptions.log' }),
-  ],
-  rejectionHandlers: [
-    new winston.transports.File({ filename: 'logs/rejections.log' }),
-  ],
+  exceptionHandlers: [new winston.transports.File({ filename: 'logs/exceptions.log' })],
+  rejectionHandlers: [new winston.transports.File({ filename: 'logs/rejections.log' })],
 });
 
-setLoggerAdapter({
-  debug: (message, data?, context?) => {
+// Minimal logger used across backend
+export const logger = {
+  debug: (message: string, data?: any, context?: string) => {
     const ctx = context ? `[${context}] ` : '';
     winstonLogger.debug(`${ctx}${message}`, data);
   },
-  info: (message, data?, context?) => {
+  info: (message: string, data?: any, context?: string) => {
     const ctx = context ? `[${context}] ` : '';
     winstonLogger.info(`${ctx}${message}`, data);
   },
-  warn: (message, data?, context?) => {
+  warn: (message: string, data?: any, context?: string) => {
     const ctx = context ? `[${context}] ` : '';
     winstonLogger.warn(`${ctx}${message}`, data);
   },
-  error: (message, error?, context?) => {
+  error: (message: string, error?: any, context?: string) => {
     const ctx = context ? `[${context}] ` : '';
     winstonLogger.error(`${ctx}${message}`, error);
   },
-});
-
-export const logger = sharedLogger;
+};
 
 // Stream for Morgan HTTP logger
 export const morganStream = {

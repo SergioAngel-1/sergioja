@@ -42,19 +42,49 @@ logger.info(`DATABASE_URL: ${mask(process.env.DATABASE_URL)}`);
 
 // Middleware
 logger.info('Setting up middleware...');
+// Early CORS preflight handler to guarantee headers on OPTIONS
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin as string | undefined;
+  if (origin) {
+    try {
+      const host = new URL(origin).hostname;
+      const allowList = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean);
+      const originAllowed = allowList.includes(origin) || /\.?(.+\.)?sergioja\.com$/.test(host) || /sergioja\.com$/.test(host);
+      if (originAllowed) {
+        const acrh = (req.headers['access-control-request-headers'] as string | undefined) || 'Content-Type, Authorization, X-Requested-With, Accept, Accept-Language, Origin';
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Vary', 'Origin');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', acrh);
+        if (req.method === 'OPTIONS') {
+          return res.status(204).end();
+        }
+      }
+    } catch {}
+  }
+  next();
+});
 const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001')
   .split(',')
-  .map((o) => o.trim());
-// Centralized CORS options (includes preflight support)
+  .map((o) => o.trim())
+  .filter(Boolean);
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
+    try {
+      const u = new URL(origin);
+      if (/\.?(sergioja\.com)$/.test(u.hostname)) return callback(null, true);
+    } catch {}
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Accept-Language', 'Origin'],
   optionsSuccessStatus: 200,
 };
 app.use((req: Request, res: Response, next: NextFunction) => {
