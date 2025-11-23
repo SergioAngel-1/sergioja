@@ -143,6 +143,61 @@ docker compose --env-file .env.production -f docker-compose.prod.yml config
 docker compose --env-file .env.production -f docker-compose.prod.yml down -v
 ```
 
+## Reset desde cero (migración limpia)
+
+Advertencia: la opción A elimina la base de datos (volúmenes). Realiza un backup si necesitas conservar datos.
+
+### Opción A: reset completo (incluye DB)
+
+```bash
+# Eliminar contenedores, imágenes, volúmenes y órfanos
+docker compose --env-file .env.production -f docker-compose.prod.yml down --rmi all --volumes --remove-orphans
+
+# Limpieza adicional (opcional)
+docker image prune -a -f
+docker volume prune -f
+docker network prune -f
+docker builder prune -a -f
+
+# Despliegue limpio
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d traefik
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build backend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build main-frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build portfolio-frontend
+```
+
+### Opción B: reset conservando DB
+
+```bash
+# Eliminar contenedores e imágenes, conservar volúmenes
+docker compose --env-file .env.production -f docker-compose.prod.yml down --rmi all --remove-orphans
+
+# Limpieza adicional (sin borrar volúmenes)
+docker image prune -a -f
+docker network prune -f
+docker builder prune -a -f
+
+# Despliegue limpio
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d traefik
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build backend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build main-frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build portfolio-frontend
+```
+
+### Backup y verificación (recomendado)
+
+```bash
+# Backup DB (ajusta credenciales/servicio si es necesario)
+docker exec -i sergioja-postgres pg_dump -U "$DB_USER" "$DB_NAME" > backup_$(date +%F).sql
+
+# Verificar variables cargadas
+docker compose --env-file .env.production -f docker-compose.prod.yml config
+
+# Estado y logs
+docker compose --env-file .env.production -f docker-compose.prod.yml ps
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f
+```
+
 ## Notas Importantes
 
 - **Siempre** usa `--env-file .env.production` en producción
