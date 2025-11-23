@@ -140,6 +140,15 @@ export default function ConnectionContent() {
           t('alerts.messageSentDesc'),
           8000
         );
+        if (typeof window !== 'undefined') {
+          (window as any).dataLayer = (window as any).dataLayer || [];
+          (window as any).dataLayer.push({
+            event: 'contact_submit',
+            source: 'main',
+            form_name: 'landing_contact',
+            page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+          });
+        }
       } else {
         const errorMsg = response.error?.message || t('contact.error');
         setConsoleHistory(prev => [
