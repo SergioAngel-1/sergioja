@@ -117,24 +117,26 @@ export default function WorkPage() {
         </div>
 
         {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          className="mb-8 md:mb-12"
-        >
-          <CategoryFilter
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={(category) => {
-              handleCategoryChange(category);
-              log.interaction('filter_category', category || 'all');
-            }}
-            label={t('work.filter')}
-            showCount={true}
-            animationDelay={0.7}
-          />
-        </motion.div>
+        {projects.length > 0 && !error && categories.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="mb-8 md:mb-12"
+          >
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={(category) => {
+                handleCategoryChange(category);
+                log.interaction('filter_category', category || 'all');
+              }}
+              label={t('work.filter')}
+              showCount={true}
+              animationDelay={0.7}
+            />
+          </motion.div>
+        )}
 
         {/* Projects display */}
         {loading ? (

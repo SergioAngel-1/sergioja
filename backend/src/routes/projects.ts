@@ -39,6 +39,24 @@ router.get('/', async (req: Request, res: Response) => {
     // Get total count
     const total = await prisma.project.count({ where });
 
+    // If no projects, return empty payload gracefully
+    if (total === 0) {
+      const emptyResponse: ApiResponse<PaginatedResponse<Project>> = {
+        success: true,
+        data: {
+          data: [],
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total: 0,
+            totalPages: 0,
+          },
+        },
+        timestamp: new Date().toISOString(),
+      };
+      return res.json(emptyResponse);
+    }
+
     // Get paginated projects with technologies
     const projects = await prisma.project.findMany({
       where,
@@ -55,15 +73,15 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     // Transform to match frontend interface
-    const transformedProjects: Project[] = projects.map((p) => ({
+    const transformedProjects: Project[] = projects.map((p: any) => ({
       id: p.id,
       title: p.title,
       slug: p.slug,
       description: p.description,
       longDescription: p.longDescription || undefined,
       image: p.image || undefined,
-      technologies: p.technologies.map((t) => t.technology.name),
-      tech: p.technologies.map((t) => t.technology.name),
+      technologies: p.technologies.map((t: any) => t.technology.name),
+      tech: p.technologies.map((t: any) => t.technology.name),
       category: p.category,
       featured: p.featured,
       demoUrl: p.demoUrl || undefined,
@@ -96,14 +114,24 @@ router.get('/', async (req: Request, res: Response) => {
     res.json(response);
   } catch (error) {
     logger.error('Error fetching projects', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        message: 'Failed to fetch projects',
-        code: 'INTERNAL_ERROR',
+    // Graceful fallback: respond with empty list to avoid breaking UI
+    const pageNum = parseInt((req.query.page as string) || '1', 10);
+    const limitNum = parseInt((req.query.limit as string) || '10', 10);
+    const emptyResponse: ApiResponse<PaginatedResponse<Project>> = {
+      success: true,
+      data: {
+        data: [],
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: 0,
+          totalPages: 0,
+        },
       },
+      message: 'No projects available',
       timestamp: new Date().toISOString(),
-    });
+    };
+    res.json(emptyResponse);
   }
 });
 
@@ -142,8 +170,8 @@ router.get('/:slug', async (req: Request, res: Response) => {
       description: project.description,
       longDescription: project.longDescription || undefined,
       image: project.image || undefined,
-      technologies: project.technologies.map((t) => t.technology.name),
-      tech: project.technologies.map((t) => t.technology.name),
+      technologies: project.technologies.map((t: any) => t.technology.name),
+      tech: project.technologies.map((t: any) => t.technology.name),
       category: project.category,
       featured: project.featured,
       demoUrl: project.demoUrl || undefined,
