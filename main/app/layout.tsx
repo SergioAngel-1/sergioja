@@ -4,7 +4,7 @@ import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import AlertContainer from '@/components/molecules/AlertContainer';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
-import { generateMetadata } from '@/shared/seo';
+import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
 
 const orbitron = Orbitron({
@@ -30,6 +30,10 @@ const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export const metadata: Metadata = {
   ...generateMetadata(defaultSEO, SITE_URL),
+  title: {
+    template: `%s | ${siteConfig.name}`,
+    default: siteConfig.name,
+  },
   metadataBase: new URL(SITE_URL),
   icons: {
     icon: [
@@ -74,6 +78,20 @@ export default function RootLayout({
             }}
           />
         )}
+        <Script id="ld-person" type="application/ld+json" strategy="beforeInteractive">
+          {toJsonLd(generatePersonSchema({
+            name: siteConfig.author.name,
+            url: siteConfig.url,
+            sameAs: [siteConfig.author.social.github, siteConfig.author.social.linkedin],
+          }))}
+        </Script>
+        <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
+          {toJsonLd(generateWebSiteSchema({
+            name: siteConfig.name,
+            url: siteConfig.url,
+            description: siteConfig.description,
+          }))}
+        </Script>
         <LanguageProvider>
           <main className="h-viewport overflow-hidden">{children}</main>
           <AlertContainer />

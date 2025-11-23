@@ -6,6 +6,7 @@
 import type { SEOMetadata } from '@/shared/seo';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sergioja.com';
+const TWITTER_HANDLE = (process.env.NEXT_PUBLIC_TWITTER_HANDLE || '').replace(/^@/, '') || undefined;
 const SITE_NAME = 'SergioJA';
 const SITE_DESCRIPTION = 'Desarrollador Full Stack especializado en React, Next.js, Node.js y TypeScript. Creando experiencias web modernas y escalables.';
 
@@ -43,7 +44,7 @@ export const defaultSEO: SEOMetadata = {
     locale: 'es_ES',
     images: [
       {
-        url: `${SITE_URL}/media/logo%20sergioja.png`,
+        url: `${SITE_URL}/media/logo-sergioja.png`,
         width: 1200,
         height: 630,
         alt: SITE_NAME,
@@ -56,15 +57,13 @@ export const defaultSEO: SEOMetadata = {
     card: 'summary_large_image',
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: [`${SITE_URL}/media/logo%20sergioja.png`],
+    images: [`${SITE_URL}/media/logo-sergioja.png`],
+    site: TWITTER_HANDLE ? `@${TWITTER_HANDLE}` : undefined,
+    creator: TWITTER_HANDLE ? `@${TWITTER_HANDLE}` : undefined,
   },
 
   alternates: {
     canonical: SITE_URL,
-    languages: {
-      'es': SITE_URL,
-      'en': `${SITE_URL}/en`,
-    },
   },
 };
 

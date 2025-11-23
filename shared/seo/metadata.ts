@@ -70,6 +70,12 @@ function generateOpenGraph(og: OpenGraphMetadata, baseUrl: string): Metadata['op
       width: video.width,
       height: video.height,
     })),
+    publishedTime: og.article?.publishedTime,
+    modifiedTime: og.article?.modifiedTime,
+    expirationTime: og.article?.expirationTime,
+    authors: og.article?.authors,
+    section: og.article?.section,
+    tags: og.article?.tags,
   };
 }
 

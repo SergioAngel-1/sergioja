@@ -145,6 +145,7 @@ services:
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: https://portfolio.sergioja.com
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+        NEXT_PUBLIC_TWITTER_HANDLE: ${NEXT_PUBLIC_TWITTER_HANDLE}
     container_name: portfolio-frontend
     restart: unless-stopped
     environment:
@@ -153,6 +154,7 @@ services:
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: https://portfolio.sergioja.com
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+      NEXT_PUBLIC_TWITTER_HANDLE: ${NEXT_PUBLIC_TWITTER_HANDLE}
     depends_on:
       - backend
     networks:
@@ -180,6 +182,7 @@ services:
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: https://sergioja.com
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+        NEXT_PUBLIC_TWITTER_HANDLE: ${NEXT_PUBLIC_TWITTER_HANDLE}
     container_name: main-frontend
     restart: unless-stopped
     environment:
@@ -188,6 +191,7 @@ services:
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: https://sergioja.com
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+      NEXT_PUBLIC_TWITTER_HANDLE: ${NEXT_PUBLIC_TWITTER_HANDLE}
     depends_on:
       - backend
     networks:

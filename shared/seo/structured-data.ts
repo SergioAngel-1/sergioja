@@ -138,7 +138,9 @@ export function generateProjectSchema(data: {
   image?: string | string[];
   creator?: PersonSchema;
   dateCreated?: string;
+  dateModified?: string;
   keywords?: string[];
+  inLanguage?: string;
 }): ProjectSchema {
   return {
     '@context': 'https://schema.org',
@@ -149,7 +151,9 @@ export function generateProjectSchema(data: {
     image: data.image,
     creator: data.creator,
     dateCreated: data.dateCreated,
+    dateModified: data.dateModified,
     keywords: data.keywords,
+    inLanguage: data.inLanguage,
   };
 }
 

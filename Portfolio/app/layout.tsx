@@ -12,7 +12,8 @@ import { PerformanceProvider } from '@/lib/contexts/PerformanceContext';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { MatrixProvider } from '@/lib/contexts/MatrixContext';
 import { ModalProvider } from '@/lib/contexts/ModalContext';
-import { homeMetadata } from '@/lib/seo/page-metadata';
+import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
+import { defaultSEO, siteConfig } from '@/lib/seo/config';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -36,7 +37,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://portfolio.sergioja
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export const metadata: Metadata = {
-  ...homeMetadata,
+  ...generateMetadata(defaultSEO, SITE_URL),
+  title: {
+    template: `%s | ${siteConfig.name}`,
+    default: siteConfig.name,
+  },
   metadataBase: new URL(SITE_URL),
   icons: {
     icon: [
@@ -57,7 +62,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="es" className="dark">
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-dark text-text-primary antialiased`}
       >
@@ -81,6 +86,20 @@ export default function RootLayout({
             }}
           />
         )}
+        <Script id="ld-person" type="application/ld+json" strategy="beforeInteractive">
+          {toJsonLd(generatePersonSchema({
+            name: siteConfig.author.name,
+            url: siteConfig.url,
+            sameAs: [siteConfig.author.social.github, siteConfig.author.social.linkedin],
+          }))}
+        </Script>
+        <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
+          {toJsonLd(generateWebSiteSchema({
+            name: siteConfig.name,
+            url: siteConfig.url,
+            description: siteConfig.description,
+          }))}
+        </Script>
         <LanguageProvider>
           <PerformanceProvider>
             <MatrixProvider>
