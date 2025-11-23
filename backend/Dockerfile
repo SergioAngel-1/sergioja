@@ -72,8 +72,8 @@ npx prisma -v
 echo "DATABASE_URL: $(printenv DATABASE_URL | sed -e 's#://[^:]*:[^@]*@#://****@#')"
 echo "Validating schema..."
 npx prisma validate
-echo "Running migrations (deploy)..."
-npx prisma migrate deploy
+echo "Applying schema (db push)..."
+npx prisma db push
 exec npm start
 SH
 
