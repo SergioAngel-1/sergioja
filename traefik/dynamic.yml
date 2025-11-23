@@ -27,6 +27,8 @@ http:
       service: backend
       tls:
         certResolver: letsencrypt
+      middlewares:
+        - backend-cors
 
     traefik:
       rule: Host(`traefik.sergioja.com`)
@@ -50,7 +52,7 @@ http:
     backend:
       loadBalancer:
         servers:
-          - url: http://sergioja-backend:5000
+          - url: http://backend:5000
 
   middlewares:
     main-redirect:
@@ -63,6 +65,28 @@ http:
         regex: "^https://www\\.portfolio\\.sergioja\\.com/(.*)"
         replacement: "https://portfolio.sergioja.com/$1"
         permanent: true
+    backend-cors:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        accessControlAllowOriginList:
+          - "https://sergioja.com"
+          - "https://www.sergioja.com"
+          - "https://portfolio.sergioja.com"
+          - "https://www.portfolio.sergioja.com"
+        accessControlAllowHeaders:
+          - "Content-Type"
+          - "Authorization"
+          - "X-Requested-With"
+          - "Accept"
+          - "Accept-Language"
+          - "Origin"
+        accessControlAllowCredentials: true
+        accessControlMaxAge: 100
     auth:
       basicAuth:
         users:
