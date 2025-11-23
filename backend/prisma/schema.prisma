@@ -14,9 +14,6 @@ datasource db {
 model Profile {
   id           String   @id @default(cuid())
   name         String
-  title        String
-  tagline      String
-  bio          String   @db.Text
   availability String   @default("available") // available, busy, unavailable
   location     String
   email        String   @unique
@@ -93,24 +90,7 @@ model ProjectTechnology {
   @@map("project_technologies")
 }
 
-// Timeline Events (Work Experience, Education, Achievements)
-model TimelineEvent {
-  id           String    @id @default(cuid())
-  type         String    // work, education, achievement
-  title        String
-  organization String
-  description  String    @db.Text
-  startDate    DateTime
-  endDate      DateTime?
-  current      Boolean   @default(false)
-  technologies String[]  // Array of technology names
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  @@index([type])
-  @@index([current])
-  @@map("timeline_events")
-}
+// (TimelineEvent model removed)
 
 // Contact Form Submissions
 model ContactSubmission {

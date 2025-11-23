@@ -28,9 +28,6 @@ export interface PaginatedResponse<T> {
 export interface Profile {
   id: string;
   name: string;
-  title: string;
-  tagline?: string;
-  bio: string;
   email: string;
   phone?: string;
   location?: string;

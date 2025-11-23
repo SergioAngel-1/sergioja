@@ -14,7 +14,6 @@ import profileRoutes from './routes/profile';
 import projectsRoutes from './routes/projects';
 import skillsRoutes from './routes/skills';
 import contactRoutes from './routes/contact';
-import timelineRoutes from './routes/timeline';
 import analyticsRoutes from './routes/analytics';
 import newsletterRoutes from './routes/newsletter';
 
@@ -141,7 +140,6 @@ app.use('/api/portfolio/projects', projectsRoutes);
 app.use('/api/portfolio/skills', skillsRoutes);
 app.use('/api/portfolio/contact', contactRoutes);
 app.use('/api/portfolio/newsletter', newsletterRoutes);
-app.use('/api/portfolio/timeline', timelineRoutes);
 app.use('/api/portfolio/analytics', analyticsRoutes);
 logger.info('Routes configured successfully');
 

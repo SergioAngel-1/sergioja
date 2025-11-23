@@ -26,9 +26,6 @@ router.get('/', async (_req: Request, res: Response) => {
       data: {
         id: profile.id,
         name: profile.name,
-        title: profile.title,
-        tagline: profile.tagline,
-        bio: profile.bio,
         availability: profile.availability,
         location: profile.location,
         email: profile.email,
