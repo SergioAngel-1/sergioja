@@ -136,6 +136,15 @@ export default function PurposeContent() {
                 language === 'es' ? 'Suscripción completada' : 'Subscription completed',
                 6000
               );
+              if (typeof window !== 'undefined') {
+                (window as any).dataLayer = (window as any).dataLayer || [];
+                (window as any).dataLayer.push({
+                  event: 'newsletter_subscribe',
+                  source: 'main',
+                  form_name: 'dev_tips_modal',
+                  page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+                });
+              }
               return;
             }
             throw new Error(res.error?.message || 'Subscription failed');

@@ -72,6 +72,7 @@ export default function ContactPage() {
         (window as any).dataLayer.push({
           event: 'newsletter_subscribe',
           source: 'portfolio',
+          form_name: 'contact_newsletter',
           page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
         });
       }

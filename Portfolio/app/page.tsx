@@ -178,6 +178,15 @@ export default function Home() {
       log.info('Email subscribed:', email);
       setMatrixMessage(t('devTips.success'));
       alerts.success(t('alerts.success'), t('devTips.success'), 6000);
+      if (typeof window !== 'undefined') {
+        (window as any).dataLayer = (window as any).dataLayer || [];
+        (window as any).dataLayer.push({
+          event: 'newsletter_subscribe',
+          source: 'portfolio',
+          form_name: 'dev_tips_modal',
+          page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+        });
+      }
     } catch (error) {
       log.error('Error subscribing email:', error);
       alerts.error(t('alerts.sendError'), t('devTips.submitError'), 6000);
