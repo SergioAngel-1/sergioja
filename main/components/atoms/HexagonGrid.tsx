@@ -115,6 +115,24 @@ export default function HexagonGrid() {
       return opacityFromCenter * 0.3; // Opacidad reducida y fija
     }
     
+    // Calcular distancia a los bordes para reducir opacidad cerca de los HexButtons
+    const distanceToLeft = hexX;
+    const distanceToRight = dimensions.width - hexX;
+    const distanceToTop = hexY;
+    const distanceToBottom = dimensions.height - hexY;
+    
+    // Encontrar la distancia mínima a cualquier borde
+    const minEdgeDistance = Math.min(
+      distanceToLeft,
+      distanceToRight,
+      distanceToTop,
+      distanceToBottom
+    );
+    
+    // Radio de influencia de los bordes (más grande = efecto más suave)
+    const edgeInfluenceRadius = 400;
+    const edgeFade = Math.min(1, minEdgeDistance / edgeInfluenceRadius);
+    
     // Distancia desde el mouse
     const distanceFromMouse = Math.sqrt(
       Math.pow(mousePos.x - hexX, 2) + Math.pow(mousePos.y - hexY, 2)
@@ -133,7 +151,9 @@ export default function HexagonGrid() {
     
     // Combinar ambas luces (tomar la mayor) con animación de entrada
     const combinedOpacity = Math.max(opacityFromMouse, opacityFromCenter * 0.7 * centerLightIntensity);
-    return combinedOpacity * 0.8;
+    
+    // Aplicar fade de bordes para resaltar HexButtons
+    return combinedOpacity * 0.8 * edgeFade;
   };
 
   return (
