@@ -16,7 +16,7 @@ const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
   ),
 });
 
-export default function CenteredHero() {
+export default function CenteredHero({ onModelIntroComplete }: { onModelIntroComplete?: () => void }) {
   const [mounted, setMounted] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -47,49 +47,32 @@ export default function CenteredHero() {
       <div
         className="relative"
         style={{
-          width: 'clamp(280px, 40vw, 500px)',
-          height: 'clamp(280px, 40vw, 500px)',
+          width: 'clamp(364px, 52vw, 650px)',
+          height: 'clamp(364px, 52vw, 650px)',
         }}
       >
-        
-        {/* Simplified outer ring */}
-        <motion.div
-          className="absolute inset-0 rounded-full border-4 border-cyber-black"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1, rotate: 360 }}
-          transition={{ 
-            scale: { duration: 0.8, ease: 'easeOut' },
-            opacity: { duration: 0.5 },
-            rotate: { duration: 20, repeat: Infinity, ease: 'linear', delay: 0.8 }
-          }}
-        />
-
-        {/* Middle ring */}
-        <motion.div
-          className="absolute rounded-full border-2 border-white opacity-30"
-          style={{ 
-            width: '85%', 
-            height: '85%',
-            left: '7.5%',
-            top: '7.5%'
-          }}
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.3, rotate: -360 }}
-          transition={{ 
-            scale: { duration: 0.8, delay: 0.2, ease: 'easeOut' },
-            opacity: { duration: 0.5, delay: 0.2 },
-            rotate: { duration: 15, repeat: Infinity, ease: 'linear', delay: 1 }
-          }}
-        />
-
         {/* 3D Model Container */}
-        <motion.div 
-          className="absolute rounded-full bg-white border-4 border-cyber-black shadow-glow-black overflow-hidden"
+        <div
+          className="absolute rounded-full"
           style={{
-            width: '70%',
-            height: '70%',
-            left: '15%',
-            top: '15%'
+            width: '80%',
+            height: '80%',
+            left: '10%',
+            top: '10%',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
+            filter: 'blur(40px)',
+          }}
+        />
+        
+        {/* 3D Model Container with blurred gray background */}
+        <motion.div 
+          className="absolute rounded-full border-4 border-cyber-black overflow-hidden"
+          style={{
+            width: '80%',
+            height: '80%',
+            left: '10%',
+            top: '10%',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
           }}
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -107,89 +90,9 @@ export default function CenteredHero() {
               <Loader size="sm" />
             </div>
           }>
-            <Model3D mousePosition={mousePosition} />
+            <Model3D mousePosition={mousePosition} onAnimationComplete={onModelIntroComplete} />
           </Suspense>
         </motion.div>
-
-        {/* Cardinal points with animated dots */}
-        {[
-          { position: 'top', rotation: 0 },
-          { position: 'right', rotation: 90 },
-          { position: 'bottom', rotation: 180 },
-          { position: 'left', rotation: 270 }
-        ].map((item, index) => (
-          <motion.div
-            key={item.position}
-            className={`absolute ${
-              item.position === 'top' ? 'left-1/2 -translate-x-1/2' :
-              item.position === 'right' ? 'top-1/2 -translate-y-1/2' :
-              item.position === 'bottom' ? 'left-1/2 -translate-x-1/2' :
-              'top-1/2 -translate-y-1/2'
-            }`}
-            style={{
-              [item.position === 'top' ? 'top' : item.position === 'bottom' ? 'bottom' : item.position === 'left' ? 'left' : 'right']: `calc(-1 * ${fluidSizing.space.lg})`
-            }}
-            initial={{ scale: 0, opacity: 0, y: item.position === 'top' ? -20 : item.position === 'bottom' ? 20 : 0, x: item.position === 'left' ? -20 : item.position === 'right' ? 20 : 0 }}
-            animate={{ scale: 1, opacity: 1, y: 0, x: 0 }}
-            transition={{ 
-              delay: 0.6 + index * 0.1, 
-              duration: 0.6,
-              type: 'spring',
-              stiffness: 300,
-              damping: 15
-            }}
-          >
-            <motion.div 
-              className="rounded-full bg-white shadow-lg"
-              style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }}
-              animate={{ 
-                scale: [1, 1.3, 1],
-                opacity: [1, 0.5, 1]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: index * 0.5
-              }}
-            />
-          </motion.div>
-        ))}
-
-        {/* Corner accents */}
-        {[
-          'top-left',
-          'top-right',
-          'bottom-left',
-          'bottom-right'
-        ].map((corner, index) => (
-          <motion.div
-            key={corner}
-            className={`hidden md:block absolute border-white ${
-              corner === 'top-left' ? 'border-l-2 border-t-2' :
-              corner === 'top-right' ? 'border-r-2 border-t-2' :
-              corner === 'bottom-left' ? 'border-l-2 border-b-2' :
-              'border-r-2 border-b-2'
-            }`}
-            style={{
-              width: fluidSizing.space['2xl'],
-              height: fluidSizing.space['2xl'],
-              ...(corner === 'top-left' && { top: `calc(-1 * ${fluidSizing.space.md})`, left: `calc(-1 * ${fluidSizing.space.md})` }),
-              ...(corner === 'top-right' && { top: `calc(-1 * ${fluidSizing.space.md})`, right: `calc(-1 * ${fluidSizing.space.md})` }),
-              ...(corner === 'bottom-left' && { bottom: `calc(-1 * ${fluidSizing.space.md})`, left: `calc(-1 * ${fluidSizing.space.md})` }),
-              ...(corner === 'bottom-right' && { bottom: `calc(-1 * ${fluidSizing.space.md})`, right: `calc(-1 * ${fluidSizing.space.md})` }),
-            }}
-            initial={{ opacity: 0, scale: 0, rotate: -90 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ 
-              delay: 1 + index * 0.08, 
-              duration: 0.5,
-              type: 'spring',
-              stiffness: 250,
-              damping: 18
-            }}
-          />
-        ))}
       </div>
     </div>
   );

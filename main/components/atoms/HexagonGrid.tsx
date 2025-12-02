@@ -88,8 +88,8 @@ export default function HexagonGrid() {
   }
 
   // Generar grid de hexágonos
-  const hexSize = 100;
-  const hexHeight = 87;
+  const hexSize = 130;
+  const hexHeight = 113;
   const cols = Math.ceil(dimensions.width / hexSize) + 2;
   const rows = Math.ceil(dimensions.height / hexHeight) + 2;
   
@@ -151,16 +151,16 @@ export default function HexagonGrid() {
           </filter>
         </defs>
         {hexagons.map((hex) => {
-          const opacity = calculateOpacity(hex.x + 50, hex.y + 50);
+          const opacity = calculateOpacity(hex.x + 65, hex.y + 65);
           if (opacity < 0.01) return null; // No renderizar hexágonos invisibles
           return (
             <polygon
               key={hex.id}
-              points={`${hex.x + 50},${hex.y} ${hex.x + 93.3},${hex.y + 25} ${hex.x + 93.3},${hex.y + 75} ${hex.x + 50},${hex.y + 100} ${hex.x + 6.7},${hex.y + 75} ${hex.x + 6.7},${hex.y + 25}`}
+              points={`${hex.x + 65},${hex.y} ${hex.x + 121.3},${hex.y + 32.5} ${hex.x + 121.3},${hex.y + 97.5} ${hex.x + 65},${hex.y + 130} ${hex.x + 8.7},${hex.y + 97.5} ${hex.x + 8.7},${hex.y + 32.5}`}
               fill="none"
               stroke="white"
-              strokeWidth="1.5"
-              opacity={opacity}
+              strokeWidth="2"
+              opacity={opacity * 1.2}
               filter={lowPerformanceMode ? undefined : "url(#softGlow)"}
               style={{ transition: lowPerformanceMode ? 'none' : 'opacity 0.2s ease-out' }}
             />

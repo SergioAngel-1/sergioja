@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { useGLTF, AdaptiveDpr, Preload } from '@react-three/drei';
 import * as THREE from 'three';
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
@@ -12,27 +12,31 @@ import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 interface Model3DProps {
   mousePosition: { x: number; y: number };
+  onAnimationComplete?: () => void;
 }
 
 interface AnimatedModelProps {
   mousePosition: { x: number; y: number };
   gyroEnabled: boolean;
   lowPerformanceMode: boolean;
+  onIntroAnimationEnd?: () => void;
 }
 
-function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode }: AnimatedModelProps) {
+function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntroAnimationEnd }: AnimatedModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
   const deviceOrientationRef = useRef<{ beta: number; gamma: number }>({ beta: 0, gamma: 0 });
   const [isMobile, setIsMobile] = useState(false);
   const [needsPermission, setNeedsPermission] = useState(false);
   const log = useLogger('AnimatedModel3D');
+  const calledRef = useRef(false);
+  const tickRef = useRef(0);
   
   // Cargar modelo GLTF de Blender
   const { scene } = useGLTF('/models/SergioJAModel.glb');
   
   // Clonar la escena para evitar problemas de reutilización
-  const clonedScene = scene.clone();
+  const clonedScene = useMemo(() => scene.clone(true), [scene]);
 
   // Detectar si es mobile y configurar giroscopio
   useEffect(() => {
@@ -96,7 +100,7 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode }: Anima
     }
     
     let startTime = Date.now();
-    const duration = 1500; // 1.5 segundos
+    const duration = 800;
     
     const animate = () => {
       const elapsed = Date.now() - startTime;
@@ -114,11 +118,21 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode }: Anima
     animate();
   }, [lowPerformanceMode]);
 
-  useFrame(() => {
+  useEffect(() => {
+    if (animationProgress >= 1 && !calledRef.current) {
+      calledRef.current = true;
+      onIntroAnimationEnd?.();
+    }
+  }, [animationProgress, onIntroAnimationEnd]);
+
+  useFrame((state) => {
+    const now = state.clock.getElapsedTime();
+    const interval = 1 / 30;
+    if (now - tickRef.current < interval) return;
+    tickRef.current = now;
     if (groupRef.current) {
       if (animationProgress < 1) {
-        // Durante la animación de entrada, rotar suavemente
-        groupRef.current.rotation.y = animationProgress * Math.PI * 2;
+        
       } else if (!lowPerformanceMode) {
         // Después de la animación - solo si NO es bajo rendimiento
         let targetRotationY, targetRotationX;
@@ -147,7 +161,7 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode }: Anima
   const hasContent = scene.children.length > 0;
 
   // Calcular escala para la animación de entrada (desde el centro)
-  const scale = 3.5 * animationProgress;
+  const scale = 3.0 * animationProgress;
 
   return (
     <group ref={groupRef}>
@@ -184,15 +198,15 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode }: Anima
       )}
       
       {/* Iluminación optimizada para modelo monocromático */}
-      <ambientLight intensity={1} />
-      <directionalLight position={[5, 5, 5]} intensity={1.5} castShadow={!isMobile} />
-      <directionalLight position={[-5, -5, -5]} intensity={0.5} />
-      <pointLight position={[0, 2, 2]} intensity={1.5} color="#FFFFFF" />
+      <ambientLight intensity={1.4} />
+      <hemisphereLight args={["#ffffff", "#222222", 0.9]} />
+      <directionalLight position={[0, 1, 2]} intensity={1.1} />
+      <pointLight position={[0, 1.2, 2.2]} intensity={2.2} color="#FFFFFF" />
     </group>
   );
 }
 
-export default function Model3D({ mousePosition }: Model3DProps) {
+export default function Model3D({ mousePosition, onAnimationComplete }: Model3DProps) {
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showGyroButton, setShowGyroButton] = useState(false);
@@ -238,23 +252,22 @@ export default function Model3D({ mousePosition }: Model3DProps) {
 
   return (
     <div className="relative w-full h-full">
-      {/* Fondo con gradiente radial - siempre visible */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-gray-100" />
-      
-      {/* Patrón de puntos sutiles - siempre visible */}
+      {/* Fondo transparente con blur para ver hexágonos */}
       <div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0" 
         style={{
-          backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)',
-          backgroundSize: '20px 20px'
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
         }}
       />
       
-      {/* Glow central - siempre visible */}
+      {/* Patrón de puntos sutiles - siempre visible */}
       <div 
-        className="absolute inset-0"
+        className="absolute inset-0 opacity-20"
         style={{
-          background: 'radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 60%)'
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)',
+          backgroundSize: '20px 20px'
         }}
       />
 
@@ -295,16 +308,24 @@ export default function Model3D({ mousePosition }: Model3DProps) {
           <div className="absolute inset-0 z-10">
             <Canvas
               camera={{ position: [0, 0, 4], fov: 50 }}
-              dpr={[1, 1.5]}
+              dpr={lowPerformanceMode ? 1 : [1, 1.25]}
               gl={{ 
-                antialias: true, 
+                antialias: !lowPerformanceMode, 
                 alpha: true,
                 preserveDrawingBuffer: false,
-                powerPreference: 'high-performance'
+                powerPreference: lowPerformanceMode ? 'low-power' : 'high-performance'
               }}
+              frameloop={lowPerformanceMode ? 'demand' : 'always'}
               style={{ background: 'transparent' }}
+              onCreated={({ gl }) => { 
+                gl.toneMapping = THREE.ACESFilmicToneMapping; 
+                gl.outputColorSpace = THREE.SRGBColorSpace; 
+                gl.toneMappingExposure = 1.4; 
+              }}
             >
-              <AnimatedModel mousePosition={mousePosition} gyroEnabled={gyroEnabled} lowPerformanceMode={lowPerformanceMode} />
+              <AnimatedModel mousePosition={mousePosition} gyroEnabled={gyroEnabled} lowPerformanceMode={lowPerformanceMode} onIntroAnimationEnd={onAnimationComplete} />
+              <AdaptiveDpr />
+              <Preload all />
             </Canvas>
           </div>
 

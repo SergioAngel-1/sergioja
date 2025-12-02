@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import HexButton from '@/components/atoms/HexButton';
 import Modal from '@/components/molecules/Modal';
-import DataStream from '@/components/atoms/DataStream';
 import HexagonGrid from '@/components/atoms/HexagonGrid';
 import CenteredHero from '@/components/molecules/CenteredHero';
 import NavigationContent from '@/components/organisms/NavigationContent';
@@ -81,7 +80,7 @@ export default function Home() {
       // Also expose globally to ensure fixed descendants can read it regardless of stacking contexts
       document.documentElement.style.setProperty('--vv-center-y', `${centerY}px`);
       // Expose hero size globally for CTA positioning
-      document.documentElement.style.setProperty('--hero-size', 'clamp(280px, 40vw, 500px)');
+      document.documentElement.style.setProperty('--hero-size', 'clamp(364px, 52vw, 650px)');
     };
     updateCenter();
     window.addEventListener('resize', updateCenter);
@@ -107,12 +106,6 @@ export default function Home() {
       </div>
       
       {/* Data streams - disabled in low performance mode */}
-      {!lowPerformanceMode && (
-        <div className="absolute inset-0 z-0">
-          <DataStream position="left" />
-          <DataStream position="right" />
-        </div>
-      )}
 
       {/* Hex Buttons - Botones esquineros */}
       <HexButton
@@ -262,7 +255,7 @@ export default function Home() {
           className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
           style={{ top: 'var(--vv-center-y, 50%)' }}
         >
-          <CenteredHero />
+          <CenteredHero onModelIntroComplete={() => setActiveModal((prev) => prev ?? 'navigation')} />
         </div>
       </main>
 
