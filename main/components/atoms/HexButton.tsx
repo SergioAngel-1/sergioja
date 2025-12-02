@@ -16,14 +16,14 @@ interface HexButtonProps {
   anyModalOpen?: boolean;
 }
 
-// Valores precalculados estáticos para evitar diferencias servidor/cliente
+// Valores precalculados estáticos para evitar diferencias servidor/cliente (escalados 1.3x)
 const linePositions = [
-  { x2: 85, y2: 50 },                    // 0°
-  { x2: 67.5, y2: 80.31088913245535 },  // 60°
-  { x2: 32.5, y2: 80.31088913245535 },  // 120°
-  { x2: 15, y2: 50 },                    // 180°
-  { x2: 32.5, y2: 19.689110867544652 }, // 240°
-  { x2: 67.5, y2: 19.689110867544652 }  // 300°
+  { x2: 110.5, y2: 65 },                    // 0°
+  { x2: 87.75, y2: 104.40415587219195 },   // 60°
+  { x2: 42.25, y2: 104.40415587219195 },   // 120°
+  { x2: 19.5, y2: 65 },                     // 180°
+  { x2: 42.25, y2: 25.595844127808048 },   // 240°
+  { x2: 87.75, y2: 25.595844127808048 }    // 300°
 ];
 
 export default function HexButton({ 
@@ -73,37 +73,63 @@ export default function HexButton({
       <motion.button
         onClick={onClick}
         className="relative flex items-center justify-center cursor-pointer group"
-        style={{ width: 'clamp(4rem, 6vw, 6rem)', height: 'clamp(4rem, 6vw, 6rem)' }}
-        whileHover={{ scale: 1.1 }}
+        style={{ 
+          width: 'clamp(5.2rem, 7.8vw, 7.8rem)', 
+          height: 'clamp(5.2rem, 7.8vw, 7.8rem)'
+        }}
         whileTap={{ scale: 0.95 }}
       >
+        {/* Backdrop blur layer */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            clipPath: 'polygon(50% 5%, 90% 27.5%, 90% 72.5%, 50% 95%, 10% 72.5%, 10% 27.5%)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            backgroundColor: isActive ? 'rgba(0, 0, 0, 0.35)' : 'rgba(0, 0, 0, 0.25)',
+            zIndex: 0
+          }}
+        />
+        <motion.div
+          className={`absolute pointer-events-none transition-opacity duration-200 ${ (showMenuLabel && menuLabel) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100' }`}
+          style={{
+            ...(position.includes('left') 
+              ? { left: `calc(100% + ${fluidSizing.space.xs})` } 
+              : { right: `calc(100% + ${fluidSizing.space.xs})` }),
+            top: '50%',
+            zIndex: 3,
+          }}
+        >
+          <div className="relative -translate-y-1/2">
+            <div 
+              className="bg-black/40 backdrop-blur-sm border border-white/20 rounded px-2 py-1"
+              style={{
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <span className="font-mono text-white/70 text-fluid-xs tracking-wider uppercase leading-none">
+                {showMenuLabel && menuLabel ? menuLabel : label}
+              </span>
+            </div>
+          </div>
+        </motion.div>
         {/* SVG Hexágono */}
         <svg 
-          width="100" 
-          height="100" 
-          viewBox="0 0 100 100"
-          className="drop-shadow-2xl"
+          width="130" 
+          height="130" 
+          viewBox="0 0 130 130"
+          className="drop-shadow-2xl absolute"
+          style={{ zIndex: 1 }}
         >
-          {/* Hexágono de fondo */}
-          <motion.polygon
-            points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5"
-            fill="#000000"
-            stroke="none"
-            initial={{ opacity: 0.3 }}
-            animate={{ 
-              opacity: isActive ? 0.5 : 0.3,
-            }}
-            transition={{
-              duration: 0.3
-            }}
-          />
           
           {/* Hexágono borde exterior - más grueso */}
           <motion.polygon
-            points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5"
+            points="65,6.5 117,35.75 117,94.25 65,123.5 13,94.25 13,35.75"
             fill="none"
             stroke="#FFFFFF"
-            strokeWidth={isActive ? "3.5" : "2.5"}
+            strokeWidth={isActive ? "4.5" : "3.25"}
             initial={{ pathLength: 0, opacity: 0 }}
             animate={{ 
               pathLength: 1,
@@ -119,33 +145,26 @@ export default function HexButton({
 
           {/* Hexágono interior con dash animado */}
           <motion.polygon
-            points="50,18 78,33 78,67 50,82 22,67 22,33"
+            points="65,23.4 101.4,42.9 101.4,87.1 65,106.6 28.6,87.1 28.6,42.9"
             fill="none"
             stroke="#FFFFFF"
-            strokeWidth="1"
+            strokeWidth="1.3"
             strokeDasharray="4 4"
             opacity={isActive ? "0.6" : "0.4"}
-            animate={{ 
-              strokeDashoffset: [0, -24],
-              opacity: isActive ? 0.6 : 0.4
-            }}
-            transition={{
-              strokeDashoffset: {
-                duration: 4,
-                repeat: Infinity,
-                ease: 'linear'
-              },
-              opacity: {
-                duration: 0.3
-              }
+            animate={isActive ? { strokeDashoffset: [0, -24], opacity: 0.6 } : { strokeDashoffset: 0, opacity: 0.4 }}
+            transition={isActive ? {
+              strokeDashoffset: { duration: 4, repeat: Infinity, ease: 'linear' },
+              opacity: { duration: 0.3 }
+            } : {
+              opacity: { duration: 0.3 }
             }}
           />
 
           {/* Círculo central cuando está activo */}
           <motion.circle
-            cx="50"
-            cy="50"
-            r="28"
+            cx="65"
+            cy="65"
+            r="36.4"
             fill="#FFFFFF"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ 
@@ -159,12 +178,12 @@ export default function HexButton({
           {linePositions.map((pos, i) => (
             <motion.line
               key={i}
-              x1="50"
-              y1="50"
+              x1="65"
+              y1="65"
               x2={pos.x2}
               y2={pos.y2}
               stroke="#FFFFFF"
-              strokeWidth="0.5"
+              strokeWidth="0.65"
               opacity="0.3"
               initial={{ pathLength: 0 }}
               animate={{ 
@@ -181,9 +200,10 @@ export default function HexButton({
 
         {/* Icono central */}
         <motion.div 
-          className="absolute inset-0 flex items-center justify-center text-white scale-75 sm:scale-90 md:scale-100"
+          className="absolute inset-0 flex items-center justify-center text-white"
+          style={{ zIndex: 99, filter: 'drop-shadow(0 0 6px rgba(0,0,0,0.6))' }}
           animate={{
-            scale: isActive ? 1.15 : 1,
+            scale: isActive ? 1.8 : 1.5,
           }}
           transition={{
             duration: 0.3,
@@ -228,58 +248,18 @@ export default function HexButton({
           />
         </motion.div>
 
-        {/* Label flotante mejorado */}
-        <motion.div
-          className="hidden sm:block absolute top-1/2 -translate-y-1/2 pointer-events-none whitespace-nowrap"
-          style={{
-            ...(position.includes('left') && { left: '100%', marginLeft: fluidSizing.space.md }),
-            ...(position.includes('right') && { right: '100%', marginRight: fluidSizing.space.md }),
-          }}
-          initial={{ opacity: 0, x: position.includes('left') ? -10 : 10 }}
-          whileHover={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className="bg-white text-black rounded-lg shadow-2xl border border-white" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}>
-            <span className="font-orbitron font-bold tracking-wider uppercase text-fluid-xs">
-              {label}
-            </span>
-          </div>
-        </motion.div>
-
         {/* Glow effect en hover */}
         <motion.div
           className="absolute inset-0 rounded-full"
           style={{
             background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+            zIndex: 2,
           }}
           initial={{ opacity: 0, scale: 0.8 }}
           whileHover={{ opacity: 1, scale: 1.2 }}
           transition={{ duration: 0.3 }}
         />
       </motion.button>
-
-      {/* Menu label for accessibility - only for navigation button */}
-      {showMenuLabel && menuLabel && (
-        <motion.div
-          className="pointer-events-none"
-          style={{
-            marginTop: fluidSizing.space.xs,
-          }}
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ 
-            opacity: anyModalOpen ? 0 : 1, 
-            y: anyModalOpen ? -5 : 0 
-          }}
-          transition={{ 
-            duration: 0.3,
-            ease: 'easeOut'
-          }}
-        >
-          <span className="font-mono text-white/50 text-fluid-xs tracking-wider uppercase">
-            {menuLabel}
-          </span>
-        </motion.div>
-      )}
     </motion.div>
   );
 }
