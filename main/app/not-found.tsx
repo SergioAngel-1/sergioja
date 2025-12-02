@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import HexagonGrid from '@/components/atoms/HexagonGrid';
-import DataStream from '@/components/atoms/DataStream';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 
@@ -16,8 +15,7 @@ export default function NotFound() {
       <HexagonGrid />
 
       {/* Data streams */}
-      <DataStream position="left" />
-      <DataStream position="right" />
+      
 
       {/* Animated glow effects */}
       <motion.div
