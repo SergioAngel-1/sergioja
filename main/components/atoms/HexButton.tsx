@@ -91,7 +91,7 @@ export default function HexButton({
           }}
         />
         <motion.div
-          className={`absolute pointer-events-none transition-opacity duration-200 ${ (showMenuLabel && menuLabel) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100' }`}
+          className={`absolute pointer-events-none transform transition-all duration-200 ${ (showMenuLabel && menuLabel) ? (anyModalOpen ? 'opacity-0' : 'opacity-100') : 'opacity-0 group-hover:opacity-100' } ${ position.includes('left') ? 'group-hover:translate-x-1.5' : 'group-hover:-translate-x-1.5' }`}
           style={{
             ...(position.includes('left') 
               ? { left: `calc(100% + ${fluidSizing.space.xs})` } 
