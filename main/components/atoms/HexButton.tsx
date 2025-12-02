@@ -58,7 +58,7 @@ export default function HexButton({
 
   return (
     <motion.div
-      className="fixed z-50 flex flex-col items-center"
+      className="fixed z-[60] flex flex-col items-center"
       style={positionStyles[position]}
       initial={{ opacity: 0, scale: 0, rotate: -180 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -91,7 +91,13 @@ export default function HexButton({
           }}
         />
         <motion.div
-          className={`absolute pointer-events-none transform transition-all duration-200 ${ (showMenuLabel && menuLabel) ? (anyModalOpen ? 'opacity-0' : 'opacity-100') : 'opacity-0 group-hover:opacity-100' } ${ position.includes('left') ? 'group-hover:translate-x-1.5' : 'group-hover:-translate-x-1.5' }`}
+          className={`absolute pointer-events-none transform transition-all duration-200 ${
+            isActive
+              ? 'opacity-0'
+              : (showMenuLabel && menuLabel)
+                ? (anyModalOpen ? 'opacity-0 group-hover:opacity-100' : 'opacity-100')
+                : 'opacity-0 group-hover:opacity-100'
+          } ${ !isActive ? (position.includes('left') ? 'group-hover:translate-x-1.5' : 'group-hover:-translate-x-1.5') : '' }`}
           style={{
             ...(position.includes('left') 
               ? { left: `calc(100% + ${fluidSizing.space.xs})` } 

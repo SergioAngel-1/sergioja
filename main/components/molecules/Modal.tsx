@@ -76,7 +76,7 @@ export default function Modal({
   const getModalPositionStyles = () => {
     const baseOffset = fluidSizing.space.lg;
     const modalOffset = 'clamp(1rem, 10vw, 10rem)';
-    const hexButtonSize = 'clamp(4rem, 6vw, 6rem)';
+    const hexButtonSize = 'clamp(5.2rem, 7.8vw, 7.8rem)';
     const gap = fluidSizing.space.md;
 
     switch (position) {
@@ -104,11 +104,20 @@ export default function Modal({
 
   const getModalMaxHeight = () => {
     const baseOffset = fluidSizing.space.lg;
-    const hexButtonSize = 'clamp(4rem, 6vw, 6rem)';
-    const gap = fluidSizing.space.md;
-    const topReserved = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-top))`;
-    const bottomReserved = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-bottom))`;
-    return `calc(var(--vh-form) - ${topReserved} - ${bottomReserved})`;
+    const hexButtonSize = 'clamp(5.2rem, 7.8vw, 7.8rem)';
+    const gap = fluidSizing.space.xs;
+    // Desktop: solo reservar el lado opuesto al anclaje (top/bottom).
+    // Mobile: reservar ambos lados para dejar espacio a los hex buttons.
+    const includeTopHex = position.includes('bottom') || isMobile;
+    const includeBottomHex = position.includes('top') || isMobile;
+    const anchoredTop = position.includes('top');
+    const anchoredBottom = position.includes('bottom');
+    const topBase = (anchoredTop || isMobile) ? baseOffset : '0px';
+    const bottomBase = (anchoredBottom || isMobile) ? baseOffset : '0px';
+    const topReserved = `calc(${topBase} + ${includeTopHex ? `${hexButtonSize} + ${gap} + ` : ''}env(safe-area-inset-top))`;
+    const bottomReserved = `calc(${bottomBase} + ${includeBottomHex ? `${hexButtonSize} + ${gap} + ` : ''}env(safe-area-inset-bottom))`;
+    const viewportVar = isMobile ? '--vh-form' : '--vh-app';
+    return `calc(var(${viewportVar}) - ${topReserved} - ${bottomReserved})`;
   };
 
 
@@ -162,8 +171,7 @@ export default function Modal({
               ...getModalPositionStyles(),
               width: 'min(calc(100vw - 2rem), clamp(320px, 35vw, 380px))',
               maxWidth: 'calc(100vw - 2rem)',
-              maxHeight: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
-              // No height fija en mobile: que el modal crezca hasta maxHeight y, si lo supera, scrollee el contenido
+              maxHeight: getModalMaxHeight(),
               zIndex: isMobile ? 45 : undefined,
               overflow: isMobile ? 'hidden' : undefined
             }}
@@ -177,7 +185,7 @@ export default function Modal({
               style={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
-                maxHeight: isMobile ? getModalMaxHeight() : 'calc(var(--vh-app) - 8rem)',
+                maxHeight: getModalMaxHeight(),
                 height: '100%',
                 overflow: 'hidden',
                 // Anti-blur optimizations for text rendering
