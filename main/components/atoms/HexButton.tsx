@@ -157,6 +157,7 @@ export default function HexButton({
             strokeWidth="1.3"
             strokeDasharray="4 4"
             opacity={isActive ? "0.6" : "0.4"}
+            initial={{ strokeDashoffset: 0 }}
             animate={isActive ? { strokeDashoffset: [0, -24], opacity: 0.6 } : { strokeDashoffset: 0, opacity: 0.4 }}
             transition={isActive ? {
               strokeDashoffset: { duration: 4, repeat: Infinity, ease: 'linear' },
