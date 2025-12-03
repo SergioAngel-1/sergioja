@@ -5,6 +5,46 @@
  * Compartido entre Portfolio y Main
  */
 
+export interface FluidSizingSpec {
+  space: {
+    xs: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+    '2xl': string;
+  };
+  size: {
+    iconSm: string;
+    iconMd: string;
+    iconLg: string;
+    buttonSm: string;
+    buttonMd: string;
+    buttonLg: string;
+    hexButton: string;
+    heroContainer: string;
+  };
+  text: {
+    xs: string;
+    sm: string;
+    base: string;
+    lg: string;
+    xl: string;
+    '2xl': string;
+    '3xl': string;
+    '4xl': string;
+    '5xl': string;
+    '6xl': string;
+  };
+  nav: {
+    width: string;
+    gap: string;
+  };
+  header: {
+    height: string;
+  };
+}
+
 export const fluidSizing = {
   // Spacing
   space: {
@@ -52,7 +92,7 @@ export const fluidSizing = {
   header: {
     height: 'clamp(4rem, 6vw, 6rem)', // Altura del header para padding-top
   },
-} as const;
+} as const satisfies FluidSizingSpec;
 
 /**
  * Helper para crear clamp personalizado
@@ -68,12 +108,12 @@ export function clamp(min: string, preferred: string, max: string): string {
  * Genera objeto de estilos con sizing fluido
  */
 export function fluidStyle(config: {
-  width?: keyof typeof fluidSizing.size | string;
-  height?: keyof typeof fluidSizing.size | string;
-  gap?: keyof typeof fluidSizing.space | string;
-  padding?: keyof typeof fluidSizing.space | string;
-  margin?: keyof typeof fluidSizing.space | string;
-  fontSize?: keyof typeof fluidSizing.text | string;
+  width?: keyof FluidSizingSpec['size'] | string;
+  height?: keyof FluidSizingSpec['size'] | string;
+  gap?: keyof FluidSizingSpec['space'] | string;
+  padding?: keyof FluidSizingSpec['space'] | string;
+  margin?: keyof FluidSizingSpec['space'] | string;
+  fontSize?: keyof FluidSizingSpec['text'] | string;
   [key: string]: any;
 }): Record<string, any> {
   const style: Record<string, any> = {};
