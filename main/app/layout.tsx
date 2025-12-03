@@ -27,6 +27,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sergioja.com';
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const isProd = process.env.NODE_ENV === 'production';
 
 export const metadata: Metadata = {
   ...generateMetadata(defaultSEO, SITE_URL),
@@ -54,11 +55,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning data-tag-assistant-prod-present={(isProd && GTM_ID) ? '' : undefined}>
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-light text-text-primary antialiased`}
       >
-        {GTM_ID && (
+        {isProd && GTM_ID && (
           <Script id="gtm-base" strategy="afterInteractive">
             {`(function(w,d,s,l,i){
               w[l]=w[l]||[];
@@ -71,7 +72,7 @@ export default function RootLayout({
             })(window,document,'script','dataLayer','${GTM_ID}');`}
           </Script>
         )}
-        {GTM_ID && (
+        {isProd && GTM_ID && (
           <noscript
             dangerouslySetInnerHTML={{
               __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
