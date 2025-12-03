@@ -6,14 +6,20 @@ import dynamic from 'next/dynamic';
 
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
+
+function Loading3D() {
+  const { t } = useLanguage();
+  return (
+    <div className="w-full h-full flex items-center justify-center">
+      <Loader size="md" message={t('loader.initializing')} />
+    </div>
+  );
+}
 
 const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
   ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center">
-      <Loader size="md" message="INICIALIZANDO" />
-    </div>
-  ),
+  loading: () => <Loading3D />,
 });
 
 export default function CenteredHero({ onModelIntroComplete }: { onModelIntroComplete?: () => void }) {
