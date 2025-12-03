@@ -87,6 +87,8 @@ export default function Home() {
       setCurrentView('games');
     } else if (cmd === 'clear' || cmd === 'cls') {
       setCurrentView('main');
+      setMatrixMessage('');
+      setShowMatrixDialog(false);
     } else if (cmd === 'matrix' || cmd === 'matrix --disable') {
       // Matrix command disabled: show "coming soon" and do nothing
       setShowMatrixDialog(false);
