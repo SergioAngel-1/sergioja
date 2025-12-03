@@ -173,6 +173,10 @@ export interface BaseTranslations {
   'gyro.movePhone': string;
   'gyro.enable': string;
   'newsletter.label': string;
+
+  // Loader
+  'loader.loadingModel': string;
+  'loader.initializing': string;
 }
 
 // Alias para compatibilidad
@@ -343,6 +347,10 @@ export const translations: Record<Language, Translations> = {
     'gyro.movePhone': 'Mueve tu móvil',
     'gyro.enable': 'ACTIVAR GIROSCOPIO',
     'newsletter.label': 'Newsletter',
+
+    // Loader
+    'loader.loadingModel': 'Cargando modelo',
+    'loader.initializing': 'Inicializando',
   },
   en: {
     // Navigation
@@ -508,6 +516,10 @@ export const translations: Record<Language, Translations> = {
     'gyro.movePhone': 'Move your phone',
     'gyro.enable': 'ENABLE GYROSCOPE',
     'newsletter.label': 'Newsletter',
+
+    // Loader
+    'loader.loadingModel': 'Loading model',
+    'loader.initializing': 'Initializing',
   },
 };
 

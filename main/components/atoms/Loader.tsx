@@ -134,7 +134,8 @@ export default function Loader({
         {/* Loading message */}
         {message && (
           <motion.div
-            className={`${config.text} text-white/80 font-mono tracking-wider uppercase`}
+            className={`${config.text} text-white/80 font-mono tracking-wider uppercase text-center`}
+            style={{ minWidth: config.outer }}
             animate={{
               opacity: [0.5, 1, 0.5]
             }}
@@ -145,18 +146,6 @@ export default function Loader({
             }}
           >
             {message}
-            <motion.span
-              animate={{
-                opacity: [0, 1, 0]
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: 'easeInOut'
-              }}
-            >
-              ...
-            </motion.span>
           </motion.div>
         )}
 
