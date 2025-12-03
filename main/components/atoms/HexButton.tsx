@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { usePerformance } from '@/lib/contexts/PerformanceContext';
 
 interface HexButtonProps {
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -37,6 +38,7 @@ export default function HexButton({
   menuLabel = '',
   anyModalOpen = false
 }: HexButtonProps) {
+  const { lowPerformanceMode } = usePerformance();
   const positionStyles = {
     'top-left': { 
       top: `calc(${fluidSizing.space.lg} + env(safe-area-inset-top))`, 
@@ -218,13 +220,20 @@ export default function HexButton({
             strokeDasharray="4 4"
             opacity={isActive ? "0.6" : "0.4"}
             initial={{ strokeDashoffset: 0 }}
-            animate={isActive ? { strokeDashoffset: [0, -24], opacity: 0.6 } : { strokeDashoffset: 0, opacity: 0.4 }}
-            transition={isActive ? {
-              strokeDashoffset: { duration: 4, repeat: Infinity, ease: 'linear' },
-              opacity: { duration: 0.3 }
-            } : {
-              opacity: { duration: 0.3 }
-            }}
+            animate={
+              isActive
+                ? (lowPerformanceMode
+                    ? { strokeDashoffset: 0, opacity: 0.6 }
+                    : { strokeDashoffset: [0, -24], opacity: 0.6 })
+                : { strokeDashoffset: 0, opacity: 0.4 }
+            }
+            transition={
+              isActive
+                ? (lowPerformanceMode
+                    ? { opacity: { duration: 0.3 } }
+                    : { strokeDashoffset: { duration: 4, repeat: Infinity, ease: 'linear' }, opacity: { duration: 0.3 } })
+                : { opacity: { duration: 0.3 } }
+            }
           />
 
           {/* Círculo central cuando está activo */}
