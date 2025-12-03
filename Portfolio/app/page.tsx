@@ -88,17 +88,9 @@ export default function Home() {
     } else if (cmd === 'clear' || cmd === 'cls') {
       setCurrentView('main');
     } else if (cmd === 'matrix' || cmd === 'matrix --disable') {
-      // If matrix is already active and user types "matrix --disable", disable it directly
-      if (matrixMode && cmd === 'matrix --disable') {
-        setMatrixMode(false);
-        setMatrixMessage(t('matrix.deactivated'));
-      } else if (!matrixMode && cmd === 'matrix') {
-        // Only show warning dialog when activating
-        setShowMatrixDialog(true);
-      } else if (matrixMode && cmd === 'matrix') {
-        // If already active and user types "matrix", show dialog to disable
-        setShowMatrixDialog(true);
-      }
+      // Matrix command disabled: show "coming soon" and do nothing
+      setShowMatrixDialog(false);
+      setMatrixMessage(t('performance.comingSoon'));
     } else if (cmd === 'language' || cmd === t('terminal.language')) {
       setCurrentView('language');
     } else {
@@ -121,6 +113,14 @@ export default function Home() {
   const handleMatrixCancel = () => {
     setShowMatrixDialog(false);
   };
+
+  // Clear 'coming soon' message when changing terminal views
+  useEffect(() => {
+    if (matrixMessage === t('performance.comingSoon')) {
+      setMatrixMessage('');
+      setShowMatrixDialog(false);
+    }
+  }, [currentView]);
 
   // Focus terminal input when clicking on terminal
   const handleTerminalClick = () => {
