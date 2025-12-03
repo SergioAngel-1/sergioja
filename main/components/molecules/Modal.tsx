@@ -76,25 +76,26 @@ export default function Modal({
   const getModalPositionStyles = () => {
     const baseOffset = fluidSizing.space.lg;
     const modalOffset = 'clamp(1rem, 10vw, 10rem)';
-    const hexButtonSize = 'clamp(5.2rem, 7.8vw, 7.8rem)';
+    const hexButtonSize = fluidSizing.size.hexButton;
     const gap = fluidSizing.space.md;
+    const extraSafe = fluidSizing.space.sm;
 
     switch (position) {
       case 'top-left':
         return isMobile
-          ? { top: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-top))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
+          ? { top: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + ${extraSafe} + env(safe-area-inset-top))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
           : { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
       case 'top-right':
         return isMobile
-          ? { top: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-top))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
+          ? { top: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + ${extraSafe} + env(safe-area-inset-top))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
           : { top: `calc(${baseOffset} + env(safe-area-inset-top))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
       case 'bottom-left':
         return isMobile
-          ? { bottom: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-bottom))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
+          ? { bottom: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + ${extraSafe} + env(safe-area-inset-bottom))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
           : { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
       case 'bottom-right':
         return isMobile
-          ? { bottom: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-bottom))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
+          ? { bottom: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + ${extraSafe} + env(safe-area-inset-bottom))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
           : { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
       default:
         return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
@@ -104,8 +105,9 @@ export default function Modal({
 
   const getModalMaxHeight = () => {
     const baseOffset = fluidSizing.space.lg;
-    const hexButtonSize = 'clamp(5.2rem, 7.8vw, 7.8rem)';
-    const gap = fluidSizing.space.xs;
+    const hexButtonSize = fluidSizing.size.hexButton;
+    const gap = fluidSizing.space.md;
+    const extraSafe = fluidSizing.space.sm;
     // Desktop: solo reservar el lado opuesto al anclaje (top/bottom).
     // Mobile: reservar ambos lados para dejar espacio a los hex buttons.
     const includeTopHex = position.includes('bottom') || isMobile;
@@ -114,8 +116,8 @@ export default function Modal({
     const anchoredBottom = position.includes('bottom');
     const topBase = (anchoredTop || isMobile) ? baseOffset : '0px';
     const bottomBase = (anchoredBottom || isMobile) ? baseOffset : '0px';
-    const topReserved = `calc(${topBase} + ${includeTopHex ? `${hexButtonSize} + ${gap} + ` : ''}env(safe-area-inset-top))`;
-    const bottomReserved = `calc(${bottomBase} + ${includeBottomHex ? `${hexButtonSize} + ${gap} + ` : ''}env(safe-area-inset-bottom))`;
+    const topReserved = `calc(${topBase} + ${includeTopHex ? `${hexButtonSize} + ${gap} + ${extraSafe} + ` : ''}env(safe-area-inset-top))`;
+    const bottomReserved = `calc(${bottomBase} + ${includeBottomHex ? `${hexButtonSize} + ${gap} + ${extraSafe} + ` : ''}env(safe-area-inset-bottom))`;
     const viewportVar = isMobile ? '--vh-form' : '--vh-app';
     return `calc(var(${viewportVar}) - ${topReserved} - ${bottomReserved})`;
   };

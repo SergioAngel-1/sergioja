@@ -79,8 +79,8 @@ export default function Home() {
       }
       // Also expose globally to ensure fixed descendants can read it regardless of stacking contexts
       document.documentElement.style.setProperty('--vv-center-y', `${centerY}px`);
-      // Expose hero size globally for CTA positioning
-      document.documentElement.style.setProperty('--hero-size', 'clamp(364px, 52vw, 650px)');
+      // Expose hero size globally for CTA positioning (use fluidSizing token)
+      document.documentElement.style.setProperty('--hero-size', fluidSizing.size.heroContainer);
     };
     updateCenter();
     window.addEventListener('resize', updateCenter);

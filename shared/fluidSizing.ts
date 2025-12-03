@@ -24,6 +24,8 @@ export const fluidSizing = {
     buttonSm: 'clamp(2rem, 2.5vw, 2.5rem)',
     buttonMd: 'clamp(2.5rem, 3vw, 3rem)',
     buttonLg: 'clamp(3rem, 4vw, 4rem)',
+    hexButton: 'clamp(5.2rem, 7.8vw, 7.8rem)',
+    heroContainer: 'clamp(364px, 46vw, 650px)',
   },
 
   // Typography

@@ -47,8 +47,8 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
       <div
         className="relative"
         style={{
-          width: 'clamp(364px, 52vw, 650px)',
-          height: 'clamp(364px, 52vw, 650px)',
+          width: fluidSizing.size.heroContainer,
+          height: fluidSizing.size.heroContainer,
         }}
       >
         {/* 3D Model Container */}
