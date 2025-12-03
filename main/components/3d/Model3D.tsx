@@ -31,6 +31,9 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
   const log = useLogger('AnimatedModel3D');
   const calledRef = useRef(false);
   const tickRef = useRef(0);
+  // Pose base (esquina arriba-izquierda)
+  const BASE_ROT_X = -0.2; // mirada ligeramente hacia arriba
+  const BASE_ROT_Y = -0.1; // giro hacia la izquierda (aún menos sesgo)
   
   // Cargar modelo GLTF de Blender
   const { scene } = useGLTF('/models/SergioJAModel.glb');
@@ -125,33 +128,47 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
     }
   }, [animationProgress, onIntroAnimationEnd]);
 
+
   useFrame((state) => {
     const now = state.clock.getElapsedTime();
     const interval = 1 / 30;
     if (now - tickRef.current < interval) return;
     tickRef.current = now;
     if (groupRef.current) {
+      // Mantener z estable
+      groupRef.current.position.z = 0;
       if (animationProgress < 1) {
-        
+        // Durante la intro: interpolar de 0 a la pose base (arriba-izquierda)
+        const tx = THREE.MathUtils.lerp(0, BASE_ROT_X, animationProgress);
+        const ty = THREE.MathUtils.lerp(0, BASE_ROT_Y, animationProgress);
+        const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(tx, ty, 0, 'XYZ'));
+        groupRef.current.quaternion.slerp(targetQuat, 0.12);
       } else if (!lowPerformanceMode) {
         // Después de la animación - solo si NO es bajo rendimiento
-        let targetRotationY, targetRotationX;
+        let inputRotY, inputRotX;
 
         if (isMobile) {
           // Mobile: usar giroscopio
           // gamma: -90 (izquierda) a 90 (derecha)
           // beta: -180 (atrás) a 180 (adelante)
           const { beta, gamma } = deviceOrientationRef.current;
-          targetRotationY = (gamma / 90) * 0.5;  // Normalizar a -0.5 a 0.5
-          targetRotationX = (beta / 180) * 0.3;  // Normalizar a -0.3 a 0.3
+          inputRotY = (gamma / 90) * 0.5;  // -0.5..0.5
+          inputRotX = (beta / 180) * 0.3;  // -0.3..0.3
         } else {
           // Desktop: usar mouse
-          targetRotationY = mousePosition.x * 0.5;
-          targetRotationX = mousePosition.y * 0.3;
+          inputRotY = mousePosition.x * 0.5;
+          inputRotX = mousePosition.y * 0.3;
         }
-        
-        groupRef.current.rotation.y += (targetRotationY - groupRef.current.rotation.y) * 0.08;
-        groupRef.current.rotation.x += (targetRotationX - groupRef.current.rotation.x) * 0.08;
+        // Mantener la pose base como neutra después de la intro
+        const targetRotationY = BASE_ROT_Y + inputRotY;
+        const targetRotationX = BASE_ROT_X + inputRotX;
+        const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetRotationX, targetRotationY, 0, 'XYZ'));
+        groupRef.current.quaternion.slerp(targetQuat, 0.1);
+      } else {
+        // Bajo rendimiento: fijar pose base estática
+        groupRef.current.rotation.x = BASE_ROT_X;
+        groupRef.current.rotation.y = BASE_ROT_Y;
+        groupRef.current.rotation.z = 0;
       }
       // En bajo rendimiento, el modelo queda estático después de la animación inicial
     }
@@ -213,7 +230,7 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
   const [gyroEnabled, setGyroEnabled] = useState(false);
   const { t } = useLanguage();
   const log = useLogger('Model3D');
-  const { lowPerformanceMode } = usePerformance();
+  const { lowPerformanceMode, mode } = usePerformance();
 
   useEffect(() => {
     setMounted(true);
@@ -275,7 +292,7 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
       {!mounted || isLoading ? (
         <>
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <Loader size="md" message="CARGANDO MODELO" />
+            <Loader size="md" message={t('loader.loadingModel')} />
           </div>
           {gyroEnabled && !lowPerformanceMode ? (
             <div
@@ -307,6 +324,7 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
           {/* Canvas 3D con fondo transparente */}
           <div className="absolute inset-0 z-10">
             <Canvas
+              key={mode}
               camera={{ position: [0, 0, 4], fov: 50 }}
               dpr={lowPerformanceMode ? 1 : [1, 1.25]}
               gl={{ 
