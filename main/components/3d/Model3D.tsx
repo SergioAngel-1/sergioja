@@ -181,32 +181,29 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
         const ty = THREE.MathUtils.lerp(0, BASE_ROT_Y, animationProgress);
         const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(tx, ty, 0, 'XYZ'));
         groupRef.current.quaternion.slerp(targetQuat, 0.12);
-      } else if (!lowPerformanceMode) {
-        // Después de la animación - solo si NO es bajo rendimiento
-        let inputRotY, inputRotX;
+      } else {
+        // Después de la animación
+        // En bajo rendimiento: sólo PC sigue el mouse; Mobile (gyro) deshabilitado
+        let inputRotY = 0, inputRotX = 0;
 
         if (isMobile) {
-          // Mobile: usar giroscopio
-          // gamma: -90 (izquierda) a 90 (derecha)
-          // beta: -180 (atrás) a 180 (adelante)
-          const { beta, gamma } = deviceOrientationRef.current;
-          inputRotY = (gamma / 90) * 0.5;  // -0.5..0.5
-          inputRotX = (beta / 180) * 0.3;  // -0.3..0.3
+          if (!lowPerformanceMode) {
+            // Mobile: usar giroscopio sólo si NO es bajo rendimiento
+            const { beta, gamma } = deviceOrientationRef.current;
+            inputRotY = (gamma / 90) * 0.5;  // -0.5..0.5
+            inputRotX = (beta / 180) * 0.3;  // -0.3..0.3
+          }
         } else {
-          // Desktop: usar mouse
+          // Desktop: siempre seguir mouse incluso en bajo rendimiento
           inputRotY = mousePosition.x * 0.5;
           inputRotX = mousePosition.y * 0.3;
         }
+
         // Mantener la pose base como neutra después de la intro
         const targetRotationY = BASE_ROT_Y + inputRotY;
         const targetRotationX = BASE_ROT_X + inputRotX;
         const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetRotationX, targetRotationY, 0, 'XYZ'));
         groupRef.current.quaternion.slerp(targetQuat, 0.1);
-      } else {
-        // Bajo rendimiento: fijar pose base estática
-        groupRef.current.rotation.x = BASE_ROT_X;
-        groupRef.current.rotation.y = BASE_ROT_Y;
-        groupRef.current.rotation.z = 0;
       }
       // En bajo rendimiento, el modelo queda estático después de la animación inicial
     }
