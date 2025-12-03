@@ -90,8 +90,14 @@ export class PerformanceManager {
 
     // Si no hay preferencia guardada, detectar automáticamente el modo recomendado
     logger.info('No saved preference, detecting device capabilities', {}, 'Performance');
+    const capabilities = PerformanceManager.detectDeviceCapabilities();
     const recommendedMode = PerformanceManager.recommendMode(this.frontend);
-    const config = PERFORMANCE_PRESETS[recommendedMode];
+    // Construir config desde el preset, y ajustar por preferencias del usuario
+    const config: PerformanceConfig = { ...PERFORMANCE_PRESETS[recommendedMode] };
+    if (capabilities.prefersReducedMotion) {
+      config.reducedMotion = true;
+      config.enableAnimations = false;
+    }
     
     // Guardar la detección automática para futuras visitas
     this.config = config;
@@ -267,11 +273,18 @@ export class PerformanceManager {
   static recommendMode(frontend: 'main' | 'portfolio' = 'portfolio'): PerformanceMode {
     const capabilities = PerformanceManager.detectDeviceCapabilities();
 
-    // Main es más exigente (modelo 3D, más animaciones)
-    // Portfolio es menos exigente
-    const threshold = frontend === 'main' ? 1 : 0;
-    
-    const shouldUseLowMode = capabilities.lowEndReasons.length > threshold;
+    // Recolección de razones, incluyendo no GPU sólo como indicador
+    const reasons = [...capabilities.lowEndReasons];
+    if (!capabilities.hasGPU) {
+      reasons.push('no_gpu');
+    }
+
+    // Menos estricto: requerir más señales para caer a modo bajo
+    // main: más permisivo (umbral alto) para que más usuarios mantengan interactividad
+    // portfolio: también relajado
+    const threshold = frontend === 'main' ? 2 : 1; // se necesita > threshold
+
+    const shouldUseLowMode = reasons.length > threshold;
 
     if (shouldUseLowMode) {
       logger.info(`Recommending low performance mode for ${frontend}`, capabilities, 'Performance');
