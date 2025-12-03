@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, AdaptiveDpr, Preload } from '@react-three/drei';
 import * as THREE from 'three';
 import Loader from '@/components/atoms/Loader';
@@ -31,6 +31,32 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
   const log = useLogger('AnimatedModel3D');
   const calledRef = useRef(false);
   const tickRef = useRef(0);
+  const smoothUntilRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const lastInvalidateRef = useRef(0);
+  const invalidate = useThree((state) => state.invalidate);
+  const schedule = useMemo(() => {
+    return (ms: number) => {
+      const now = performance.now();
+      if (now + ms > smoothUntilRef.current) smoothUntilRef.current = now + ms;
+      if (rafRef.current == null) {
+        const pump = () => {
+          const t = performance.now();
+          if (t < smoothUntilRef.current) {
+            // Throttle renders to ~30fps
+            if (t - lastInvalidateRef.current >= 33) {
+              lastInvalidateRef.current = t;
+              invalidate();
+            }
+            rafRef.current = requestAnimationFrame(pump);
+          } else {
+            rafRef.current = null;
+          }
+        };
+        rafRef.current = requestAnimationFrame(pump);
+      }
+    };
+  }, [invalidate]);
   // Pose base (esquina arriba-izquierda)
   const BASE_ROT_X = -0.2; // mirada ligeramente hacia arriba
   const BASE_ROT_Y = -0.1; // giro hacia la izquierda (aún menos sesgo)
@@ -56,6 +82,7 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
         beta: event.beta || 0,   // Inclinación adelante-atrás (-180 a 180)
         gamma: event.gamma || 0  // Inclinación izquierda-derecha (-90 a 90)
       };
+      schedule(150);
     };
 
     if (mobile && typeof DeviceOrientationEvent !== 'undefined') {
@@ -112,6 +139,7 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
       // Easing function (ease-out cubic)
       const eased = 1 - Math.pow(1 - progress, 3);
       setAnimationProgress(eased);
+      invalidate();
       
       if (progress < 1) {
         requestAnimationFrame(animate);
@@ -127,6 +155,16 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
       onIntroAnimationEnd?.();
     }
   }, [animationProgress, onIntroAnimationEnd]);
+
+  useEffect(() => {
+    schedule(120);
+  }, [mousePosition.x, mousePosition.y, schedule]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
 
   useFrame((state) => {
@@ -218,7 +256,9 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
       <ambientLight intensity={1.4} />
       <hemisphereLight args={["#ffffff", "#222222", 0.9]} />
       <directionalLight position={[0, 1, 2]} intensity={1.1} />
-      <pointLight position={[0, 1.2, 2.2]} intensity={2.2} color="#FFFFFF" />
+      {!lowPerformanceMode && (
+        <pointLight position={[0, 1.2, 2.2]} intensity={2.2} color="#FFFFFF" />
+      )}
     </group>
   );
 }
@@ -333,7 +373,7 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
                 preserveDrawingBuffer: false,
                 powerPreference: lowPerformanceMode ? 'low-power' : 'high-performance'
               }}
-              frameloop={lowPerformanceMode ? 'demand' : 'always'}
+              frameloop={'demand'}
               style={{ background: 'transparent' }}
               onCreated={({ gl }) => { 
                 gl.toneMapping = THREE.ACESFilmicToneMapping; 
