@@ -67,8 +67,6 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
           >
             {/* Corner accents */}
             <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
-            <div className="absolute top-0 right-0 border-t-2 border-r-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
-            <div className="absolute bottom-0 left-0 border-b-2 border-l-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
             <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
 
             {/* Header */}
@@ -156,7 +154,7 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 rounded border-2 border-white text-white hover:bg-white hover:text-black transition-all duration-300 font-mono font-bold disabled:opacity-50 disabled:cursor-not-allowed text-fluid-base"
+                  className="flex-1 rounded border-2 border-white bg-white text-black hover:bg-transparent hover:text-white transition-all duration-300 font-mono font-bold disabled:opacity-50 disabled:cursor-not-allowed text-fluid-base"
                   style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
                 >
                   {isSubmitting ? (
