@@ -88,8 +88,12 @@ export default function HexagonGrid() {
   }
 
   // Generar grid de hexágonos
-  const hexSize = 130;
-  const hexHeight = 113;
+  const remPx = 16;
+  const minPx = 5.2 * remPx;
+  const maxPx = 7.8 * remPx;
+  const preferred = dimensions.width * 0.078;
+  const hexSize = Math.min(maxPx, Math.max(minPx, preferred));
+  const hexHeight = (113 / 130) * hexSize;
   const cols = Math.ceil(dimensions.width / hexSize) + 2;
   const rows = Math.ceil(dimensions.height / hexHeight) + 2;
   
@@ -171,12 +175,13 @@ export default function HexagonGrid() {
           </filter>
         </defs>
         {hexagons.map((hex) => {
-          const opacity = calculateOpacity(hex.x + 65, hex.y + 65);
+          const s = hexSize / 130;
+          const opacity = calculateOpacity(hex.x + 65 * s, hex.y + 65 * s);
           if (opacity < 0.01) return null; // No renderizar hexágonos invisibles
           return (
             <polygon
               key={hex.id}
-              points={`${hex.x + 65},${hex.y} ${hex.x + 121.3},${hex.y + 32.5} ${hex.x + 121.3},${hex.y + 97.5} ${hex.x + 65},${hex.y + 130} ${hex.x + 8.7},${hex.y + 97.5} ${hex.x + 8.7},${hex.y + 32.5}`}
+              points={`${hex.x + 65 * s},${hex.y} ${hex.x + 121.3 * s},${hex.y + 32.5 * s} ${hex.x + 121.3 * s},${hex.y + 97.5 * s} ${hex.x + 65 * s},${hex.y + 130 * s} ${hex.x + 8.7 * s},${hex.y + 97.5 * s} ${hex.x + 8.7 * s},${hex.y + 32.5 * s}`}
               fill="none"
               stroke="white"
               strokeWidth="2"
