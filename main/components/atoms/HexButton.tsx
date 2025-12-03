@@ -73,9 +73,9 @@ export default function HexButton({
       <motion.button
         onClick={onClick}
         className="relative flex items-center justify-center cursor-pointer group"
-        style={{ 
-          width: 'clamp(5.2rem, 7.8vw, 7.8rem)', 
-          height: 'clamp(5.2rem, 7.8vw, 7.8rem)'
+        style={{
+          width: fluidSizing.size.hexButton,
+          height: fluidSizing.size.hexButton,
         }}
         whileTap={{ scale: 0.95 }}
       >
@@ -90,41 +90,101 @@ export default function HexButton({
             zIndex: 0
           }}
         />
-        <motion.div
-          className={`absolute pointer-events-none transform transition-all duration-200 ${
-            isActive
-              ? 'opacity-0'
-              : (showMenuLabel && menuLabel)
-                ? (anyModalOpen ? 'opacity-0 group-hover:opacity-100' : 'opacity-100')
-                : 'opacity-0 group-hover:opacity-100'
-          } ${ !isActive ? (position.includes('left') ? 'group-hover:translate-x-1.5' : 'group-hover:-translate-x-1.5') : '' }`}
-          style={{
-            ...(position.includes('left') 
-              ? { left: `calc(100% + ${fluidSizing.space.xs})` } 
-              : { right: `calc(100% + ${fluidSizing.space.xs})` }),
-            top: '50%',
-            zIndex: 3,
-          }}
-        >
-          <div className="relative -translate-y-1/2">
-            <div 
-              className="bg-black/40 backdrop-blur-sm border border-white/20 rounded px-2 py-1"
+        {(showMenuLabel && menuLabel) ? (
+          <>
+            {/* Menu label - lateral on desktop/tablet */}
+            <motion.div
+              className={`hidden md:block absolute pointer-events-none transform transition-all duration-200 ${
+                isActive
+                  ? 'opacity-0'
+                  : (anyModalOpen ? 'opacity-0 group-hover:opacity-100' : 'opacity-100')
+              } ${ !isActive ? (position.includes('left') ? 'group-hover:translate-x-1.5' : 'group-hover:-translate-x-1.5') : '' }`}
               style={{
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                whiteSpace: 'nowrap',
+                ...(position.includes('left') 
+                  ? { left: `calc(100% + ${fluidSizing.space.xs})` } 
+                  : { right: `calc(100% + ${fluidSizing.space.xs})` }),
+                top: '50%',
+                zIndex: 3,
               }}
             >
-              <span className="font-mono text-white/70 text-fluid-xs tracking-wider uppercase leading-none">
-                {showMenuLabel && menuLabel ? menuLabel : label}
-              </span>
+              <div className="relative -translate-y-1/2">
+                <div 
+                  className="bg-black/40 backdrop-blur-sm border border-white/20 rounded px-2 py-1"
+                  style={{
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <span className="font-mono text-white/70 text-fluid-xs tracking-wider uppercase leading-none">
+                    {menuLabel}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Menu label - below on mobile only */}
+            <motion.div
+              className={`md:hidden absolute pointer-events-none transition-all duration-200 ${
+                isActive
+                  ? 'opacity-0'
+                  : (anyModalOpen ? 'opacity-0' : 'opacity-100')
+              }`}
+              style={{
+                left: '50%',
+                top: `calc(100% + ${fluidSizing.space.xs})`,
+                transform: 'translateX(-50%)',
+                zIndex: 3,
+              }}
+            >
+              <div 
+                className="bg-black/40 backdrop-blur-sm border border-white/20 rounded px-2 py-1"
+                style={{
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <span className="font-mono text-white/70 text-fluid-xs tracking-wider uppercase leading-none">
+                  {menuLabel}
+                </span>
+              </div>
+            </motion.div>
+          </>
+        ) : (
+          /* Non-menu labels (lateral, on hover) */
+          <motion.div
+            className={`absolute pointer-events-none transform transition-all duration-200 ${
+              isActive ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
+            } ${ !isActive ? (position.includes('left') ? 'group-hover:translate-x-1.5' : 'group-hover:-translate-x-1.5') : '' }`}
+            style={{
+              ...(position.includes('left') 
+                ? { left: `calc(100% + ${fluidSizing.space.xs})` } 
+                : { right: `calc(100% + ${fluidSizing.space.xs})` }),
+              top: '50%',
+              zIndex: 3,
+            }}
+          >
+            <div className="relative -translate-y-1/2">
+              <div 
+                className="bg-black/40 backdrop-blur-sm border border-white/20 rounded px-2 py-1"
+                style={{
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <span className="font-mono text-white/70 text-fluid-xs tracking-wider uppercase leading-none">
+                  {label}
+                </span>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
         {/* SVG Hexágono */}
         <svg 
-          width="130" 
-          height="130" 
+          width="100%" 
+          height="100%" 
           viewBox="0 0 130 130"
           className="drop-shadow-2xl absolute"
           style={{ zIndex: 1 }}
@@ -135,12 +195,12 @@ export default function HexButton({
             points="65,6.5 117,35.75 117,94.25 65,123.5 13,94.25 13,35.75"
             fill="none"
             stroke="#FFFFFF"
-            strokeWidth={isActive ? "4.5" : "3.25"}
+            strokeWidth={isActive ? "3.0" : "1.75"}
             initial={{ pathLength: 0, opacity: 0 }}
             animate={{ 
               pathLength: 1,
               opacity: isActive ? 1 : 0.8,
-              strokeWidth: isActive ? 3.5 : 2.5
+              strokeWidth: isActive ? 2.0 : 1.0
             }}
             transition={{ 
               pathLength: { duration: 1.5, delay: delay + 0.2 },
@@ -243,9 +303,9 @@ export default function HexButton({
         >
           <motion.div
             className="rounded-full bg-black"
-            style={{ width: fluidSizing.space.xs, height: fluidSizing.space.xs }}
+            style={{ width: `calc(${fluidSizing.space.md} - 4px)`, height: `calc(${fluidSizing.space.md} - 4px)` }}
             animate={{
-              scale: [1, 1.2, 1],
+              scale: [1, 1.08, 1],
               opacity: [0.8, 1, 0.8]
             }}
             transition={{
