@@ -72,7 +72,7 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
         
         {/* 3D Model Container with blurred gray background */}
         <motion.div 
-          className="absolute rounded-full border-4 border-cyber-black overflow-hidden"
+          className="absolute rounded-full border-4 border-white overflow-hidden"
           style={{
             width: '80%',
             height: '80%',
