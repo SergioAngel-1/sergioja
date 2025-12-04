@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { alerts } from '@/shared/alertSystem';
+import { alerts } from '@/lib/alerts';
+import { fluidSizing } from '@/lib/fluidSizing';
 import Button from '@/components/atoms/Button';
 
 export default function LoginPage() {
@@ -42,21 +43,61 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md px-6"
+        className="relative z-10 w-full max-w-md"
+        style={{
+          padding: fluidSizing.space.lg,
+        }}
       >
-        <div className="bg-admin-dark-elevated border border-admin-primary/30 rounded-lg p-8 shadow-2xl glow-red">
+        <div 
+          className="bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl glow-white"
+          style={{
+            padding: fluidSizing.space.xl,
+          }}
+        >
           {/* Logo/Title */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-orbitron font-bold text-admin-primary text-glow-red mb-2">
+          <div 
+            className="text-center"
+            style={{
+              marginBottom: fluidSizing.space.xl,
+            }}
+          >
+            <h1 
+              className="font-orbitron font-bold text-admin-primary text-glow-white"
+              style={{
+                fontSize: fluidSizing.text['4xl'],
+                marginBottom: fluidSizing.space.sm,
+              }}
+            >
               ADMIN
             </h1>
-            <p className="text-text-secondary">Panel de Administración</p>
+            <p 
+              className="text-admin-gray-light"
+              style={{
+                fontSize: fluidSizing.text.base,
+              }}
+            >
+              Panel de Administración
+            </p>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form 
+            onSubmit={handleSubmit}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: fluidSizing.space.lg,
+            }}
+          >
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">
+              <label 
+                htmlFor="email" 
+                className="block font-medium text-admin-gray-light"
+                style={{
+                  fontSize: fluidSizing.text.sm,
+                  marginBottom: fluidSizing.space.sm,
+                }}
+              >
                 Email
               </label>
               <input
@@ -68,11 +109,22 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full"
                 placeholder="admin@sergioja.com"
+                style={{
+                  fontSize: fluidSizing.text.base,
+                  padding: fluidSizing.space.md,
+                }}
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-secondary mb-2">
+              <label 
+                htmlFor="password" 
+                className="block font-medium text-admin-gray-light"
+                style={{
+                  fontSize: fluidSizing.text.sm,
+                  marginBottom: fluidSizing.space.sm,
+                }}
+              >
                 Contraseña
               </label>
               <input
@@ -84,27 +136,35 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full"
                 placeholder="••••••••"
+                style={{
+                  fontSize: fluidSizing.text.base,
+                  padding: fluidSizing.space.md,
+                }}
               />
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-admin-primary hover:bg-admin-primary/80 text-white font-medium py-3 rounded-lg transition-all duration-200 glow-red"
+              isLoading={isLoading}
+              className="w-full"
+              style={{
+                fontSize: fluidSizing.text.base,
+                padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}`,
+              }}
             >
-              {isLoading ? (
-                <span className="flex items-center justify-center">
-                  <span className="inline-block animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></span>
-                  Iniciando sesión...
-                </span>
-              ) : (
-                'Iniciar Sesión'
-              )}
+              Iniciar Sesión
             </Button>
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center text-sm text-text-muted">
+          <div 
+            className="text-center text-admin-gray-medium"
+            style={{
+              marginTop: fluidSizing.space.lg,
+              fontSize: fluidSizing.text.sm,
+            }}
+          >
             <p>Acceso restringido solo para administradores</p>
           </div>
         </div>
