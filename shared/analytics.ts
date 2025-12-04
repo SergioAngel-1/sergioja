@@ -177,3 +177,25 @@ export function trackTimeOnPage(source: string, seconds: number): void {
     page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
   });
 }
+
+/**
+ * Track error general
+ */
+export function trackError(
+  source: string,
+  errorType: string,
+  errorMessage: string,
+  errorStack?: string,
+  context?: string
+): void {
+  trackEvent({
+    event: 'error',
+    source,
+    error_type: errorType,
+    error_message: errorMessage,
+    error_stack: errorStack,
+    context,
+    page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+    user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+  });
+}

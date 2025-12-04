@@ -1,3 +1,5 @@
+import { trackError } from './analytics';
+
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 export interface LogEntry {
@@ -102,8 +104,30 @@ function baseLog(level: LogLevel, message: string, data: any = {}, context?: str
       // eslint-disable-next-line no-console
       if (hasData) console.error(text, data);
       else console.error(text);
+      
+      // Track error en GA4 (solo en producción para evitar ruido)
+      if (!getIsDev() && typeof window !== 'undefined') {
+        const source = getSourceFromContext(context);
+        const errorType = data?.name || data?.type || 'UnknownError';
+        const errorStack = data?.stack || (data instanceof Error ? data.stack : undefined);
+        trackError(source, errorType, message, errorStack, context);
+      }
       break;
   }
+}
+
+/**
+ * Extrae el source del contexto o usa un default
+ */
+function getSourceFromContext(context?: string): string {
+  if (!context) return 'unknown';
+  
+  const lowerContext = context.toLowerCase();
+  if (lowerContext.includes('portfolio')) return 'portfolio';
+  if (lowerContext.includes('main')) return 'main';
+  if (lowerContext.includes('admin')) return 'admin';
+  
+  return 'shared';
 }
 
 export const logger: SharedLogger = {
@@ -131,6 +155,15 @@ export const logger: SharedLogger = {
     // Filtrar errores de API conocidos en producción
     if (shouldIgnoreError(msg, error)) return;
     baseLog('error', msg, error, 'API');
+    
+    // Track API error específicamente en GA4
+    if (!getIsDev() && typeof window !== 'undefined') {
+      const source = getSourceFromContext('API');
+      const errorType = 'APIError';
+      const errorMessage = `${method} ${url}: ${error?.message || 'Unknown error'}`;
+      const errorStack = error?.stack;
+      trackError(source, errorType, errorMessage, errorStack, 'API');
+    }
   },
   navigation: (from, to) => baseLog('debug', `Navigation: ${from} → ${to}`, undefined, 'Navigation'),
   interaction: (action, target?, data?) => baseLog('debug', `User Interaction: ${action}${target ? ` on ${target}` : ''}`, data, 'Interaction'),

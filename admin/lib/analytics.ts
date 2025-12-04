@@ -8,14 +8,15 @@ import {
   trackLoginSuccess as sharedTrackLoginSuccess,
   trackLoginFailed as sharedTrackLoginFailed,
   trackLoginError as sharedTrackLoginError,
-  trackPageView as sharedTrackPageView,
-  trackUserAction as sharedTrackUserAction,
   trackContactSubmit as sharedTrackContactSubmit,
   trackNewsletterSubscribe as sharedTrackNewsletterSubscribe,
+  trackPageView as sharedTrackPageView,
+  trackUserAction as sharedTrackUserAction,
   trackDownload as sharedTrackDownload,
   trackOutboundLink as sharedTrackOutboundLink,
   trackScrollDepth as sharedTrackScrollDepth,
   trackTimeOnPage as sharedTrackTimeOnPage,
+  trackError as sharedTrackError,
   type GA4Event,
 } from '@/shared/analytics';
 
@@ -106,4 +107,16 @@ export function trackScrollDepth(depth: number): void {
  */
 export function trackTimeOnPage(seconds: number): void {
   sharedTrackTimeOnPage(SOURCE, seconds);
+}
+
+/**
+ * Track error general
+ */
+export function trackError(
+  errorType: string,
+  errorMessage: string,
+  errorStack?: string,
+  context?: string
+): void {
+  sharedTrackError(SOURCE, errorType, errorMessage, errorStack, context);
 }
