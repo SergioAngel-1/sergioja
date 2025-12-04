@@ -14,6 +14,7 @@ import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
+import { trackContactSubmit, trackNewsletterSubscribe } from '@/lib/analytics';
 
 // Social links defined outside component to avoid recreation on each render
 const SOCIAL_LINKS = [
@@ -67,15 +68,7 @@ export default function ContactPage() {
         throw new Error(res.error?.message || 'Subscription failed');
       }
       alerts.success(t('alerts.success'), t('devTips.success'), 6000);
-      if (typeof window !== 'undefined') {
-        (window as any).dataLayer = (window as any).dataLayer || [];
-        (window as any).dataLayer.push({
-          event: 'newsletter_subscribe',
-          source: 'portfolio',
-          form_name: 'contact_newsletter',
-          page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
-        });
-      }
+      trackNewsletterSubscribe('contact_newsletter');
     } catch (err) {
       alerts.error(t('alerts.sendError'), t('devTips.submitError'), 6000);
       throw err;
@@ -135,15 +128,7 @@ export default function ContactPage() {
           t('alerts.messageSentDesc'),
           8000
         );
-        if (typeof window !== 'undefined') {
-          (window as any).dataLayer = (window as any).dataLayer || [];
-          (window as any).dataLayer.push({
-            event: 'contact_submit',
-            source: 'portfolio',
-            form_name: 'contact',
-            page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
-          });
-        }
+        trackContactSubmit('contact');
       } else {
         setStatus('error');
         const errorMsg = response.error?.message || t('contact.error');

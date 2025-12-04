@@ -35,6 +35,13 @@ export const metadata: Metadata = {
       title: 'Admin Panel',
       description: 'Panel de administración de Sergio Jáuregui',
       keywords: ['admin', 'dashboard', 'management'],
+      robots: {
+        index: false,
+        follow: false,
+        noarchive: true,
+        nosnippet: true,
+        noimageindex: true,
+      },
     },
     SITE_URL
   ),
@@ -46,6 +53,12 @@ export const metadata: Metadata = {
   robots: {
     index: false,
     follow: false,
+    noarchive: true,
+    nosnippet: true,
+    noimageindex: true,
+    'max-snippet': -1,
+    'max-image-preview': 'none',
+    'max-video-preview': -1,
   },
   icons: {
     icon: [
@@ -67,6 +80,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="dark" suppressHydrationWarning>
+      <head>
+        {/* Meta tags adicionales para bloquear indexación */}
+        <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+        <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+        <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+        <meta name="referrer" content="no-referrer" />
+      </head>
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-admin-dark text-text-primary antialiased`}
       >

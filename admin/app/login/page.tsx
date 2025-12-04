@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import { alerts } from '@/lib/alerts';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { getReCaptchaToken, loadRecaptchaEnterprise, RECAPTCHA_ACTIONS } from '@/lib/recaptcha';
+import { trackLoginSuccess, trackLoginFailed, trackLoginError } from '@/lib/analytics';
 import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
 
@@ -54,13 +55,16 @@ export default function LoginPage() {
       
       if (success) {
         alerts.success('Inicio de sesión exitoso', 'Redirigiendo al dashboard...');
+        trackLoginSuccess('email');
         router.push('/dashboard');
       } else {
         alerts.error('Error de autenticación', 'Credenciales inválidas');
+        trackLoginFailed('invalid_credentials', 'email');
       }
     } catch (error) {
       console.error('Login error:', error);
       alerts.error('Error', 'Ocurrió un error al iniciar sesión');
+      trackLoginError('network_error', 'email');
     } finally {
       setIsLoading(false);
     }
