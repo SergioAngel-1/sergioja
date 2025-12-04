@@ -15,6 +15,7 @@ import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { trackContactSubmit, trackNewsletterSubscribe, trackOutboundLink } from '@/lib/analytics';
+import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 
 // Social links defined outside component to avoid recreation on each render
 const SOCIAL_LINKS = [
@@ -37,6 +38,9 @@ export default function ContactPage() {
   const { t, language } = useLanguage();
   const formRef = useRef<HTMLFormElement>(null);
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
+  
+  // Track scroll depth and time on page
+  usePageAnalytics();
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') {

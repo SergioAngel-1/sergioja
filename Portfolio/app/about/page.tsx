@@ -17,12 +17,16 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import ExperienceCarousel from '@/components/molecules/ExperienceCarousel';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { trackDownload } from '@/lib/analytics';
+import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 
 export default function AboutPage() {
   const { skills, loading, error } = useSkills();
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>('all');
   const log = useLogger('AboutPage');
   const { t } = useLanguage();
+  
+  // Track scroll depth and time on page
+  usePageAnalytics();
 
   // Memoizar agrupación de skills por categoría (solo recalcula cuando skills cambia)
   const skillsByCategory = useMemo(() => 

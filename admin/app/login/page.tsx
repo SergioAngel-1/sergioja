@@ -8,6 +8,7 @@ import { alerts } from '@/lib/alerts';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { getReCaptchaToken, loadRecaptchaEnterprise, RECAPTCHA_ACTIONS } from '@/lib/recaptcha';
 import { trackLoginSuccess, trackLoginFailed, trackLoginError } from '@/lib/analytics';
+import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
 
@@ -17,6 +18,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Track scroll depth and time on page
+  usePageAnalytics();
 
   // Cargar reCAPTCHA Enterprise en producción
   useEffect(() => {

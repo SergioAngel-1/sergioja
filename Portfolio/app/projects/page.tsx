@@ -16,6 +16,7 @@ import Pagination from '@/components/molecules/Pagination';
 import CategoryFilter from '@/components/molecules/CategoryFilter';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 
 export default function WorkPage() {
   const [mounted, setMounted] = useState(false);
@@ -25,6 +26,9 @@ export default function WorkPage() {
   const { projects, loading, error } = useProjects({ category: selectedCategory });
   const log = useLogger('WorkPage');
   const { t } = useLanguage();
+  
+  // Track scroll depth and time on page
+  usePageAnalytics();
 
   useEffect(() => {
     setMounted(true);

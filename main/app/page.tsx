@@ -15,6 +15,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
+import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 
 export default function Home() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
@@ -23,6 +24,9 @@ export default function Home() {
   const log = useLogger('Home');
   const { lowPerformanceMode } = usePerformance();
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Track scroll depth and time on page
+  usePageAnalytics();
 
   useEffect(() => {
     const checkMobile = () => {

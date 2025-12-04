@@ -16,6 +16,7 @@ import ProjectInfo from '@/components/molecules/ProjectInfo';
 import ProjectActions from '@/components/molecules/ProjectActions';
 import RelatedProjects from '@/components/molecules/RelatedProjects';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -27,6 +28,9 @@ export default function ProjectDetailPage() {
   const { t } = useLanguage();
   const { lowPerformanceMode } = usePerformance();
   const [mounted, setMounted] = useState(false);
+  
+  // Track scroll depth and time on page
+  usePageAnalytics();
 
   useEffect(() => {
     setMounted(true);

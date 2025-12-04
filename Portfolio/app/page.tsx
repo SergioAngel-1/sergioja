@@ -23,11 +23,16 @@ import { alerts } from '@/shared/alertSystem';
 import { api } from '@/lib/api-client';
 import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+
 export default function Home() {
   const [typedText, setTypedText] = useState('');
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [terminalInput, setTerminalInput] = useState('');
   const [showDevTipsModal, setShowDevTipsModal] = useState(false);
+  
+  // Track scroll depth and time on page
+  usePageAnalytics();
   const [currentView, setCurrentView] = useState<'main' | 'help' | 'status' | 'games' | 'language'>('main');
   const [showMatrixDialog, setShowMatrixDialog] = useState(false);
   const [matrixMessage, setMatrixMessage] = useState('');
