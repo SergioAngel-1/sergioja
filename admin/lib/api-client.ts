@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 import type { ApiResponse } from '@/shared/types';
+import { logger } from './logger';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 const TOKEN_KEY = 'admin_token';
@@ -17,13 +18,21 @@ class ApiClient {
       },
     });
 
-    // Request interceptor - añadir token
+    // Request interceptor - añadir token y logging
     this.client.interceptors.request.use(
       (config) => {
         const token = Cookies.get(TOKEN_KEY);
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+        
+        // Log API request
+        logger.apiRequest(
+          config.method?.toUpperCase() || 'GET',
+          config.url || '',
+          config.data
+        );
+        
         return config;
       },
       (error) => {
@@ -31,10 +40,26 @@ class ApiClient {
       }
     );
 
-    // Response interceptor - manejo de errores
+    // Response interceptor - manejo de errores y logging
     this.client.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // Log successful response
+        logger.apiResponse(
+          response.config.method?.toUpperCase() || 'GET',
+          response.config.url || '',
+          response.status,
+          response.data
+        );
+        return response;
+      },
       (error: AxiosError) => {
+        // Log API error
+        logger.apiError(
+          error.config?.method?.toUpperCase() || 'GET',
+          error.config?.url || '',
+          error.response?.data || error.message
+        );
+        
         if (error.response?.status === 401) {
           // Token inválido o expirado
           Cookies.remove(TOKEN_KEY);
