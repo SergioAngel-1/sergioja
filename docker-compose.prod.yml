@@ -209,6 +209,36 @@ services:
       - "traefik.http.middlewares.main-redirect.redirectregex.permanent=true"
       - "traefik.http.routers.main.middlewares=main-redirect"
 
+  # Frontend Admin
+  admin-frontend:
+    build:
+      context: .
+      dockerfile: ./admin/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${API_URL}
+        NEXT_PUBLIC_SITE_URL: https://admin.sergioja.com
+        NEXT_PUBLIC_JWT_SECRET: ${JWT_SECRET}
+        NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
+    container_name: admin-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${API_URL}
+      NEXT_PUBLIC_SITE_URL: https://admin.sergioja.com
+      NEXT_PUBLIC_JWT_SECRET: ${JWT_SECRET}
+      NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
+    depends_on:
+      - backend
+    networks:
+      - sergioja-network
+    labels:
+      - "traefik.enable=true"
+      # Router para admin.sergioja.com
+      - "traefik.http.routers.admin.rule=Host(`admin.sergioja.com`)"
+      - "traefik.http.routers.admin.entrypoints=websecure"
+      - "traefik.http.routers.admin.tls.certresolver=letsencrypt"
+      - "traefik.http.services.admin.loadbalancer.server.port=3000"
+
 networks:
   sergioja-network:
     name: sergioja-network
