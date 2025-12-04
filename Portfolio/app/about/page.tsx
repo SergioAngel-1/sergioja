@@ -16,6 +16,7 @@ import CategoryFilter from '@/components/molecules/CategoryFilter';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import ExperienceCarousel from '@/components/molecules/ExperienceCarousel';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { trackDownload } from '@/lib/analytics';
 
 export default function AboutPage() {
   const { skills, loading, error } = useSkills();
@@ -152,15 +153,27 @@ export default function AboutPage() {
                   transition={{ delay: 1.2, duration: 0.6 }}
                   style={{ marginTop: fluidSizing.space.xl }}
                 >
-                  <a
-                    href="/docs/HV%20Sergio%20J%C3%A1uregui.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="bg-white text-black border-white hover:bg-transparent hover:text-white"
+                    onClick={() => {
+                      // Track descarga en GA4
+                      trackDownload('HV Sergio Jáuregui.pdf', 'pdf');
+                      
+                      // Descargar archivo directamente
+                      const link = document.createElement('a');
+                      link.href = '/docs/HV%20Sergio%20J%C3%A1uregui.pdf';
+                      link.download = 'HV Sergio Jáuregui.pdf';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      
+                      log.interaction('download_cv', 'cv_button');
+                    }}
                   >
-                    <Button variant="outline" size="lg" className="bg-white text-black border-white hover:bg-transparent hover:text-white">
-                      {t('about.downloadCV')}
-                    </Button>
-                  </a>
+                    {t('about.downloadCV')}
+                  </Button>
                 </motion.div>
 
                 {/* Corner accents */}
