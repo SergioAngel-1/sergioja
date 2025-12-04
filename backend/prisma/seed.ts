@@ -34,7 +34,7 @@ async function main() {
     {
       name: 'Sergio Jáuregui',
       email: 'owner@sergioja.com',
-      password: 'admin123!',
+      password: '',
       role: 'admin',
     },
   ];
