@@ -10,11 +10,8 @@ import {
   trackLoginError as sharedTrackLoginError,
   trackPageView as sharedTrackPageView,
   trackUserAction as sharedTrackUserAction,
-  trackError as sharedTrackError,
   trackContactSubmit as sharedTrackContactSubmit,
   trackNewsletterSubscribe as sharedTrackNewsletterSubscribe,
-  trackConversion as sharedTrackConversion,
-  trackSearch as sharedTrackSearch,
   trackDownload as sharedTrackDownload,
   trackOutboundLink as sharedTrackOutboundLink,
   trackScrollDepth as sharedTrackScrollDepth,
@@ -70,13 +67,6 @@ export function trackUserAction(action: string, category?: string, label?: strin
 }
 
 /**
- * Track error
- */
-export function trackError(errorType: string, errorMessage: string, errorStack?: string): void {
-  sharedTrackError(SOURCE, errorType, errorMessage, errorStack);
-}
-
-/**
  * Track envío de formulario de contacto
  */
 export function trackContactSubmit(formName: string): void {
@@ -88,20 +78,6 @@ export function trackContactSubmit(formName: string): void {
  */
 export function trackNewsletterSubscribe(formName: string): void {
   sharedTrackNewsletterSubscribe(SOURCE, formName);
-}
-
-/**
- * Track conversión
- */
-export function trackConversion(conversionType: string, value?: number, currency?: string): void {
-  sharedTrackConversion(SOURCE, conversionType, value, currency);
-}
-
-/**
- * Track búsqueda
- */
-export function trackSearch(searchTerm: string, resultsCount?: number): void {
-  sharedTrackSearch(SOURCE, searchTerm, resultsCount);
 }
 
 /**

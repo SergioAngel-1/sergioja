@@ -9,9 +9,6 @@ import {
   trackNewsletterSubscribe as sharedTrackNewsletterSubscribe,
   trackPageView as sharedTrackPageView,
   trackUserAction as sharedTrackUserAction,
-  trackError as sharedTrackError,
-  trackConversion as sharedTrackConversion,
-  trackSearch as sharedTrackSearch,
   trackDownload as sharedTrackDownload,
   trackOutboundLink as sharedTrackOutboundLink,
   trackScrollDepth as sharedTrackScrollDepth,
@@ -57,27 +54,6 @@ export function trackPageView(pagePath: string, pageTitle?: string): void {
  */
 export function trackUserAction(action: string, category?: string, label?: string, value?: number): void {
   sharedTrackUserAction(SOURCE, action, category, label, value);
-}
-
-/**
- * Track error
- */
-export function trackError(errorType: string, errorMessage: string, errorStack?: string): void {
-  sharedTrackError(SOURCE, errorType, errorMessage, errorStack);
-}
-
-/**
- * Track conversión
- */
-export function trackConversion(conversionType: string, value?: number, currency?: string): void {
-  sharedTrackConversion(SOURCE, conversionType, value, currency);
-}
-
-/**
- * Track búsqueda
- */
-export function trackSearch(searchTerm: string, resultsCount?: number): void {
-  sharedTrackSearch(SOURCE, searchTerm, resultsCount);
 }
 
 /**

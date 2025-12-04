@@ -129,57 +129,6 @@ export function trackUserAction(
 }
 
 /**
- * Track error
- */
-export function trackError(
-  source: string,
-  errorType: string,
-  errorMessage: string,
-  errorStack?: string
-): void {
-  trackEvent({
-    event: 'error',
-    source,
-    error_type: errorType,
-    error_message: errorMessage,
-    error_stack: errorStack,
-    page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
-  });
-}
-
-/**
- * Track conversión
- */
-export function trackConversion(
-  source: string,
-  conversionType: string,
-  value?: number,
-  currency?: string
-): void {
-  trackEvent({
-    event: 'conversion',
-    source,
-    conversion_type: conversionType,
-    value,
-    currency: currency || 'USD',
-    page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
-  });
-}
-
-/**
- * Track búsqueda
- */
-export function trackSearch(source: string, searchTerm: string, resultsCount?: number): void {
-  trackEvent({
-    event: 'search',
-    source,
-    search_term: searchTerm,
-    results_count: resultsCount,
-    page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
-  });
-}
-
-/**
  * Track descarga
  */
 export function trackDownload(source: string, fileName: string, fileType?: string): void {
