@@ -3,7 +3,7 @@
 ## Requisitos Previos
 
 - Docker y Docker Compose instalados
-- Archivo `.env` configurado en la raíz del proyecto
+- Archivo `.env.production` configurado en la raíz del proyecto
 - Dominio configurado con DNS apuntando al servidor
 - Certificados SSL (Traefik los genera automáticamente con Let's Encrypt)
 
@@ -12,31 +12,31 @@
 ### 1. Iniciar Traefik (Proxy Reverso)
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml up -d traefik
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d traefik
 ```
 
 ### 2. Iniciar Backend (API)
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml up -d backend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d backend
 ```
 
 ### 3. Iniciar Frontend Main (sergioja.com)
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml up -d main-frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d main-frontend
 ```
 
 ### 4. Iniciar Frontend Portfolio (portfolio.sergioja.com)
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml up -d portfolio-frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d portfolio-frontend
 ```
 
 ### 5. Iniciar Todos los Servicios
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml up -d
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d
 ```
 
 ## Comandos de Gestión
@@ -44,44 +44,44 @@ docker compose --env-file .env -f docker-compose.yml up -d
 ### Ver logs de un servicio
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml logs -f [servicio]
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f [servicio]
 ```
 
 Ejemplos:
 ```bash
-docker compose --env-file .env -f docker-compose.yml logs -f traefik
-docker compose --env-file .env -f docker-compose.yml logs -f backend
-docker compose --env-file .env -f docker-compose.yml logs -f main
-docker compose --env-file .env -f docker-compose.yml logs -f portfolio
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f traefik
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f backend
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f main
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f portfolio
 ```
 
 ### Reiniciar un servicio
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml restart [servicio]
+docker compose --env-file .env.production -f docker-compose.prod.yml restart [servicio]
 ```
 
 ### Detener servicios
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml down
+docker compose --env-file .env.production -f docker-compose.prod.yml down
 ```
 
 ### Reconstruir y reiniciar (después de cambios en código)
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml up -d --build [servicio]
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build [servicio]
 ```
 
 ### Ver estado de los servicios
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml ps
+docker compose --env-file .env.production -f docker-compose.prod.yml ps
 ```
 
 ## Variables de Entorno Importantes
 
-### Para Producción (.env)
+### Para Producción (.env.production)
 
 Asegúrate de configurar correctamente estas variables:
 
@@ -128,19 +128,19 @@ docker compose up -d backend
 ### Ver logs en tiempo real de todos los servicios
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml logs -f
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f
 ```
 
 ### Verificar variables de entorno cargadas
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml config
+docker compose --env-file .env.production -f docker-compose.prod.yml config
 ```
 
 ### Limpiar contenedores y volúmenes
 
 ```bash
-docker compose --env-file .env -f docker-compose.yml down -v
+docker compose --env-file .env.production -f docker-compose.prod.yml down -v
 ```
 
 ## Reset desde cero (migración limpia)
@@ -151,7 +151,7 @@ Advertencia: la opción A elimina la base de datos (volúmenes). Realiza un back
 
 ```bash
 # Eliminar contenedores, imágenes, volúmenes y órfanos
-docker compose --env-file .env -f docker-compose.yml down --rmi all --volumes --remove-orphans
+docker compose --env-file .env.production -f docker-compose.prod.yml down --rmi all --volumes --remove-orphans
 
 # Limpieza adicional (opcional)
 docker image prune -a -f
@@ -160,19 +160,19 @@ docker network prune -f
 docker builder prune -a -f
 
 # Despliegue limpio
-docker compose --env-file .env -f docker-compose.yml up -d traefik
-docker compose --env-file .env -f docker-compose.yml up -d --build backend
-docker compose --env-file .env -f docker-compose.yml up -d --build main-frontend
-docker compose --env-file .env -f docker-compose.yml up -d --build portfolio-frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d traefik
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build backend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build main-frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build portfolio-frontend
 # Tomar cambios de seed (Bdd)
-docker compose --env-file .env -f docker-compose.yml exec backend npm run db:seed
+docker compose --env-file .env.production -f docker-compose.prod.yml exec backend npm run db:seed
 ```
 
 ### Opción B: reset conservando DB
 
 ```bash
 # Eliminar contenedores e imágenes, conservar volúmenes
-docker compose --env-file .env -f docker-compose.yml down --rmi all --remove-orphans
+docker compose --env-file .env.production -f docker-compose.prod.yml down --rmi all --remove-orphans
 
 # Limpieza adicional (sin borrar volúmenes)
 docker image prune -a -f
@@ -180,10 +180,10 @@ docker network prune -f
 docker builder prune -a -f
 
 # Despliegue limpio
-docker compose --env-file .env -f docker-compose.yml up -d traefik
-docker compose --env-file .env -f docker-compose.yml up -d --build backend
-docker compose --env-file .env -f docker-compose.yml up -d --build main-frontend
-docker compose --env-file .env -f docker-compose.yml up -d --build portfolio-frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d traefik
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build backend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build main-frontend
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build portfolio-frontend
 ```
 
 ### Backup y verificación (recomendado)
@@ -193,16 +193,16 @@ docker compose --env-file .env -f docker-compose.yml up -d --build portfolio-fro
 docker exec -i sergioja-postgres pg_dump -U "$DB_USER" "$DB_NAME" > backup_$(date +%F).sql
 
 # Verificar variables cargadas
-docker compose --env-file .env -f docker-compose.yml config
+docker compose --env-file .env.production -f docker-compose.prod.yml config
 
 # Estado y logs
-docker compose --env-file .env -f docker-compose.yml ps
-docker compose --env-file .env -f docker-compose.yml logs -f
+docker compose --env-file .env.production -f docker-compose.prod.yml ps
+docker compose --env-file .env.production -f docker-compose.prod.yml logs -f
 ```
 
 ## Notas Importantes
 
-- **Siempre** usa `--env-file .env` en producción
+- **Siempre** usa `--env-file .env.production` en producción
 - Los certificados SSL se generan automáticamente en el primer despliegue
 - Traefik debe iniciarse primero para que los otros servicios se registren correctamente
 - Los logs se almacenan en `/var/log/` dentro de cada contenedor
