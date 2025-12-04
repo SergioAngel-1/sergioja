@@ -8,6 +8,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { api } from '@/lib/api-client';
 import { alerts } from '@/shared/alertSystem';
 import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
+import { trackOutboundLink, trackNewsletterSubscribe } from '@/lib/analytics';
 
 export default function PurposeContent() {
   const { t, language } = useLanguage();
@@ -85,6 +86,7 @@ export default function PurposeContent() {
               href={item.href || '#'}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackOutboundLink(item.href || '#', item.title)}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -136,15 +138,7 @@ export default function PurposeContent() {
                 language === 'es' ? 'Suscripción completada' : 'Subscription completed',
                 6000
               );
-              if (typeof window !== 'undefined') {
-                (window as any).dataLayer = (window as any).dataLayer || [];
-                (window as any).dataLayer.push({
-                  event: 'newsletter_subscribe',
-                  source: 'main',
-                  form_name: 'dev_tips_modal',
-                  page_path: typeof window !== 'undefined' ? window.location.pathname : undefined,
-                });
-              }
+              trackNewsletterSubscribe('dev_tips_modal');
               return;
             }
             throw new Error(res.error?.message || 'Subscription failed');

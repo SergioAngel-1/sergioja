@@ -14,7 +14,7 @@ import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
-import { trackContactSubmit, trackNewsletterSubscribe } from '@/lib/analytics';
+import { trackContactSubmit, trackNewsletterSubscribe, trackOutboundLink } from '@/lib/analytics';
 
 // Social links defined outside component to avoid recreation on each render
 const SOCIAL_LINKS = [
@@ -533,6 +533,7 @@ export default function ContactPage() {
                     rel="noopener noreferrer"
                     className="flex items-center bg-background-elevated/50 rounded-lg hover:bg-background-elevated transition-all duration-300 group"
                     style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
+                    onClick={() => trackOutboundLink(social.url, social.name)}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1 + index * 0.1 }}

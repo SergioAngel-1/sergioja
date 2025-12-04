@@ -10,7 +10,7 @@ import { validateContactForm, sanitizeContactForm } from '@/shared/formValidatio
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLogger } from '@/shared/hooks/useLogger';
-import { trackContactSubmit } from '@/lib/analytics';
+import { trackContactSubmit, trackOutboundLink } from '@/lib/analytics';
 
 
 export default function ConnectionContent() {
@@ -287,6 +287,7 @@ export default function ConnectionContent() {
             href="mailto:sergio.jauregui@sergioja.com"
             className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
             style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
+            onClick={() => trackOutboundLink('mailto:sergio.jauregui@sergioja.com', 'Email')}
           >
             <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
               {connection.icon}

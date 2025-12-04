@@ -9,6 +9,7 @@ import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { trackOutboundLink } from '@/lib/analytics';
 
 export default function Navbar() {
   const [time, setTime] = useState<Date | null>(null);
@@ -370,6 +371,7 @@ export default function Navbar() {
           rel="noopener noreferrer"
           className="relative size-button-sm rounded-lg bg-background-surface border border-white/20 flex items-center justify-center text-text-muted hover:text-white hover:border-white hover:bg-white/10 transition-all duration-300 group overflow-hidden backdrop-blur-sm"
           aria-label={social.label}
+          onClick={() => trackOutboundLink(social.href, social.label)}
           whileHover={{ scale: 1.15, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
           initial={{ opacity: 0, y: 20 }}
