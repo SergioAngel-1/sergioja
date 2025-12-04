@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { alerts } from '@/lib/alerts';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { getReCaptchaToken, loadRecaptchaEnterprise, RECAPTCHA_ACTIONS } from '@/lib/recaptcha';
 import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
 
@@ -16,12 +17,41 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Cargar reCAPTCHA Enterprise en producción
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+      if (siteKey) {
+        loadRecaptchaEnterprise(siteKey).catch(() => {
+          // Silenciar error, reCAPTCHA es opcional en desarrollo
+        });
+      }
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // Obtener token de reCAPTCHA Enterprise en producción
+      let recaptchaToken: string | null = null;
+      if (process.env.NODE_ENV === 'production') {
+        const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+        if (siteKey) {
+          recaptchaToken = await getReCaptchaToken(siteKey, RECAPTCHA_ACTIONS.LOGIN);
+          
+          if (!recaptchaToken) {
+            alerts.error('Error de seguridad', 'No se pudo verificar reCAPTCHA. Intenta de nuevo.');
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
+
+      // Intentar login
       const success = await login(email, password);
+      
       if (success) {
         alerts.success('Inicio de sesión exitoso', 'Redirigiendo al dashboard...');
         router.push('/dashboard');
@@ -29,6 +59,7 @@ export default function LoginPage() {
         alerts.error('Error de autenticación', 'Credenciales inválidas');
       }
     } catch (error) {
+      console.error('Login error:', error);
       alerts.error('Error', 'Ocurrió un error al iniciar sesión');
     } finally {
       setIsLoading(false);
@@ -138,6 +169,35 @@ export default function LoginPage() {
           >
             <p>Acceso restringido solo para administradores</p>
           </div>
+
+          {/* reCAPTCHA disclaimer */}
+          <p 
+            className="text-center text-admin-gray-medium/50 font-mono leading-relaxed"
+            style={{
+              marginTop: fluidSizing.space.md,
+              fontSize: fluidSizing.text.xs,
+            }}
+          >
+            Este sitio está protegido por reCAPTCHA y se aplican la{' '}
+            <a 
+              href="https://policies.google.com/privacy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-admin-gray-light hover:text-admin-primary underline transition-colors"
+            >
+              Política de Privacidad
+            </a>
+            {' '}y los{' '}
+            <a 
+              href="https://policies.google.com/terms" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-admin-gray-light hover:text-admin-primary underline transition-colors"
+            >
+              Términos de Servicio
+            </a>
+            {' '}de Google.
+          </p>
         </div>
       </motion.div>
     </div>
