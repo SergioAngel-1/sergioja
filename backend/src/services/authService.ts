@@ -1,0 +1,283 @@
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { appConfig } from '../config/env';
+import { logger } from '../lib/logger';
+import { prisma } from '../lib/prisma';
+
+interface TokenPayload {
+  userId: string;
+  email: string;
+  role: string;
+}
+
+interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+}
+
+const JWT_SECRET = appConfig.jwt.secret || 'cd3d9cecce29ee22d1b785ac943730fceb5799b30ae19e894136d26787c160c2';
+const REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET || 'refresh_' + JWT_SECRET;
+
+// Duración de tokens
+const ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutos
+const REFRESH_TOKEN_EXPIRY = '7d'; // 7 días
+
+/**
+ * Genera access token y refresh token
+ */
+export function generateTokens(payload: TokenPayload): AuthTokens {
+  const accessToken = jwt.sign(payload, JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXPIRY,
+  });
+
+  const refreshToken = jwt.sign(payload, REFRESH_TOKEN_SECRET, {
+    expiresIn: REFRESH_TOKEN_EXPIRY,
+  });
+
+  return { accessToken, refreshToken };
+}
+
+/**
+ * Verifica access token
+ */
+export function verifyAccessToken(token: string): TokenPayload | null {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+    return decoded;
+  } catch (error) {
+    logger.debug('Access token verification failed', error);
+    return null;
+  }
+}
+
+/**
+ * Verifica refresh token
+ */
+export function verifyRefreshToken(token: string): TokenPayload | null {
+  try {
+    const decoded = jwt.verify(token, REFRESH_TOKEN_SECRET) as TokenPayload;
+    return decoded;
+  } catch (error) {
+    logger.debug('Refresh token verification failed', error);
+    return null;
+  }
+}
+
+/**
+ * Autentica usuario con email y password
+ */
+export async function authenticateUser(
+  email: string,
+  password: string
+): Promise<{ user: any; tokens: AuthTokens } | null> {
+  try {
+    // Buscar usuario en base de datos
+    const user = await prisma.adminUser.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        password: true,
+        role: true,
+        isActive: true,
+      },
+    });
+
+    if (!user) {
+      logger.warn('Login attempt with non-existent email', { email });
+      return null;
+    }
+
+    if (!user.isActive) {
+      logger.warn('Login attempt with inactive user', { email });
+      return null;
+    }
+
+    // Verificar password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    
+    if (!isPasswordValid) {
+      logger.warn('Login attempt with invalid password', { email });
+      return null;
+    }
+
+    // Generar tokens
+    const payload: TokenPayload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const tokens = generateTokens(payload);
+
+    // Guardar refresh token en base de datos
+    await prisma.refreshToken.create({
+      data: {
+        token: tokens.refreshToken,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días
+      },
+    });
+
+    // Remover password del objeto user
+    const { password: _, ...userWithoutPassword } = user;
+
+    logger.info('User authenticated successfully', { userId: user.id, email: user.email });
+
+    return {
+      user: userWithoutPassword,
+      tokens,
+    };
+  } catch (error) {
+    logger.error('Authentication error', error);
+    return null;
+  }
+}
+
+/**
+ * Refresca access token usando refresh token
+ */
+export async function refreshAccessToken(
+  refreshToken: string
+): Promise<{ accessToken: string; refreshToken: string } | null> {
+  try {
+    // Verificar refresh token
+    const payload = verifyRefreshToken(refreshToken);
+    
+    if (!payload) {
+      return null;
+    }
+
+    // Verificar que el refresh token existe en la base de datos y no ha sido revocado
+    const storedToken = await prisma.refreshToken.findFirst({
+      where: {
+        token: refreshToken,
+        userId: payload.userId,
+        revokedAt: null,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (!storedToken) {
+      logger.warn('Refresh token not found or revoked', { userId: payload.userId });
+      return null;
+    }
+
+    // Verificar que el usuario sigue activo
+    const user = await prisma.adminUser.findUnique({
+      where: { id: payload.userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isActive: true,
+      },
+    });
+
+    if (!user || !user.isActive) {
+      logger.warn('User not found or inactive during token refresh', { userId: payload.userId });
+      return null;
+    }
+
+    // Generar nuevos tokens
+    const newPayload: TokenPayload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const tokens = generateTokens(newPayload);
+
+    // Revocar el refresh token anterior
+    await prisma.refreshToken.update({
+      where: { id: storedToken.id },
+      data: { revokedAt: new Date() },
+    });
+
+    // Guardar nuevo refresh token
+    await prisma.refreshToken.create({
+      data: {
+        token: tokens.refreshToken,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    logger.info('Access token refreshed', { userId: user.id });
+
+    return tokens;
+  } catch (error) {
+    logger.error('Token refresh error', error);
+    return null;
+  }
+}
+
+/**
+ * Revoca refresh token (logout)
+ */
+export async function revokeRefreshToken(refreshToken: string): Promise<boolean> {
+  try {
+    const result = await prisma.refreshToken.updateMany({
+      where: {
+        token: refreshToken,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+
+    return result.count > 0;
+  } catch (error) {
+    logger.error('Error revoking refresh token', error);
+    return false;
+  }
+}
+
+/**
+ * Revoca todos los refresh tokens de un usuario
+ */
+export async function revokeAllUserTokens(userId: string): Promise<boolean> {
+  try {
+    await prisma.refreshToken.updateMany({
+      where: {
+        userId,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+
+    logger.info('All user tokens revoked', { userId });
+    return true;
+  } catch (error) {
+    logger.error('Error revoking all user tokens', error);
+    return false;
+  }
+}
+
+/**
+ * Limpia refresh tokens expirados (tarea de mantenimiento)
+ */
+export async function cleanupExpiredTokens(): Promise<number> {
+  try {
+    const result = await prisma.refreshToken.deleteMany({
+      where: {
+        OR: [
+          { expiresAt: { lt: new Date() } },
+          { revokedAt: { not: null } },
+        ],
+      },
+    });
+
+    logger.info('Expired tokens cleaned up', { count: result.count });
+    return result.count;
+  } catch (error) {
+    logger.error('Error cleaning up expired tokens', error);
+    return 0;
+  }
+}

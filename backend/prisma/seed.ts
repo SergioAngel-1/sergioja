@@ -22,7 +22,8 @@ async function main() {
   await prisma.project.deleteMany();
   await prisma.technology.deleteMany();
   await prisma.profile.deleteMany();
-  await prisma.user.deleteMany();
+  await prisma.refreshToken.deleteMany();
+  await prisma.adminUser.deleteMany();
   
   logger.info('✅ Datos existentes eliminados');
 
@@ -41,11 +42,11 @@ async function main() {
 
   for (const userData of adminUsers) {
     const passwordHash = await bcrypt.hash(userData.password, SALT_ROUNDS);
-    await prisma.user.create({
+    await prisma.adminUser.create({
       data: {
         name: userData.name,
         email: userData.email,
-        passwordHash,
+        password: passwordHash,
         role: userData.role,
         isActive: true,
       },

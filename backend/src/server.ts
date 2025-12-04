@@ -3,6 +3,7 @@ import cors, { CorsOptions } from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { logger } from './lib/logger';
 import { requestLogger } from './middleware/requestLogger';
@@ -10,6 +11,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { prisma } from './lib/prisma';
 
 // Routes
+import authRoutes from './routes/auth';
 import profileRoutes from './routes/profile';
 import projectsRoutes from './routes/projects';
 import skillsRoutes from './routes/skills';
@@ -102,6 +104,7 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -133,8 +136,11 @@ const healthResponse = (_req: Request, res: Response) => {
 app.get('/', healthResponse);
 app.get('/health', healthResponse);
 
-// API Routes - Portfolio
+// API Routes
 logger.info('Setting up routes...');
+// Admin routes
+app.use('/api/admin/auth', authRoutes);
+// Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
 app.use('/api/portfolio/projects', projectsRoutes);
 app.use('/api/portfolio/skills', skillsRoutes);

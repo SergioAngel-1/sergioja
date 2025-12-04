@@ -156,18 +156,39 @@ model NewsletterSubscription {
 }
 
 // Admin Users
-model User {
+model AdminUser {
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
-  passwordHash String   // bcrypt hash
+  password     String   // bcrypt hash
   role         String   @default("editor") // admin, editor
   isActive     Boolean  @default(true)
   lastLoginAt  DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Relations
+  refreshTokens RefreshToken[]
+
   @@index([email])
   @@index([role])
-  @@map("users")
+  @@map("admin_users")
+}
+
+// Refresh Tokens for JWT authentication
+model RefreshToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  // Relations
+  user AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
 }
