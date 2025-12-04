@@ -54,8 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await api.login(email, password);
       
-      if (response.success && response.data?.token) {
-        const token = response.data.token;
+      if (response.success && response.data) {
+        const data = response.data as { token: string; user: User };
+        const token = data.token;
         
         // Guardar token en cookie (7 días)
         Cookies.set(TOKEN_KEY, token, { expires: 7, secure: true, sameSite: 'strict' });
