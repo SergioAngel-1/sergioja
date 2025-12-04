@@ -12,14 +12,17 @@ const config: Config = {
     extend: {
       colors: {
         admin: {
-          primary: '#FF0000',
-          secondary: '#00BFFF',
+          primary: '#FFFFFF',
+          secondary: '#000000',
           success: '#10B981',
           warning: '#F59E0B',
           error: '#EF4444',
-          dark: '#0A0A0F',
-          'dark-elevated': '#1A1A1F',
-          'dark-surface': '#2A2A2F',
+          dark: '#000000',
+          'dark-elevated': '#0A0A0A',
+          'dark-surface': '#1A1A1A',
+          'gray-light': '#E5E5E5',
+          'gray-medium': '#737373',
+          'gray-dark': '#262626',
         },
       },
     },

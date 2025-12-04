@@ -25,14 +25,14 @@
 }
 
 :root {
-  /* Admin Dark Theme */
+  /* Admin Dark Theme - Blanco y Negro */
   --bg-light: 255 255 255;
-  --bg-surface: 26 26 31;
-  --bg-elevated: 42 42 47;
-  --bg-dark: 10 10 15;
+  --bg-surface: 26 26 26;
+  --bg-elevated: 10 10 10;
+  --bg-dark: 0 0 0;
   --text-primary: 255 255 255;
-  --text-secondary: 200 200 210;
-  --text-muted: 160 160 170;
+  --text-secondary: 229 229 229;
+  --text-muted: 115 115 115;
 
   /* Safe-area and viewport logical units */
   --sat: env(safe-area-inset-top, 0px);
@@ -84,30 +84,30 @@
 
   .cyber-grid {
     background-image: 
-      linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 50px 50px;
   }
 
-  .glow-red {
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  .glow-white {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
   }
 
-  .glow-blue {
-    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+  .glow-black {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
   }
 
-  .text-glow-red {
-    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  .text-glow-white {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
   }
 
-  .text-glow-blue {
-    text-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+  .text-glow-subtle {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
   }
 
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 0, 0, 0.3) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -120,11 +120,11 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 0, 0, 0.3);
+    background-color: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 }
