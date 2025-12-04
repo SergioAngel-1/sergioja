@@ -167,7 +167,6 @@ docker network prune -f
 docker builder prune -a -f
 
 # Despliegue limpio
-docker compose --env-file .env -f docker-compose.yml up -d traefik
 docker compose --env-file .env -f docker-compose.yml up -d --build backend
 docker compose --env-file .env -f docker-compose.yml up -d --build main-frontend
 docker compose --env-file .env -f docker-compose.yml up -d --build portfolio-frontend
