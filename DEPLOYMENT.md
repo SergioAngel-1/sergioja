@@ -33,7 +33,13 @@ docker compose --env-file .env -f docker-compose.yml up -d main-frontend
 docker compose --env-file .env -f docker-compose.yml up -d portfolio-frontend
 ```
 
-### 5. Iniciar Todos los Servicios
+### 5. Iniciar Frontend Admin (admin.sergioja.com)
+
+```bash
+docker compose --env-file .env -f docker-compose.yml up -d admin-frontend
+```
+
+### 6. Iniciar Todos los Servicios
 
 ```bash
 docker compose --env-file .env -f docker-compose.yml up -d
@@ -122,6 +128,7 @@ docker compose up -d backend
 2. **Backend Health**: https://api.sergioja.com/health
 3. **Main Frontend**: https://sergioja.com
 4. **Portfolio Frontend**: https://portfolio.sergioja.com
+5. **Admin Panel**: https://admin.sergioja.com
 
 ## Troubleshooting
 
@@ -164,6 +171,7 @@ docker compose --env-file .env -f docker-compose.yml up -d traefik
 docker compose --env-file .env -f docker-compose.yml up -d --build backend
 docker compose --env-file .env -f docker-compose.yml up -d --build main-frontend
 docker compose --env-file .env -f docker-compose.yml up -d --build portfolio-frontend
+docker compose --env-file .env -f docker-compose.yml up -d --build admin-frontend
 # Tomar cambios de seed (Bdd)
 docker compose --env-file .env -f docker-compose.yml exec backend npm run db:seed
 ```
@@ -184,6 +192,7 @@ docker compose --env-file .env -f docker-compose.yml up -d traefik
 docker compose --env-file .env -f docker-compose.yml up -d --build backend
 docker compose --env-file .env -f docker-compose.yml up -d --build main-frontend
 docker compose --env-file .env -f docker-compose.yml up -d --build portfolio-frontend
+docker compose --env-file .env -f docker-compose.yml up -d --build admin-frontend
 ```
 
 ### Backup y verificación (recomendado)
