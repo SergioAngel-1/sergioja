@@ -1,6 +1,7 @@
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface ButtonProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>, 
@@ -24,16 +25,25 @@ export default function Button({
   const baseStyles = 'font-medium rounded-lg transition-all duration-200 flex items-center justify-center';
   
   const variants = {
-    primary: 'bg-admin-primary hover:bg-admin-primary/80 text-white glow-red',
-    secondary: 'bg-admin-secondary hover:bg-admin-secondary/80 text-white glow-blue',
+    primary: 'bg-admin-primary hover:bg-admin-primary/90 text-admin-secondary glow-white font-semibold',
+    secondary: 'bg-admin-secondary hover:bg-admin-dark-elevated text-admin-primary border border-admin-primary',
     danger: 'bg-admin-error hover:bg-admin-error/80 text-white',
-    ghost: 'bg-transparent hover:bg-admin-dark-elevated text-text-primary border border-text-muted/30',
+    ghost: 'bg-transparent hover:bg-admin-dark-elevated text-admin-primary border border-admin-gray-medium hover:border-admin-primary',
   };
 
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
+  const sizeStyles = {
+    sm: {
+      padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+      fontSize: fluidSizing.text.sm,
+    },
+    md: {
+      padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+      fontSize: fluidSizing.text.base,
+    },
+    lg: {
+      padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}`,
+      fontSize: fluidSizing.text.lg,
+    },
   };
 
   return (
@@ -43,16 +53,28 @@ export default function Button({
       className={cn(
         baseStyles,
         variants[variant],
-        sizes[size],
         (disabled || isLoading) && 'opacity-50 cursor-not-allowed',
         className
       )}
+      style={{
+        ...sizeStyles[size],
+        ...(props.style || {}),
+      }}
       disabled={disabled || isLoading}
       {...props}
     >
       {isLoading ? (
-        <span className="flex items-center">
-          <span className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></span>
+        <span className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
+          <span 
+            className={cn(
+              "inline-block animate-spin rounded-full border-t-2 border-b-2",
+              variant === 'primary' ? 'border-admin-secondary' : 'border-admin-primary'
+            )}
+            style={{
+              width: fluidSizing.size.iconSm,
+              height: fluidSizing.size.iconSm,
+            }}
+          ></span>
           Cargando...
         </span>
       ) : (

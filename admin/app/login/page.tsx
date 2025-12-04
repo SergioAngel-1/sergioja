@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import { alerts } from '@/lib/alerts';
 import { fluidSizing } from '@/lib/fluidSizing';
 import Button from '@/components/atoms/Button';
+import Input from '@/components/atoms/Input';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -89,59 +90,29 @@ export default function LoginPage() {
               gap: fluidSizing.space.lg,
             }}
           >
-            <div>
-              <label 
-                htmlFor="email" 
-                className="block font-medium text-admin-gray-light"
-                style={{
-                  fontSize: fluidSizing.text.sm,
-                  marginBottom: fluidSizing.space.sm,
-                }}
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full"
-                placeholder="admin@sergioja.com"
-                style={{
-                  fontSize: fluidSizing.text.base,
-                  padding: fluidSizing.space.md,
-                }}
-              />
-            </div>
+            <Input
+              id="email"
+              type="email"
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={isLoading}
+              placeholder="admin@sergioja.com"
+              size="md"
+            />
 
-            <div>
-              <label 
-                htmlFor="password" 
-                className="block font-medium text-admin-gray-light"
-                style={{
-                  fontSize: fluidSizing.text.sm,
-                  marginBottom: fluidSizing.space.sm,
-                }}
-              >
-                Contraseña
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full"
-                placeholder="••••••••"
-                style={{
-                  fontSize: fluidSizing.text.base,
-                  padding: fluidSizing.space.md,
-                }}
-              />
-            </div>
+            <Input
+              id="password"
+              type="password"
+              label="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              placeholder="••••••••"
+              size="md"
+            />
 
             <Button
               type="submit"
