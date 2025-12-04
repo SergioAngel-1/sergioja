@@ -1,0 +1,100 @@
+import type { Metadata } from 'next';
+import Script from 'next/script';
+import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
+import './globals.css';
+import { AuthProvider } from '@/lib/contexts/AuthContext';
+import AlertContainer from '@/components/molecules/AlertContainer';
+import { generateMetadata } from '@/shared/seo';
+import { siteConfig } from '@/lib/seo/config';
+
+const orbitron = Orbitron({
+  subsets: ['latin'],
+  variable: '--font-orbitron',
+  weight: ['400', '500', '700', '900'],
+});
+
+const rajdhani = Rajdhani({
+  subsets: ['latin'],
+  variable: '--font-rajdhani',
+  weight: ['300', '400', '500', '600', '700'],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  weight: ['400', '500', '600', '700'],
+});
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://admin.sergioja.com';
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const isProd = process.env.NODE_ENV === 'production';
+
+export const metadata: Metadata = {
+  ...generateMetadata(
+    {
+      title: 'Admin Panel',
+      description: 'Panel de administración de Sergio Jáuregui',
+      keywords: ['admin', 'dashboard', 'management'],
+    },
+    SITE_URL
+  ),
+  title: {
+    template: `%s | ${siteConfig.name} Admin`,
+    default: `${siteConfig.name} Admin`,
+  },
+  metadataBase: new URL(SITE_URL),
+  robots: {
+    index: false,
+    follow: false,
+  },
+  icons: {
+    icon: [
+      { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/favicon/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/favicon/favicon.ico' },
+    ],
+    apple: '/favicon/apple-touch-icon.png',
+    shortcut: ['/favicon/favicon.ico'],
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="es" className="dark" suppressHydrationWarning>
+      <body
+        className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-admin-dark text-text-primary antialiased`}
+      >
+        {isProd && GTM_ID && (
+          <Script id="gtm-base" strategy="afterInteractive">
+            {`(function(w,d,s,l,i){
+              w[l]=w[l]||[];
+              w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+              var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'? '&l='+l : '';
+              j.async=true;
+              j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+              f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','${GTM_ID}');`}
+          </Script>
+        )}
+        {isProd && GTM_ID && (
+          <noscript
+            dangerouslySetInnerHTML={{
+              __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
+            }}
+          />
+        )}
+        <AuthProvider>
+          <main className="min-h-viewport">{children}</main>
+          <AlertContainer />
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}

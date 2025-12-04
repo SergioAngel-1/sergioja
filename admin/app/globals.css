@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* iOS Safari compatibility fixes */
+@supports (-webkit-touch-callout: none) {
+  body {
+    overscroll-behavior-y: none;
+  }
+  
+  input,
+  textarea,
+  button,
+  select,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.with-safe-insets {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+:root {
+  /* Admin Dark Theme */
+  --bg-light: 255 255 255;
+  --bg-surface: 26 26 31;
+  --bg-elevated: 42 42 47;
+  --bg-dark: 10 10 15;
+  --text-primary: 255 255 255;
+  --text-secondary: 200 200 210;
+  --text-muted: 160 160 170;
+
+  /* Safe-area and viewport logical units */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --vh-app: 100dvh;
+  --vh-form: 100svh;
+}
+
+@layer base {
+  * {
+    @apply border-text-muted;
+  }
+
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-admin-dark text-text-primary;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-orbitron;
+  }
+
+  input, textarea, select {
+    @apply bg-admin-dark-elevated border border-text-muted/30 rounded-lg px-4 py-2 text-text-primary;
+    @apply focus:outline-none focus:ring-2 focus:ring-admin-primary/50 focus:border-admin-primary;
+    @apply transition-all duration-200;
+  }
+
+  button {
+    @apply transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  .h-viewport {
+    height: 100vh;
+    height: var(--vh-app);
+  }
+
+  .min-h-viewport {
+    min-height: 100vh;
+    min-height: var(--vh-app);
+  }
+
+  .cyber-grid {
+    background-image: 
+      linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  .glow-red {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+  }
+
+  .text-glow-red {
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+  }
+
+  .text-glow-blue {
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 0, 0, 0.3) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 0, 0, 0.3);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 0, 0, 0.5);
+  }
+}
