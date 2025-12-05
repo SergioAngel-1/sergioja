@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../src/lib/logger';
-import bcrypt from 'bcrypt';
 
 // Declaración de tipo para process en Node.js
 declare const process: {
@@ -27,38 +26,13 @@ async function main() {
   
   logger.info('✅ Datos existentes eliminados');
 
-  // Crear usuarios admin
-  logger.info('👥 Creando usuarios admin...');
-  const SALT_ROUNDS = 10;
-  
-  const adminUsers = [
-    {
-      name: 'Sergio Jáuregui',
-      email: 'owner@sergioja.com',
-      password: '',
-      role: 'admin',
-    },
-  ];
-
-  for (const userData of adminUsers) {
-    const passwordHash = await bcrypt.hash(userData.password, SALT_ROUNDS);
-    await prisma.adminUser.create({
-      data: {
-        name: userData.name,
-        email: userData.email,
-        password: passwordHash,
-        role: userData.role,
-        isActive: true,
-      },
-    });
-    logger.info(`   ✅ Usuario ${userData.role}: ${userData.email}`);
-  }
-  
-  logger.info(`✅ ${adminUsers.length} usuarios admin creados`);
+  // No crear usuarios admin en seed - usar script create-admin.js
+  logger.info('ℹ️  No se crean usuarios admin en seed');
+  logger.info('   Usa: node scripts/create-admin.js para crear usuarios');
 
   logger.info('\n✅ Seed completado exitosamente!');
   logger.info('📊 Resumen:');
-  logger.info(`   - ${adminUsers.length} usuarios admin`);
+  logger.info('   - 0 usuarios admin (crear manualmente con script)');
   logger.info('   - Base de datos limpia y lista para usar desde el panel admin');
 }
 
