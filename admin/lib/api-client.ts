@@ -13,18 +13,17 @@ class ApiClient {
     this.client = axios.create({
       baseURL: `${API_URL}/api`,
       timeout: 10000,
+      withCredentials: true, // Enviar cookies httpOnly
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    // Request interceptor - añadir token y logging
+    // Request interceptor - logging
     this.client.interceptors.request.use(
       (config) => {
-        const token = Cookies.get(TOKEN_KEY);
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
+        // Las cookies httpOnly se envían automáticamente con withCredentials: true
+        // No necesitamos manejar tokens manualmente
         
         // Log API request
         logger.apiRequest(
@@ -40,7 +39,7 @@ class ApiClient {
       }
     );
 
-    // Response interceptor - manejo de errores y logging
+    // Response interceptor - manejo de errores, refresh automático y logging
     this.client.interceptors.response.use(
       (response) => {
         // Log successful response
@@ -52,21 +51,39 @@ class ApiClient {
         );
         return response;
       },
-      (error: AxiosError) => {
-        // Log API error
-        logger.apiError(
-          error.config?.method?.toUpperCase() || 'GET',
-          error.config?.url || '',
-          error.response?.data || error.message
-        );
+      async (error: AxiosError) => {
+        const originalRequest = error.config as any;
+        const is401 = error.response?.status === 401;
+        const isAuthEndpoint = originalRequest.url?.includes('/auth/');
         
-        if (error.response?.status === 401) {
-          // Token inválido o expirado
-          Cookies.remove(TOKEN_KEY);
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+        // Solo loguear errores que no sean 401 en endpoints de auth (es normal no estar autenticado)
+        if (!(is401 && isAuthEndpoint)) {
+          logger.apiError(
+            error.config?.method?.toUpperCase() || 'GET',
+            error.config?.url || '',
+            error.response?.data || error.message
+          );
+        }
+        
+        // Si es 401 y no es el endpoint de refresh, intentar refrescar token
+        if (is401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+          originalRequest._retry = true;
+          
+          try {
+            // Intentar refrescar el token
+            await this.post('/admin/auth/refresh', {});
+            
+            // Reintentar la petición original
+            return this.client(originalRequest);
+          } catch (refreshError) {
+            // Si el refresh falla, redirigir al login solo si no estamos ya en login
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+              window.location.href = '/login';
+            }
+            return Promise.reject(refreshError);
           }
         }
+        
         return Promise.reject(error);
       }
     );
@@ -136,6 +153,10 @@ export const api = {
   // Auth
   login: (email: string, password: string) =>
     apiClient.post('/admin/auth/login', { email, password }),
+  
+  logout: () => apiClient.post('/admin/auth/logout', {}),
+  
+  getMe: () => apiClient.get('/admin/auth/me'),
   
   // Profile
   getProfile: () => apiClient.get('/portfolio/profile'),

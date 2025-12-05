@@ -92,17 +92,19 @@ router.post('/login', async (req: Request, res: Response) => {
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict',
+      sameSite: isProduction ? 'none' : 'lax', // 'none' requiere secure=true en prod
       maxAge: 15 * 60 * 1000, // 15 minutos
       path: '/',
+      domain: isProduction ? '.sergioja.com' : undefined, // Compartir entre subdominios
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
       path: '/',
+      domain: isProduction ? '.sergioja.com' : undefined,
     });
 
     logger.info('User logged in successfully', { userId: user.id, email: user.email });
@@ -166,17 +168,19 @@ router.post('/refresh', async (req: Request, res: Response) => {
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 15 * 60 * 1000,
       path: '/',
+      domain: isProduction ? '.sergioja.com' : undefined,
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
+      domain: isProduction ? '.sergioja.com' : undefined,
     });
 
     logger.info('Tokens refreshed successfully');

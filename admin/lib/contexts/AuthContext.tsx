@@ -2,15 +2,15 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
-import jwt from 'jsonwebtoken';
 import { api } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 interface User {
   id: string;
   name: string;
   email: string;
   role: string;
+  isActive?: boolean;
 }
 
 interface AuthContextType {
@@ -18,33 +18,42 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const TOKEN_KEY = 'admin_token';
-const JWT_SECRET = process.env.NEXT_PUBLIC_JWT_SECRET || 'cd3d9cecce29ee22d1b785ac943730fceb5799b30ae19e894136d26787c160c2';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Verificar token al cargar
+  // Verificar autenticación al cargar (usando cookies httpOnly del backend)
   useEffect(() => {
     const initAuth = async () => {
-      const token = Cookies.get(TOKEN_KEY);
-      if (token) {
-        try {
-          const decoded = jwt.verify(token, JWT_SECRET) as User;
-          setUser(decoded);
-        } catch (error) {
-          Cookies.remove(TOKEN_KEY);
+      try {
+        // Llamar al endpoint /me que valida la cookie httpOnly
+        const response = await api.getMe();
+        
+        if (response.success && response.data && typeof response.data === 'object' && 'user' in response.data) {
+          setUser(response.data.user as User);
+          logger.info('Auth: Usuario autenticado', { userId: (response.data.user as User).id });
+        } else {
+          setUser(null);
+          logger.debug('Auth: No hay sesión activa');
         }
+      } catch (error: any) {
+        // Si es 401, es normal (no hay sesión), no logueamos como error
+        if (error?.response?.status === 401) {
+          logger.debug('Auth: No autenticado (sin sesión)');
+        } else {
+          logger.error('Auth: Error verificando sesión', error);
+        }
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     initAuth();
@@ -52,44 +61,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      logger.info('Auth: Intentando login', { email });
       const response = await api.login(email, password);
       
-      if (response.success && response.data) {
-        const data = response.data as { token: string; user: User };
-        const token = data.token;
-        
-        // Guardar token en cookie (7 días)
-        Cookies.set(TOKEN_KEY, token, { expires: 7, secure: true, sameSite: 'strict' });
-        
-        // Decodificar y guardar usuario
-        const decoded = jwt.verify(token, JWT_SECRET) as User;
-        setUser(decoded);
-        
+      if (response.success && response.data && typeof response.data === 'object' && 'user' in response.data) {
+        // El backend ya configuró las cookies httpOnly (accessToken y refreshToken)
+        // Solo necesitamos guardar el usuario en el estado
+        const user = response.data.user as User;
+        setUser(user);
+        logger.info('Auth: Login exitoso', { userId: user.id, email: user.email });
         return true;
       }
       
+      logger.warn('Auth: Login fallido - respuesta inválida');
       return false;
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
+      logger.error('Auth: Error en login', { 
+        email, 
+        error: error?.response?.data || error?.message 
+      });
       return false;
     }
   };
 
-  const logout = () => {
-    Cookies.remove(TOKEN_KEY);
-    setUser(null);
-    router.push('/login');
+  const logout = async () => {
+    try {
+      logger.info('Auth: Cerrando sesión');
+      // Llamar al endpoint de logout para revocar el refresh token
+      await api.logout();
+      logger.info('Auth: Sesión cerrada exitosamente');
+    } catch (error: any) {
+      logger.error('Auth: Error al cerrar sesión', error);
+    } finally {
+      // Limpiar estado local
+      setUser(null);
+      router.push('/login');
+    }
   };
 
   const refreshAuth = async () => {
-    const token = Cookies.get(TOKEN_KEY);
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, JWT_SECRET) as User;
-        setUser(decoded);
-      } catch (error) {
-        logout();
+    try {
+      logger.debug('Auth: Refrescando información de usuario');
+      // Obtener información actualizada del usuario
+      const response = await api.getMe();
+      
+      if (response.success && response.data && typeof response.data === 'object' && 'user' in response.data) {
+        setUser(response.data.user as User);
+        logger.debug('Auth: Usuario actualizado');
+      } else {
+        logger.warn('Auth: Refresh falló - cerrando sesión');
+        await logout();
       }
+    } catch (error: any) {
+      // Si es 401, la sesión expiró
+      if (error?.response?.status === 401) {
+        logger.info('Auth: Sesión expirada');
+      } else {
+        logger.error('Auth: Error refrescando usuario', error);
+      }
+      await logout();
     }
   };
 
