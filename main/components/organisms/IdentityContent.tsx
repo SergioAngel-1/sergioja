@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { trackOutboundLink } from '@/lib/analytics';
 
 export default function IdentityContent() {
   const { t } = useLanguage();
@@ -68,6 +69,7 @@ export default function IdentityContent() {
         transition={{ delay: 0.4 }}
         className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
         style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
+        onClick={() => trackOutboundLink(portfolioCard.href, 'Portfolio')}
       >
         {/* Icono */}
         <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
