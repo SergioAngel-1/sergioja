@@ -173,6 +173,8 @@ docker compose --env-file .env -f docker-compose.yml up -d --build portfolio-fro
 docker compose --env-file .env -f docker-compose.yml up -d --build admin-frontend
 # Tomar cambios de seed (Bdd)
 docker compose --env-file .env -f docker-compose.yml exec backend npm run db:seed
+docker compose --env-file .env -f docker-compose.yml exec backend npx prisma db push
+
 ```
 
 ### Opción B: reset conservando DB
