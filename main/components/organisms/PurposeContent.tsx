@@ -9,10 +9,12 @@ import { api } from '@/lib/api-client';
 import { alerts } from '@/shared/alertSystem';
 import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 import { trackOutboundLink, trackNewsletterSubscribe } from '@/lib/analytics';
+import { useLogger } from '@/shared/hooks/useLogger';
 
 export default function PurposeContent() {
   const { t, language } = useLanguage();
   const [newsletterOpen, setNewsletterOpen] = useState(false);
+  const logger = useLogger('PurposeContent');
 
 
   // Tarjetas fijas: Blog y Newsletter
@@ -81,38 +83,44 @@ export default function PurposeContent() {
               </div>
             </motion.button>
           ) : (
-            <motion.a
+            <motion.button
               key={item.id}
-              href={item.href || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackOutboundLink(item.href || '#', item.title)}
+              onClick={() => {
+                logger.info('Blog disabled - coming soon', 'PurposeContent');
+              }}
+              disabled
+              aria-disabled="true"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
+              className="group relative flex items-center rounded-lg border border-white/20 text-white/40 cursor-not-allowed opacity-50 transition-all duration-300"
               style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
             >
               {/* Icono Blog */}
-              <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
+              <div className="rounded-lg bg-white/10 flex items-center justify-center text-white/40" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
                 <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h10M7 11h10M7 15h6M5 5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V9l-6-4H5z" />
                 </svg>
               </div>
 
               {/* Contenido */}
-              <div className="flex-1 min-w-0">
-                <h4 className="text-white font-medium text-fluid-sm">{item.title}</h4>
-                <p className="text-white/60 truncate text-fluid-sm">{item.description}</p>
+              <div className="flex-1 min-w-0 text-left">
+                <h4 className="text-white/40 font-medium text-fluid-sm text-left">{item.title}</h4>
+                <p className="text-white/30 truncate text-fluid-sm text-left">{item.description}</p>
               </div>
 
-              {/* Flecha */}
-              <div className="text-white/40 group-hover:text-white/60 transition-colors">
+              {/* Tag "Coming Soon" */}
+              <span className="absolute -top-2 right-2 text-[10px] font-mono bg-white/10 border border-white/20 rounded px-2 py-0.5 text-white/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                {language === 'es' ? 'Próximamente' : 'Coming Soon'}
+              </span>
+
+              {/* Flecha deshabilitada */}
+              <div className="text-white/20">
                 <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-            </motion.a>
+            </motion.button>
           )
         ))}
       </div>
