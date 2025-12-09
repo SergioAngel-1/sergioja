@@ -3,7 +3,8 @@ import { Viewport } from 'next';
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
-  themeColor: '#FF0000',
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#000000',
+  viewportFit: 'cover', // Para iOS safe-area
 };
