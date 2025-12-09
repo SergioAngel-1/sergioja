@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Icon from '../atoms/Icon';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -16,21 +17,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: '📊' },
-    { name: 'Proyectos', href: '/dashboard/projects', icon: '💼' },
-    { name: 'Skills', href: '/dashboard/skills', icon: '🛠️' },
-    { name: 'Mensajes', href: '/dashboard/messages', icon: '✉️' },
-    { name: 'Newsletter', href: '/dashboard/newsletter', icon: '📧' },
-    { name: 'Analytics', href: '/dashboard/analytics', icon: '📈' },
+    { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+    { name: 'Proyectos', href: '/dashboard/projects', icon: 'projects' },
+    { name: 'Skills', href: '/dashboard/skills', icon: 'skills' },
+    { name: 'Mensajes', href: '/dashboard/messages', icon: 'messages' },
+    { name: 'Newsletter', href: '/dashboard/newsletter', icon: 'newsletter' },
+    { name: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
   ];
 
   return (
-    <div className="flex h-viewport bg-admin-dark">
+    <div className="flex h-viewport bg-admin-dark overflow-hidden">
       {/* Sidebar */}
       <motion.aside
         initial={false}
         animate={{ width: sidebarOpen ? 256 : 80 }}
-        className="bg-admin-dark-elevated border-r border-admin-primary/30 flex flex-col"
+        className="bg-admin-dark-elevated border-r border-admin-primary/30 flex flex-col flex-shrink-0 relative"
       >
         {/* Logo/Header */}
         <div className="p-6 border-b border-admin-primary/30">
@@ -51,11 +52,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                   isActive
-                    ? 'bg-admin-primary/20 text-admin-primary border border-admin-primary/50 glow-red'
+                    ? 'bg-admin-primary/20 text-admin-primary border border-admin-primary/50'
                     : 'text-text-secondary hover:bg-admin-dark-surface hover:text-text-primary'
                 }`}
               >
-                <span className="text-xl">{item.icon}</span>
+                <Icon name={item.icon} size={20} />
                 {sidebarOpen && (
                   <span className="font-medium">{item.name}</span>
                 )}
@@ -83,24 +84,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           <button
             onClick={logout}
-            className="w-full px-4 py-2 bg-admin-error/20 hover:bg-admin-error/30 text-admin-error rounded-lg transition-all duration-200 text-sm font-medium"
+            className="w-full px-4 py-2 bg-admin-error/20 hover:bg-admin-error/30 text-admin-error rounded-lg transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2"
           >
-            {sidebarOpen ? 'Cerrar Sesión' : '🚪'}
+            {sidebarOpen ? (
+              <>
+                <Icon name="logout" size={16} />
+                <span>Cerrar Sesión</span>
+              </>
+            ) : (
+              <Icon name="logout" size={16} />
+            )}
           </button>
         </div>
 
         {/* Toggle button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute -right-3 top-20 w-6 h-6 bg-admin-primary rounded-full flex items-center justify-center text-white text-xs hover:scale-110 transition-transform"
+          className="absolute -right-3 top-20 w-6 h-6 bg-admin-primary rounded-full flex items-center justify-center text-admin-dark hover:scale-110 transition-transform shadow-lg"
         >
-          {sidebarOpen ? '←' : '→'}
+          <Icon name={sidebarOpen ? 'chevronLeft' : 'chevronRight'} size={14} />
         </button>
       </motion.aside>
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto scrollbar-thin">
-        <div className="p-8">
+        <div className="p-6 md:p-8 max-w-7xl mx-auto">
           {children}
         </div>
       </main>

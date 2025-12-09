@@ -1,0 +1,335 @@
+'use client';
+
+import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import DashboardLayout from '@/components/layouts/DashboardLayout';
+import Loader from '@/components/atoms/Loader';
+import Icon from '@/components/atoms/Icon';
+import ChartCard from '@/components/molecules/ChartCard';
+import TopItemCard from '@/components/molecules/TopItemCard';
+import { api } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
+
+interface PageView {
+  id: string;
+  path: string;
+  createdAt: string;
+}
+
+interface ProjectView {
+  id: string;
+  projectId: string;
+  createdAt: string;
+  project?: {
+    title: string;
+    slug: string;
+  };
+}
+
+export default function AnalyticsPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+  const [pageViews, setPageViews] = useState<PageView[]>([]);
+  const [projectViews, setProjectViews] = useState<ProjectView[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('30d');
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadAnalytics();
+    }
+  }, [isAuthenticated, timeRange]);
+
+  const loadAnalytics = async () => {
+    try {
+      setIsLoadingData(true);
+      const [pageViewsRes, projectViewsRes] = await Promise.all([
+        api.getPageViews({ timeRange }),
+        api.getProjectViews({ timeRange }),
+      ]);
+
+      if (pageViewsRes.success && pageViewsRes.data) {
+        const data = Array.isArray(pageViewsRes.data)
+          ? pageViewsRes.data
+          : (pageViewsRes.data as any).pageViews || [];
+        setPageViews(data);
+      }
+
+      if (projectViewsRes.success && projectViewsRes.data) {
+        const data = Array.isArray(projectViewsRes.data)
+          ? projectViewsRes.data
+          : (projectViewsRes.data as any).projectViews || [];
+        setProjectViews(data);
+      }
+
+      logger.info('Analytics loaded', {
+        pageViews: pageViews.length,
+        projectViews: projectViews.length,
+      });
+    } catch (error) {
+      logger.error('Error loading analytics', error);
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  const stats = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 24 * 60 * 60 * 1000;
+
+    const getLast7Days = (items: any[]) =>
+      items.filter((item) => now - new Date(item.createdAt).getTime() < 7 * dayMs).length;
+
+    const getLast30Days = (items: any[]) =>
+      items.filter((item) => now - new Date(item.createdAt).getTime() < 30 * dayMs).length;
+
+    const pageViewsLast7d = getLast7Days(pageViews);
+    const pageViewsLast30d = getLast30Days(pageViews);
+    const projectViewsLast7d = getLast7Days(projectViews);
+    const projectViewsLast30d = getLast30Days(projectViews);
+
+    return {
+      totalPageViews: pageViews.length,
+      totalProjectViews: projectViews.length,
+      pageViewsLast7d,
+      pageViewsLast30d,
+      projectViewsLast7d,
+      projectViewsLast30d,
+    };
+  }, [pageViews, projectViews]);
+
+  const topPages = useMemo(() => {
+    const pageCounts: Record<string, number> = {};
+    pageViews.forEach((view) => {
+      pageCounts[view.path] = (pageCounts[view.path] || 0) + 1;
+    });
+
+    return Object.entries(pageCounts)
+      .map(([path, count]) => ({ path, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [pageViews]);
+
+  const topProjects = useMemo(() => {
+    const projectCounts: Record<string, { title: string; count: number }> = {};
+    projectViews.forEach((view) => {
+      const title = view.project?.title || 'Unknown';
+      if (!projectCounts[view.projectId]) {
+        projectCounts[view.projectId] = { title, count: 0 };
+      }
+      projectCounts[view.projectId].count++;
+    });
+
+    return Object.values(projectCounts)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [projectViews]);
+
+  if (isLoading || !isAuthenticated) {
+    return <Loader fullScreen text="Cargando analytics..." />;
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
+          <div>
+            <h1 className="text-3xl md:text-4xl font-orbitron font-bold text-admin-primary text-glow-white">
+              ANALYTICS
+            </h1>
+            <p className="text-text-muted text-sm mt-1">
+              Estadísticas y métricas del portafolio
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            {(['7d', '30d', 'all'] as const).map((range) => (
+              <button
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`
+                  px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                  ${timeRange === range
+                    ? 'bg-admin-primary text-admin-dark'
+                    : 'bg-admin-dark-surface text-text-secondary border border-admin-primary/20 hover:border-admin-primary/50 hover:text-text-primary'
+                  }
+                `}
+              >
+                {range === '7d' ? 'Últimos 7 días' : range === '30d' ? 'Últimos 30 días' : 'Todo'}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {isLoadingData ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader size="lg" text="Cargando datos..." />
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <ChartCard
+                title="Vistas de Página"
+                value={stats.totalPageViews.toLocaleString()}
+                icon="eye"
+                color="#60a5fa"
+                delay={0.1}
+              />
+              <ChartCard
+                title="Vistas de Proyectos"
+                value={stats.totalProjectViews.toLocaleString()}
+                icon="projects"
+                color="#34d399"
+                delay={0.15}
+              />
+              <ChartCard
+                title="Últimos 7 días"
+                value={stats.pageViewsLast7d.toLocaleString()}
+                icon="zap"
+                color="#fbbf24"
+                delay={0.2}
+              />
+              <ChartCard
+                title="Últimos 30 días"
+                value={stats.pageViewsLast30d.toLocaleString()}
+                icon="zap"
+                color="#a78bfa"
+                delay={0.25}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-6"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-blue-400/20 border border-blue-400/40 flex items-center justify-center">
+                    <Icon name="eye" size={20} className="text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-orbitron font-bold text-admin-primary">
+                      Páginas Más Visitadas
+                    </h3>
+                    <p className="text-text-muted text-xs">Top 5 por vistas</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {topPages.length === 0 ? (
+                    <p className="text-text-muted text-center py-8">No hay datos disponibles</p>
+                  ) : (
+                    topPages.map((page, index) => (
+                      <TopItemCard
+                        key={page.path}
+                        rank={index + 1}
+                        title={page.path}
+                        value={page.count}
+                        total={stats.totalPageViews}
+                        color="#60a5fa"
+                        delay={0.35 + index * 0.05}
+                      />
+                    ))
+                  )}
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.35, ease: [0.23, 1, 0.32, 1] }}
+                className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-6"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-green-400/20 border border-green-400/40 flex items-center justify-center">
+                    <Icon name="projects" size={20} className="text-green-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-orbitron font-bold text-admin-primary">
+                      Proyectos Más Vistos
+                    </h3>
+                    <p className="text-text-muted text-xs">Top 5 por vistas</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {topProjects.length === 0 ? (
+                    <p className="text-text-muted text-center py-8">No hay datos disponibles</p>
+                  ) : (
+                    topProjects.map((project, index) => (
+                      <TopItemCard
+                        key={index}
+                        rank={index + 1}
+                        title={project.title}
+                        value={project.count}
+                        total={stats.totalProjectViews}
+                        color="#34d399"
+                        delay={0.4 + index * 0.05}
+                      />
+                    ))
+                  )}
+                </div>
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-6"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Icon name="analytics" size={24} className="text-admin-primary" />
+                <h3 className="text-lg font-orbitron font-bold text-admin-primary">
+                  Resumen de Actividad
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg">
+                  <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Vistas/Día (7d)</p>
+                  <p className="text-2xl font-orbitron font-bold text-blue-400">
+                    {stats.pageViewsLast7d > 0 ? Math.round(stats.pageViewsLast7d / 7) : 0}
+                  </p>
+                </div>
+                <div className="p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg">
+                  <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Vistas/Día (30d)</p>
+                  <p className="text-2xl font-orbitron font-bold text-green-400">
+                    {stats.pageViewsLast30d > 0 ? Math.round(stats.pageViewsLast30d / 30) : 0}
+                  </p>
+                </div>
+                <div className="p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg">
+                  <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Proyectos/Día (7d)</p>
+                  <p className="text-2xl font-orbitron font-bold text-yellow-400">
+                    {stats.projectViewsLast7d > 0 ? Math.round(stats.projectViewsLast7d / 7) : 0}
+                  </p>
+                </div>
+                <div className="p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg">
+                  <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Proyectos/Día (30d)</p>
+                  <p className="text-2xl font-orbitron font-bold text-purple-400">
+                    {stats.projectViewsLast30d > 0 ? Math.round(stats.projectViewsLast30d / 30) : 0}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}
