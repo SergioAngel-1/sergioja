@@ -222,7 +222,7 @@ export default function NewsletterPage() {
           transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
           className="space-y-4"
         >
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
             <SearchBar
               onSearch={setSearchQuery}
               placeholder="Buscar por email..."

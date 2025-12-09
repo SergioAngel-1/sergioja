@@ -29,7 +29,7 @@ export default function SearchBar({
 
   return (
     <div className="relative flex-1">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">
+      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted flex items-center">
         <Icon name={icon} size={18} />
       </div>
       <input
@@ -42,7 +42,7 @@ export default function SearchBar({
       {searchQuery && (
         <button
           onClick={handleClear}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors flex items-center"
         >
           <Icon name="plus" size={16} className="rotate-45" />
         </button>
