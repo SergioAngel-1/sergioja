@@ -93,7 +93,7 @@ export default function DashboardPage() {
               title="Nuevo Proyecto"
               description="Crear un nuevo proyecto en el portafolio"
               icon="plus"
-              href="/dashboard/projects/new"
+              href="/dashboard/projects?new=true"
               delay={0.6}
             />
             <QuickActionCard
@@ -123,13 +123,6 @@ export default function DashboardPage() {
               icon="newsletter"
               href="/dashboard/newsletter"
               delay={0.8}
-            />
-            <QuickActionCard
-              title="Configuración"
-              description="Ajustes del sistema"
-              icon="cpu"
-              href="/dashboard/settings"
-              delay={0.85}
             />
           </div>
         </motion.div>

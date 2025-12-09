@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
@@ -45,13 +45,7 @@ export default function AnalyticsPage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadAnalytics();
-    }
-  }, [isAuthenticated, timeRange]);
-
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       setIsLoadingData(true);
       const [pageViewsRes, projectViewsRes] = await Promise.all([
@@ -73,16 +67,19 @@ export default function AnalyticsPage() {
         setProjectViews(data);
       }
 
-      logger.info('Analytics loaded', {
-        pageViews: pageViews.length,
-        projectViews: projectViews.length,
-      });
+      logger.info('Analytics loaded successfully');
     } catch (error) {
       logger.error('Error loading analytics', error);
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [timeRange]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadAnalytics();
+    }
+  }, [isAuthenticated, loadAnalytics]);
 
   const stats = useMemo(() => {
     const now = Date.now();

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
@@ -32,6 +32,7 @@ interface Project {
 
 export default function ProjectsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
@@ -54,9 +55,49 @@ export default function ProjectsPage() {
     }
   }, [isAuthenticated]);
 
+  // Detectar query param para abrir modal de nuevo proyecto
+  useEffect(() => {
+    const shouldOpenModal = searchParams.get('new') === 'true';
+    if (shouldOpenModal && isAuthenticated && !isLoadingProjects) {
+      setIsModalOpen(true);
+      // Limpiar el query param de la URL
+      router.replace('/dashboard/projects');
+    }
+  }, [searchParams, isAuthenticated, isLoadingProjects, router]);
+
+  const filterProjects = useCallback(() => {
+    let filtered = [...projects];
+
+    // Filter by category
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter((p) => p.category === selectedCategory);
+    }
+
+    // Filter by status
+    if (selectedStatus === 'published') {
+      filtered = filtered.filter((p) => p.publishedAt !== null);
+    } else if (selectedStatus === 'draft') {
+      filtered = filtered.filter((p) => p.publishedAt === null);
+    } else if (selectedStatus === 'featured') {
+      filtered = filtered.filter((p) => p.featured);
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.title.toLowerCase().includes(query) ||
+          p.description.toLowerCase().includes(query)
+      );
+    }
+
+    setFilteredProjects(filtered);
+  }, [projects, selectedCategory, selectedStatus, searchQuery]);
+
   useEffect(() => {
     filterProjects();
-  }, [projects, selectedCategory, selectedStatus, searchQuery]);
+  }, [filterProjects]);
 
   const loadProjects = async () => {
     try {
@@ -109,36 +150,6 @@ export default function ProjectsPage() {
       { value: 'fullstack', label: 'Full Stack', count: counts.fullstack },
     ];
   }, [projects]);
-
-  const filterProjects = () => {
-    let filtered = [...projects];
-
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter((p) => p.category === selectedCategory);
-    }
-
-    // Filter by status
-    if (selectedStatus === 'published') {
-      filtered = filtered.filter((p) => p.publishedAt !== null);
-    } else if (selectedStatus === 'draft') {
-      filtered = filtered.filter((p) => p.publishedAt === null);
-    } else if (selectedStatus === 'featured') {
-      filtered = filtered.filter((p) => p.featured);
-    }
-
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query)
-      );
-    }
-
-    setFilteredProjects(filtered);
-  };
 
   const handleSaveProject = async (projectData: any) => {
     try {
