@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../atoms/Icon';
+import Button from '../atoms/Button';
+import Checkbox from '../atoms/Checkbox';
+import Modal from './Modal';
 import Select from './Select';
 import { fluidSizing } from '@/lib/fluidSizing';
 
@@ -122,46 +124,38 @@ export default function ProjectFormModal({
     });
   };
 
-  if (!isOpen) return null;
-
   return (
-    <AnimatePresence>
-      {isOpen && (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={project ? 'Editar Proyecto' : 'Nuevo Proyecto'}
+      maxWidth="3xl"
+      footer={
         <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <Button
+            type="button"
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-          />
-
-          {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ padding: fluidSizing.space.md }}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.2 }}
-              className="bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header - Fixed */}
-              <div className="flex items-center justify-between border-b border-admin-primary/20 flex-shrink-0" style={{ padding: fluidSizing.space.lg, gap: fluidSizing.space.md }}>
-                <h2 className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text['2xl'] }}>
-                  {project ? 'Editar Proyecto' : 'Nuevo Proyecto'}
-                </h2>
-                <button
-                  onClick={onClose}
-                  className="text-text-muted hover:text-text-primary transition-colors"
-                >
-                  <Icon name="plus" size={24} className="rotate-45" />
-                </button>
-              </div>
-
-              {/* Form - Scrollable */}
-              <form id="project-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+            variant="secondary"
+            size="md"
+            fullWidth
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            form="project-form"
+            disabled={isSubmitting}
+            isLoading={isSubmitting}
+            variant="primary"
+            size="md"
+            fullWidth
+          >
+            {project ? 'Actualizar' : 'Crear Proyecto'}
+          </Button>
+        </>
+      }
+    >
+      <form id="project-form" onSubmit={handleSubmit}>
                 <div style={{ padding: fluidSizing.space.lg, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
                 {/* Title */}
                 <div>
@@ -254,25 +248,17 @@ export default function ProjectFormModal({
                 </div>
 
                 {/* Repository Toggle */}
-                <div>
-                  <label className="flex items-center cursor-pointer" style={{ gap: fluidSizing.space.sm }}>
-                    <input
-                      type="checkbox"
-                      checked={!formData.isCodePublic}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        isCodePublic: !e.target.checked,
-                        repositoryUrl: e.target.checked ? '' : formData.repositoryUrl
-                      })}
-                      className="rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
-                      style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
-                    />
-                    <div>
-                      <span className="text-text-primary font-medium" style={{ fontSize: fluidSizing.text.base }}>Repositorio Privado</span>
-                      <p className="text-text-muted" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>El código fuente no es público</p>
-                    </div>
-                  </label>
-                </div>
+                <Checkbox
+                  checked={!formData.isCodePublic}
+                  onChange={(e) => setFormData({ 
+                    ...formData, 
+                    isCodePublic: !e.target.checked,
+                    repositoryUrl: e.target.checked ? '' : formData.repositoryUrl
+                  })}
+                  label="Repositorio Privado"
+                  description="El código fuente no es público"
+                  variant="card"
+                />
 
                 {/* URLs */}
                 <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: fluidSizing.space.md }}>
@@ -323,55 +309,20 @@ export default function ProjectFormModal({
 
                 {/* Toggles */}
                 <div className="flex" style={{ gap: fluidSizing.space.lg }}>
-                  <label className="flex items-center cursor-pointer" style={{ gap: fluidSizing.space.sm }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.featured}
-                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                      className="rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
-                      style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
-                    />
-                    <span className="text-text-primary font-medium" style={{ fontSize: fluidSizing.text.base }}>Destacado</span>
-                  </label>
+                  <Checkbox
+                    checked={formData.featured}
+                    onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                    label="Destacado"
+                  />
 
-                  <label className="flex items-center cursor-pointer" style={{ gap: fluidSizing.space.sm }}>
-                    <input
-                      type="checkbox"
-                      checked={!!formData.publishedAt}
-                      onChange={handlePublishToggle}
-                      className="rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
-                      style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
-                    />
-                    <span className="text-text-primary font-medium" style={{ fontSize: fluidSizing.text.base }}>Publicado</span>
-                  </label>
+                  <Checkbox
+                    checked={!!formData.publishedAt}
+                    onChange={handlePublishToggle}
+                    label="Publicado"
+                  />
                 </div>
                 </div>
               </form>
-
-              {/* Actions - Fixed at bottom */}
-              <div className="flex border-t border-admin-primary/20 flex-shrink-0" style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.lg }}>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 bg-admin-dark-surface border border-admin-primary/20 text-text-primary rounded-lg font-medium hover:bg-admin-dark-elevated transition-all duration-200"
-                  style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  form="project-form"
-                  disabled={isSubmitting}
-                  className="flex-1 bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
-                >
-                  {isSubmitting ? 'Guardando...' : project ? 'Actualizar' : 'Crear Proyecto'}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        </>
-      )}
-    </AnimatePresence>
+    </Modal>
   );
 }
