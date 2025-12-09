@@ -36,16 +36,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         className="bg-admin-dark-elevated border-r border-admin-primary/30 flex flex-col flex-shrink-0 relative"
       >
         {/* Logo/Header */}
-        <div className="border-b border-admin-primary/30" style={{ padding: fluidSizing.space.lg }}>
+        <div className="border-b border-admin-primary/30 flex items-center" style={{ padding: fluidSizing.space.lg, justifyContent: sidebarOpen ? 'flex-start' : 'center', minHeight: '80px' }}>
           <Link href="/dashboard">
-            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['2xl'] }}>
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: sidebarOpen ? fluidSizing.text['2xl'] : fluidSizing.text.xl }}>
               {sidebarOpen ? 'ADMIN' : 'A'}
             </h1>
           </Link>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto scrollbar-thin" style={{ padding: fluidSizing.space.md, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xs }}>
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin" style={{ padding: fluidSizing.space.md, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xs }}>
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -59,19 +59,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 }`}
                 style={{ 
                   gap: fluidSizing.space.sm, 
-                  padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
-                  justifyContent: sidebarOpen ? 'flex-start' : 'center'
+                  padding: sidebarOpen ? `${fluidSizing.space.sm} ${fluidSizing.space.md}` : fluidSizing.space.md,
+                  justifyContent: sidebarOpen ? 'flex-start' : 'center',
+                  minHeight: '48px'
                 }}
                 title={!sidebarOpen ? item.name : undefined}
               >
-                <Icon name={item.icon} size={20} />
+                <Icon name={item.icon} size={sidebarOpen ? 20 : 24} />
                 {sidebarOpen && (
                   <span className="font-medium" style={{ fontSize: fluidSizing.text.base }}>{item.name}</span>
                 )}
                 
                 {/* Tooltip cuando está colapsado */}
                 {!sidebarOpen && (
-                  <div className="absolute left-full ml-2 px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg">
+                  <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
                     <span className="text-sm font-medium text-text-primary">{item.name}</span>
                   </div>
                 )}
@@ -116,12 +117,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </button>
             </div>
           ) : (
-            <div className="flex flex-col items-center" style={{ gap: fluidSizing.space.sm }}>
-              <div className="rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold relative group" style={{ width: fluidSizing.size.iconLg, height: fluidSizing.size.iconLg, fontSize: fluidSizing.text.sm }}>
+            <div className="flex flex-col items-center" style={{ gap: fluidSizing.space.md }}>
+              <div className="rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold relative group" style={{ width: '40px', height: '40px', fontSize: fluidSizing.text.base }}>
                 {user?.name?.[0]?.toUpperCase() || 'A'}
                 
                 {/* Tooltip usuario */}
-                <div className="absolute left-full ml-2 px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg">
+                <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
                   <p className="text-sm font-medium text-text-primary">{user?.name || 'Admin'}</p>
                   <p className="text-xs text-text-muted">{user?.email}</p>
                 </div>
@@ -140,14 +141,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     'Cancelar'
                   );
                 }}
-                className="hover:bg-admin-error/10 text-admin-error rounded-lg transition-all duration-200 relative group"
-                style={{ padding: fluidSizing.space.xs }}
+                className="hover:bg-admin-error/10 text-admin-error rounded-lg transition-all duration-200 relative group flex items-center justify-center"
+                style={{ padding: fluidSizing.space.sm, minWidth: '40px', minHeight: '40px' }}
                 title="Cerrar sesión"
               >
-                <Icon name="logout" size={18} />
+                <Icon name="logout" size={20} />
                 
                 {/* Tooltip logout */}
-                <div className="absolute left-full ml-2 px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg">
+                <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
                   <span className="text-sm font-medium text-text-primary">Cerrar sesión</span>
                 </div>
               </button>

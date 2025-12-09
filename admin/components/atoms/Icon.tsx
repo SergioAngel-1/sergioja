@@ -112,14 +112,37 @@ export default function Icon({ name, className = '', size = 24 }: IconProps) {
         <line x1="1" y1="14" x2="4" y2="14"/>
       </svg>
     ),
+    check: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    ),
+    chevronDown: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    ),
   };
+
+  const icon = icons[name] || icons.dashboard;
 
   return (
     <span 
-      className={`inline-flex items-center justify-center ${className}`}
+      className={`inline-flex items-center justify-center flex-shrink-0 ${className}`}
       style={{ width: size, height: size }}
     >
-      {icons[name] || icons.dashboard}
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {icon.props.children}
+      </svg>
     </span>
   );
 }
