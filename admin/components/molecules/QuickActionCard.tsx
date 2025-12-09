@@ -58,19 +58,19 @@ export default function QuickActionCard({
               group-hover:rotate-6
             "
             style={{
-              width: fluidSizing.size.iconLg,
-              height: fluidSizing.size.iconLg
+              width: `clamp(2.5rem, 5vw, 3rem)`,
+              height: `clamp(2.5rem, 5vw, 3rem)`
             }}>
-              <Icon name={icon} size={18} />
+              <Icon name={icon} size={22} />
             </div>
           </div>
           
           <div className="flex-1 min-w-0">
-            <h3 className="text-text-primary font-medium group-hover:text-admin-primary transition-colors duration-300 truncate" style={{ fontSize: fluidSizing.text.sm, lineHeight: '1.4' }}>
+            <h3 className="text-text-primary font-medium group-hover:text-admin-primary transition-colors duration-300" style={{ fontSize: fluidSizing.text.base, lineHeight: '1.4' }}>
               {title}
             </h3>
             {description && (
-              <p className="text-text-muted line-clamp-1 hidden md:block" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>
+              <p className="text-text-muted line-clamp-2" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs, lineHeight: '1.5' }}>
                 {description}
               </p>
             )}

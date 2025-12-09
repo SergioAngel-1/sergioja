@@ -88,7 +88,7 @@ export default function DashboardPage() {
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-admin-primary/30 to-transparent" />
           </div>
           
-          <div className="grid grid-cols-2 lg:grid-cols-3" style={{ gap: fluidSizing.space.sm }}>
+          <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: fluidSizing.space.md }}>
             <QuickActionCard
               title="Nuevo Proyecto"
               description="Crear un nuevo proyecto en el portafolio"
