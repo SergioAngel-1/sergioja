@@ -94,7 +94,6 @@ export default function LoginPage() {
         }}
       >
         <div 
-          className="bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl glow-white"
           style={{
             padding: `clamp(1.5rem, 4vw, 3rem)`,
           }}
@@ -144,6 +143,7 @@ export default function LoginPage() {
               disabled={isLoading}
               placeholder="admin@sergioja.com"
               size="md"
+              autoComplete="username email"
             />
 
             <Input
@@ -156,6 +156,7 @@ export default function LoginPage() {
               disabled={isLoading}
               placeholder="••••••••"
               size="md"
+              autoComplete="current-password"
             />
 
             <Button
