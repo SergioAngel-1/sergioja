@@ -28,12 +28,19 @@ export default function Modal({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      // Prevenir bounce en iOS
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
     } else {
       document.body.style.overflow = 'unset';
+      document.body.style.position = '';
+      document.body.style.width = '';
     }
 
     return () => {
       document.body.style.overflow = 'unset';
+      document.body.style.position = '';
+      document.body.style.width = '';
     };
   }, [isOpen]);
 
@@ -62,14 +69,23 @@ export default function Modal({
           {/* Modal */}
           <div 
             className="fixed inset-0 z-50 flex items-center justify-center" 
-            style={{ padding: fluidSizing.space.md }}
+            style={{ 
+              padding: fluidSizing.space.md,
+              paddingTop: `calc(${fluidSizing.space.md} + env(safe-area-inset-top))`,
+              paddingBottom: `calc(${fluidSizing.space.md} + env(safe-area-inset-bottom))`,
+              paddingLeft: `calc(${fluidSizing.space.md} + env(safe-area-inset-left))`,
+              paddingRight: `calc(${fluidSizing.space.md} + env(safe-area-inset-right))`,
+            }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
-              className={`bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl w-full ${maxWidthClasses[maxWidth]} max-h-[90vh] flex flex-col`}
+              className={`bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl w-full ${maxWidthClasses[maxWidth]} flex flex-col`}
+              style={{
+                maxHeight: 'calc(90vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))',
+              }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header - Fixed */}
