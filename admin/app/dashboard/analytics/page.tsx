@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
+import Button from '@/components/atoms/Button';
 import TopItemCard from '@/components/molecules/TopItemCard';
 import StatCard from '@/components/molecules/StatCard';
 import TopSection from '@/components/molecules/TopSection';
@@ -160,20 +161,14 @@ export default function AnalyticsPage() {
 
           <div className="flex" style={{ gap: fluidSizing.space.xs }}>
             {(['7d', '30d', 'all'] as const).map((range) => (
-              <button
+              <Button
                 key={range}
                 onClick={() => setTimeRange(range)}
-                className={`
-                  rounded-lg font-medium transition-all duration-200
-                  ${timeRange === range
-                    ? 'bg-admin-primary text-admin-dark'
-                    : 'bg-admin-dark-surface text-text-secondary border border-admin-primary/20 hover:border-admin-primary/50 hover:text-text-primary'
-                  }
-                `}
-                style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}
+                variant={timeRange === range ? 'primary' : 'outline'}
+                size="sm"
               >
                 {range === '7d' ? 'Últimos 7 días' : range === '30d' ? 'Últimos 30 días' : 'Todo'}
-              </button>
+              </Button>
             ))}
           </div>
         </motion.div>

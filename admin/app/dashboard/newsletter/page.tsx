@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
+import Button from '@/components/atoms/Button';
 import SubscriberCard from '@/components/molecules/SubscriberCard';
 import StatCard from '@/components/molecules/StatCard';
 import SearchBar from '@/components/molecules/SearchBar';
@@ -168,18 +169,21 @@ export default function NewsletterPage() {
             </p>
           </div>
 
-          <motion.button
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            onClick={handleExport}
-            disabled={stats.active === 0}
-            className="flex items-center bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-admin-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
           >
-            <Icon name="server" size={20} />
-            <span>Exportar Emails</span>
-          </motion.button>
+            <Button
+              onClick={handleExport}
+              disabled={stats.active === 0}
+              icon="server"
+              variant="primary"
+              size="md"
+            >
+              Exportar Emails
+            </Button>
+          </motion.div>
         </motion.div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5" style={{ gap: fluidSizing.space.md }}>

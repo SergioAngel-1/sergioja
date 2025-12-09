@@ -2,15 +2,19 @@ import { ButtonHTMLAttributes, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { fluidSizing } from '@/lib/fluidSizing';
+import Icon from './Icon';
 
 interface ButtonProps extends Omit<
   ButtonHTMLAttributes<HTMLButtonElement>, 
   'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd'
 > {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
+  icon?: string;
+  iconPosition?: 'left' | 'right';
+  fullWidth?: boolean;
 }
 
 export default function Button({
@@ -18,6 +22,9 @@ export default function Button({
   variant = 'primary',
   size = 'md',
   isLoading = false,
+  icon,
+  iconPosition = 'left',
+  fullWidth = false,
   className,
   disabled,
   ...props
@@ -25,10 +32,11 @@ export default function Button({
   const baseStyles = 'font-medium rounded-lg transition-all duration-200 flex items-center justify-center';
   
   const variants = {
-    primary: 'bg-admin-primary hover:bg-admin-primary/90 text-admin-secondary glow-white font-semibold',
-    secondary: 'bg-admin-secondary hover:bg-admin-dark-elevated text-admin-primary border border-admin-primary',
+    primary: 'bg-admin-primary hover:bg-admin-primary/90 text-admin-dark font-semibold',
+    secondary: 'bg-admin-dark-surface hover:bg-admin-dark-elevated text-text-primary border border-admin-primary/20 hover:border-admin-primary/50',
     danger: 'bg-admin-error hover:bg-admin-error/80 text-white',
-    ghost: 'bg-transparent hover:bg-admin-dark-elevated text-admin-primary border border-admin-gray-medium hover:border-admin-primary',
+    ghost: 'bg-transparent hover:bg-admin-dark-surface text-text-secondary hover:text-text-primary',
+    outline: 'bg-transparent text-text-secondary border border-admin-primary/20 hover:border-admin-primary/50 hover:text-text-primary hover:bg-admin-dark-surface',
   };
 
   const sizeStyles = {
@@ -53,6 +61,7 @@ export default function Button({
       className={cn(
         baseStyles,
         variants[variant],
+        fullWidth && 'w-full',
         (disabled || isLoading) && 'opacity-50 cursor-not-allowed',
         className
       )}
@@ -68,7 +77,7 @@ export default function Button({
           <span 
             className={cn(
               "inline-block animate-spin rounded-full border-t-2 border-b-2",
-              variant === 'primary' ? 'border-admin-secondary' : 'border-admin-primary'
+              variant === 'primary' ? 'border-admin-dark' : 'border-admin-primary'
             )}
             style={{
               width: fluidSizing.size.iconSm,
@@ -78,7 +87,11 @@ export default function Button({
           Cargando...
         </span>
       ) : (
-        children
+        <span className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+          {icon && iconPosition === 'left' && <Icon name={icon} size={20} />}
+          {children}
+          {icon && iconPosition === 'right' && <Icon name={icon} size={20} />}
+        </span>
       )}
     </motion.button>
   );

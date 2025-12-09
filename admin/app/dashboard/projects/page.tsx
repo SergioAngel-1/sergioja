@@ -10,6 +10,7 @@ import FilterBar from '@/components/molecules/FilterBar';
 import StatCard from '@/components/molecules/StatCard';
 import Icon from '@/components/atoms/Icon';
 import Loader from '@/components/atoms/Loader';
+import Button from '@/components/atoms/Button';
 import ProjectFormModal from '@/components/molecules/ProjectFormModal';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
@@ -186,20 +187,23 @@ export default function ProjectsPage() {
             </p>
           </div>
 
-          <motion.button
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            onClick={() => {
-              setSelectedProject(null);
-              setIsModalOpen(true);
-            }}
-            className="flex items-center bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-admin-primary/20"
-            style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
           >
-            <Icon name="plus" size={20} />
-            <span>Nuevo Proyecto</span>
-          </motion.button>
+            <Button
+              onClick={() => {
+                setSelectedProject(null);
+                setIsModalOpen(true);
+              }}
+              icon="plus"
+              variant="primary"
+              size="md"
+            >
+              Nuevo Proyecto
+            </Button>
+          </motion.div>
         </motion.div>
 
         {/* Filters */}
@@ -273,14 +277,17 @@ export default function ProjectsPage() {
                 : 'Comienza creando tu primer proyecto'}
             </p>
             {!searchQuery && selectedCategory === 'all' && selectedStatus === 'all' && (
-              <button
-                onClick={() => router.push('/dashboard/projects/new')}
-                className="flex items-center bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200"
-                style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
+              <Button
+                onClick={() => {
+                  setSelectedProject(null);
+                  setIsModalOpen(true);
+                }}
+                icon="plus"
+                variant="primary"
+                size="md"
               >
-                <Icon name="plus" size={20} />
-                <span>Crear Proyecto</span>
-              </button>
+                Crear Proyecto
+              </Button>
             )}
           </motion.div>
         ) : (

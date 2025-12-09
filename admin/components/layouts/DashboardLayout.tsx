@@ -52,16 +52,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center rounded-lg transition-all duration-200 ${
+                className={`flex items-center rounded-lg transition-all duration-200 relative group ${
                   isActive
                     ? 'bg-admin-primary/20 text-admin-primary border border-admin-primary/50'
                     : 'text-text-secondary hover:bg-admin-dark-surface hover:text-text-primary'
                 }`}
-                style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
+                style={{ 
+                  gap: fluidSizing.space.sm, 
+                  padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+                  justifyContent: sidebarOpen ? 'flex-start' : 'center'
+                }}
+                title={!sidebarOpen ? item.name : undefined}
               >
                 <Icon name={item.icon} size={20} />
                 {sidebarOpen && (
                   <span className="font-medium" style={{ fontSize: fluidSizing.text.base }}>{item.name}</span>
+                )}
+                
+                {/* Tooltip cuando está colapsado */}
+                {!sidebarOpen && (
+                  <div className="absolute left-full ml-2 px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg">
+                    <span className="text-sm font-medium text-text-primary">{item.name}</span>
+                  </div>
                 )}
               </Link>
             );
@@ -70,11 +82,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* User section - Compacto */}
         <div className="border-t border-admin-primary/30" style={{ padding: fluidSizing.space.md }}>
-          <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-            <div className="rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold flex-shrink-0" style={{ width: fluidSizing.size.iconLg, height: fluidSizing.size.iconLg, fontSize: fluidSizing.text.sm }}>
-              {user?.name?.[0]?.toUpperCase() || 'A'}
-            </div>
-            {sidebarOpen && (
+          {sidebarOpen ? (
+            <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+              <div className="rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold flex-shrink-0" style={{ width: fluidSizing.size.iconLg, height: fluidSizing.size.iconLg, fontSize: fluidSizing.text.sm }}>
+                {user?.name?.[0]?.toUpperCase() || 'A'}
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-text-primary truncate" style={{ fontSize: fluidSizing.text.sm }}>
                   {user?.name || 'Admin'}
@@ -83,27 +95,64 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   {user?.email}
                 </p>
               </div>
-            )}
-            <button
-              onClick={() => {
-                alerts.confirm(
-                  '¿Cerrar sesión?',
-                  '¿Estás seguro de que quieres cerrar tu sesión?',
-                  async () => {
-                    await logout();
-                  },
-                  undefined,
-                  'Cerrar sesión',
-                  'Cancelar'
-                );
-              }}
-              className="flex-shrink-0 hover:bg-admin-error/10 text-admin-error rounded-lg transition-all duration-200"
-              style={{ padding: fluidSizing.space.xs }}
-              title="Cerrar sesión"
-            >
-              <Icon name="logout" size={18} />
-            </button>
-          </div>
+              <button
+                onClick={() => {
+                  alerts.confirm(
+                    '¿Cerrar sesión?',
+                    '¿Estás seguro de que quieres cerrar tu sesión?',
+                    async () => {
+                      await logout();
+                    },
+                    undefined,
+                    'Cerrar sesión',
+                    'Cancelar'
+                  );
+                }}
+                className="flex-shrink-0 hover:bg-admin-error/10 text-admin-error rounded-lg transition-all duration-200"
+                style={{ padding: fluidSizing.space.xs }}
+                title="Cerrar sesión"
+              >
+                <Icon name="logout" size={18} />
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center" style={{ gap: fluidSizing.space.sm }}>
+              <div className="rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold relative group" style={{ width: fluidSizing.size.iconLg, height: fluidSizing.size.iconLg, fontSize: fluidSizing.text.sm }}>
+                {user?.name?.[0]?.toUpperCase() || 'A'}
+                
+                {/* Tooltip usuario */}
+                <div className="absolute left-full ml-2 px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg">
+                  <p className="text-sm font-medium text-text-primary">{user?.name || 'Admin'}</p>
+                  <p className="text-xs text-text-muted">{user?.email}</p>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => {
+                  alerts.confirm(
+                    '¿Cerrar sesión?',
+                    '¿Estás seguro de que quieres cerrar tu sesión?',
+                    async () => {
+                      await logout();
+                    },
+                    undefined,
+                    'Cerrar sesión',
+                    'Cancelar'
+                  );
+                }}
+                className="hover:bg-admin-error/10 text-admin-error rounded-lg transition-all duration-200 relative group"
+                style={{ padding: fluidSizing.space.xs }}
+                title="Cerrar sesión"
+              >
+                <Icon name="logout" size={18} />
+                
+                {/* Tooltip logout */}
+                <div className="absolute left-full ml-2 px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg">
+                  <span className="text-sm font-medium text-text-primary">Cerrar sesión</span>
+                </div>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Toggle button */}
