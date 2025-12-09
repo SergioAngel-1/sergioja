@@ -7,11 +7,24 @@ import { groupAlertsByPosition, formatElapsedTime } from '@/shared/alertHelpers'
 
 export default function AlertContainer() {
   const alerts = useAlerts();
-
   const groupedAlerts = groupAlertsByPosition(alerts);
+  const hasConfirm = alerts.some(alert => alert.type === 'confirm');
 
   return (
     <>
+      {/* Backdrop for confirmation alerts */}
+      <AnimatePresence>
+        {hasConfirm && (
+          <motion.div
+            key="confirm-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
+          />
+        )}
+      </AnimatePresence>
+      
       {Array.from(groupedAlerts.entries()).map(([position, positionAlerts]) => (
         <AlertGroup key={position} position={position} alerts={positionAlerts} />
       ))}
@@ -42,15 +55,32 @@ function AlertGroup({ position, alerts }: { position: AlertPosition; alerts: Ale
 
 function AlertItem({ alert }: { alert: Alert }) {
   const style = alertStyles[alert.type];
+  const isConfirm = alert.type === 'confirm';
+
+  const handleConfirm = async () => {
+    if (alert.onConfirm) {
+      await alert.onConfirm();
+    }
+    alertManager.remove(alert.id);
+  };
+
+  const handleCancel = () => {
+    if (alert.onCancel) {
+      alert.onCancel();
+    }
+    alertManager.remove(alert.id);
+  };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.9 }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="relative bg-admin-dark-surface backdrop-blur-md rounded-lg shadow-2xl overflow-hidden w-full max-w-[400px] min-w-[320px] border border-admin-gray-dark"
-    >
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.9 }}
+        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+        className={`relative bg-admin-dark-surface backdrop-blur-md rounded-lg shadow-2xl overflow-hidden w-full border border-admin-gray-dark ${
+          isConfirm ? 'max-w-[500px] min-w-[400px] z-[9999]' : 'max-w-[400px] min-w-[320px]'
+        }`}
+      >
       <div className="p-4 relative">
         {/* Grid overlay sutil */}
         <div 
@@ -78,7 +108,7 @@ function AlertItem({ alert }: { alert: Alert }) {
             <div className="flex items-start justify-between gap-2">
               <h4 
                 className="font-orbitron font-bold text-sm tracking-wide uppercase"
-                style={{ color: style.color }}
+                style={{ color: isConfirm ? '#ffffff' : style.color }}
               >
                 {alert.title}
               </h4>
@@ -102,19 +132,39 @@ function AlertItem({ alert }: { alert: Alert }) {
               </p>
             )}
             
-            <div className="mt-3 flex items-center justify-between border-t border-admin-gray-dark pt-2">
-              <span className="text-[10px] font-mono text-admin-gray-medium uppercase tracking-widest">
-                [{alert.type}]
-              </span>
-              <span className="text-[10px] font-mono text-admin-gray-medium">
-                {formatElapsedTime(alert.timestamp)}
-              </span>
-            </div>
+            {/* Confirmation buttons */}
+            {isConfirm && (
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={handleCancel}
+                  className="flex-1 px-4 py-2.5 bg-admin-dark-elevated border border-admin-primary/30 text-text-secondary rounded-lg text-sm font-medium hover:bg-admin-dark-surface hover:text-text-primary hover:border-admin-primary/50 transition-all duration-200"
+                >
+                  {alert.cancelText || 'Cancelar'}
+                </button>
+                <button
+                  onClick={handleConfirm}
+                  className="flex-1 px-4 py-2.5 bg-white text-black rounded-lg text-sm font-medium hover:bg-white/90 transition-all duration-200 shadow-lg hover:shadow-white/20"
+                >
+                  {alert.confirmText || 'Confirmar'}
+                </button>
+              </div>
+            )}
+            
+            {!isConfirm && (
+              <div className="mt-3 flex items-center justify-between border-t border-admin-gray-dark pt-2">
+                <span className="text-[10px] font-mono text-admin-gray-medium uppercase tracking-widest">
+                  [{alert.type}]
+                </span>
+                <span className="text-[10px] font-mono text-admin-gray-medium">
+                  {formatElapsedTime(alert.timestamp)}
+                </span>
+              </div>
+            )}
           </div>
         </div>
         
         {/* Progress bar para alertas con duración */}
-        {alert.duration && alert.duration > 0 && (
+        {!!(alert.duration && alert.duration > 0) && (
           <motion.div
             className="absolute bottom-0 left-0 h-[2px] bg-admin-primary"
             style={{ 

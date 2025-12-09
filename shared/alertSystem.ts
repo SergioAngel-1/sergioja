@@ -4,7 +4,7 @@
  * Puede ser usado en Portfolio y Main
  */
 
-export type AlertType = 'success' | 'error' | 'warning' | 'info' | 'processing';
+export type AlertType = 'success' | 'error' | 'warning' | 'info' | 'processing' | 'confirm';
 export type AlertPosition = 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
 export interface Alert {
@@ -16,6 +16,10 @@ export interface Alert {
   position?: AlertPosition;
   timestamp: number;
   dismissible?: boolean;
+  onConfirm?: () => void | Promise<void>;
+  onCancel?: () => void;
+  confirmText?: string;
+  cancelText?: string;
 }
 
 export interface AlertConfig {
@@ -25,6 +29,10 @@ export interface AlertConfig {
   duration?: number;
   position?: AlertPosition;
   dismissible?: boolean;
+  onConfirm?: () => void | Promise<void>;
+  onCancel?: () => void;
+  confirmText?: string;
+  cancelText?: string;
 }
 
 /**
@@ -60,6 +68,12 @@ export const alertStyles = {
     bgColor: 'rgba(139, 0, 255, 0.1)',
     borderColor: 'rgba(139, 0, 255, 0.3)',
     icon: '⟳',
+  },
+  confirm: {
+    color: '#ff0000',
+    bgColor: 'rgba(255, 0, 0, 0.1)',
+    borderColor: 'rgba(255, 0, 0, 0.3)',
+    icon: '?',
   },
 } as const;
 
@@ -111,6 +125,10 @@ export class AlertManager {
       position: config.position ?? 'bottom-left',
       timestamp: Date.now(),
       dismissible: config.dismissible ?? true,
+      onConfirm: config.onConfirm,
+      onCancel: config.onCancel,
+      confirmText: config.confirmText,
+      cancelText: config.cancelText,
     };
 
     this.alerts.set(alert.id, alert);
@@ -198,6 +216,28 @@ export class AlertManager {
   processing(title: string, message?: string, duration = 0): string {
     return this.add({ type: 'processing', title, message, duration });
   }
+
+  confirm(
+    title: string,
+    message?: string,
+    onConfirm?: () => void | Promise<void>,
+    onCancel?: () => void,
+    confirmText = 'Confirmar',
+    cancelText = 'Cancelar'
+  ): string {
+    return this.add({
+      type: 'confirm',
+      title,
+      message,
+      duration: 0, // No auto-dismiss for confirmations
+      dismissible: false,
+      position: 'top-center',
+      onConfirm,
+      onCancel,
+      confirmText,
+      cancelText,
+    });
+  }
 }
 
 /**
@@ -223,6 +263,16 @@ export const alerts = {
   
   processing: (title: string, message?: string) => 
     alertManager.processing(title, message),
+  
+  confirm: (
+    title: string,
+    message?: string,
+    onConfirm?: () => void | Promise<void>,
+    onCancel?: () => void,
+    confirmText?: string,
+    cancelText?: string
+  ) => 
+    alertManager.confirm(title, message, onConfirm, onCancel, confirmText, cancelText),
   
   dismiss: (id: string) => 
     alertManager.remove(id),

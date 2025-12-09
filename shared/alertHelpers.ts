@@ -29,6 +29,7 @@ export function getAlertClasses(type: AlertType): {
     warning: 'border-yellow-500/30 bg-yellow-500/10',
     info: 'border-blue-500/30 bg-blue-500/10',
     processing: 'border-purple-500/30 bg-purple-500/10',
+    confirm: 'border-[#ff0000]/30 bg-[#ff0000]/10',
   };
 
   return {
@@ -128,6 +129,7 @@ export function getAlertAriaLabel(alert: Alert): string {
     warning: 'Advertencia',
     info: 'Información',
     processing: 'Procesando',
+    confirm: 'Confirmación',
   };
   
   return `${typeText[alert.type]}: ${alert.title}${alert.message ? `. ${alert.message}` : ''}`;
@@ -199,6 +201,7 @@ export function getAlertsSummary(alerts: Alert[]): {
       warning: 0,
       info: 0,
       processing: 0,
+      confirm: 0,
     } as Record<AlertType, number>,
     dismissible: 0,
     permanent: 0,

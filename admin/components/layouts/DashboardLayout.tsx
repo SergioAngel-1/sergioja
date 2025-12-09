@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Icon from '../atoms/Icon';
+import { alerts } from '@/lib/alerts';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -83,7 +84,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             )}
           </div>
           <button
-            onClick={logout}
+            onClick={() => {
+              alerts.confirm(
+                '¿Cerrar sesión?',
+                '¿Estás seguro de que quieres cerrar tu sesión?',
+                async () => {
+                  await logout();
+                },
+                undefined,
+                'Cerrar sesión',
+                'Cancelar'
+              );
+            }}
             className="w-full px-4 py-2 bg-admin-error/20 hover:bg-admin-error/30 text-admin-error rounded-lg transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2"
           >
             {sidebarOpen ? (
