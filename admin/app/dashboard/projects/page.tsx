@@ -13,6 +13,7 @@ import Loader from '@/components/atoms/Loader';
 import ProjectFormModal from '@/components/molecules/ProjectFormModal';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface Project {
   id: string;
@@ -167,19 +168,20 @@ export default function ProjectsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xl }}>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+          style={{ gap: fluidSizing.space.md }}
         >
           <div>
-            <h1 className="text-3xl md:text-4xl font-orbitron font-bold text-admin-primary text-glow-white">
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
               PROYECTOS
             </h1>
-            <p className="text-text-muted text-sm mt-1">
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
               Gestiona tu portafolio de proyectos
             </p>
           </div>
@@ -192,7 +194,8 @@ export default function ProjectsPage() {
               setSelectedProject(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-2 px-6 py-3 bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-admin-primary/20"
+            className="flex items-center bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-admin-primary/20"
+            style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
           >
             <Icon name="plus" size={20} />
             <span>Nuevo Proyecto</span>
@@ -217,7 +220,7 @@ export default function ProjectsPage() {
         </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
           <StatCard
             title="Total"
             value={projects.length}
@@ -249,7 +252,7 @@ export default function ProjectsPage() {
 
         {/* Projects Grid */}
         {isLoadingProjects ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center" style={{ padding: `${fluidSizing.space['2xl']} 0` }}>
             <Loader size="lg" text="Cargando proyectos..." />
           </div>
         ) : filteredProjects.length === 0 ? (
@@ -257,11 +260,14 @@ export default function ProjectsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col items-center justify-center py-20 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+            className="flex flex-col items-center justify-center bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+            style={{ padding: fluidSizing.space['2xl'] }}
           >
-            <Icon name="projects" size={64} className="text-admin-primary/30 mb-4" />
-            <p className="text-text-muted text-lg mb-2">No se encontraron proyectos</p>
-            <p className="text-text-muted text-sm mb-6">
+            <div style={{ marginBottom: fluidSizing.space.md }}>
+              <Icon name="projects" size={64} className="text-admin-primary/30" />
+            </div>
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.lg, marginBottom: fluidSizing.space.sm }}>No se encontraron proyectos</p>
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginBottom: fluidSizing.space.lg }}>
               {searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all'
                 ? 'Intenta ajustar los filtros'
                 : 'Comienza creando tu primer proyecto'}
@@ -269,7 +275,8 @@ export default function ProjectsPage() {
             {!searchQuery && selectedCategory === 'all' && selectedStatus === 'all' && (
               <button
                 onClick={() => router.push('/dashboard/projects/new')}
-                className="flex items-center gap-2 px-6 py-3 bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200"
+                className="flex items-center bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200"
+                style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
               >
                 <Icon name="plus" size={20} />
                 <span>Crear Proyecto</span>
@@ -277,7 +284,7 @@ export default function ProjectsPage() {
             )}
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: fluidSizing.space.lg }}>
             {filteredProjects.map((project, index) => (
               <ProjectCard
                 key={project.id}
