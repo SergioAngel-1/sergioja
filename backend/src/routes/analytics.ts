@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { ApiResponse, AnalyticsSummary } from '../../../shared/types';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
@@ -39,6 +40,125 @@ router.get('/summary', async (_req: Request, res: Response) => {
         code: 'INTERNAL_ERROR',
       },
       timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Admin endpoints - requieren autenticación
+// GET /api/admin/analytics/page-views - Obtener vistas de páginas
+router.get('/page-views', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { timeRange, limit = '100', offset = '0' } = req.query;
+
+    const where: Record<string, unknown> = {};
+    
+    // Filtrar por rango de tiempo
+    if (timeRange && typeof timeRange === 'string') {
+      const now = new Date();
+      let startDate: Date;
+      
+      switch (timeRange) {
+        case '7d':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case 'all':
+        default:
+          startDate = new Date(0); // Desde el inicio
+          break;
+      }
+      
+      where.createdAt = { gte: startDate };
+    }
+
+    const pageViews = await prisma.pageView.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: parseInt(limit as string),
+      skip: parseInt(offset as string),
+    });
+
+    const total = await prisma.pageView.count({ where });
+
+    logger.info('Page views retrieved', { count: pageViews.length, total });
+
+    res.json({
+      success: true,
+      data: pageViews,
+    });
+  } catch (error) {
+    logger.error('Error fetching page views', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al obtener vistas de páginas',
+      },
+    });
+  }
+});
+
+// GET /api/admin/analytics/project-views - Obtener vistas de proyectos
+router.get('/project-views', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { timeRange, limit = '100', offset = '0' } = req.query;
+
+    const where: Record<string, unknown> = {};
+    
+    // Filtrar por rango de tiempo
+    if (timeRange && typeof timeRange === 'string') {
+      const now = new Date();
+      let startDate: Date;
+      
+      switch (timeRange) {
+        case '7d':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case 'all':
+        default:
+          startDate = new Date(0); // Desde el inicio
+          break;
+      }
+      
+      where.createdAt = { gte: startDate };
+    }
+
+    const projectViews = await prisma.projectView.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: parseInt(limit as string),
+      skip: parseInt(offset as string),
+      include: {
+        project: {
+          select: {
+            title: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    const total = await prisma.projectView.count({ where });
+
+    logger.info('Project views retrieved', { count: projectViews.length, total });
+
+    res.json({
+      success: true,
+      data: projectViews,
+    });
+  } catch (error) {
+    logger.error('Error fetching project views', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al obtener vistas de proyectos',
+      },
     });
   }
 });
