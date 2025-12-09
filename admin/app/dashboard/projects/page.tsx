@@ -178,8 +178,8 @@ export default function ProjectsPage() {
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
           style={{ gap: fluidSizing.space.md }}
         >
-          <div>
-            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
+          <div className="flex-1">
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: `clamp(1.75rem, 5vw, 2.5rem)` }}>
               PROYECTOS
             </h1>
             <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
@@ -191,6 +191,7 @@ export default function ProjectsPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.2 }}
+            className="w-full sm:w-auto"
           >
             <Button
               onClick={() => {
@@ -200,6 +201,8 @@ export default function ProjectsPage() {
               icon="plus"
               variant="primary"
               size="md"
+              fullWidth
+              className="sm:w-auto"
             >
               Nuevo Proyecto
             </Button>
