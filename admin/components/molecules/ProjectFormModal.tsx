@@ -49,6 +49,8 @@ export default function ProjectFormModal({
   });
   const [techInput, setTechInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -71,6 +73,8 @@ export default function ProjectFormModal({
           typeof t === 'string' ? t : t.technology?.name || t.name
         ) || [],
       });
+      setImagePreview(project.imageUrl || '');
+      setImageFile(null);
     } else {
       setFormData({
         title: '',
@@ -84,8 +88,28 @@ export default function ProjectFormModal({
         imageUrl: '',
         isCodePublic: true,
       });
+      setImagePreview('');
+      setImageFile(null);
     }
   }, [project, isOpen]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    setFormData({ ...formData, imageUrl: '' });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,6 +211,48 @@ export default function ProjectFormModal({
                     style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
                     placeholder="Describe el proyecto..."
                   />
+                </div>
+
+                {/* Image Upload */}
+                <div>
+                  <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
+                    Imagen del Proyecto
+                  </label>
+                  
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-48 object-cover rounded-lg border border-admin-primary/20"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 transition-colors"
+                      >
+                        <Icon name="x" size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-admin-primary/30 rounded-lg cursor-pointer hover:border-admin-primary/50 transition-colors bg-admin-dark-surface">
+                      <div className="flex flex-col items-center justify-center" style={{ padding: fluidSizing.space.lg }}>
+                        <Icon name="upload" size={32} className="text-admin-primary mb-2" />
+                        <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm }}>
+                          Click para subir imagen
+                        </p>
+                        <p className="text-text-muted/50" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>
+                          PNG, JPG, WEBP (max. 5MB)
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
                 </div>
 
                 {/* Category */}
