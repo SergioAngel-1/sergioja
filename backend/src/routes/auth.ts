@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
+import bcrypt from 'bcrypt';
 import { authenticateUser, refreshAccessToken, revokeRefreshToken, revokeAllUserTokens } from '../services/authService';
 import { verifyRecaptchaEnterprise } from '../services/recaptchaService';
 import { logger } from '../lib/logger';
 import { authMiddleware } from '../middleware/auth';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
 
@@ -306,6 +308,102 @@ router.get('/me', authMiddleware, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Get user info error', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error interno del servidor',
+      },
+    });
+  }
+});
+
+/**
+ * POST /api/admin/auth/change-password
+ * Cambiar contraseña del usuario autenticado
+ */
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Contraseña actual requerida'),
+  newPassword: z.string().min(8, 'La nueva contraseña debe tener al menos 8 caracteres'),
+});
+
+router.post('/change-password', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const validation = changePasswordSchema.safeParse(req.body);
+    
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Datos inválidos',
+          details: validation.error.errors,
+        },
+      });
+    }
+
+    const { currentPassword, newPassword } = validation.data;
+    const userId = (req as any).user.userId;
+
+    // Obtener usuario de la base de datos
+    const user = await prisma.adminUser.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'Usuario no encontrado',
+        },
+      });
+    }
+
+    // Verificar contraseña actual
+    const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'INVALID_PASSWORD',
+          message: 'Contraseña actual incorrecta',
+        },
+      });
+    }
+
+    // Verificar que la nueva contraseña sea diferente
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'SAME_PASSWORD',
+          message: 'La nueva contraseña debe ser diferente a la actual',
+        },
+      });
+    }
+
+    // Hash de la nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Actualizar contraseña
+    await prisma.adminUser.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    logger.info('Password changed successfully', { userId });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        message: 'Contraseña actualizada exitosamente',
+      },
+    });
+  } catch (error) {
+    logger.error('Change password error', error);
     return res.status(500).json({
       success: false,
       error: {

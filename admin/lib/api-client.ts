@@ -193,6 +193,9 @@ export const api = {
   
   getMe: () => apiClient.get('/admin/auth/me'),
   
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    apiClient.post('/admin/auth/change-password', data),
+  
   // Profile
   getProfile: () => apiClient.get('/portfolio/profile'),
   updateProfile: (data: any) => apiClient.put('/portfolio/profile', data),

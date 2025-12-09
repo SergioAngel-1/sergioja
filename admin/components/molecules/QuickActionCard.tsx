@@ -39,7 +39,7 @@ export default function QuickActionCard({
           hover:shadow-md hover:shadow-black/20
         "
         style={{
-          padding: fluidSizing.space.sm
+          padding: `${fluidSizing.space.md} ${fluidSizing.space.md}`
         }}
       >
         {/* Content */}

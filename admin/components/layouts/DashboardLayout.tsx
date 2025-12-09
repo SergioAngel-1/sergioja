@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import Icon from '../atoms/Icon';
 import { alerts } from '@/lib/alerts';
 import { fluidSizing } from '@/lib/fluidSizing';
+import ChangePasswordModal from '../molecules/ChangePasswordModal';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -19,6 +20,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
 
   // Detectar si es mobile
@@ -55,7 +57,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const handleChangePassword = () => {
     setSettingsOpen(false);
-    alerts.info('Cambiar contraseña', 'Esta funcionalidad estará disponible próximamente');
+    setIsChangePasswordModalOpen(true);
   };
 
   const navigation = [
@@ -341,6 +343,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </div>
       </main>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
+      />
     </div>
   );
 }
