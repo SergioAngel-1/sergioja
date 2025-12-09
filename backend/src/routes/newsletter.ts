@@ -5,6 +5,7 @@ import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { verifyRecaptchaEnterprise } from '../services/recaptchaService';
 import { emailService } from '../services/emailService';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
@@ -92,5 +93,76 @@ router.post(
     }
   }
 );
+
+// Admin endpoints - requieren autenticación
+// GET /api/admin/newsletter/subscribers - Obtener todos los suscriptores
+router.get('/subscribers', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { status, limit = '50', offset = '0' } = req.query;
+
+    const where: Record<string, unknown> = {};
+    
+    if (status && typeof status === 'string') {
+      where.status = status;
+    }
+
+    const subscribers = await prisma.newsletterSubscription.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: parseInt(limit as string),
+      skip: parseInt(offset as string),
+    });
+
+    const total = await prisma.newsletterSubscription.count({ where });
+
+    logger.info('Subscribers retrieved', { count: subscribers.length, total });
+
+    res.json({
+      success: true,
+      data: {
+        subscribers,
+        total,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+      },
+    });
+  } catch (error) {
+    logger.error('Error fetching subscribers', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al obtener suscriptores',
+      },
+    });
+  }
+});
+
+// DELETE /api/admin/newsletter/subscribers/:id - Eliminar suscriptor
+router.delete('/subscribers/:id', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.newsletterSubscription.delete({
+      where: { id },
+    });
+
+    logger.info('Subscriber deleted', { id });
+
+    res.json({
+      success: true,
+      data: { id },
+    });
+  } catch (error) {
+    logger.error('Error deleting subscriber', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al eliminar suscriptor',
+      },
+    });
+  }
+});
 
 export default router;

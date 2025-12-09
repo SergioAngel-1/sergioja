@@ -19,6 +19,7 @@ import skillsRoutes from './routes/skills';
 import contactRoutes from './routes/contact';
 import analyticsRoutes from './routes/analytics';
 import newsletterRoutes from './routes/newsletter';
+import messagesRoutes from './routes/messages';
 
 dotenv.config();
 
@@ -141,6 +142,9 @@ app.get('/health', healthResponse);
 logger.info('Setting up routes...');
 // Admin routes
 app.use('/api/admin/auth', authRoutes);
+app.use('/api/admin/messages', messagesRoutes);
+app.use('/api/admin/newsletter', newsletterRoutes);
+app.use('/api/admin/analytics', analyticsRoutes);
 // Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
 app.use('/api/portfolio/projects', projectsRoutes);
