@@ -9,6 +9,7 @@ import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
 import TopItemCard from '@/components/molecules/TopItemCard';
 import StatCard from '@/components/molecules/StatCard';
+import TopSection from '@/components/molecules/TopSection';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -208,79 +209,25 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-6"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-lg bg-blue-400/20 border border-blue-400/40 flex items-center justify-center">
-                    <Icon name="eye" size={20} className="text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-orbitron font-bold text-admin-primary">
-                      Páginas Más Visitadas
-                    </h3>
-                    <p className="text-text-muted text-xs">Top 5 por vistas</p>
-                  </div>
-                </div>
+              <TopSection
+                title="Páginas Más Visitadas"
+                subtitle="Top 5 por vistas"
+                icon="eye"
+                items={topPages.map(page => ({ title: page.path, count: page.count }))}
+                totalCount={stats.totalPageViews}
+                delay={0.3}
+                itemColor="#60a5fa"
+              />
 
-                <div className="space-y-3">
-                  {topPages.length === 0 ? (
-                    <p className="text-text-muted text-center py-8">No hay datos disponibles</p>
-                  ) : (
-                    topPages.map((page, index) => (
-                      <TopItemCard
-                        key={page.path}
-                        rank={index + 1}
-                        title={page.path}
-                        value={page.count}
-                        total={stats.totalPageViews}
-                        color="#60a5fa"
-                        delay={0.35 + index * 0.05}
-                      />
-                    ))
-                  )}
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.35, ease: [0.23, 1, 0.32, 1] }}
-                className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-6"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-lg bg-green-400/20 border border-green-400/40 flex items-center justify-center">
-                    <Icon name="projects" size={20} className="text-green-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-orbitron font-bold text-admin-primary">
-                      Proyectos Más Vistos
-                    </h3>
-                    <p className="text-text-muted text-xs">Top 5 por vistas</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {topProjects.length === 0 ? (
-                    <p className="text-text-muted text-center py-8">No hay datos disponibles</p>
-                  ) : (
-                    topProjects.map((project, index) => (
-                      <TopItemCard
-                        key={index}
-                        rank={index + 1}
-                        title={project.title}
-                        value={project.count}
-                        total={stats.totalProjectViews}
-                        color="#34d399"
-                        delay={0.4 + index * 0.05}
-                      />
-                    ))
-                  )}
-                </div>
-              </motion.div>
+              <TopSection
+                title="Proyectos Más Vistos"
+                subtitle="Top 5 por vistas"
+                icon="projects"
+                items={topProjects.map(project => ({ title: project.title, count: project.count }))}
+                totalCount={stats.totalProjectViews}
+                delay={0.35}
+                itemColor="#34d399"
+              />
             </div>
 
             <motion.div
