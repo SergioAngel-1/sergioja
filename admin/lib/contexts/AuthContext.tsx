@@ -32,6 +32,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Verificar autenticación al cargar (usando cookies httpOnly del backend)
   useEffect(() => {
     const initAuth = async () => {
+      // Skip auth check on login page to avoid unnecessary 401 errors
+      if (typeof window !== 'undefined' && window.location.pathname === '/login') {
+        setIsLoading(false);
+        return;
+      }
+      
       try {
         // Llamar al endpoint /me que valida la cookie httpOnly
         const response = await api.getMe();
