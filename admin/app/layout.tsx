@@ -50,6 +50,13 @@ export const metadata: Metadata = {
     default: `${siteConfig.name} Admin`,
   },
   metadataBase: new URL(SITE_URL),
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover', // Para iOS safe-area
+  },
   robots: {
     index: false,
     follow: false,

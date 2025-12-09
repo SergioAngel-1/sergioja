@@ -95,6 +95,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         className={`bg-admin-dark-elevated border-r border-admin-primary/30 flex flex-col ${
           isMobile ? 'fixed left-0 top-0 bottom-0 z-50' : 'flex-shrink-0 relative'
         }`}
+        style={isMobile ? {
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingLeft: 'env(safe-area-inset-left)',
+        } : undefined}
       >
         {/* Logo/Header */}
         <div className="border-b border-admin-primary/30 flex items-center" style={{ padding: fluidSizing.space.lg, justifyContent: sidebarOpen ? 'flex-start' : 'center', minHeight: '80px' }}>
@@ -314,6 +319,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             className="flex-shrink-0 bg-admin-dark/80 backdrop-blur-md border-b border-admin-primary/20"
             style={{ 
               padding: fluidSizing.space.md,
+              paddingTop: `calc(${fluidSizing.space.md} + env(safe-area-inset-top))`,
               zIndex: 30
             }}
           >
