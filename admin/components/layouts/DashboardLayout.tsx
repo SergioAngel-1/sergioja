@@ -1,7 +1,7 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
-import { motion } from 'framer-motion';
+import { ReactNode, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -17,6 +17,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar si es mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      // En mobile, la sidebar empieza cerrada
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
@@ -28,12 +44,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="flex h-viewport bg-admin-dark overflow-hidden">
+    <div className={`${isMobile ? 'relative' : 'flex'} h-viewport bg-admin-dark overflow-hidden`}>
+      {/* Backdrop para mobile */}
+      <AnimatePresence>
+        {isMobile && sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ width: sidebarOpen ? 256 : 80 }}
-        className="bg-admin-dark-elevated border-r border-admin-primary/30 flex flex-col flex-shrink-0 relative"
+        animate={{
+          x: isMobile && !sidebarOpen ? -256 : 0,
+          width: isMobile ? 256 : (sidebarOpen ? 256 : 80)
+        }}
+        className={`bg-admin-dark-elevated border-r border-admin-primary/30 flex flex-col ${
+          isMobile ? 'fixed left-0 top-0 bottom-0 z-50' : 'flex-shrink-0 relative'
+        }`}
       >
         {/* Logo/Header */}
         <div className="border-b border-admin-primary/30 flex items-center" style={{ padding: fluidSizing.space.lg, justifyContent: sidebarOpen ? 'flex-start' : 'center', minHeight: '80px' }}>
@@ -156,20 +191,53 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           )}
         </div>
 
-        {/* Toggle button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute -right-3 bg-admin-primary rounded-full flex items-center justify-center text-admin-dark hover:scale-110 transition-transform shadow-lg"
-          style={{ top: fluidSizing.space['2xl'], width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
-        >
-          <Icon name={sidebarOpen ? 'chevronLeft' : 'chevronRight'} size={14} />
-        </button>
+        {/* Toggle button - Solo en desktop */}
+        {!isMobile && (
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="absolute -right-3 bg-admin-primary rounded-full flex items-center justify-center text-admin-dark hover:scale-110 transition-transform shadow-lg"
+            style={{ top: fluidSizing.space['2xl'], width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
+          >
+            <Icon name={sidebarOpen ? 'chevronLeft' : 'chevronRight'} size={14} />
+          </button>
+        )}
       </motion.aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto scrollbar-thin">
-        <div className="max-w-7xl mx-auto" style={{ padding: fluidSizing.space['2xl'] }}>
-          {children}
+      <main className={`flex flex-col flex-1 ${isMobile ? 'w-full h-full' : ''}`}>
+        {/* Header para mobile */}
+        {isMobile && (
+          <header 
+            className="flex-shrink-0 bg-admin-dark/80 backdrop-blur-md border-b border-admin-primary/20"
+            style={{ 
+              padding: fluidSizing.space.md,
+              zIndex: 30
+            }}
+          >
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="bg-admin-dark-elevated/90 backdrop-blur-sm border border-admin-primary/30 rounded-lg flex items-center text-text-primary hover:border-admin-primary/50 hover:bg-admin-dark-elevated transition-all duration-200"
+                style={{ 
+                  padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+                  gap: fluidSizing.space.xs
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="12" x2="21" y2="12"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+                <span className="text-sm font-medium">Menú</span>
+              </button>
+            )}
+          </header>
+        )}
+        
+        <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin">
+          <div className="max-w-7xl mx-auto" style={{ padding: isMobile ? fluidSizing.space.lg : fluidSizing.space['2xl'] }}>
+            {children}
+          </div>
         </div>
       </main>
     </div>

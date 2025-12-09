@@ -80,7 +80,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-viewport bg-admin-dark relative overflow-hidden">
+    <div className="flex items-center justify-center min-h-viewport bg-admin-dark relative overflow-hidden px-4">
       {/* Background effects */}
       <div className="absolute inset-0 cyber-grid opacity-10 z-0" />
       
@@ -90,26 +90,26 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
         style={{
-          padding: fluidSizing.space.lg,
+          padding: `${fluidSizing.space.md} 0`,
         }}
       >
         <div 
           className="bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl glow-white"
           style={{
-            padding: fluidSizing.space.xl,
+            padding: `clamp(1.5rem, 4vw, 3rem)`,
           }}
         >
           {/* Logo/Title */}
           <div 
             className="text-center"
             style={{
-              marginBottom: fluidSizing.space.xl,
+              marginBottom: `clamp(1.5rem, 4vw, 3rem)`,
             }}
           >
             <h1 
               className="font-orbitron font-bold text-admin-primary text-glow-white"
               style={{
-                fontSize: fluidSizing.text['4xl'],
+                fontSize: `clamp(2rem, 6vw, 3rem)`,
                 marginBottom: fluidSizing.space.sm,
               }}
             >
@@ -162,11 +162,8 @@ export default function LoginPage() {
               type="submit"
               disabled={isLoading}
               isLoading={isLoading}
-              className="w-full"
-              style={{
-                fontSize: fluidSizing.text.base,
-                padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}`,
-              }}
+              fullWidth
+              size="lg"
             >
               Iniciar Sesión
             </Button>
@@ -176,7 +173,7 @@ export default function LoginPage() {
           <div 
             className="text-center text-admin-gray-medium"
             style={{
-              marginTop: fluidSizing.space.lg,
+              marginTop: fluidSizing.space.xl,
               fontSize: fluidSizing.text.sm,
             }}
           >
@@ -187,8 +184,9 @@ export default function LoginPage() {
           <p 
             className="text-center text-admin-gray-medium/50 font-mono leading-relaxed"
             style={{
-              marginTop: fluidSizing.space.md,
+              marginTop: fluidSizing.space.lg,
               fontSize: fluidSizing.text.xs,
+              lineHeight: '1.6',
             }}
           >
             Este sitio está protegido por reCAPTCHA y se aplican la{' '}

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Icon from '../atoms/Icon';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface StatCardProps {
   title: string;
@@ -69,27 +70,29 @@ export default function StatCard({
         bg-admin-dark-elevated 
         ${colorClasses.border}
         rounded-lg
-        ${isSimple ? 'p-4' : 'p-6'}
         transition-all duration-300
         ${colorClasses.hoverBorder}
         ${isAccent ? 'hover:shadow-lg hover:shadow-admin-primary/10' : ''}
         ${!isSimple ? 'hover:shadow-md hover:shadow-black/20' : ''}
         ${className}
       `}
+      style={{
+        padding: isSimple ? fluidSizing.space.sm : fluidSizing.space.md
+      }}
     >
       {/* Background grid effect - solo en variant default y accent */}
       {!isSimple && <div className="absolute inset-0 cyber-grid opacity-5 rounded-lg" />}
       
       {/* Content */}
-      <div className="relative z-10 flex items-center justify-between gap-4">
-        <div className="flex-1">
-          <p className={`text-text-muted ${isSimple ? 'text-xs' : 'text-sm'} font-medium uppercase tracking-wider ${isSimple ? 'mb-1' : 'mb-2'}`}>
+      <div className="relative z-10 flex items-center justify-between" style={{ gap: fluidSizing.space.sm }}>
+        <div className="flex-1 min-w-0">
+          <p className="text-text-muted font-medium uppercase tracking-wider truncate" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.xs }}>
             {title}
           </p>
           
           {/* Valor debajo del título cuando hay icono */}
           {icon && !isSimple && (
-            <p className={`text-3xl md:text-4xl font-orbitron font-bold text-white text-glow-subtle`}>
+            <p className="font-orbitron font-bold text-white text-glow-subtle" style={{ fontSize: `clamp(1.5rem, 4vw, 2.25rem)` }}>
               {value}
             </p>
           )}
@@ -107,7 +110,7 @@ export default function StatCard({
         {/* Valor a la derecha cuando NO hay icono */}
         {!icon && (
           <div className="flex-shrink-0">
-            <p className={`${isSimple ? 'text-2xl' : 'text-3xl md:text-4xl'} font-orbitron font-bold text-white ${!isSimple ? 'text-glow-subtle' : ''}`}>
+            <p className="font-orbitron font-bold text-white" style={{ fontSize: isSimple ? `clamp(1.25rem, 3vw, 1.5rem)` : `clamp(1.5rem, 4vw, 2.25rem)` }}>
               {value}
             </p>
           </div>
@@ -117,7 +120,7 @@ export default function StatCard({
         {icon && !isSimple && (
           <div className="flex-shrink-0">
             <div className={`
-              w-12 h-12 rounded-lg
+              rounded-lg
               flex items-center justify-center
               ${colorClasses.iconBg}
               border ${colorClasses.iconBorder}
@@ -125,8 +128,12 @@ export default function StatCard({
               transition-all duration-300
               ${colorClasses.iconHoverBg}
               ${colorClasses.iconHoverBorder}
-            `}>
-              <Icon name={icon} size={24} />
+            `}
+            style={{
+              width: fluidSizing.size.iconLg,
+              height: fluidSizing.size.iconLg
+            }}>
+              <Icon name={icon} size={20} />
             </div>
           </div>
         )}

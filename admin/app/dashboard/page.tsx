@@ -45,7 +45,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.lg }}>
+        <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
           <StatCard
             title="Proyectos"
             value="0"
@@ -88,7 +88,7 @@ export default function DashboardPage() {
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-admin-primary/30 to-transparent" />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: fluidSizing.space.md }}>
+          <div className="grid grid-cols-2 lg:grid-cols-3" style={{ gap: fluidSizing.space.sm }}>
             <QuickActionCard
               title="Nuevo Proyecto"
               description="Crear un nuevo proyecto en el portafolio"
