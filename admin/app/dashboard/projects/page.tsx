@@ -105,13 +105,22 @@ function ProjectsPageContent() {
       const response = await api.getProjects();
       
       if (response.success && response.data) {
-        // Ensure data is an array
+        // El backend devuelve directamente un array de proyectos
         const projectsData = Array.isArray(response.data) 
           ? response.data 
-          : (response.data as { projects?: Project[] }).projects || [];
+          : [];
         
-        setProjects(projectsData as Project[]);
-        logger.info('Projects loaded successfully', { count: projectsData.length });
+        // Transformar las tecnologías del formato de Prisma al formato esperado
+        const transformedProjects = projectsData.map((project: any) => ({
+          ...project,
+          // Extraer nombres de tecnologías de la relación ProjectTechnology
+          technologies: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || [],
+          // Mantener también el array tech si existe
+          tech: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || project.tech || [],
+        }));
+        
+        setProjects(transformedProjects as Project[]);
+        logger.info('Projects loaded successfully', { count: transformedProjects.length });
       } else {
         logger.error('Failed to load projects', response.error);
         setProjects([]);

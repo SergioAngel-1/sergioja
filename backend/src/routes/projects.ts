@@ -209,6 +209,60 @@ router.get('/:slug', async (req: Request, res: Response) => {
 });
 
 // Admin endpoints - requieren autenticación
+// GET /api/admin/projects - Obtener todos los proyectos (incluyendo borradores)
+router.get('/', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { category, featured, page = '1', limit = '100' } = req.query;
+    const pageNum = parseInt(page as string, 10);
+    const limitNum = parseInt(limit as string, 10);
+
+    // Build where clause - NO filtrar por publishedAt para admin
+    const where: Record<string, unknown> = {};
+    
+    if (category && typeof category === 'string') {
+      where.category = category;
+    }
+    
+    if (featured === 'true') {
+      where.featured = true;
+    }
+
+    // Get total count
+    const total = await prisma.project.count({ where });
+
+    // Get projects with technologies
+    const projects = await prisma.project.findMany({
+      where,
+      include: {
+        technologies: {
+          include: {
+            technology: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (pageNum - 1) * limitNum,
+      take: limitNum,
+    });
+
+    logger.info('Admin projects retrieved', { count: projects.length, total });
+
+    res.json({
+      success: true,
+      data: projects,
+    });
+  } catch (error) {
+    logger.error('Error fetching admin projects', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al obtener proyectos',
+      },
+    });
+  }
+});
+
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', authMiddleware, async (req: Request, res: Response) => {
   try {

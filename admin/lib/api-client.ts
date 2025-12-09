@@ -206,8 +206,8 @@ export const api = {
   updateProfile: (data: Record<string, unknown>) => apiClient.put('/portfolio/profile', data),
 
   // Projects
-  getProjects: (params?: Record<string, unknown>) => apiClient.get('/portfolio/projects', params),
-  getProjectBySlug: (slug: string) => apiClient.get(`/portfolio/projects/${slug}`),
+  getProjects: (params?: Record<string, unknown>) => apiClient.get('/admin/projects', params),
+  getProjectBySlug: (slug: string) => apiClient.get(`/admin/projects/${slug}`),
   createProject: (data: Record<string, unknown>) => apiClient.post('/admin/projects', data),
   updateProject: (slug: string, data: Record<string, unknown>) => apiClient.put(`/admin/projects/${slug}`, data),
   deleteProject: (slug: string) => apiClient.delete(`/admin/projects/${slug}`),
