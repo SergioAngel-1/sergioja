@@ -10,6 +10,7 @@ import FilterBar from '@/components/molecules/FilterBar';
 import StatCard from '@/components/molecules/StatCard';
 import Icon from '@/components/atoms/Icon';
 import Loader from '@/components/atoms/Loader';
+import ProjectFormModal from '@/components/molecules/ProjectFormModal';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -36,6 +37,8 @@ export default function ProjectsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -135,6 +138,29 @@ export default function ProjectsPage() {
     setFilteredProjects(filtered);
   };
 
+  const handleSaveProject = async (projectData: any) => {
+    try {
+      if (selectedProject) {
+        // Update existing project - usar slug
+        const response = await api.updateProject(selectedProject.slug, projectData);
+        if (response.success) {
+          await loadProjects();
+          logger.info('Project updated successfully');
+        }
+      } else {
+        // Create new project
+        const response = await api.createProject(projectData);
+        if (response.success) {
+          await loadProjects();
+          logger.info('Project created successfully');
+        }
+      }
+    } catch (error) {
+      logger.error('Error saving project', error);
+      throw error;
+    }
+  };
+
   if (isLoading || !isAuthenticated) {
     return <Loader fullScreen text="Cargando proyectos..." />;
   }
@@ -162,7 +188,10 @@ export default function ProjectsPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            onClick={() => router.push('/dashboard/projects/new')}
+            onClick={() => {
+              setSelectedProject(null);
+              setIsModalOpen(true);
+            }}
             className="flex items-center gap-2 px-6 py-3 bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-admin-primary/20"
           >
             <Icon name="plus" size={20} />
@@ -271,6 +300,14 @@ export default function ProjectsPage() {
           </div>
         )}
       </div>
+
+      {/* Project Form Modal */}
+      <ProjectFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveProject}
+        project={selectedProject}
+      />
     </DashboardLayout>
   );
 }
