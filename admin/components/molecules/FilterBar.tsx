@@ -2,6 +2,7 @@
 
 import SearchBar from './SearchBar';
 import CategoryFilter from './CategoryFilter';
+import Select from './Select';
 
 interface FilterBarProps {
   onSearch: (query: string) => void;
@@ -53,22 +54,13 @@ export default function FilterBar({
         )}
 
         {/* Status filter */}
-        <div className={categories && categories.length > 0 ? 'sm:w-48' : 'flex-1'}>
-          <label className="block text-text-muted text-xs font-medium uppercase tracking-wider mb-2">
-            Estado
-          </label>
-          <select
-            value={selectedStatus}
-            onChange={(e) => onStatusChange(e.target.value)}
-            className="w-full px-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200 cursor-pointer"
-          >
-            {statusOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          value={selectedStatus}
+          onChange={onStatusChange}
+          options={statusOptions}
+          label="Estado"
+          className={categories && categories.length > 0 ? 'sm:w-48' : 'flex-1'}
+        />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import SkillCard from '@/components/molecules/SkillCard';
 import CategoryFilter from '@/components/molecules/CategoryFilter';
 import StatCard from '@/components/molecules/StatCard';
 import SearchBar from '@/components/molecules/SearchBar';
+import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -216,17 +217,16 @@ export default function SkillsPage() {
             />
 
             {/* Sort */}
-            <div className="sm:w-48">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="w-full px-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200 cursor-pointer"
-              >
-                <option value="proficiency">Ordenar por Dominio</option>
-                <option value="projects">Ordenar por Proyectos</option>
-                <option value="name">Ordenar por Nombre</option>
-              </select>
-            </div>
+            <Select
+              value={sortBy}
+              onChange={(value) => setSortBy(value as any)}
+              options={[
+                { value: 'proficiency', label: 'Ordenar por Dominio' },
+                { value: 'projects', label: 'Ordenar por Proyectos' },
+                { value: 'name', label: 'Ordenar por Nombre' },
+              ]}
+              className="sm:w-48"
+            />
           </div>
 
           {/* Category Filter */}
