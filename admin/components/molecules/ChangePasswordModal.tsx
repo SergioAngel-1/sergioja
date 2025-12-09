@@ -121,6 +121,16 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
       }
     >
       <form onSubmit={handleSubmit} style={{ padding: fluidSizing.space.lg }}>
+        {/* Campo de username oculto para accesibilidad */}
+        <input
+          type="text"
+          name="username"
+          autoComplete="username"
+          style={{ display: 'none' }}
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+        
         <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
           {/* Contraseña actual */}
           <Input
@@ -133,6 +143,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
             required
             disabled={isLoading}
             size="md"
+            autoComplete="current-password"
           />
 
           {/* Nueva contraseña */}
@@ -146,19 +157,21 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
             required
             disabled={isLoading}
             size="md"
+            autoComplete="new-password"
           />
 
           {/* Confirmar contraseña */}
           <Input
             id="confirm-password"
             type="password"
-            label="Confirmar Nueva Contraseña"
+            label="Repetir Nueva Contraseña"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Repite la nueva contraseña"
             required
             disabled={isLoading}
             size="md"
+            autoComplete="new-password"
           />
 
           {/* Información de seguridad */}
