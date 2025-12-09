@@ -130,10 +130,10 @@ export default function StatCard({
               ${colorClasses.iconHoverBorder}
             `}
             style={{
-              width: fluidSizing.size.iconLg,
-              height: fluidSizing.size.iconLg
+              width: `clamp(3rem, 5vw, 4rem)`,
+              height: `clamp(3rem, 5vw, 4rem)`
             }}>
-              <Icon name={icon} size={20} />
+              <Icon name={icon} size={28} />
             </div>
           </div>
         )}

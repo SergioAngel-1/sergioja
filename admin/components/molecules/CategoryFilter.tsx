@@ -63,8 +63,8 @@ export default function CategoryFilter({
                   : 'bg-admin-dark-surface text-text-secondary border border-admin-primary/20 hover:border-admin-primary/50 hover:text-text-primary'
               }`}
               style={{
-                padding: `${fluidSizing.space.xs} ${fluidSizing.space.md}`,
-                fontSize: fluidSizing.text.sm
+                padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+                fontSize: fluidSizing.text.base
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
