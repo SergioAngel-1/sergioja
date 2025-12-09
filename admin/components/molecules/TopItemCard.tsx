@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface TopItemCardProps {
   rank: number;
@@ -35,34 +36,36 @@ export default function TopItemCard({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.23, 1, 0.32, 1] }}
-      className="flex items-center gap-4 p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg hover:border-admin-primary/30 transition-all duration-300"
+      className="flex items-center bg-admin-dark-surface border border-admin-primary/10 rounded-lg hover:border-admin-primary/30 transition-all duration-300"
+      style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
     >
       {/* Rank badge */}
       <div
         className={`
-          w-10 h-10 rounded-lg flex items-center justify-center font-orbitron font-bold text-lg border
+          rounded-lg flex items-center justify-center font-orbitron font-bold border
           ${getRankColor(rank)}
         `}
+        style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd, fontSize: fluidSizing.text.lg }}
       >
         {rank}
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <h4 className="text-text-primary font-medium truncate">{title}</h4>
+        <h4 className="text-text-primary font-medium truncate" style={{ fontSize: fluidSizing.text.base }}>{title}</h4>
         {subtitle && (
-          <p className="text-text-muted text-xs truncate">{subtitle}</p>
+          <p className="text-text-muted truncate" style={{ fontSize: fluidSizing.text.xs }}>{subtitle}</p>
         )}
       </div>
 
       {/* Stats */}
       <div className="text-right">
-        <p className="text-text-primary font-bold">{value.toLocaleString()}</p>
-        <p className="text-text-muted text-xs">{percentage}%</p>
+        <p className="text-text-primary font-bold" style={{ fontSize: fluidSizing.text.base }}>{value.toLocaleString()}</p>
+        <p className="text-text-muted" style={{ fontSize: fluidSizing.text.xs }}>{percentage}%</p>
       </div>
 
       {/* Progress bar */}
-      <div className="w-20 h-2 bg-admin-dark-elevated rounded-full overflow-hidden">
+      <div className="bg-admin-dark-elevated rounded-full overflow-hidden" style={{ width: fluidSizing.size.buttonLg, height: '0.5rem' }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}

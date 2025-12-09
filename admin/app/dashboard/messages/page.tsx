@@ -14,6 +14,7 @@ import SearchBar from '@/components/molecules/SearchBar';
 import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface Message {
   id: string;
@@ -161,21 +162,21 @@ export default function MessagesPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xl }}>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
         >
-          <h1 className="text-3xl md:text-4xl font-orbitron font-bold text-admin-primary text-glow-white">
+          <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
             MENSAJES DE CONTACTO
           </h1>
-          <p className="text-text-muted text-sm mt-1">
+          <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
             Gestiona los mensajes recibidos desde Portfolio y Landing
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
           <StatCard
             title="Total"
             value={stats.total}
@@ -216,16 +217,16 @@ export default function MessagesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
-          className="space-y-4"
+          style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
         >
-          <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
+          <div className="flex flex-col sm:flex-row sm:items-end" style={{ gap: fluidSizing.space.md }}>
             <SearchBar
               onSearch={setSearchQuery}
               placeholder="Buscar mensajes..."
               icon="messages"
             />
 
-            <div className="flex gap-4">
+            <div className="flex" style={{ gap: fluidSizing.space.md }}>
               <Select
                 value={selectedStatus}
                 onChange={setSelectedStatus}
@@ -256,7 +257,7 @@ export default function MessagesPage() {
         </motion.div>
 
         {isLoadingMessages ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center" style={{ padding: `${fluidSizing.space['2xl']} 0` }}>
             <Loader size="lg" text="Cargando mensajes..." />
           </div>
         ) : filteredMessages.length === 0 ? (
@@ -264,18 +265,21 @@ export default function MessagesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col items-center justify-center py-20 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+            className="flex flex-col items-center justify-center bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+            style={{ padding: fluidSizing.space['2xl'] }}
           >
-            <Icon name="messages" size={64} className="text-admin-primary/30 mb-4" />
-            <p className="text-text-muted text-lg mb-2">No se encontraron mensajes</p>
-            <p className="text-text-muted text-sm">
+            <div style={{ marginBottom: fluidSizing.space.md }}>
+              <Icon name="messages" size={64} className="text-admin-primary/30" />
+            </div>
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.lg, marginBottom: fluidSizing.space.sm }}>No se encontraron mensajes</p>
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm }}>
               {searchQuery || selectedStatus !== 'all' || selectedSource !== 'all'
                 ? 'Intenta ajustar los filtros'
                 : 'Los mensajes aparecerán aquí cuando los usuarios te contacten'}
             </p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: fluidSizing.space.lg }}>
             {filteredMessages.map((message, index) => (
               <MessageCard
                 key={message.id}

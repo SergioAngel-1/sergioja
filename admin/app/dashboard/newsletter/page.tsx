@@ -13,6 +13,7 @@ import SearchBar from '@/components/molecules/SearchBar';
 import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface Subscriber {
   id: string;
@@ -150,18 +151,19 @@ export default function NewsletterPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xl }}>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+          style={{ gap: fluidSizing.space.md }}
         >
           <div>
-            <h1 className="text-3xl md:text-4xl font-orbitron font-bold text-admin-primary text-glow-white">
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
               NEWSLETTER
             </h1>
-            <p className="text-text-muted text-sm mt-1">
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
               Gestiona los suscriptores del newsletter
             </p>
           </div>
@@ -172,14 +174,15 @@ export default function NewsletterPage() {
             transition={{ duration: 0.3, delay: 0.2 }}
             onClick={handleExport}
             disabled={stats.active === 0}
-            className="flex items-center gap-2 px-6 py-3 bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-admin-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-admin-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
           >
             <Icon name="server" size={20} />
             <span>Exportar Emails</span>
           </motion.button>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
           <StatCard
             title="Total"
             value={stats.total}
@@ -220,16 +223,16 @@ export default function NewsletterPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
-          className="space-y-4"
+          style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
         >
-          <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
+          <div className="flex flex-col sm:flex-row sm:items-end" style={{ gap: fluidSizing.space.md }}>
             <SearchBar
               onSearch={setSearchQuery}
               placeholder="Buscar por email..."
               icon="newsletter"
             />
 
-            <div className="flex gap-4">
+            <div className="flex" style={{ gap: fluidSizing.space.md }}>
               <Select
                 value={selectedStatus}
                 onChange={setSelectedStatus}
@@ -257,7 +260,7 @@ export default function NewsletterPage() {
         </motion.div>
 
         {isLoadingSubscribers ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center" style={{ padding: `${fluidSizing.space['2xl']} 0` }}>
             <Loader size="lg" text="Cargando suscriptores..." />
           </div>
         ) : filteredSubscribers.length === 0 ? (
@@ -265,18 +268,21 @@ export default function NewsletterPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col items-center justify-center py-20 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+            className="flex flex-col items-center justify-center bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+            style={{ padding: fluidSizing.space['2xl'] }}
           >
-            <Icon name="newsletter" size={64} className="text-admin-primary/30 mb-4" />
-            <p className="text-text-muted text-lg mb-2">No se encontraron suscriptores</p>
-            <p className="text-text-muted text-sm">
+            <div style={{ marginBottom: fluidSizing.space.md }}>
+              <Icon name="newsletter" size={64} className="text-admin-primary/30" />
+            </div>
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.lg, marginBottom: fluidSizing.space.sm }}>No se encontraron suscriptores</p>
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm }}>
               {searchQuery || selectedStatus !== 'all'
                 ? 'Intenta ajustar los filtros'
                 : 'Los suscriptores aparecerán aquí cuando se suscriban al newsletter'}
             </p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: fluidSizing.space.lg }}>
             {filteredSubscribers.map((subscriber, index) => (
               <SubscriberCard
                 key={subscriber.id}

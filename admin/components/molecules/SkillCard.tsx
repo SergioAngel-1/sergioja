@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Icon from '../atoms/Icon';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface SkillCardProps {
   name: string;
@@ -45,28 +46,31 @@ export default function SkillCard({
       initial={{ opacity: 0, scale: 0.95, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.23, 1, 0.32, 1] }}
-      className="group relative bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-5 transition-all duration-300 hover:border-admin-primary/50 hover:shadow-lg hover:shadow-admin-primary/10"
+      className="group relative bg-admin-dark-elevated border border-admin-primary/20 rounded-lg transition-all duration-300 hover:border-admin-primary/50 hover:shadow-lg hover:shadow-admin-primary/10"
+      style={{ padding: fluidSizing.space.md }}
     >
       {/* Background grid effect */}
       <div className="absolute inset-0 cyber-grid opacity-5 rounded-lg" />
 
       {/* Content */}
-      <div className="relative z-10 space-y-4">
+      <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
         {/* Header */}
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between" style={{ gap: fluidSizing.space.sm }}>
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-orbitron font-bold text-admin-primary group-hover:text-glow-subtle transition-all duration-300 truncate">
+            <h3 className="font-orbitron font-bold text-admin-primary group-hover:text-glow-subtle transition-all duration-300 truncate" style={{ fontSize: fluidSizing.text.lg }}>
               {name}
             </h3>
-            <p className="text-text-muted text-xs uppercase tracking-wider mt-1">
+            <p className="text-text-muted uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>
               {categoryLabels[category] || category}
             </p>
           </div>
 
           {/* Icon or color indicator */}
           <div
-            className="w-12 h-12 rounded-lg flex items-center justify-center border transition-all duration-300 group-hover:scale-110"
+            className="rounded-lg flex items-center justify-center border transition-all duration-300 group-hover:scale-110"
             style={{
+              width: fluidSizing.size.buttonLg,
+              height: fluidSizing.size.buttonLg,
               backgroundColor: `${color}20`,
               borderColor: `${color}40`,
               color: color,
@@ -81,8 +85,8 @@ export default function SkillCard({
         </div>
 
         {/* Proficiency bar */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xs }}>
+          <div className="flex items-center justify-between" style={{ fontSize: fluidSizing.text.xs }}>
             <span className="text-text-muted">Dominio</span>
             <span className="text-text-primary font-medium">
               {getProficiencyLabel(proficiency)}
@@ -100,7 +104,7 @@ export default function SkillCard({
               }}
             />
           </div>
-          <div className="flex items-center justify-between text-xs text-text-muted">
+          <div className="flex items-center justify-between text-text-muted" style={{ fontSize: fluidSizing.text.xs }}>
             <span>0%</span>
             <span className="font-medium" style={{ color }}>
               {proficiency}%
@@ -110,32 +114,42 @@ export default function SkillCard({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-admin-primary/10">
-          <div className="flex items-center gap-2">
+        <div className="grid grid-cols-2 border-t border-admin-primary/10" style={{ gap: fluidSizing.space.sm, paddingTop: fluidSizing.space.sm }}>
+          <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: `${color}10`, color }}
+              className="rounded-lg flex items-center justify-center"
+              style={{ 
+                width: fluidSizing.size.buttonSm,
+                height: fluidSizing.size.buttonSm,
+                backgroundColor: `${color}10`,
+                color 
+              }}
             >
               <Icon name="zap" size={14} />
             </div>
             <div>
-              <p className="text-xs text-text-muted">Experiencia</p>
-              <p className="text-sm font-bold text-text-primary">
+              <p className="text-text-muted" style={{ fontSize: fluidSizing.text.xs }}>Experiencia</p>
+              <p className="font-bold text-text-primary" style={{ fontSize: fluidSizing.text.sm }}>
                 {yearsOfExperience} {yearsOfExperience === 1 ? 'año' : 'años'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: `${color}10`, color }}
+              className="rounded-lg flex items-center justify-center"
+              style={{ 
+                width: fluidSizing.size.buttonSm,
+                height: fluidSizing.size.buttonSm,
+                backgroundColor: `${color}10`,
+                color 
+              }}
             >
               <Icon name="projects" size={14} />
             </div>
             <div>
-              <p className="text-xs text-text-muted">Proyectos</p>
-              <p className="text-sm font-bold text-text-primary">{projectCount}</p>
+              <p className="text-text-muted" style={{ fontSize: fluidSizing.text.xs }}>Proyectos</p>
+              <p className="font-bold text-text-primary" style={{ fontSize: fluidSizing.text.sm }}>{projectCount}</p>
             </div>
           </div>
         </div>

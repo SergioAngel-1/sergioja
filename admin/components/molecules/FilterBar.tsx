@@ -3,6 +3,7 @@
 import SearchBar from './SearchBar';
 import CategoryFilter from './CategoryFilter';
 import Select from './Select';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface FilterBarProps {
   onSearch: (query: string) => void;
@@ -32,7 +33,7 @@ export default function FilterBar({
   ];
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
       {/* Search bar */}
       <SearchBar
         onSearch={onSearch}
@@ -41,7 +42,7 @@ export default function FilterBar({
       />
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row" style={{ gap: fluidSizing.space.md }}>
         {/* Category filter */}
         {categories && categories.length > 0 && (
           <div className="flex-1">

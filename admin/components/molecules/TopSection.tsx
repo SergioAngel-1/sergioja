@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Icon from '../atoms/Icon';
 import TopItemCard from './TopItemCard';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface TopItem {
   title: string;
@@ -35,25 +36,26 @@ export default function TopSection({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay, ease: [0.23, 1, 0.32, 1] }}
-      className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-6"
+      className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+      style={{ padding: fluidSizing.space.lg }}
     >
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center">
+      <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.lg }}>
+        <div className="rounded-lg bg-white/10 border border-white/20 flex items-center justify-center" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
           <Icon name={icon} size={20} className="text-white" />
         </div>
         <div>
-          <h3 className="text-lg font-orbitron font-bold text-admin-primary">
+          <h3 className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text.lg }}>
             {title}
           </h3>
-          <p className="text-text-muted text-xs">{subtitle}</p>
+          <p className="text-text-muted" style={{ fontSize: fluidSizing.text.xs }}>{subtitle}</p>
         </div>
       </div>
 
       {/* Items List */}
-      <div className="space-y-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}>
         {items.length === 0 ? (
-          <p className="text-text-muted text-center py-8">{emptyMessage}</p>
+          <p className="text-text-muted text-center" style={{ padding: `${fluidSizing.space['2xl']} 0`, fontSize: fluidSizing.text.sm }}>{emptyMessage}</p>
         ) : (
           items.map((item, index) => (
             <TopItemCard

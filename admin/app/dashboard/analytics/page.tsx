@@ -12,6 +12,7 @@ import StatCard from '@/components/molecules/StatCard';
 import TopSection from '@/components/molecules/TopSection';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface PageView {
   id: string;
@@ -140,34 +141,36 @@ export default function AnalyticsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xl }}>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+          style={{ gap: fluidSizing.space.md }}
         >
           <div>
-            <h1 className="text-3xl md:text-4xl font-orbitron font-bold text-admin-primary text-glow-white">
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
               ANALYTICS
             </h1>
-            <p className="text-text-muted text-sm mt-1">
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
               Estadísticas y métricas del portafolio
             </p>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex" style={{ gap: fluidSizing.space.xs }}>
             {(['7d', '30d', 'all'] as const).map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}
                 className={`
-                  px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                  rounded-lg font-medium transition-all duration-200
                   ${timeRange === range
                     ? 'bg-admin-primary text-admin-dark'
                     : 'bg-admin-dark-surface text-text-secondary border border-admin-primary/20 hover:border-admin-primary/50 hover:text-text-primary'
                   }
                 `}
+                style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}
               >
                 {range === '7d' ? 'Últimos 7 días' : range === '30d' ? 'Últimos 30 días' : 'Todo'}
               </button>
@@ -176,12 +179,12 @@ export default function AnalyticsPage() {
         </motion.div>
 
         {isLoadingData ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center" style={{ padding: `${fluidSizing.space['2xl']} 0` }}>
             <Loader size="lg" text="Cargando datos..." />
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.lg }}>
               <StatCard
                 title="Vistas de Página"
                 value={stats.totalPageViews.toLocaleString()}
@@ -208,7 +211,7 @@ export default function AnalyticsPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: fluidSizing.space.lg }}>
               <TopSection
                 title="Páginas Más Visitadas"
                 subtitle="Top 5 por vistas"
@@ -234,16 +237,17 @@ export default function AnalyticsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4, ease: [0.23, 1, 0.32, 1] }}
-              className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-6"
+              className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+              style={{ padding: fluidSizing.space.lg }}
             >
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.md }}>
                 <Icon name="analytics" size={24} className="text-admin-primary" />
-                <h3 className="text-lg font-orbitron font-bold text-admin-primary">
+                <h3 className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text.lg }}>
                   Resumen de Actividad
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
                 <StatCard
                   title="Vistas/Día (7d)"
                   value={stats.pageViewsLast7d > 0 ? Math.round(stats.pageViewsLast7d / 7) : 0}

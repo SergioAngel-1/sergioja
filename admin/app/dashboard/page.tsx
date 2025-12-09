@@ -8,6 +8,7 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import StatCard from '@/components/molecules/StatCard';
 import QuickActionCard from '@/components/molecules/QuickActionCard';
 import Loader from '@/components/atoms/Loader';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space['2xl'] }}>
         {/* Welcome Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -34,17 +35,17 @@ export default function DashboardPage() {
           className="relative"
         >
           <div className="absolute inset-0 cyber-grid opacity-5 -z-10" />
-          <h1 className="text-4xl md:text-5xl font-orbitron font-bold text-admin-primary text-glow-white mb-2">
+          <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['5xl'], marginBottom: fluidSizing.space.sm }}>
             DASHBOARD
           </h1>
-          <p className="text-text-muted text-sm md:text-base">
+          <p className="text-text-muted" style={{ fontSize: fluidSizing.text.base }}>
             Bienvenido de vuelta, <span className="text-text-primary font-medium">{user?.name || 'Admin'}</span>
           </p>
-          <div className="h-0.5 w-20 bg-gradient-to-r from-admin-primary to-transparent mt-4" />
+          <div className="h-0.5 w-20 bg-gradient-to-r from-admin-primary to-transparent" style={{ marginTop: fluidSizing.space.md }} />
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.lg }}>
           <StatCard
             title="Proyectos"
             value="0"
@@ -77,17 +78,17 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          className="space-y-4"
+          style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-admin-primary/30 to-transparent" />
-            <h2 className="text-xl md:text-2xl font-orbitron font-bold text-text-primary">
+            <h2 className="font-orbitron font-bold text-text-primary" style={{ fontSize: fluidSizing.text['2xl'] }}>
               ACCIONES RÁPIDAS
             </h2>
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-admin-primary/30 to-transparent" />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: fluidSizing.space.md }}>
             <QuickActionCard
               title="Nuevo Proyecto"
               description="Crear un nuevo proyecto en el portafolio"
