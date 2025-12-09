@@ -10,6 +10,8 @@ import Icon from '@/components/atoms/Icon';
 import MessageCard from '@/components/molecules/MessageCard';
 import MessageDetailModal from '@/components/molecules/MessageDetailModal';
 import StatCard from '@/components/molecules/StatCard';
+import SearchBar from '@/components/molecules/SearchBar';
+import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -217,41 +219,38 @@ export default function MessagesPage() {
           className="space-y-4"
         >
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">
-                <Icon name="code" size={18} />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar mensajes..."
-                className="w-full pl-12 pr-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
-              />
-            </div>
+            <SearchBar
+              onSearch={setSearchQuery}
+              placeholder="Buscar mensajes..."
+              icon="messages"
+            />
 
-            <div className="flex gap-2">
-              <select
+            <div className="flex gap-4">
+              <Select
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="px-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200 cursor-pointer"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="new">Nuevos</option>
-                <option value="read">Leídos</option>
-                <option value="replied">Respondidos</option>
-                <option value="spam">Spam</option>
-              </select>
+                onChange={setSelectedStatus}
+                options={[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'new', label: 'Nuevos' },
+                  { value: 'read', label: 'Leídos' },
+                  { value: 'replied', label: 'Respondidos' },
+                  { value: 'spam', label: 'Spam' },
+                ]}
+                label="Estado"
+                className="sm:w-48"
+              />
 
-              <select
+              <Select
                 value={selectedSource}
-                onChange={(e) => setSelectedSource(e.target.value)}
-                className="px-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200 cursor-pointer"
-              >
-                <option value="all">Todas las fuentes</option>
-                <option value="portfolio">Portfolio</option>
-                <option value="landing">Landing</option>
-              </select>
+                onChange={setSelectedSource}
+                options={[
+                  { value: 'all', label: 'Todas las fuentes' },
+                  { value: 'portfolio', label: 'Portfolio' },
+                  { value: 'landing', label: 'Landing' },
+                ]}
+                label="Fuente"
+                className="sm:w-48"
+              />
             </div>
           </div>
         </motion.div>

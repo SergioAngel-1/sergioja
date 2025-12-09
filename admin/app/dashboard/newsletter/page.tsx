@@ -9,6 +9,8 @@ import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
 import SubscriberCard from '@/components/molecules/SubscriberCard';
 import StatCard from '@/components/molecules/StatCard';
+import SearchBar from '@/components/molecules/SearchBar';
+import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -221,38 +223,35 @@ export default function NewsletterPage() {
           className="space-y-4"
         >
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">
-                <Icon name="code" size={18} />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar por email..."
-                className="w-full pl-12 pr-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
-              />
-            </div>
+            <SearchBar
+              onSearch={setSearchQuery}
+              placeholder="Buscar por email..."
+              icon="newsletter"
+            />
 
-            <div className="flex gap-2">
-              <select
+            <div className="flex gap-4">
+              <Select
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="px-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200 cursor-pointer"
-              >
-                <option value="all">Todos</option>
-                <option value="active">Activos</option>
-                <option value="unsubscribed">Desuscritos</option>
-              </select>
+                onChange={setSelectedStatus}
+                options={[
+                  { value: 'all', label: 'Todos' },
+                  { value: 'active', label: 'Activos' },
+                  { value: 'unsubscribed', label: 'Desuscritos' },
+                ]}
+                label="Estado"
+                className="sm:w-48"
+              />
 
-              <select
+              <Select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'date' | 'email')}
-                className="px-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200 cursor-pointer"
-              >
-                <option value="date">Ordenar por Fecha</option>
-                <option value="email">Ordenar por Email</option>
-              </select>
+                onChange={(value) => setSortBy(value as 'date' | 'email')}
+                options={[
+                  { value: 'date', label: 'Ordenar por Fecha' },
+                  { value: 'email', label: 'Ordenar por Email' },
+                ]}
+                label="Ordenar"
+                className="sm:w-48"
+              />
             </div>
           </div>
         </motion.div>
