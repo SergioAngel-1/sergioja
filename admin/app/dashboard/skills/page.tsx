@@ -10,6 +10,7 @@ import Icon from '@/components/atoms/Icon';
 import SkillCard from '@/components/molecules/SkillCard';
 import CategoryFilter from '@/components/molecules/CategoryFilter';
 import StatCard from '@/components/molecules/StatCard';
+import SearchBar from '@/components/molecules/SearchBar';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -208,18 +209,11 @@ export default function SkillsPage() {
           {/* Search and Sort */}
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search */}
-            <div className="flex-1 relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">
-                <Icon name="code" size={18} />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar tecnologías..."
-                className="w-full pl-12 pr-4 py-3 bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
-              />
-            </div>
+            <SearchBar
+              onSearch={setSearchQuery}
+              placeholder="Buscar tecnologías..."
+              icon="code"
+            />
 
             {/* Sort */}
             <div className="sm:w-48">

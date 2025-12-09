@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
@@ -78,6 +78,33 @@ export default function ProjectsPage() {
     }
   };
 
+  // Calculate categories with counts
+  const categories = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: projects.length,
+      web: 0,
+      mobile: 0,
+      ai: 0,
+      backend: 0,
+      fullstack: 0,
+    };
+
+    projects.forEach((project) => {
+      if (counts[project.category] !== undefined) {
+        counts[project.category]++;
+      }
+    });
+
+    return [
+      { value: 'all', label: 'Todos', count: counts.all },
+      { value: 'web', label: 'Web', count: counts.web },
+      { value: 'mobile', label: 'Mobile', count: counts.mobile },
+      { value: 'ai', label: 'IA', count: counts.ai },
+      { value: 'backend', label: 'Backend', count: counts.backend },
+      { value: 'fullstack', label: 'Full Stack', count: counts.fullstack },
+    ];
+  }, [projects]);
+
   const filterProjects = () => {
     let filtered = [...projects];
 
@@ -153,8 +180,10 @@ export default function ProjectsPage() {
             onSearch={setSearchQuery}
             onCategoryChange={setSelectedCategory}
             onStatusChange={setSelectedStatus}
+            categories={categories}
             selectedCategory={selectedCategory}
             selectedStatus={selectedStatus}
+            searchPlaceholder="Buscar proyectos..."
           />
         </motion.div>
 
