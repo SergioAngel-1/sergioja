@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
@@ -30,7 +30,7 @@ interface Project {
   technologies?: { technology: { name: string; color: string } }[];
 }
 
-export default function ProjectsPage() {
+function ProjectsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
@@ -108,7 +108,7 @@ export default function ProjectsPage() {
         // Ensure data is an array
         const projectsData = Array.isArray(response.data) 
           ? response.data 
-          : (response.data as any).projects || [];
+          : (response.data as { projects?: Project[] }).projects || [];
         
         setProjects(projectsData as Project[]);
         logger.info('Projects loaded successfully', { count: projectsData.length });
@@ -151,7 +151,7 @@ export default function ProjectsPage() {
     ];
   }, [projects]);
 
-  const handleSaveProject = async (projectData: any) => {
+  const handleSaveProject = async (projectData: Record<string, unknown>) => {
     try {
       if (selectedProject) {
         // Update existing project - usar slug
@@ -337,5 +337,13 @@ export default function ProjectsPage() {
         project={selectedProject}
       />
     </DashboardLayout>
+  );
+}
+
+export default function ProjectsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-text-primary">Cargando...</div></div>}>
+      <ProjectsPageContent />
+    </Suspense>
   );
 }

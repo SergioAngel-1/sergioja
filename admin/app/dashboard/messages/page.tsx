@@ -59,7 +59,7 @@ export default function MessagesPage() {
       if (response.success && response.data) {
         const messagesData = Array.isArray(response.data)
           ? response.data
-          : (response.data as any).messages || [];
+          : (response.data as { messages?: Message[] }).messages || [];
         
         setMessages(messagesData as Message[]);
         logger.info('Messages loaded successfully', { count: messagesData.length });

@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { alerts } from '@/lib/alerts';
 import { fluidSizing } from '@/lib/fluidSizing';
-import { getReCaptchaToken, loadRecaptchaEnterprise, RECAPTCHA_ACTIONS } from '@/lib/recaptcha';
+import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/lib/recaptcha';
 import { trackLoginSuccess, trackLoginFailed, trackLoginError } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 import Button from '@/components/atoms/Button';

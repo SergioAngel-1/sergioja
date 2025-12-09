@@ -49,9 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           logger.debug('Auth: No hay sesión activa');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Si es 401, es normal (no hay sesión), no logueamos como error
-        if (error?.response?.status === 401) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError?.response?.status === 401) {
           logger.debug('Auth: No autenticado (sin sesión)');
         } else {
           logger.error('Auth: Error verificando sesión', error);
@@ -83,8 +84,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // En desarrollo, guardar tokens en localStorage como fallback (cookies httpOnly no funcionan entre puertos)
         if (process.env.NODE_ENV === 'development' && 'accessToken' in response.data && 'refreshToken' in response.data) {
-          localStorage.setItem('accessToken', (response.data as any).accessToken);
-          localStorage.setItem('refreshToken', (response.data as any).refreshToken);
+          const tokens = response.data as { accessToken: string; refreshToken: string };
+          localStorage.setItem('accessToken', tokens.accessToken);
+          localStorage.setItem('refreshToken', tokens.refreshToken);
         }
         
         logger.info('Auth: Login exitoso', { userId: user.id, email: user.email });
@@ -93,10 +95,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       logger.warn('Auth: Login fallido - respuesta inválida');
       return false;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: unknown }; message?: string };
       logger.error('Auth: Error en login', { 
         email, 
-        error: error?.response?.data || error?.message 
+        error: axiosError?.response?.data || axiosError?.message 
       });
       return false;
     }
@@ -108,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Llamar al endpoint de logout para revocar el refresh token
       await api.logout();
       logger.info('Auth: Sesión cerrada exitosamente');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Auth: Error al cerrar sesión', error);
     } finally {
       // Limpiar estado local
@@ -137,9 +140,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logger.warn('Auth: Refresh falló - cerrando sesión');
         await logout();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Si es 401, la sesión expiró
-      if (error?.response?.status === 401) {
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError?.response?.status === 401) {
         logger.info('Auth: Sesión expirada');
       } else {
         logger.error('Auth: Error refrescando usuario', error);

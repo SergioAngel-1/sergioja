@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAlerts } from '@/lib/hooks';
-import { alertManager, type Alert, alertStyles, alertPositions, type AlertPosition } from '@/shared/alertSystem';
+import { alertManager, type Alert, alertStyles, type AlertPosition } from '@/shared/alertSystem';
 import { groupAlertsByPosition, formatElapsedTime } from '@/shared/alertHelpers';
 
 export default function AlertContainer() {

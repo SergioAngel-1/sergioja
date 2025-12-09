@@ -20,19 +20,19 @@ export function useLogger(componentName: string) {
 
   // Return logger methods with component context
   return {
-    debug: (message: string, data?: any) => 
+    debug: (message: string, data?: unknown) => 
       logger.debug(message, data, componentName),
     
-    info: (message: string, data?: any) => 
+    info: (message: string, data?: unknown) => 
       logger.info(message, data, componentName),
     
-    warn: (message: string, data?: any) => 
+    warn: (message: string, data?: unknown) => 
       logger.warn(message, data, componentName),
     
-    error: (message: string, error?: Error | any) => 
+    error: (message: string, error?: Error | unknown) => 
       logger.error(message, error, componentName),
     
-    interaction: (action: string, target?: string, data?: any) => 
+    interaction: (action: string, target?: string, data?: unknown) => 
       logger.interaction(action, target, data),
     
     performance: (metric: string, value: number, unit?: string) => 

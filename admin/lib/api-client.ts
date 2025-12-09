@@ -1,10 +1,10 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie'; // Not used with httpOnly cookies
 import type { ApiResponse } from '@/shared/types';
 import { logger } from './logger';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-const TOKEN_KEY = 'admin_token';
+// const TOKEN_KEY = 'admin_token'; // Not used with httpOnly cookies
 
 class ApiClient {
   private client: AxiosInstance;
@@ -58,7 +58,7 @@ class ApiClient {
         return response;
       },
       async (error: AxiosError) => {
-        const originalRequest = error.config as any;
+        const originalRequest = error.config as typeof error.config & { _retry?: boolean };
         const is401 = error.response?.status === 401;
         const isAuthEndpoint = originalRequest.url?.includes('/auth/');
         
@@ -77,7 +77,7 @@ class ApiClient {
           
           try {
             // Intentar refrescar el token
-            const refreshPayload: any = {};
+            const refreshPayload: Record<string, string> = {};
             if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
               const refreshToken = localStorage.getItem('refreshToken');
               if (refreshToken) {
@@ -88,7 +88,7 @@ class ApiClient {
             
             // En desarrollo, actualizar tokens en localStorage
             if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && refreshResponse.data) {
-              const data = refreshResponse.data as any;
+              const data = refreshResponse.data as { accessToken?: string; refreshToken?: string };
               if (data.accessToken) {
                 localStorage.setItem('accessToken', data.accessToken);
               }
@@ -113,7 +113,7 @@ class ApiClient {
     );
   }
 
-  async get<T>(url: string, params?: Record<string, any>): Promise<ApiResponse<T>> {
+  async get<T>(url: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.get<ApiResponse<T>>(url, { params });
       return response.data;
@@ -122,7 +122,7 @@ class ApiClient {
     }
   }
 
-  async post<T>(url: string, data: any): Promise<ApiResponse<T>> {
+  async post<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.post<ApiResponse<T>>(url, data);
       return response.data;
@@ -131,7 +131,7 @@ class ApiClient {
     }
   }
 
-  async put<T>(url: string, data: any): Promise<ApiResponse<T>> {
+  async put<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.put<ApiResponse<T>>(url, data);
       return response.data;
@@ -149,7 +149,7 @@ class ApiClient {
     }
   }
 
-  private handleError(error: any): ApiResponse<any> {
+  private handleError(error: unknown): ApiResponse<never> {
     if (axios.isAxiosError(error)) {
       return {
         success: false,
@@ -181,10 +181,15 @@ export const api = {
     recaptchaToken?: string | null,
     recaptchaAction?: string
   ) => {
-    const payload: any = { email, password };
+    const payload: { email: string; password: string; recaptchaToken?: string; recaptchaAction?: string } = { 
+      email, 
+      password 
+    };
     if (recaptchaToken) {
       payload.recaptchaToken = recaptchaToken;
-      payload.recaptchaAction = recaptchaAction;
+      if (recaptchaAction) {
+        payload.recaptchaAction = recaptchaAction;
+      }
     }
     return apiClient.post('/admin/auth/login', payload);
   },
@@ -198,34 +203,34 @@ export const api = {
   
   // Profile
   getProfile: () => apiClient.get('/portfolio/profile'),
-  updateProfile: (data: any) => apiClient.put('/portfolio/profile', data),
+  updateProfile: (data: Record<string, unknown>) => apiClient.put('/portfolio/profile', data),
 
   // Projects
-  getProjects: (params?: any) => apiClient.get('/portfolio/projects', params),
+  getProjects: (params?: Record<string, unknown>) => apiClient.get('/portfolio/projects', params),
   getProjectBySlug: (slug: string) => apiClient.get(`/portfolio/projects/${slug}`),
-  createProject: (data: any) => apiClient.post('/portfolio/projects', data),
-  updateProject: (slug: string, data: any) => apiClient.put(`/portfolio/projects/${slug}`, data),
+  createProject: (data: Record<string, unknown>) => apiClient.post('/portfolio/projects', data),
+  updateProject: (slug: string, data: Record<string, unknown>) => apiClient.put(`/portfolio/projects/${slug}`, data),
   deleteProject: (slug: string) => apiClient.delete(`/portfolio/projects/${slug}`),
 
   // Skills
   getSkills: (category?: string) => apiClient.get('/portfolio/skills', category ? { category } : undefined),
-  createSkill: (data: any) => apiClient.post('/portfolio/skills', data),
-  updateSkill: (id: string, data: any) => apiClient.put(`/portfolio/skills/${id}`, data),
+  createSkill: (data: Record<string, unknown>) => apiClient.post('/portfolio/skills', data),
+  updateSkill: (id: string, data: Record<string, unknown>) => apiClient.put(`/portfolio/skills/${id}`, data),
   deleteSkill: (id: string) => apiClient.delete(`/portfolio/skills/${id}`),
 
   // Contact Messages
-  getMessages: (params?: any) => apiClient.get('/admin/messages', params),
+  getMessages: (params?: Record<string, unknown>) => apiClient.get('/admin/messages', params),
   getMessageById: (id: string) => apiClient.get(`/admin/messages/${id}`),
   updateMessageStatus: (id: string, status: string) =>
     apiClient.put(`/admin/messages/${id}/status`, { status }),
   deleteMessage: (id: string) => apiClient.delete(`/admin/messages/${id}`),
 
   // Newsletter
-  getSubscribers: (params?: any) => apiClient.get('/admin/newsletter/subscribers', params),
+  getSubscribers: (params?: Record<string, unknown>) => apiClient.get('/admin/newsletter/subscribers', params),
   deleteSubscriber: (id: string) => apiClient.delete(`/admin/newsletter/subscribers/${id}`),
 
   // Analytics
   getAnalytics: () => apiClient.get('/portfolio/analytics/summary'),
-  getPageViews: (params?: any) => apiClient.get('/admin/analytics/page-views', params),
-  getProjectViews: (params?: any) => apiClient.get('/admin/analytics/project-views', params),
+  getPageViews: (params?: Record<string, unknown>) => apiClient.get('/admin/analytics/page-views', params),
+  getProjectViews: (params?: Record<string, unknown>) => apiClient.get('/admin/analytics/project-views', params),
 };

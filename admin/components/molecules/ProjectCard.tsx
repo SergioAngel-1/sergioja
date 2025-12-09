@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Icon from '../atoms/Icon';
 import { fluidSizing } from '@/lib/fluidSizing';
 
@@ -62,10 +63,12 @@ export default function ProjectCard({
       {/* Image section */}
       <div className="relative h-48 bg-admin-dark-surface rounded-t-lg overflow-hidden">
         {image ? (
-          <img
+          <Image
             src={image}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center cyber-grid">

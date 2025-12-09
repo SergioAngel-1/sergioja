@@ -26,7 +26,7 @@ interface ProjectFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (project: Partial<ProjectFormData>) => Promise<void>;
-  project?: any | null;
+  project?: any | null; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export default function ProjectFormModal({
@@ -67,7 +67,7 @@ export default function ProjectFormModal({
     if (project) {
       setFormData({
         ...project,
-        technologies: project.technologies?.map((t: any) => 
+        technologies: project.technologies?.map((t: any) => // eslint-disable-line @typescript-eslint/no-explicit-any 
           typeof t === 'string' ? t : t.technology?.name || t.name
         ) || [],
       });

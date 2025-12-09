@@ -18,7 +18,7 @@ interface MessageCardProps {
 }
 
 export default function MessageCard({
-  id,
+  id: _id,
   name,
   email,
   subject,

@@ -56,7 +56,7 @@ export default function SkillsPage() {
       if (response.success && response.data) {
         const skillsData = Array.isArray(response.data)
           ? response.data
-          : (response.data as any).technologies || [];
+          : (response.data as { technologies?: Technology[] }).technologies || [];
         
         setSkills(skillsData as Technology[]);
         logger.info('Skills loaded successfully', { count: skillsData.length });
@@ -223,7 +223,7 @@ export default function SkillsPage() {
             <div className="w-full sm:w-auto sm:min-w-[200px]">
               <Select
                 value={sortBy}
-                onChange={(value) => setSortBy(value as any)}
+                onChange={(value) => setSortBy(value as 'proficiency' | 'projects' | 'name')}
                 options={[
                   { value: 'proficiency', label: 'Ordenar por Dominio' },
                   { value: 'projects', label: 'Ordenar por Proyectos' },

@@ -54,7 +54,7 @@ export default function NewsletterPage() {
       if (response.success && response.data) {
         const subscribersData = Array.isArray(response.data)
           ? response.data
-          : (response.data as any).subscribers || [];
+          : (response.data as { subscribers?: Subscriber[] }).subscribers || [];
         
         setSubscribers(subscribersData as Subscriber[]);
         logger.info('Subscribers loaded successfully', { count: subscribersData.length });

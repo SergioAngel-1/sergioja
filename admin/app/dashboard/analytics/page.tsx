@@ -8,7 +8,6 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
 import Button from '@/components/atoms/Button';
-import TopItemCard from '@/components/molecules/TopItemCard';
 import StatCard from '@/components/molecules/StatCard';
 import TopSection from '@/components/molecules/TopSection';
 import { api } from '@/lib/api-client';
@@ -56,14 +55,14 @@ export default function AnalyticsPage() {
       if (pageViewsRes.success && pageViewsRes.data) {
         const data = Array.isArray(pageViewsRes.data)
           ? pageViewsRes.data
-          : (pageViewsRes.data as any).pageViews || [];
+          : (pageViewsRes.data as { pageViews?: PageView[] }).pageViews || [];
         setPageViews(data);
       }
 
       if (projectViewsRes.success && projectViewsRes.data) {
         const data = Array.isArray(projectViewsRes.data)
           ? projectViewsRes.data
-          : (projectViewsRes.data as any).projectViews || [];
+          : (projectViewsRes.data as { projectViews?: ProjectView[] }).projectViews || [];
         setProjectViews(data);
       }
 
@@ -85,10 +84,10 @@ export default function AnalyticsPage() {
     const now = Date.now();
     const dayMs = 24 * 60 * 60 * 1000;
 
-    const getLast7Days = (items: any[]) =>
+    const getLast7Days = (items: PageView[] | ProjectView[]) =>
       items.filter((item) => now - new Date(item.createdAt).getTime() < 7 * dayMs).length;
 
-    const getLast30Days = (items: any[]) =>
+    const getLast30Days = (items: PageView[] | ProjectView[]) =>
       items.filter((item) => now - new Date(item.createdAt).getTime() < 30 * dayMs).length;
 
     const pageViewsLast7d = getLast7Days(pageViews);
