@@ -34,8 +34,18 @@ async function getGoogleAccessToken(): Promise<string | null> {
   }
 
   try {
-    // Parse service account JSON
-    const credentials = JSON.parse(serviceAccountKey);
+    let credentials: any;
+    let sak = serviceAccountKey.trim();
+    try {
+      credentials = JSON.parse(sak);
+    } catch {
+      if (sak.length >= 2 && ((sak.startsWith("'") && sak.endsWith("'")) || (sak.startsWith('"') && sak.endsWith('"')))) {
+        const unquoted = sak.slice(1, -1);
+        credentials = JSON.parse(unquoted);
+      } else {
+        throw new Error('Invalid RECAPTCHA_ENTERPRISE_SERVICE_ACCOUNT');
+      }
+    }
     
     // Create JWT for Google OAuth
     const header = {

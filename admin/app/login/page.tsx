@@ -50,7 +50,7 @@ export default function LoginPage() {
       if (process.env.NODE_ENV === 'production') {
         const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
         if (siteKey) {
-          recaptchaToken = await getReCaptchaToken(siteKey, RECAPTCHA_ACTIONS.LOGIN) || undefined;
+          recaptchaToken = await getReCaptchaToken(siteKey, 'admin_login') || undefined;
         }
       }
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
         email,
         password,
         recaptchaToken,
-        recaptchaToken ? RECAPTCHA_ACTIONS.LOGIN : undefined
+        recaptchaToken ? 'admin_login' : undefined
       );
       
       if (success) {

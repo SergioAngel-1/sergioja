@@ -72,10 +72,9 @@ export async function getReCaptchaToken(
   }
 
   try {
-    // Verificar que grecaptcha Enterprise esté disponible
+    // Asegurar que reCAPTCHA Enterprise esté cargado (autocarga si es necesario)
     if (!isRecaptchaLoaded()) {
-      console.error('reCAPTCHA Enterprise not loaded. Ensure the script is loaded in production.');
-      return null;
+      await loadRecaptchaEnterprise(siteKey);
     }
 
     // Esperar a que reCAPTCHA esté listo (con timeout de 10s)
