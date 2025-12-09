@@ -9,6 +9,7 @@ import { logger } from './lib/logger';
 import { requestLogger } from './middleware/requestLogger';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { prisma } from './lib/prisma';
+import { cleanupExpiredTokens } from './services/authService';
 
 // Routes
 import authRoutes from './routes/auth';
@@ -49,11 +50,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   if (origin) {
     try {
       const host = new URL(origin).hostname;
-      const allowList = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '')
+      const allowList = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001,http://localhost:3002')
         .split(',')
         .map((o) => o.trim())
         .filter(Boolean);
-      const originAllowed = allowList.includes(origin) || /\.?(.+\.)?sergioja\.com$/.test(host) || /sergioja\.com$/.test(host);
+      const originAllowed = allowList.includes(origin) || /(^|\.)sergioja\.com$/.test(host);
       if (originAllowed) {
         const acrh = (req.headers['access-control-request-headers'] as string | undefined) || 'Content-Type, Authorization, X-Requested-With, Accept, Accept-Language, Origin';
         res.header('Access-Control-Allow-Origin', origin);
@@ -69,7 +70,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   }
   next();
 });
-const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001')
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001,http://localhost:3002')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
@@ -79,7 +80,7 @@ const corsOptions: CorsOptions = {
     if (allowedOrigins.includes(origin)) return callback(null, true);
     try {
       const u = new URL(origin);
-      if (/\.?(sergioja\.com)$/.test(u.hostname)) return callback(null, true);
+      if (/(^|\.)sergioja\.com$/.test(u.hostname)) return callback(null, true);
     } catch {}
     return callback(new Error('Not allowed by CORS'));
   },
@@ -148,6 +149,10 @@ app.use('/api/portfolio/contact', contactRoutes);
 app.use('/api/portfolio/newsletter', newsletterRoutes);
 app.use('/api/portfolio/analytics', analyticsRoutes);
 logger.info('Routes configured successfully');
+
+setInterval(() => {
+  cleanupExpiredTokens().catch((err: any) => logger.error('Token cleanup error', err));
+}, 21600000);
 
 // 404 handler
 app.use(notFoundHandler);

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { appConfig } from '../config/env';
 import { logger } from '../lib/logger';
 import { prisma } from '../lib/prisma';
@@ -15,8 +16,8 @@ interface AuthTokens {
   refreshToken: string;
 }
 
-const JWT_SECRET = appConfig.jwt.secret || 'cd3d9cecce29ee22d1b785ac943730fceb5799b30ae19e894136d26787c160c2';
-const REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET || 'refresh_' + JWT_SECRET;
+const JWT_SECRET = appConfig.jwt.secret as string;
+const REFRESH_TOKEN_SECRET = appConfig.jwt.refreshSecret as string;
 
 // Duración de tokens
 const ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutos
@@ -35,6 +36,10 @@ export function generateTokens(payload: TokenPayload): AuthTokens {
   });
 
   return { accessToken, refreshToken };
+}
+
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
 }
 
 /**
@@ -114,7 +119,7 @@ export async function authenticateUser(
     // Guardar refresh token en base de datos
     await prisma.refreshToken.create({
       data: {
-        token: tokens.refreshToken,
+        token: hashToken(tokens.refreshToken),
         userId: user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días
       },
@@ -150,9 +155,10 @@ export async function refreshAccessToken(
     }
 
     // Verificar que el refresh token existe en la base de datos y no ha sido revocado
-    const storedToken = await prisma.refreshToken.findFirst({
+    const tokenHash = hashToken(refreshToken);
+    let storedToken = await prisma.refreshToken.findFirst({
       where: {
-        token: refreshToken,
+        token: tokenHash,
         userId: payload.userId,
         revokedAt: null,
         expiresAt: {
@@ -160,6 +166,20 @@ export async function refreshAccessToken(
         },
       },
     });
+
+    // Compatibilidad hacia atrás: buscar tokens antiguos sin hash
+    if (!storedToken) {
+      storedToken = await prisma.refreshToken.findFirst({
+        where: {
+          token: refreshToken,
+          userId: payload.userId,
+          revokedAt: null,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      });
+    }
 
     if (!storedToken) {
       logger.warn('Refresh token not found or revoked', { userId: payload.userId });
@@ -200,7 +220,7 @@ export async function refreshAccessToken(
     // Guardar nuevo refresh token
     await prisma.refreshToken.create({
       data: {
-        token: tokens.refreshToken,
+        token: hashToken(tokens.refreshToken),
         userId: user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
@@ -222,8 +242,10 @@ export async function revokeRefreshToken(refreshToken: string): Promise<boolean>
   try {
     const result = await prisma.refreshToken.updateMany({
       where: {
-        token: refreshToken,
-        revokedAt: null,
+        OR: [
+          { token: hashToken(refreshToken), revokedAt: null },
+          { token: refreshToken, revokedAt: null },
+        ],
       },
       data: {
         revokedAt: new Date(),

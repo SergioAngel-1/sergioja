@@ -131,12 +131,6 @@ services:
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=5000"
-      # CORS headers
-      - "traefik.http.middlewares.backend-cors.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS"
-      - "traefik.http.middlewares.backend-cors.headers.accesscontrolalloworiginlist=${FRONTEND_URLS}"
-      - "traefik.http.middlewares.backend-cors.headers.accesscontrolallowheaders=Content-Type,Authorization"
-      - "traefik.http.middlewares.backend-cors.headers.accesscontrolmaxage=100"
-      - "traefik.http.routers.backend.middlewares=backend-cors"
 
   # Frontend Portfolio
   portfolio-frontend:
@@ -219,6 +213,7 @@ services:
       dockerfile: ./admin/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${API_URL}
+        NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: https://admin.sergioja.com
         NEXT_PUBLIC_JWT_SECRET: ${JWT_SECRET}
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
@@ -227,6 +222,7 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${API_URL}
+      NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: https://admin.sergioja.com
       NEXT_PUBLIC_JWT_SECRET: ${JWT_SECRET}
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}

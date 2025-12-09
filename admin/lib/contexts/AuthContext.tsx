@@ -17,7 +17,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, recaptchaToken?: string | null, recaptchaAction?: string) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
 }
@@ -59,16 +59,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (
+    email: string,
+    password: string,
+    recaptchaToken?: string | null,
+    recaptchaAction?: string
+  ): Promise<boolean> => {
     try {
       logger.info('Auth: Intentando login', { email });
-      const response = await api.login(email, password);
+      const response = await api.login(email, password, recaptchaToken, recaptchaAction);
       
       if (response.success && response.data && typeof response.data === 'object' && 'user' in response.data) {
         // El backend ya configuró las cookies httpOnly (accessToken y refreshToken)
         // Solo necesitamos guardar el usuario en el estado
         const user = response.data.user as User;
         setUser(user);
+        
+        // En desarrollo, guardar tokens en localStorage como fallback (cookies httpOnly no funcionan entre puertos)
+        if (process.env.NODE_ENV === 'development' && 'accessToken' in response.data && 'refreshToken' in response.data) {
+          localStorage.setItem('accessToken', (response.data as any).accessToken);
+          localStorage.setItem('refreshToken', (response.data as any).refreshToken);
+        }
+        
         logger.info('Auth: Login exitoso', { userId: user.id, email: user.email });
         return true;
       }
@@ -95,6 +107,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       // Limpiar estado local
       setUser(null);
+      
+      // En desarrollo, limpiar tokens de localStorage
+      if (process.env.NODE_ENV === 'development') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
+      
       router.push('/login');
     }
   };

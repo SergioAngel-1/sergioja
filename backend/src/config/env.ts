@@ -19,8 +19,8 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, 'Database URL is required'),
   
   // JWT
-  JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters').optional(),
-  JWT_REFRESH_SECRET: z.string().min(32, 'JWT refresh secret must be at least 32 characters').optional(),
+  JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters'),
+  JWT_REFRESH_SECRET: z.string().min(32, 'JWT refresh secret must be at least 32 characters'),
   
   // Email (optional)
   SMTP_HOST: z.string().optional(),
@@ -75,6 +75,7 @@ export const appConfig = {
   },
   jwt: {
     secret: env.JWT_SECRET,
+    refreshSecret: env.JWT_REFRESH_SECRET,
   },
   email: {
     host: env.SMTP_HOST,

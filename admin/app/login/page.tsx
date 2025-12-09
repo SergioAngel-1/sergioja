@@ -14,7 +14,7 @@ import Input from '@/components/atoms/Input';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -22,13 +22,19 @@ export default function LoginPage() {
   // Track scroll depth and time on page
   usePageAnalytics();
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
   // Cargar reCAPTCHA Enterprise en producción
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') {
       const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
       if (siteKey) {
         loadRecaptchaEnterprise(siteKey).catch(() => {
-          // Silenciar error, reCAPTCHA es opcional en desarrollo
+          // Silenciar er1ror; en desarrollo puede no cargar
         });
       }
     }
@@ -40,22 +46,21 @@ export default function LoginPage() {
 
     try {
       // Obtener token de reCAPTCHA Enterprise en producción
-      let recaptchaToken: string | null = null;
+      let recaptchaToken: string | undefined = undefined;
       if (process.env.NODE_ENV === 'production') {
         const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
         if (siteKey) {
-          recaptchaToken = await getReCaptchaToken(siteKey, RECAPTCHA_ACTIONS.LOGIN);
-          
-          if (!recaptchaToken) {
-            alerts.error('Error de seguridad', 'No se pudo verificar reCAPTCHA. Intenta de nuevo.');
-            setIsLoading(false);
-            return;
-          }
+          recaptchaToken = await getReCaptchaToken(siteKey, RECAPTCHA_ACTIONS.LOGIN) || undefined;
         }
       }
 
-      // Intentar login
-      const success = await login(email, password);
+      // Intentar login con reCAPTCHA (si disponible)
+      const success = await login(
+        email,
+        password,
+        recaptchaToken,
+        recaptchaToken ? RECAPTCHA_ACTIONS.LOGIN : undefined
+      );
       
       if (success) {
         alerts.success('Inicio de sesión exitoso', 'Redirigiendo al dashboard...');

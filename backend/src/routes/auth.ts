@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { authenticateUser, refreshAccessToken, revokeRefreshToken, revokeAllUserTokens } from '../services/authService';
 import { verifyRecaptchaEnterprise } from '../services/recaptchaService';
@@ -6,6 +7,14 @@ import { logger } from '../lib/logger';
 import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV !== 'production',
+});
 
 // Schema de validación para login
 const loginSchema = z.object({
@@ -24,7 +33,7 @@ const refreshSchema = z.object({
  * POST /api/admin/auth/login
  * Login de usuario admin
  */
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   try {
     // Validar request body
     const validation = loginSchema.safeParse(req.body);
@@ -42,8 +51,18 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const { email, password, recaptchaToken, recaptchaAction } = validation.data;
 
-    // Verificar reCAPTCHA en producción
-    if (process.env.NODE_ENV === 'production' && recaptchaToken) {
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd) {
+      if (!recaptchaToken) {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'RECAPTCHA_REQUIRED',
+            message: 'Verificación de seguridad requerida',
+          },
+        });
+      }
+
       const recaptchaResult = await verifyRecaptchaEnterprise(
         recaptchaToken,
         recaptchaAction || 'admin_login'
@@ -64,11 +83,6 @@ router.post('/login', async (req: Request, res: Response) => {
           },
         });
       }
-
-      logger.info('reCAPTCHA verification successful', {
-        email,
-        score: recaptchaResult.score,
-      });
     }
 
     // Autenticar usuario
@@ -87,7 +101,7 @@ router.post('/login', async (req: Request, res: Response) => {
     const { user, tokens } = result;
 
     // Configurar cookies HTTP-only con los tokens
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = isProd;
     
     res.cookie('accessToken', tokens.accessToken, {
       httpOnly: true,
@@ -217,8 +231,10 @@ router.post('/logout', async (req: Request, res: Response) => {
     }
 
     // Limpiar cookies
-    res.clearCookie('accessToken', { path: '/' });
-    res.clearCookie('refreshToken', { path: '/' });
+    const isProd = process.env.NODE_ENV === 'production';
+    const clearOpts: any = isProd ? { path: '/', domain: '.sergioja.com' } : { path: '/' };
+    res.clearCookie('accessToken', clearOpts);
+    res.clearCookie('refreshToken', clearOpts);
 
     logger.info('User logged out successfully');
 
@@ -251,8 +267,10 @@ router.post('/logout-all', authMiddleware, async (req: Request, res: Response) =
     await revokeAllUserTokens(userId);
 
     // Limpiar cookies
-    res.clearCookie('accessToken', { path: '/' });
-    res.clearCookie('refreshToken', { path: '/' });
+    const isProd = process.env.NODE_ENV === 'production';
+    const clearOpts: any = isProd ? { path: '/', domain: '.sergioja.com' } : { path: '/' };
+    res.clearCookie('accessToken', clearOpts);
+    res.clearCookie('refreshToken', clearOpts);
 
     logger.info('All user sessions revoked', { userId });
 

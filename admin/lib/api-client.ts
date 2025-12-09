@@ -23,7 +23,13 @@ class ApiClient {
     this.client.interceptors.request.use(
       (config) => {
         // Las cookies httpOnly se envían automáticamente con withCredentials: true
-        // No necesitamos manejar tokens manualmente
+        // En desarrollo, usar localStorage como fallback (cookies no funcionan entre puertos)
+        if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+          const token = localStorage.getItem('accessToken');
+          if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        }
         
         // Log API request
         logger.apiRequest(
@@ -71,7 +77,25 @@ class ApiClient {
           
           try {
             // Intentar refrescar el token
-            await this.post('/admin/auth/refresh', {});
+            const refreshPayload: any = {};
+            if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+              const refreshToken = localStorage.getItem('refreshToken');
+              if (refreshToken) {
+                refreshPayload.refreshToken = refreshToken;
+              }
+            }
+            const refreshResponse = await this.post('/admin/auth/refresh', refreshPayload);
+            
+            // En desarrollo, actualizar tokens en localStorage
+            if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && refreshResponse.data) {
+              const data = refreshResponse.data as any;
+              if (data.accessToken) {
+                localStorage.setItem('accessToken', data.accessToken);
+              }
+              if (data.refreshToken) {
+                localStorage.setItem('refreshToken', data.refreshToken);
+              }
+            }
             
             // Reintentar la petición original
             return this.client(originalRequest);
@@ -151,8 +175,19 @@ export const apiClient = new ApiClient();
 // Admin API methods
 export const api = {
   // Auth
-  login: (email: string, password: string) =>
-    apiClient.post('/admin/auth/login', { email, password }),
+  login: (
+    email: string,
+    password: string,
+    recaptchaToken?: string | null,
+    recaptchaAction?: string
+  ) => {
+    const payload: any = { email, password };
+    if (recaptchaToken) {
+      payload.recaptchaToken = recaptchaToken;
+      payload.recaptchaAction = recaptchaAction;
+    }
+    return apiClient.post('/admin/auth/login', payload);
+  },
   
   logout: () => apiClient.post('/admin/auth/logout', {}),
   
