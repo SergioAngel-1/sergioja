@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import Link from 'next/link';
@@ -18,6 +18,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   // Detectar si es mobile
   useEffect(() => {
@@ -33,6 +35,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Cerrar settings dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setSettingsOpen(false);
+      }
+    };
+
+    if (settingsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [settingsOpen]);
+
+  const handleChangePassword = () => {
+    setSettingsOpen(false);
+    alerts.info('Cambiar contraseña', 'Esta funcionalidad estará disponible próximamente');
+  };
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
@@ -116,40 +140,76 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           })}
         </nav>
 
-        {/* User section - Compacto */}
+        {/* User section */}
         <div className="border-t border-admin-primary/30" style={{ padding: fluidSizing.space.md }}>
           {sidebarOpen ? (
-            <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-              <div className="rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold flex-shrink-0" style={{ width: fluidSizing.size.iconLg, height: fluidSizing.size.iconLg, fontSize: fluidSizing.text.sm }}>
-                {user?.name?.[0]?.toUpperCase() || 'A'}
+            <div className="flex items-center justify-between" style={{ gap: fluidSizing.space.md }}>
+              <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+                <div className="rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold" style={{ width: '32px', height: '32px', fontSize: fluidSizing.text.sm }}>
+                  {user?.name?.[0]?.toUpperCase() || 'A'}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-text-primary font-medium" style={{ fontSize: fluidSizing.text.sm }}>{user?.name || 'Admin'}</span>
+                  <span className="text-text-muted" style={{ fontSize: fluidSizing.text.xs }}>{user?.email}</span>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-text-primary truncate" style={{ fontSize: fluidSizing.text.sm }}>
-                  {user?.name || 'Admin'}
-                </p>
-                <p className="text-text-muted truncate" style={{ fontSize: fluidSizing.text.xs }}>
-                  {user?.email}
-                </p>
+              
+              <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
+                {/* Botón de configuración */}
+                <div className="relative" ref={settingsRef}>
+                  <button
+                    onClick={() => setSettingsOpen(!settingsOpen)}
+                    className="flex-shrink-0 hover:bg-admin-primary/10 text-text-primary rounded-lg transition-all duration-200"
+                    style={{ padding: fluidSizing.space.xs }}
+                    title="Configuración"
+                  >
+                    <Icon name="cpu" size={18} />
+                  </button>
+
+                  {/* Dropdown de configuración */}
+                  <AnimatePresence>
+                    {settingsOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute bottom-full left-0 mb-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl overflow-hidden z-50 min-w-[200px]"
+                      >
+                        <button
+                          onClick={handleChangePassword}
+                          className="w-full text-left px-4 py-3 text-text-primary hover:bg-admin-primary/10 transition-colors duration-200 flex items-center"
+                          style={{ gap: fluidSizing.space.sm, fontSize: fluidSizing.text.sm }}
+                        >
+                          <Icon name="plus" size={16} />
+                          <span>Cambiar contraseña</span>
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Botón de logout */}
+                <button
+                  onClick={() => {
+                    alerts.confirm(
+                      '¿Cerrar sesión?',
+                      '¿Estás seguro de que quieres cerrar tu sesión?',
+                      async () => {
+                        await logout();
+                      },
+                      undefined,
+                      'Cerrar sesión',
+                      'Cancelar'
+                    );
+                  }}
+                  className="flex-shrink-0 hover:bg-red-500/10 rounded-lg transition-all duration-200"
+                  style={{ padding: fluidSizing.space.xs, color: '#ff0000' }}
+                  title="Cerrar sesión"
+                >
+                  <Icon name="logout" size={18} />
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  alerts.confirm(
-                    '¿Cerrar sesión?',
-                    '¿Estás seguro de que quieres cerrar tu sesión?',
-                    async () => {
-                      await logout();
-                    },
-                    undefined,
-                    'Cerrar sesión',
-                    'Cancelar'
-                  );
-                }}
-                className="flex-shrink-0 hover:bg-admin-error/10 text-admin-error rounded-lg transition-all duration-200"
-                style={{ padding: fluidSizing.space.xs }}
-                title="Cerrar sesión"
-              >
-                <Icon name="logout" size={18} />
-              </button>
             </div>
           ) : (
             <div className="flex flex-col items-center" style={{ gap: fluidSizing.space.md }}>
@@ -163,6 +223,47 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
               </div>
               
+              {/* Botón de configuración */}
+              <div className="relative" ref={settingsRef}>
+                <button
+                  onClick={() => setSettingsOpen(!settingsOpen)}
+                  className="hover:bg-admin-primary/10 text-text-primary rounded-lg transition-all duration-200 relative group flex items-center justify-center"
+                  style={{ padding: fluidSizing.space.sm, minWidth: '40px', minHeight: '40px' }}
+                  title="Configuración"
+                >
+                  <Icon name="cpu" size={20} />
+                  
+                  {/* Tooltip configuración */}
+                  <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
+                    <span className="text-sm font-medium text-text-primary">Configuración</span>
+                  </div>
+                </button>
+
+                {/* Dropdown de configuración */}
+                <AnimatePresence>
+                  {settingsOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
+                      exit={{ opacity: 0, x: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="fixed left-[80px] bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl overflow-hidden z-50 min-w-[200px]"
+                      style={{ marginLeft: '8px' }}
+                    >
+                      <button
+                        onClick={handleChangePassword}
+                        className="w-full text-left px-4 py-3 text-text-primary hover:bg-admin-primary/10 transition-colors duration-200 flex items-center"
+                        style={{ gap: fluidSizing.space.sm, fontSize: fluidSizing.text.sm }}
+                      >
+                        <Icon name="plus" size={16} />
+                        <span>Cambiar contraseña</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Botón de logout */}
               <button
                 onClick={() => {
                   alerts.confirm(
@@ -176,8 +277,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     'Cancelar'
                   );
                 }}
-                className="hover:bg-admin-error/10 text-admin-error rounded-lg transition-all duration-200 relative group flex items-center justify-center"
-                style={{ padding: fluidSizing.space.sm, minWidth: '40px', minHeight: '40px' }}
+                className="hover:bg-red-500/10 rounded-lg transition-all duration-200 relative group flex items-center justify-center"
+                style={{ padding: fluidSizing.space.sm, minWidth: '40px', minHeight: '40px', color: '#ff0000' }}
                 title="Cerrar sesión"
               >
                 <Icon name="logout" size={20} />
