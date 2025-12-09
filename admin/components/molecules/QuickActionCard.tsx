@@ -33,17 +33,17 @@ export default function QuickActionCard({
           border border-admin-primary/20
           rounded-lg p-5
           transition-all duration-300
-          hover:border-admin-primary/60
+          hover:border-admin-primary/50
           hover:bg-admin-dark-elevated
-          hover:shadow-lg hover:shadow-admin-primary/10
+          hover:shadow-md hover:shadow-black/20
         "
       >
         {/* Background effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-admin-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+        <div className="absolute inset-0 bg-gradient-to-br from-admin-primary/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
         
-        {/* Animated scan line */}
+        {/* Animated scan line - más sutil */}
         <div className="absolute inset-0 overflow-hidden rounded-lg">
-          <div className="absolute w-full h-0.5 bg-gradient-to-r from-transparent via-admin-primary/50 to-transparent -translate-y-full group-hover:translate-y-[200%] transition-transform duration-1000 ease-linear" />
+          <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-admin-primary/30 to-transparent -translate-y-full group-hover:translate-y-[200%] transition-transform duration-1000 ease-linear" />
         </div>
         
         {/* Content */}
@@ -83,7 +83,7 @@ export default function QuickActionCard({
         </div>
         
         {/* Corner accent */}
-        <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-admin-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-admin-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-br-lg" />
       </Link>
     </motion.div>
   );

@@ -8,6 +8,7 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
 import SubscriberCard from '@/components/molecules/SubscriberCard';
+import StatCard from '@/components/molecules/StatCard';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -176,33 +177,42 @@ export default function NewsletterPage() {
           </motion.button>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
-          className="grid grid-cols-2 sm:grid-cols-5 gap-4"
-        >
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Total</p>
-            <p className="text-2xl font-orbitron font-bold text-admin-primary">{stats.total}</p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-green-400/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Activos</p>
-            <p className="text-2xl font-orbitron font-bold text-green-400">{stats.active}</p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-red-400/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Desuscritos</p>
-            <p className="text-2xl font-orbitron font-bold text-red-400">{stats.unsubscribed}</p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-blue-400/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Últimos 7d</p>
-            <p className="text-2xl font-orbitron font-bold text-blue-400">{stats.last7Days}</p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-purple-400/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Últimos 30d</p>
-            <p className="text-2xl font-orbitron font-bold text-purple-400">{stats.last30Days}</p>
-          </div>
-        </motion.div>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          <StatCard
+            title="Total"
+            value={stats.total}
+            variant="simple"
+            delay={0.1}
+          />
+          <StatCard
+            title="Activos"
+            value={stats.active}
+            color="green-400"
+            variant="simple"
+            delay={0.15}
+          />
+          <StatCard
+            title="Desuscritos"
+            value={stats.unsubscribed}
+            color="red-400"
+            variant="simple"
+            delay={0.2}
+          />
+          <StatCard
+            title="Últimos 7d"
+            value={stats.last7Days}
+            color="blue-400"
+            variant="simple"
+            delay={0.25}
+          />
+          <StatCard
+            title="Últimos 30d"
+            value={stats.last30Days}
+            color="purple-400"
+            variant="simple"
+            delay={0.3}
+          />
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

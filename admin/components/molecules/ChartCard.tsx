@@ -10,8 +10,8 @@ interface ChartCardProps {
     value: number;
     period: string;
   };
-  icon: 'projects' | 'eye' | 'users' | 'messages' | 'newsletter' | 'zap';
-  color: string;
+  icon?: 'projects' | 'eye' | 'users' | 'messages' | 'newsletter' | 'zap';
+  color?: string;
   delay?: number;
   children?: React.ReactNode;
 }
@@ -35,10 +35,9 @@ export default function ChartCard({
       className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-6 hover:border-admin-primary/40 transition-all duration-300"
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex-1">
           <p className="text-text-muted text-xs uppercase tracking-wider mb-2">{title}</p>
-          <p className="text-3xl font-orbitron font-bold text-admin-primary">{value}</p>
           
           {change && (
             <div className="flex items-center gap-2 mt-2">
@@ -54,17 +53,23 @@ export default function ChartCard({
           )}
         </div>
 
-        <div
-          className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-300"
-          style={{
-            backgroundColor: `${color}20`,
-            borderWidth: '1px',
-            borderStyle: 'solid',
-            borderColor: `${color}40`,
-            color: color,
-          }}
-        >
-          <Icon name={icon} size={24} />
+        <div className="flex items-center gap-4">
+          <p className="text-3xl font-orbitron font-bold text-white">{value}</p>
+          
+          {icon && color && (
+            <div
+              className="w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-300"
+              style={{
+                backgroundColor: `${color}20`,
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: `${color}40`,
+                color: color,
+              }}
+            >
+              <Icon name={icon} size={24} />
+            </div>
+          )}
         </div>
       </div>
 

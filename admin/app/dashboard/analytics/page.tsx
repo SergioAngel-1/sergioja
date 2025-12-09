@@ -7,8 +7,8 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
-import ChartCard from '@/components/molecules/ChartCard';
 import TopItemCard from '@/components/molecules/TopItemCard';
+import StatCard from '@/components/molecules/StatCard';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -181,32 +181,28 @@ export default function AnalyticsPage() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <ChartCard
+              <StatCard
                 title="Vistas de Página"
                 value={stats.totalPageViews.toLocaleString()}
-                icon="eye"
-                color="#60a5fa"
+                variant="simple"
                 delay={0.1}
               />
-              <ChartCard
+              <StatCard
                 title="Vistas de Proyectos"
                 value={stats.totalProjectViews.toLocaleString()}
-                icon="projects"
-                color="#34d399"
+                variant="simple"
                 delay={0.15}
               />
-              <ChartCard
+              <StatCard
                 title="Últimos 7 días"
                 value={stats.pageViewsLast7d.toLocaleString()}
-                icon="zap"
-                color="#fbbf24"
+                variant="simple"
                 delay={0.2}
               />
-              <ChartCard
+              <StatCard
                 title="Últimos 30 días"
                 value={stats.pageViewsLast30d.toLocaleString()}
-                icon="zap"
-                color="#a78bfa"
+                variant="simple"
                 delay={0.25}
               />
             </div>
@@ -301,30 +297,38 @@ export default function AnalyticsPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg">
-                  <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Vistas/Día (7d)</p>
-                  <p className="text-2xl font-orbitron font-bold text-blue-400">
-                    {stats.pageViewsLast7d > 0 ? Math.round(stats.pageViewsLast7d / 7) : 0}
-                  </p>
-                </div>
-                <div className="p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg">
-                  <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Vistas/Día (30d)</p>
-                  <p className="text-2xl font-orbitron font-bold text-green-400">
-                    {stats.pageViewsLast30d > 0 ? Math.round(stats.pageViewsLast30d / 30) : 0}
-                  </p>
-                </div>
-                <div className="p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg">
-                  <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Proyectos/Día (7d)</p>
-                  <p className="text-2xl font-orbitron font-bold text-yellow-400">
-                    {stats.projectViewsLast7d > 0 ? Math.round(stats.projectViewsLast7d / 7) : 0}
-                  </p>
-                </div>
-                <div className="p-4 bg-admin-dark-surface border border-admin-primary/10 rounded-lg">
-                  <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Proyectos/Día (30d)</p>
-                  <p className="text-2xl font-orbitron font-bold text-purple-400">
-                    {stats.projectViewsLast30d > 0 ? Math.round(stats.projectViewsLast30d / 30) : 0}
-                  </p>
-                </div>
+                <StatCard
+                  title="Vistas/Día (7d)"
+                  value={stats.pageViewsLast7d > 0 ? Math.round(stats.pageViewsLast7d / 7) : 0}
+                  color="blue-400"
+                  variant="simple"
+                  className="bg-admin-dark-surface border-admin-primary/10"
+                  delay={0.45}
+                />
+                <StatCard
+                  title="Vistas/Día (30d)"
+                  value={stats.pageViewsLast30d > 0 ? Math.round(stats.pageViewsLast30d / 30) : 0}
+                  color="green-400"
+                  variant="simple"
+                  className="bg-admin-dark-surface border-admin-primary/10"
+                  delay={0.5}
+                />
+                <StatCard
+                  title="Proyectos/Día (7d)"
+                  value={stats.projectViewsLast7d > 0 ? Math.round(stats.projectViewsLast7d / 7) : 0}
+                  color="yellow-400"
+                  variant="simple"
+                  className="bg-admin-dark-surface border-admin-primary/10"
+                  delay={0.55}
+                />
+                <StatCard
+                  title="Proyectos/Día (30d)"
+                  value={stats.projectViewsLast30d > 0 ? Math.round(stats.projectViewsLast30d / 30) : 0}
+                  color="purple-400"
+                  variant="simple"
+                  className="bg-admin-dark-surface border-admin-primary/10"
+                  delay={0.6}
+                />
               </div>
             </motion.div>
           </>

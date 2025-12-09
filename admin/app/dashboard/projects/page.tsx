@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import ProjectCard from '@/components/molecules/ProjectCard';
 import FilterBar from '@/components/molecules/FilterBar';
+import StatCard from '@/components/molecules/StatCard';
 import Icon from '@/components/atoms/Icon';
 import Loader from '@/components/atoms/Loader';
 import { api } from '@/lib/api-client';
@@ -158,35 +159,35 @@ export default function ProjectsPage() {
         </motion.div>
 
         {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-        >
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Total</p>
-            <p className="text-2xl font-orbitron font-bold text-admin-primary">{projects.length}</p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Publicados</p>
-            <p className="text-2xl font-orbitron font-bold text-green-400">
-              {projects.filter((p) => p.publishedAt).length}
-            </p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Borradores</p>
-            <p className="text-2xl font-orbitron font-bold text-yellow-400">
-              {projects.filter((p) => !p.publishedAt).length}
-            </p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Destacados</p>
-            <p className="text-2xl font-orbitron font-bold text-red-400">
-              {projects.filter((p) => p.featured).length}
-            </p>
-          </div>
-        </motion.div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <StatCard
+            title="Total"
+            value={projects.length}
+            variant="simple"
+            delay={0.2}
+          />
+          <StatCard
+            title="Publicados"
+            value={projects.filter((p) => p.publishedAt).length}
+            color="green-400"
+            variant="simple"
+            delay={0.25}
+          />
+          <StatCard
+            title="Borradores"
+            value={projects.filter((p) => !p.publishedAt).length}
+            color="yellow-400"
+            variant="simple"
+            delay={0.3}
+          />
+          <StatCard
+            title="Destacados"
+            value={projects.filter((p) => p.featured).length}
+            color="red-400"
+            variant="simple"
+            delay={0.35}
+          />
+        </div>
 
         {/* Projects Grid */}
         {isLoadingProjects ? (

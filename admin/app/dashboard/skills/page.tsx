@@ -9,6 +9,7 @@ import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
 import SkillCard from '@/components/molecules/SkillCard';
 import CategoryFilter from '@/components/molecules/CategoryFilter';
+import StatCard from '@/components/molecules/StatCard';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -167,29 +168,35 @@ export default function SkillsPage() {
         </motion.div>
 
         {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: [0.23, 1, 0.32, 1] }}
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-        >
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Total Skills</p>
-            <p className="text-2xl font-orbitron font-bold text-admin-primary">{stats.total}</p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Proyectos</p>
-            <p className="text-2xl font-orbitron font-bold text-blue-400">{stats.totalProjects}</p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Dominio Prom.</p>
-            <p className="text-2xl font-orbitron font-bold text-green-400">{stats.avgProficiency}%</p>
-          </div>
-          <div className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg p-4">
-            <p className="text-text-muted text-xs uppercase tracking-wider mb-1">Exp. Prom.</p>
-            <p className="text-2xl font-orbitron font-bold text-yellow-400">{stats.avgExperience} años</p>
-          </div>
-        </motion.div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Skills"
+            value={stats.total}
+            variant="simple"
+            delay={0.1}
+          />
+          <StatCard
+            title="Proyectos"
+            value={stats.totalProjects}
+            color="blue-400"
+            variant="simple"
+            delay={0.15}
+          />
+          <StatCard
+            title="Dominio Prom."
+            value={`${stats.avgProficiency}%`}
+            color="green-400"
+            variant="simple"
+            delay={0.2}
+          />
+          <StatCard
+            title="Exp. Prom."
+            value={`${stats.avgExperience} años`}
+            color="yellow-400"
+            variant="simple"
+            delay={0.25}
+          />
+        </div>
 
         {/* Filters */}
         <motion.div
