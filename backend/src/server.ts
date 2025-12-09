@@ -145,6 +145,7 @@ app.use('/api/admin/auth', authRoutes);
 app.use('/api/admin/messages', messagesRoutes);
 app.use('/api/admin/newsletter', newsletterRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
+app.use('/api/admin/projects', projectsRoutes);
 // Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
 app.use('/api/portfolio/projects', projectsRoutes);

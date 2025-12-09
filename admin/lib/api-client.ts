@@ -208,9 +208,9 @@ export const api = {
   // Projects
   getProjects: (params?: Record<string, unknown>) => apiClient.get('/portfolio/projects', params),
   getProjectBySlug: (slug: string) => apiClient.get(`/portfolio/projects/${slug}`),
-  createProject: (data: Record<string, unknown>) => apiClient.post('/portfolio/projects', data),
-  updateProject: (slug: string, data: Record<string, unknown>) => apiClient.put(`/portfolio/projects/${slug}`, data),
-  deleteProject: (slug: string) => apiClient.delete(`/portfolio/projects/${slug}`),
+  createProject: (data: Record<string, unknown>) => apiClient.post('/admin/projects', data),
+  updateProject: (slug: string, data: Record<string, unknown>) => apiClient.put(`/admin/projects/${slug}`, data),
+  deleteProject: (slug: string) => apiClient.delete(`/admin/projects/${slug}`),
 
   // Skills
   getSkills: (category?: string) => apiClient.get('/portfolio/skills', category ? { category } : undefined),

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { ApiResponse, Project, PaginatedResponse } from '../../../shared/types';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
 
@@ -203,6 +204,223 @@ router.get('/:slug', async (req: Request, res: Response) => {
         code: 'INTERNAL_ERROR',
       },
       timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// Admin endpoints - requieren autenticación
+// POST /api/admin/projects - Crear nuevo proyecto
+router.post('/', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { title, description, category, technologies, featured, repositoryUrl, liveUrl, imageUrl, isCodePublic } = req.body;
+
+    // Validaciones básicas
+    if (!title || !description) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Título y descripción son requeridos',
+        },
+      });
+    }
+
+    // Crear slug desde el título
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    // Crear proyecto
+    const project = await prisma.project.create({
+      data: {
+        title,
+        slug,
+        description,
+        category: category || 'web',
+        featured: featured || false,
+        repositoryUrl: repositoryUrl || null,
+        liveUrl: liveUrl || null,
+        imageUrl: imageUrl || null,
+        isCodePublic: isCodePublic !== undefined ? isCodePublic : true,
+        publishedAt: new Date(),
+      },
+    });
+
+    // Agregar tecnologías si existen
+    if (technologies && Array.isArray(technologies) && technologies.length > 0) {
+      for (const techName of technologies) {
+        // Buscar o crear tecnología
+        let technology = await prisma.technology.findUnique({
+          where: { name: techName },
+        });
+
+        if (!technology) {
+          technology = await prisma.technology.create({
+            data: {
+              name: techName,
+              color: '#00FF00', // Color por defecto
+            },
+          });
+        }
+
+        // Crear relación
+        await prisma.projectTechnology.create({
+          data: {
+            projectId: project.id,
+            technologyId: technology.id,
+          },
+        });
+      }
+    }
+
+    logger.info('Project created', { id: project.id, title: project.title });
+
+    res.status(201).json({
+      success: true,
+      data: project,
+    });
+  } catch (error) {
+    logger.error('Error creating project', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al crear proyecto',
+      },
+    });
+  }
+});
+
+// PUT /api/admin/projects/:slug - Actualizar proyecto
+router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const { title, description, category, technologies, featured, repositoryUrl, liveUrl, imageUrl, isCodePublic } = req.body;
+
+    // Verificar que el proyecto existe
+    const existingProject = await prisma.project.findUnique({
+      where: { slug },
+    });
+
+    if (!existingProject) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Proyecto no encontrado',
+        },
+      });
+    }
+
+    // Actualizar proyecto
+    const project = await prisma.project.update({
+      where: { slug },
+      data: {
+        title: title || existingProject.title,
+        description: description || existingProject.description,
+        category: category || existingProject.category,
+        featured: featured !== undefined ? featured : existingProject.featured,
+        repositoryUrl: repositoryUrl !== undefined ? repositoryUrl : existingProject.repositoryUrl,
+        liveUrl: liveUrl !== undefined ? liveUrl : existingProject.liveUrl,
+        imageUrl: imageUrl !== undefined ? imageUrl : existingProject.imageUrl,
+        isCodePublic: isCodePublic !== undefined ? isCodePublic : existingProject.isCodePublic,
+      },
+    });
+
+    // Actualizar tecnologías si se proporcionan
+    if (technologies && Array.isArray(technologies)) {
+      // Eliminar relaciones existentes
+      await prisma.projectTechnology.deleteMany({
+        where: { projectId: project.id },
+      });
+
+      // Agregar nuevas tecnologías
+      for (const techName of technologies) {
+        let technology = await prisma.technology.findUnique({
+          where: { name: techName },
+        });
+
+        if (!technology) {
+          technology = await prisma.technology.create({
+            data: {
+              name: techName,
+              color: '#00FF00',
+            },
+          });
+        }
+
+        await prisma.projectTechnology.create({
+          data: {
+            projectId: project.id,
+            technologyId: technology.id,
+          },
+        });
+      }
+    }
+
+    logger.info('Project updated', { id: project.id, slug: project.slug });
+
+    res.json({
+      success: true,
+      data: project,
+    });
+  } catch (error) {
+    logger.error('Error updating project', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al actualizar proyecto',
+      },
+    });
+  }
+});
+
+// DELETE /api/admin/projects/:slug - Eliminar proyecto
+router.delete('/:slug', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+
+    // Verificar que el proyecto existe
+    const existingProject = await prisma.project.findUnique({
+      where: { slug },
+    });
+
+    if (!existingProject) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Proyecto no encontrado',
+        },
+      });
+    }
+
+    // Eliminar relaciones de tecnologías
+    await prisma.projectTechnology.deleteMany({
+      where: { projectId: existingProject.id },
+    });
+
+    // Eliminar proyecto
+    await prisma.project.delete({
+      where: { slug },
+    });
+
+    logger.info('Project deleted', { slug });
+
+    res.json({
+      success: true,
+      data: { slug },
+    });
+  } catch (error) {
+    logger.error('Error deleting project', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al eliminar proyecto',
+      },
     });
   }
 });
