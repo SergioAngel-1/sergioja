@@ -8,6 +8,13 @@ import Modal from './Modal';
 import Select from './Select';
 import { fluidSizing } from '@/lib/fluidSizing';
 
+interface TechnologyFormData {
+  name: string;
+  category: string;
+  proficiency: number;
+  yearsOfExperience: number;
+}
+
 interface ProjectFormData {
   id?: string;
   title: string;
@@ -27,6 +34,7 @@ interface ProjectFormModalProps {
   onClose: () => void;
   onSave: (project: Partial<ProjectFormData>) => Promise<void>;
   project?: any | null; // eslint-disable-line @typescript-eslint/no-explicit-any
+  existingSkills?: string[];
 }
 
 export default function ProjectFormModal({
@@ -34,6 +42,7 @@ export default function ProjectFormModal({
   onClose,
   onSave,
   project,
+  existingSkills = [],
 }: ProjectFormModalProps) {
   const [formData, setFormData] = useState<Partial<ProjectFormData>>({
     title: '',
@@ -51,6 +60,16 @@ export default function ProjectFormModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [showTechForm, setShowTechForm] = useState(false);
+  const [techFormData, setTechFormData] = useState<TechnologyFormData>({
+    name: '',
+    category: 'other',
+    proficiency: 50,
+    yearsOfExperience: 0,
+  });
+  const [projectTechnologies, setProjectTechnologies] = useState<TechnologyFormData[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
 
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -73,8 +92,29 @@ export default function ProjectFormModal({
           typeof t === 'string' ? t : t.technology?.name || t.name
         ) || [],
       });
-      setImagePreview(project.imageUrl || '');
+      setImagePreview(project.imageUrl || project.image || '');
       setImageFile(null);
+      
+      // Inicializar projectTechnologies con datos existentes
+      const existingTechs = project.technologies?.map((t: any) => {
+        // Si viene de la relación ProjectTechnology, tiene los datos completos
+        if (t.category !== undefined && t.proficiency !== undefined) {
+          return {
+            name: t.technology?.name || t.name,
+            category: t.category,
+            proficiency: t.proficiency,
+            yearsOfExperience: t.yearsOfExperience || 0,
+          };
+        }
+        // Fallback: valores por defecto
+        return {
+          name: typeof t === 'string' ? t : t.technology?.name || t.name,
+          category: 'other',
+          proficiency: 50,
+          yearsOfExperience: 0,
+        };
+      }) || [];
+      setProjectTechnologies(existingTechs);
     } else {
       setFormData({
         title: '',
@@ -90,6 +130,7 @@ export default function ProjectFormModal({
       });
       setImagePreview('');
       setImageFile(null);
+      setProjectTechnologies([]);
     }
   }, [project, isOpen]);
 
@@ -115,7 +156,12 @@ export default function ProjectFormModal({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await onSave(formData);
+      // Preparar datos para enviar al backend
+      const dataToSave = {
+        ...formData,
+        technologiesData: projectTechnologies, // Enviar información completa de tecnologías
+      };
+      await onSave(dataToSave);
       onClose();
     } catch (error) {
       console.error('Error saving project:', error);
@@ -124,17 +170,67 @@ export default function ProjectFormModal({
     }
   };
 
+  // Filter suggestions based on input
+  useEffect(() => {
+    if (techInput.trim()) {
+      const filtered = existingSkills.filter(skill => 
+        skill.toLowerCase().includes(techInput.toLowerCase()) &&
+        !projectTechnologies.find(t => t.name === skill)
+      );
+      setFilteredSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setShowSuggestions(false);
+      setFilteredSuggestions([]);
+    }
+  }, [techInput, existingSkills, projectTechnologies]);
+
   const handleAddTechnology = () => {
-    if (techInput.trim() && !formData.technologies?.includes(techInput.trim())) {
-      setFormData({
-        ...formData,
-        technologies: [...(formData.technologies || []), techInput.trim()],
-      });
+    if (techInput.trim()) {
+      setTechFormData({ ...techFormData, name: techInput.trim() });
+      setShowTechForm(true);
       setTechInput('');
+      setShowSuggestions(false);
     }
   };
 
+  const handleSelectSuggestion = (skillName: string) => {
+    setTechFormData({ ...techFormData, name: skillName });
+    setShowTechForm(true);
+    setTechInput('');
+    setShowSuggestions(false);
+  };
+
+  const handleSaveTechnology = () => {
+    if (techFormData.name && !projectTechnologies.find(t => t.name === techFormData.name)) {
+      const newTech = { ...techFormData };
+      setProjectTechnologies([...projectTechnologies, newTech]);
+      setFormData({
+        ...formData,
+        technologies: [...(formData.technologies || []), techFormData.name],
+      });
+      setShowTechForm(false);
+      setTechFormData({
+        name: '',
+        category: 'other',
+        proficiency: 50,
+        yearsOfExperience: 0,
+      });
+    }
+  };
+
+  const handleCancelTechForm = () => {
+    setShowTechForm(false);
+    setTechFormData({
+      name: '',
+      category: 'other',
+      proficiency: 50,
+      yearsOfExperience: 0,
+    });
+  };
+
   const handleRemoveTechnology = (tech: string) => {
+    setProjectTechnologies(projectTechnologies.filter(t => t.name !== tech));
     setFormData({
       ...formData,
       technologies: formData.technologies?.filter((t) => t !== tech) || [],
@@ -274,43 +370,153 @@ export default function ProjectFormModal({
                   <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                     Tecnologías
                   </label>
-                  <div className="flex" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.sm }}>
-                    <input
-                      type="text"
-                      value={techInput}
-                      onChange={(e) => setTechInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
-                      className="flex-1 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
-                      style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
-                      placeholder="Agregar tecnología..."
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddTechnology}
-                      className="bg-admin-primary/20 hover:bg-admin-primary/30 text-admin-primary rounded-lg transition-all duration-200 flex items-center justify-center"
-                      style={{ padding: fluidSizing.space.sm, minWidth: fluidSizing.size.buttonMd }}
-                    >
-                      <Icon name="plus" size={20} />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap" style={{ gap: fluidSizing.space.sm }}>
-                    {formData.technologies?.map((tech) => (
-                      <span
-                        key={tech}
-                        className="inline-flex items-center bg-admin-primary/10 border border-admin-primary/30 text-admin-primary rounded-lg"
-                        style={{ gap: fluidSizing.space.xs, padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.sm }}
-                      >
-                        {tech}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveTechnology(tech)}
-                          className="hover:text-admin-error transition-colors"
-                        >
-                          <Icon name="plus" size={14} className="rotate-45" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  
+                  {!showTechForm ? (
+                    <>
+                      <div className="relative">
+                        <div className="flex" style={{ gap: fluidSizing.space.sm }}>
+                          <input
+                            type="text"
+                            value={techInput}
+                            onChange={(e) => setTechInput(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
+                            className="flex-1 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                            style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
+                            placeholder="Agregar tecnología..."
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddTechnology}
+                            className="bg-admin-primary/20 hover:bg-admin-primary/30 text-admin-primary rounded-lg transition-all duration-200 flex items-center justify-center"
+                            style={{ padding: fluidSizing.space.sm, minWidth: fluidSizing.size.buttonMd }}
+                          >
+                            <Icon name="plus" size={20} />
+                          </button>
+                        </div>
+                        
+                        {/* Suggestions Dropdown */}
+                        {showSuggestions && filteredSuggestions.length > 0 && (
+                          <div 
+                            className="absolute z-10 w-full bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-lg overflow-hidden"
+                            style={{ marginTop: fluidSizing.space.xs, maxHeight: '200px', overflowY: 'auto' }}
+                          >
+                            {filteredSuggestions.map((skill) => (
+                              <button
+                                key={skill}
+                                type="button"
+                                onClick={() => handleSelectSuggestion(skill)}
+                                className="w-full text-left px-4 py-2 hover:bg-admin-primary/20 text-text-primary transition-colors"
+                                style={{ fontSize: fluidSizing.text.sm }}
+                              >
+                                {skill}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap" style={{ gap: fluidSizing.space.sm, marginTop: fluidSizing.space.sm }}>
+                        {projectTechnologies.map((tech) => (
+                          <span
+                            key={tech.name}
+                            className="inline-flex items-center bg-admin-primary/10 border border-admin-primary/30 text-admin-primary rounded-lg"
+                            style={{ gap: fluidSizing.space.xs, padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.sm }}
+                            title={`${tech.category} | Dominio: ${tech.proficiency}% | Exp: ${tech.yearsOfExperience} años`}
+                          >
+                            {tech.name}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTechnology(tech.name)}
+                              className="hover:text-admin-error transition-colors"
+                            >
+                              <Icon name="plus" size={14} className="rotate-45" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="bg-admin-dark-surface border border-admin-primary/30 rounded-lg" style={{ padding: fluidSizing.space.md }}>
+                      <div className="flex items-center justify-between" style={{ marginBottom: fluidSizing.space.md }}>
+                        <h4 className="text-admin-primary font-medium" style={{ fontSize: fluidSizing.text.base }}>
+                          Configurar: {techFormData.name}
+                        </h4>
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
+                        {/* Category */}
+                        <div>
+                          <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
+                            Categoría *
+                          </label>
+                          <Select
+                            value={techFormData.category}
+                            onChange={(value) => setTechFormData({ ...techFormData, category: value })}
+                            options={[
+                              { value: 'frontend', label: 'Frontend' },
+                              { value: 'backend', label: 'Backend' },
+                              { value: 'devops', label: 'DevOps' },
+                              { value: 'design', label: 'Diseño' },
+                              { value: 'other', label: 'Otros' },
+                            ]}
+                          />
+                        </div>
+
+                        {/* Proficiency */}
+                        <div>
+                          <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
+                            Dominio: {techFormData.proficiency}%
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={techFormData.proficiency}
+                            onChange={(e) => setTechFormData({ ...techFormData, proficiency: parseInt(e.target.value) })}
+                            className="w-full h-2 bg-admin-dark-elevated rounded-lg appearance-none cursor-pointer accent-admin-primary"
+                          />
+                        </div>
+
+                        {/* Years of Experience */}
+                        <div>
+                          <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
+                            Años de Experiencia
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="50"
+                            step="0.5"
+                            value={techFormData.yearsOfExperience}
+                            onChange={(e) => setTechFormData({ ...techFormData, yearsOfExperience: parseFloat(e.target.value) })}
+                            className="w-full bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-text-primary focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                            style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
+                          />
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex" style={{ gap: fluidSizing.space.sm }}>
+                          <Button
+                            type="button"
+                            onClick={handleCancelTechForm}
+                            variant="secondary"
+                            size="sm"
+                            fullWidth
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={handleSaveTechnology}
+                            variant="primary"
+                            size="sm"
+                            fullWidth
+                          >
+                            Agregar
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Repository Toggle */}

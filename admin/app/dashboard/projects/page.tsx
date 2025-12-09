@@ -42,6 +42,7 @@ function ProjectsPageContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [existingSkills, setExistingSkills] = useState<string[]>([]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -52,6 +53,7 @@ function ProjectsPageContent() {
   useEffect(() => {
     if (isAuthenticated) {
       loadProjects();
+      loadExistingSkills();
     }
   }, [isAuthenticated]);
 
@@ -105,10 +107,20 @@ function ProjectsPageContent() {
       const response = await api.getProjects();
       
       if (response.success && response.data) {
-        // El backend devuelve directamente un array de proyectos
-        const projectsData = Array.isArray(response.data) 
-          ? response.data 
-          : [];
+        // El backend puede devolver { data: [...], pagination: {...} } o directamente [...]
+        let projectsData: any[] = [];
+        const responseData = response.data as any;
+        
+        if (Array.isArray(responseData)) {
+          // Formato directo: { success: true, data: [...] }
+          projectsData = responseData;
+        } else if (responseData.data && Array.isArray(responseData.data)) {
+          // Formato anidado: { success: true, data: { data: [...], pagination: {...} } }
+          projectsData = responseData.data;
+        }
+        
+        console.log('Raw response:', response);
+        console.log('Projects data:', projectsData);
         
         // Transformar las tecnologías del formato de Prisma al formato esperado
         const transformedProjects = projectsData.map((project: any) => ({
@@ -118,6 +130,8 @@ function ProjectsPageContent() {
           // Mantener también el array tech si existe
           tech: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || project.tech || [],
         }));
+        
+        console.log('Transformed projects:', transformedProjects);
         
         setProjects(transformedProjects as Project[]);
         logger.info('Projects loaded successfully', { count: transformedProjects.length });
@@ -130,6 +144,20 @@ function ProjectsPageContent() {
       setProjects([]);
     } finally {
       setIsLoadingProjects(false);
+    }
+  };
+
+  const loadExistingSkills = async () => {
+    try {
+      const response = await api.getSkills();
+      if (response.success && response.data) {
+        const skillsData = Array.isArray(response.data) ? response.data : [];
+        const skillNames = skillsData.map((skill: any) => skill.name);
+        setExistingSkills(skillNames);
+        logger.info('Skills loaded for autocomplete', { count: skillNames.length });
+      }
+    } catch (error) {
+      logger.error('Error loading skills', error);
     }
   };
 
@@ -160,6 +188,11 @@ function ProjectsPageContent() {
     ];
   }, [projects]);
 
+  const handleEditProject = (project: Project) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
+
   const handleSaveProject = async (projectData: Record<string, unknown>) => {
     try {
       if (selectedProject) {
@@ -167,6 +200,7 @@ function ProjectsPageContent() {
         const response = await api.updateProject(selectedProject.slug, projectData);
         if (response.success) {
           await loadProjects();
+          setIsModalOpen(false);
           logger.info('Project updated successfully');
         }
       } else {
@@ -174,6 +208,7 @@ function ProjectsPageContent() {
         const response = await api.createProject(projectData);
         if (response.success) {
           await loadProjects();
+          setIsModalOpen(false);
           logger.info('Project created successfully');
         }
       }
@@ -332,6 +367,7 @@ function ProjectsPageContent() {
                   color: t.technology.color,
                 }))}
                 delay={index * 0.05}
+                onEdit={() => handleEditProject(project)}
               />
             ))}
           </div>
@@ -344,6 +380,7 @@ function ProjectsPageContent() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveProject}
         project={selectedProject}
+        existingSkills={existingSkills}
       />
     </DashboardLayout>
   );

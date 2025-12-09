@@ -78,9 +78,12 @@ model Technology {
 
 // Many-to-Many relation between Projects and Technologies
 model ProjectTechnology {
-  projectId    String
-  technologyId String
-  createdAt    DateTime   @default(now())
+  projectId         String
+  technologyId      String
+  category          String   @default("other") // frontend, backend, devops, design, other - específico para este proyecto
+  proficiency       Int      @default(50) // 0-100 - nivel de dominio en este proyecto
+  yearsOfExperience Float    @default(0) // años de experiencia con esta tech en este proyecto
+  createdAt         DateTime @default(now())
 
   project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)

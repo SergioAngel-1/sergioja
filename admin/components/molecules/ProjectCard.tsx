@@ -18,6 +18,7 @@ interface ProjectCardProps {
   publishedAt?: Date | null;
   technologies?: { name: string; color: string }[];
   delay?: number;
+  onEdit?: () => void;
 }
 
 export default function ProjectCard({
@@ -32,6 +33,7 @@ export default function ProjectCard({
   publishedAt,
   technologies = [],
   delay = 0,
+  onEdit,
 }: ProjectCardProps) {
   const categoryColors: Record<string, string> = {
     web: 'text-blue-400 border-blue-400/30 bg-blue-400/10',
@@ -116,7 +118,11 @@ export default function ProjectCard({
       </div>
 
       {/* Content section */}
-      <Link href={`/dashboard/projects/${id}`} className="block" style={{ padding: fluidSizing.space.md }}>
+      <div 
+        className="block cursor-pointer" 
+        style={{ padding: fluidSizing.space.md }}
+        onClick={onEdit}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}>
           {/* Title */}
           <h3 className="font-orbitron font-bold text-admin-primary group-hover:text-glow-subtle transition-all duration-300 line-clamp-1" style={{ fontSize: fluidSizing.text.lg }}>
@@ -177,7 +183,7 @@ export default function ProjectCard({
             </div>
           </div>
         </div>
-      </Link>
+      </div>
 
       {/* Bottom accent line */}
       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-admin-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

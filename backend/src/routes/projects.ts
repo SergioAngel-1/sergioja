@@ -266,7 +266,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { title, description, category, technologies, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
+    const { title, description, category, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
 
     // Validaciones básicas
     if (!title || !description) {
@@ -302,10 +302,40 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
       },
     });
 
-    // Agregar tecnologías si existen
-    if (technologies && Array.isArray(technologies) && technologies.length > 0) {
-      for (const techName of technologies) {
+    // Agregar tecnologías con información completa
+    if (technologiesData && Array.isArray(technologiesData) && technologiesData.length > 0) {
+      for (const techData of technologiesData) {
+        const { name, category, proficiency, yearsOfExperience } = techData;
+        
         // Buscar o crear tecnología
+        let technology = await prisma.technology.findUnique({
+          where: { name },
+        });
+
+        if (!technology) {
+          technology = await prisma.technology.create({
+            data: {
+              name,
+              category: category || 'other',
+              color: '#00FF00', // Color por defecto
+            },
+          });
+        }
+
+        // Crear relación con datos específicos del proyecto
+        await prisma.projectTechnology.create({
+          data: {
+            projectId: project.id,
+            technologyId: technology.id,
+            category: category || 'other',
+            proficiency: proficiency !== undefined ? proficiency : 50,
+            yearsOfExperience: yearsOfExperience !== undefined ? yearsOfExperience : 0,
+          },
+        });
+      }
+    } else if (technologies && Array.isArray(technologies) && technologies.length > 0) {
+      // Soporte legacy: solo nombres de tecnologías
+      for (const techName of technologies) {
         let technology = await prisma.technology.findUnique({
           where: { name: techName },
         });
@@ -314,17 +344,19 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
           technology = await prisma.technology.create({
             data: {
               name: techName,
-              category: 'other', // Categoría por defecto
-              color: '#00FF00', // Color por defecto
+              category: 'other',
+              color: '#00FF00',
             },
           });
         }
 
-        // Crear relación
         await prisma.projectTechnology.create({
           data: {
             projectId: project.id,
             technologyId: technology.id,
+            category: 'other',
+            proficiency: 50,
+            yearsOfExperience: 0,
           },
         });
       }
@@ -352,7 +384,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
 router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, technologies, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
+    const { title, description, category, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -386,23 +418,25 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
     });
 
     // Actualizar tecnologías si se proporcionan
-    if (technologies && Array.isArray(technologies)) {
+    if (technologiesData && Array.isArray(technologiesData)) {
       // Eliminar relaciones existentes
       await prisma.projectTechnology.deleteMany({
         where: { projectId: project.id },
       });
 
-      // Agregar nuevas tecnologías
-      for (const techName of technologies) {
+      // Agregar nuevas tecnologías con información completa
+      for (const techData of technologiesData) {
+        const { name, category, proficiency, yearsOfExperience } = techData;
+        
         let technology = await prisma.technology.findUnique({
-          where: { name: techName },
+          where: { name },
         });
 
         if (!technology) {
           technology = await prisma.technology.create({
             data: {
-              name: techName,
-              category: 'other', // Categoría por defecto
+              name,
+              category: category || 'other',
               color: '#00FF00',
             },
           });
@@ -412,6 +446,40 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
           data: {
             projectId: project.id,
             technologyId: technology.id,
+            category: category || 'other',
+            proficiency: proficiency !== undefined ? proficiency : 50,
+            yearsOfExperience: yearsOfExperience !== undefined ? yearsOfExperience : 0,
+          },
+        });
+      }
+    } else if (technologies && Array.isArray(technologies)) {
+      // Soporte legacy: solo nombres
+      await prisma.projectTechnology.deleteMany({
+        where: { projectId: project.id },
+      });
+
+      for (const techName of technologies) {
+        let technology = await prisma.technology.findUnique({
+          where: { name: techName },
+        });
+
+        if (!technology) {
+          technology = await prisma.technology.create({
+            data: {
+              name: techName,
+              category: 'other',
+              color: '#00FF00',
+            },
+          });
+        }
+
+        await prisma.projectTechnology.create({
+          data: {
+            projectId: project.id,
+            technologyId: technology.id,
+            category: 'other',
+            proficiency: 50,
+            yearsOfExperience: 0,
           },
         });
       }
