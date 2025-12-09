@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../atoms/Icon';
 import Select from './Select';
+import { fluidSizing } from '@/lib/fluidSizing';
 
 interface ProjectFormData {
   id?: string;
@@ -137,7 +138,7 @@ export default function ProjectFormModal({
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ padding: fluidSizing.space.md }}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -147,8 +148,8 @@ export default function ProjectFormModal({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header - Fixed */}
-              <div className="flex items-center justify-between p-6 border-b border-admin-primary/20 flex-shrink-0">
-                <h2 className="text-2xl font-orbitron font-bold text-admin-primary">
+              <div className="flex items-center justify-between border-b border-admin-primary/20 flex-shrink-0" style={{ padding: fluidSizing.space.lg, gap: fluidSizing.space.md }}>
+                <h2 className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text['2xl'] }}>
                   {project ? 'Editar Proyecto' : 'Nuevo Proyecto'}
                 </h2>
                 <button
@@ -161,10 +162,10 @@ export default function ProjectFormModal({
 
               {/* Form - Scrollable */}
               <form id="project-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-                <div className="p-6 space-y-6">
+                <div style={{ padding: fluidSizing.space.lg, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
                 {/* Title */}
                 <div>
-                  <label className="block text-text-muted text-sm font-medium uppercase tracking-wider mb-2">
+                  <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                     Título *
                   </label>
                   <input
@@ -172,14 +173,15 @@ export default function ProjectFormModal({
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     required
-                    className="w-full px-4 py-3 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                    className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
                     placeholder="Nombre del proyecto"
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-text-muted text-sm font-medium uppercase tracking-wider mb-2">
+                  <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                     Descripción *
                   </label>
                   <textarea
@@ -187,7 +189,8 @@ export default function ProjectFormModal({
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     required
                     rows={4}
-                    className="w-full px-4 py-3 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200 resize-none"
+                    className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200 resize-none"
+                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
                     placeholder="Describe el proyecto..."
                   />
                 </div>
@@ -208,31 +211,34 @@ export default function ProjectFormModal({
 
                 {/* Technologies */}
                 <div>
-                  <label className="block text-text-muted text-sm font-medium uppercase tracking-wider mb-2">
+                  <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                     Tecnologías
                   </label>
-                  <div className="flex gap-2 mb-3">
+                  <div className="flex" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.sm }}>
                     <input
                       type="text"
                       value={techInput}
                       onChange={(e) => setTechInput(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
-                      className="flex-1 px-4 py-3 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                      className="flex-1 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                      style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
                       placeholder="Agregar tecnología..."
                     />
                     <button
                       type="button"
                       onClick={handleAddTechnology}
-                      className="px-4 py-3 bg-admin-primary/20 hover:bg-admin-primary/30 text-admin-primary rounded-lg transition-all duration-200"
+                      className="bg-admin-primary/20 hover:bg-admin-primary/30 text-admin-primary rounded-lg transition-all duration-200 flex items-center justify-center"
+                      style={{ padding: fluidSizing.space.sm, minWidth: fluidSizing.size.buttonMd }}
                     >
                       <Icon name="plus" size={20} />
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap" style={{ gap: fluidSizing.space.sm }}>
                     {formData.technologies?.map((tech) => (
                       <span
                         key={tech}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-admin-primary/10 border border-admin-primary/30 text-admin-primary rounded-lg text-sm"
+                        className="inline-flex items-center bg-admin-primary/10 border border-admin-primary/30 text-admin-primary rounded-lg"
+                        style={{ gap: fluidSizing.space.xs, padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.sm }}
                       >
                         {tech}
                         <button
@@ -249,7 +255,7 @@ export default function ProjectFormModal({
 
                 {/* Repository Toggle */}
                 <div>
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <label className="flex items-center cursor-pointer" style={{ gap: fluidSizing.space.sm }}>
                     <input
                       type="checkbox"
                       checked={!formData.isCodePublic}
@@ -258,40 +264,43 @@ export default function ProjectFormModal({
                         isCodePublic: !e.target.checked,
                         repositoryUrl: e.target.checked ? '' : formData.repositoryUrl
                       })}
-                      className="w-5 h-5 rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
+                      className="rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
+                      style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
                     />
                     <div>
-                      <span className="text-text-primary font-medium">Repositorio Privado</span>
-                      <p className="text-text-muted text-xs mt-0.5">El código fuente no es público</p>
+                      <span className="text-text-primary font-medium" style={{ fontSize: fluidSizing.text.base }}>Repositorio Privado</span>
+                      <p className="text-text-muted" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>El código fuente no es público</p>
                     </div>
                   </label>
                 </div>
 
                 {/* URLs */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: fluidSizing.space.md }}>
                   {formData.isCodePublic && (
                     <div>
-                      <label className="block text-text-muted text-sm font-medium uppercase tracking-wider mb-2">
+                      <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                         URL del Repositorio
                       </label>
                       <input
                         type="url"
                         value={formData.repositoryUrl}
                         onChange={(e) => setFormData({ ...formData, repositoryUrl: e.target.value })}
-                        className="w-full px-4 py-3 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                        className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                        style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
                         placeholder="https://github.com/..."
                       />
                     </div>
                   )}
                   <div className={formData.isCodePublic ? '' : 'md:col-span-2'}>
-                    <label className="block text-text-muted text-sm font-medium uppercase tracking-wider mb-2">
+                    <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                       URL en Vivo
                     </label>
                     <input
                       type="url"
                       value={formData.liveUrl}
                       onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
-                      className="w-full px-4 py-3 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                      className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                      style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
                       placeholder="https://..."
                     />
                   </div>
@@ -299,49 +308,53 @@ export default function ProjectFormModal({
 
                 {/* Image URL */}
                 <div>
-                  <label className="block text-text-muted text-sm font-medium uppercase tracking-wider mb-2">
+                  <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                     URL de Imagen
                   </label>
                   <input
                     type="url"
                     value={formData.imageUrl}
                     onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full px-4 py-3 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                    className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
                     placeholder="https://..."
                   />
                 </div>
 
                 {/* Toggles */}
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-3 cursor-pointer">
+                <div className="flex" style={{ gap: fluidSizing.space.lg }}>
+                  <label className="flex items-center cursor-pointer" style={{ gap: fluidSizing.space.sm }}>
                     <input
                       type="checkbox"
                       checked={formData.featured}
                       onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                      className="w-5 h-5 rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
+                      className="rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
+                      style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
                     />
-                    <span className="text-text-primary font-medium">Destacado</span>
+                    <span className="text-text-primary font-medium" style={{ fontSize: fluidSizing.text.base }}>Destacado</span>
                   </label>
 
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <label className="flex items-center cursor-pointer" style={{ gap: fluidSizing.space.sm }}>
                     <input
                       type="checkbox"
                       checked={!!formData.publishedAt}
                       onChange={handlePublishToggle}
-                      className="w-5 h-5 rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
+                      className="rounded border-admin-primary/30 bg-admin-dark-surface text-admin-primary focus:ring-2 focus:ring-admin-primary/20 cursor-pointer"
+                      style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
                     />
-                    <span className="text-text-primary font-medium">Publicado</span>
+                    <span className="text-text-primary font-medium" style={{ fontSize: fluidSizing.text.base }}>Publicado</span>
                   </label>
                 </div>
                 </div>
               </form>
 
               {/* Actions - Fixed at bottom */}
-              <div className="flex gap-4 p-6 border-t border-admin-primary/20 flex-shrink-0">
+              <div className="flex border-t border-admin-primary/20 flex-shrink-0" style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.lg }}>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-6 py-3 bg-admin-dark-surface border border-admin-primary/20 text-text-primary rounded-lg font-medium hover:bg-admin-dark-elevated transition-all duration-200"
+                  className="flex-1 bg-admin-dark-surface border border-admin-primary/20 text-text-primary rounded-lg font-medium hover:bg-admin-dark-elevated transition-all duration-200"
+                  style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
                 >
                   Cancelar
                 </button>
@@ -349,7 +362,8 @@ export default function ProjectFormModal({
                   type="submit"
                   form="project-form"
                   disabled={isSubmitting}
-                  className="flex-1 px-6 py-3 bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base }}
                 >
                   {isSubmitting ? 'Guardando...' : project ? 'Actualizar' : 'Crear Proyecto'}
                 </button>
