@@ -212,7 +212,7 @@ router.get('/:slug', async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { title, description, category, technologies, featured, repositoryUrl, liveUrl, imageUrl, isCodePublic } = req.body;
+    const { title, description, category, technologies, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
 
     // Validaciones básicas
     if (!title || !description) {
@@ -237,11 +237,12 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
         title,
         slug,
         description,
+        longDescription: description, // Usar la misma descripción por ahora
         category: category || 'web',
         featured: featured || false,
-        repositoryUrl: repositoryUrl || null,
-        liveUrl: liveUrl || null,
-        imageUrl: imageUrl || null,
+        repoUrl: repoUrl || null,
+        demoUrl: demoUrl || null,
+        image: image || null,
         isCodePublic: isCodePublic !== undefined ? isCodePublic : true,
         publishedAt: new Date(),
       },
@@ -259,6 +260,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
           technology = await prisma.technology.create({
             data: {
               name: techName,
+              category: 'other', // Categoría por defecto
               color: '#00FF00', // Color por defecto
             },
           });
@@ -296,7 +298,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
 router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, technologies, featured, repositoryUrl, liveUrl, imageUrl, isCodePublic } = req.body;
+    const { title, description, category, technologies, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -319,11 +321,12 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
       data: {
         title: title || existingProject.title,
         description: description || existingProject.description,
+        longDescription: description || existingProject.longDescription,
         category: category || existingProject.category,
         featured: featured !== undefined ? featured : existingProject.featured,
-        repositoryUrl: repositoryUrl !== undefined ? repositoryUrl : existingProject.repositoryUrl,
-        liveUrl: liveUrl !== undefined ? liveUrl : existingProject.liveUrl,
-        imageUrl: imageUrl !== undefined ? imageUrl : existingProject.imageUrl,
+        repoUrl: repoUrl !== undefined ? repoUrl : existingProject.repoUrl,
+        demoUrl: demoUrl !== undefined ? demoUrl : existingProject.demoUrl,
+        image: image !== undefined ? image : existingProject.image,
         isCodePublic: isCodePublic !== undefined ? isCodePublic : existingProject.isCodePublic,
       },
     });
@@ -345,6 +348,7 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
           technology = await prisma.technology.create({
             data: {
               name: techName,
+              category: 'other', // Categoría por defecto
               color: '#00FF00',
             },
           });
