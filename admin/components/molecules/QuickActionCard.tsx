@@ -38,16 +38,8 @@ export default function QuickActionCard({
           hover:shadow-md hover:shadow-black/20
         "
       >
-        {/* Background effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-admin-primary/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
-        
-        {/* Animated scan line - más sutil */}
-        <div className="absolute inset-0 overflow-hidden rounded-lg">
-          <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-admin-primary/30 to-transparent -translate-y-full group-hover:translate-y-[200%] transition-transform duration-1000 ease-linear" />
-        </div>
-        
         {/* Content */}
-        <div className="relative z-10 flex items-start gap-4">
+        <div className="relative z-10 flex items-center gap-4">
           <div className="flex-shrink-0">
             <div className="
               w-11 h-11 rounded-lg
@@ -77,13 +69,10 @@ export default function QuickActionCard({
           </div>
           
           {/* Arrow indicator */}
-          <div className="flex-shrink-0 text-text-muted group-hover:text-admin-primary transition-all duration-300 group-hover:translate-x-1">
+          <div className="flex-shrink-0 flex items-center text-text-muted group-hover:text-admin-primary transition-all duration-300 group-hover:translate-x-1">
             <Icon name="chevronRight" size={20} />
           </div>
         </div>
-        
-        {/* Corner accent */}
-        <div className="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-admin-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-br-lg" />
       </Link>
     </motion.div>
   );

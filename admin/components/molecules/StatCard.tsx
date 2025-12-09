@@ -80,13 +80,8 @@ export default function StatCard({
       {/* Background grid effect - solo en variant default y accent */}
       {!isSimple && <div className="absolute inset-0 cyber-grid opacity-5 rounded-lg" />}
       
-      {/* Animated corner accent - solo en variant default y accent */}
-      {!isSimple && (
-        <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-admin-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-tr-lg" />
-      )}
-      
       {/* Content */}
-      <div className={`relative z-10 ${icon && !isSimple ? 'flex items-start justify-between gap-4' : 'flex items-center justify-between gap-4'}`}>
+      <div className="relative z-10 flex items-center justify-between gap-4">
         <div className="flex-1">
           <p className={`text-text-muted ${isSimple ? 'text-xs' : 'text-sm'} font-medium uppercase tracking-wider ${isSimple ? 'mb-1' : 'mb-2'}`}>
             {title}

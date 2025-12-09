@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Logo/Header */}
         <div className="p-6 border-b border-admin-primary/30">
           <Link href="/dashboard">
-            <h1 className="font-orbitron font-bold text-admin-primary text-glow-red text-2xl">
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white text-2xl">
               {sidebarOpen ? 'ADMIN' : 'A'}
             </h1>
           </Link>
@@ -66,10 +66,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           })}
         </nav>
 
-        {/* User section */}
+        {/* User section - Compacto */}
         <div className="p-4 border-t border-admin-primary/30">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-admin-primary/20 flex items-center justify-center text-admin-primary font-bold text-sm flex-shrink-0">
               {user?.name?.[0]?.toUpperCase() || 'A'}
             </div>
             {sidebarOpen && (
@@ -82,31 +82,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </p>
               </div>
             )}
+            <button
+              onClick={() => {
+                alerts.confirm(
+                  '¿Cerrar sesión?',
+                  '¿Estás seguro de que quieres cerrar tu sesión?',
+                  async () => {
+                    await logout();
+                  },
+                  undefined,
+                  'Cerrar sesión',
+                  'Cancelar'
+                );
+              }}
+              className="flex-shrink-0 p-2 hover:bg-admin-error/10 text-admin-error rounded-lg transition-all duration-200"
+              title="Cerrar sesión"
+            >
+              <Icon name="logout" size={18} />
+            </button>
           </div>
-          <button
-            onClick={() => {
-              alerts.confirm(
-                '¿Cerrar sesión?',
-                '¿Estás seguro de que quieres cerrar tu sesión?',
-                async () => {
-                  await logout();
-                },
-                undefined,
-                'Cerrar sesión',
-                'Cancelar'
-              );
-            }}
-            className="w-full px-4 py-2 bg-admin-error/20 hover:bg-admin-error/30 text-admin-error rounded-lg transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2"
-          >
-            {sidebarOpen ? (
-              <>
-                <Icon name="logout" size={16} />
-                <span>Cerrar Sesión</span>
-              </>
-            ) : (
-              <Icon name="logout" size={16} />
-            )}
-          </button>
         </div>
 
         {/* Toggle button */}
