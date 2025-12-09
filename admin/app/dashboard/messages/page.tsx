@@ -168,15 +168,15 @@ export default function MessagesPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
         >
-          <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
-            MENSAJES DE CONTACTO
+          <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: `clamp(1.75rem, 5vw, 2.5rem)` }}>
+            MENSAJES
           </h1>
           <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
-            Gestiona los mensajes recibidos desde Portfolio y Landing
+            Gestiona los mensajes de contacto
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
           <StatCard
             title="Total"
             value={stats.total}
@@ -219,14 +219,14 @@ export default function MessagesPage() {
           transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
           style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-end" style={{ gap: fluidSizing.space.md }}>
+          <div className="flex flex-col" style={{ gap: fluidSizing.space.sm }}>
             <SearchBar
               onSearch={setSearchQuery}
               placeholder="Buscar mensajes..."
               icon="messages"
             />
 
-            <div className="flex" style={{ gap: fluidSizing.space.md }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: fluidSizing.space.sm }}>
               <Select
                 value={selectedStatus}
                 onChange={setSelectedStatus}
@@ -238,7 +238,6 @@ export default function MessagesPage() {
                   { value: 'spam', label: 'Spam' },
                 ]}
                 label="Estado"
-                className="sm:w-48"
               />
 
               <Select
@@ -250,7 +249,6 @@ export default function MessagesPage() {
                   { value: 'landing', label: 'Landing' },
                 ]}
                 label="Fuente"
-                className="sm:w-48"
               />
             </div>
           </div>

@@ -162,7 +162,7 @@ export default function SkillsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
         >
-          <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
+          <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: `clamp(1.75rem, 5vw, 2.5rem)` }}>
             SKILLS & TECNOLOGÍAS
           </h1>
           <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
@@ -209,25 +209,28 @@ export default function SkillsPage() {
           style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
         >
           {/* Search and Sort */}
-          <div className="flex flex-col sm:flex-row" style={{ gap: fluidSizing.space.md }}>
+          <div className="flex flex-col sm:flex-row" style={{ gap: fluidSizing.space.sm }}>
             {/* Search */}
-            <SearchBar
-              onSearch={setSearchQuery}
-              placeholder="Buscar tecnologías..."
-              icon="code"
-            />
+            <div className="flex-1">
+              <SearchBar
+                onSearch={setSearchQuery}
+                placeholder="Buscar tecnologías..."
+                icon="code"
+              />
+            </div>
 
             {/* Sort */}
-            <Select
-              value={sortBy}
-              onChange={(value) => setSortBy(value as any)}
-              options={[
-                { value: 'proficiency', label: 'Ordenar por Dominio' },
-                { value: 'projects', label: 'Ordenar por Proyectos' },
-                { value: 'name', label: 'Ordenar por Nombre' },
-              ]}
-              className="sm:w-48"
-            />
+            <div className="w-full sm:w-auto sm:min-w-[200px]">
+              <Select
+                value={sortBy}
+                onChange={(value) => setSortBy(value as any)}
+                options={[
+                  { value: 'proficiency', label: 'Ordenar por Dominio' },
+                  { value: 'projects', label: 'Ordenar por Proyectos' },
+                  { value: 'name', label: 'Ordenar por Nombre' },
+                ]}
+              />
+            </div>
           </div>
 
           {/* Category Filter */}

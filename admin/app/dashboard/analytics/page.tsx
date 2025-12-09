@@ -150,8 +150,8 @@ export default function AnalyticsPage() {
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
           style={{ gap: fluidSizing.space.md }}
         >
-          <div>
-            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
+          <div className="flex-1">
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: `clamp(1.75rem, 5vw, 2.5rem)` }}>
               ANALYTICS
             </h1>
             <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
@@ -159,15 +159,16 @@ export default function AnalyticsPage() {
             </p>
           </div>
 
-          <div className="flex" style={{ gap: fluidSizing.space.xs }}>
+          <div className="grid grid-cols-3 sm:flex w-full sm:w-auto" style={{ gap: fluidSizing.space.xs }}>
             {(['7d', '30d', 'all'] as const).map((range) => (
               <Button
                 key={range}
                 onClick={() => setTimeRange(range)}
                 variant={timeRange === range ? 'primary' : 'outline'}
                 size="sm"
+                className="text-xs sm:text-sm"
               >
-                {range === '7d' ? 'Últimos 7 días' : range === '30d' ? 'Últimos 30 días' : 'Todo'}
+                {range === '7d' ? '7d' : range === '30d' ? '30d' : 'Todo'}
               </Button>
             ))}
           </div>
@@ -179,7 +180,7 @@ export default function AnalyticsPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.lg }}>
+            <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
               <StatCard
                 title="Vistas de Página"
                 value={stats.totalPageViews.toLocaleString()}
@@ -242,7 +243,7 @@ export default function AnalyticsPage() {
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
+              <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
                 <StatCard
                   title="Vistas/Día (7d)"
                   value={stats.pageViewsLast7d > 0 ? Math.round(stats.pageViewsLast7d / 7) : 0}

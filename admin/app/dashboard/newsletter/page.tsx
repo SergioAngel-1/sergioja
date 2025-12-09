@@ -160,8 +160,8 @@ export default function NewsletterPage() {
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
           style={{ gap: fluidSizing.space.md }}
         >
-          <div>
-            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: fluidSizing.text['4xl'] }}>
+          <div className="flex-1">
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: `clamp(1.75rem, 5vw, 2.5rem)` }}>
               NEWSLETTER
             </h1>
             <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>
@@ -173,6 +173,7 @@ export default function NewsletterPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.2 }}
+            className="w-full sm:w-auto"
           >
             <Button
               onClick={handleExport}
@@ -180,6 +181,8 @@ export default function NewsletterPage() {
               icon="server"
               variant="primary"
               size="md"
+              fullWidth
+              className="sm:w-auto"
             >
               Exportar Emails
             </Button>
@@ -229,14 +232,14 @@ export default function NewsletterPage() {
           transition={{ duration: 0.5, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
           style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-end" style={{ gap: fluidSizing.space.md }}>
+          <div className="flex flex-col" style={{ gap: fluidSizing.space.sm }}>
             <SearchBar
               onSearch={setSearchQuery}
               placeholder="Buscar por email..."
               icon="newsletter"
             />
 
-            <div className="flex" style={{ gap: fluidSizing.space.md }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: fluidSizing.space.sm }}>
               <Select
                 value={selectedStatus}
                 onChange={setSelectedStatus}
@@ -246,7 +249,6 @@ export default function NewsletterPage() {
                   { value: 'unsubscribed', label: 'Desuscritos' },
                 ]}
                 label="Estado"
-                className="sm:w-48"
               />
 
               <Select
@@ -257,7 +259,6 @@ export default function NewsletterPage() {
                   { value: 'email', label: 'Ordenar por Email' },
                 ]}
                 label="Ordenar"
-                className="sm:w-48"
               />
             </div>
           </div>
