@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { ApiResponse, Profile } from '../../../shared/types';
-import { prisma } from '../lib/prisma';
-import { logger } from '../lib/logger';
+import { ApiResponse, Profile } from '../../../../shared/types';
+import { prisma } from '../../lib/prisma';
+import { logger } from '../../lib/logger';
 
 const router = Router();
 

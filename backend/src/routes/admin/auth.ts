@@ -2,11 +2,11 @@ import { Router, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
-import { authenticateUser, refreshAccessToken, revokeRefreshToken, revokeAllUserTokens } from '../services/authService';
-import { verifyRecaptchaEnterprise } from '../services/recaptchaService';
-import { logger } from '../lib/logger';
-import { authMiddleware } from '../middleware/auth';
-import { prisma } from '../lib/prisma';
+import { authenticateUser, refreshAccessToken, revokeRefreshToken, revokeAllUserTokens } from '../../services/authService';
+import { verifyRecaptchaEnterprise } from '../../services/recaptchaService';
+import { logger } from '../../lib/logger';
+import { authMiddleware } from '../../middleware/auth';
+import { prisma } from '../../lib/prisma';
 
 const router = Router();
 

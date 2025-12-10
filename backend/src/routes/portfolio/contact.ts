@@ -1,10 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { ApiResponse, ContactSubmissionPayload } from '../../../shared/types';
-import { emailService } from '../services/emailService';
-import { logger } from '../lib/logger';
-import { prisma } from '../lib/prisma';
-import { verifyRecaptchaEnterprise } from '../services/recaptchaService';
+import { ApiResponse, ContactSubmissionPayload } from '../../../../shared/types';
+import { emailService } from '../../services/emailService';
+import { logger } from '../../lib/logger';
+import { prisma } from '../../lib/prisma';
+import { verifyRecaptchaEnterprise } from '../../services/recaptchaService';
 
 const router = Router();
 

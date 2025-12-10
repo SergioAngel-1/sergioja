@@ -11,18 +11,22 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { prisma } from './lib/prisma';
 import { cleanupExpiredTokens } from './services/authService';
 
-// Routes
-import authRoutes from './routes/auth';
-import profileRoutes from './routes/profile';
+// Routes - Admin
+import authRoutes from './routes/admin/auth';
+import dashboardRoutes from './routes/admin/dashboard';
+import messagesRoutes from './routes/admin/messages';
+import categoriesRoutes from './routes/admin/categories';
 import adminProjectsRoutes from './routes/admin/projects';
+
+// Routes - Portfolio
+import profileRoutes from './routes/portfolio/profile';
+import skillsRoutes from './routes/portfolio/skills';
+import contactRoutes from './routes/portfolio/contact';
 import portfolioProjectsRoutes from './routes/portfolio/projects';
-import skillsRoutes from './routes/skills';
-import contactRoutes from './routes/contact';
-import analyticsRoutes from './routes/analytics';
-import newsletterRoutes from './routes/newsletter';
-import messagesRoutes from './routes/messages';
-import categoriesRoutes from './routes/categories';
-import dashboardRoutes from './routes/dashboard';
+
+// Routes - Shared
+import analyticsRoutes from './routes/shared/analytics';
+import newsletterRoutes from './routes/shared/newsletter';
 
 dotenv.config();
 

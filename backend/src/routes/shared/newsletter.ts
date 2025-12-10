@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { ApiResponse } from '../../../shared/types';
-import { prisma } from '../lib/prisma';
-import { logger } from '../lib/logger';
-import { verifyRecaptchaEnterprise } from '../services/recaptchaService';
-import { emailService } from '../services/emailService';
-import { authMiddleware } from '../middleware/auth';
+import { ApiResponse } from '../../../../shared/types';
+import { prisma } from '../../lib/prisma';
+import { logger } from '../../lib/logger';
+import { verifyRecaptchaEnterprise } from '../../services/recaptchaService';
+import { emailService } from '../../services/emailService';
+import { authMiddleware } from '../../middleware/auth';
 
 const router = Router();
 

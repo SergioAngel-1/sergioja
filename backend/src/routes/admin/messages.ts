@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
-import { authMiddleware } from '../middleware/auth';
-import { logger } from '../lib/logger';
+import { prisma } from '../../lib/prisma';
+import { authMiddleware } from '../../middleware/auth';
+import { logger } from '../../lib/logger';
 
 const router = Router();
 

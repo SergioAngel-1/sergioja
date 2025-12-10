@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { ApiResponse } from '../../../shared/types';
-import { prisma } from '../lib/prisma';
-import { logger } from '../lib/logger';
-import { authMiddleware } from '../middleware/auth';
+import { ApiResponse } from '../../../../shared/types';
+import { prisma } from '../../lib/prisma';
+import { logger } from '../../lib/logger';
+import { authMiddleware } from '../../middleware/auth';
 
 const router = Router();
 
