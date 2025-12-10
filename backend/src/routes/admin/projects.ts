@@ -70,7 +70,6 @@ router.get('/', async (req: Request, res: Response) => {
         category: t.category,
         proficiency: t.proficiency,
         yearsOfExperience: t.yearsOfExperience,
-        technology: t.technology,
       })),
     }));
 
@@ -170,7 +169,7 @@ router.post('/', async (req: Request, res: Response) => {
             data: {
               name,
               category: category || 'other',
-              color: '#ffffffff',
+              color: '#FF0000',
             },
           });
         }
@@ -198,7 +197,7 @@ router.post('/', async (req: Request, res: Response) => {
             data: {
               name: techName,
               category: 'other',
-              color: '#ffffffff',
+              color: '#FF0000',
             },
           });
         }
@@ -227,11 +226,22 @@ router.post('/', async (req: Request, res: Response) => {
       },
     });
 
+    // Transformar para aplanar la estructura de tecnologías
+    const transformedProject = {
+      ...projectWithRelations,
+      technologies: projectWithRelations?.technologies.map((pt: any) => ({
+        name: pt.technology.name,
+        category: pt.category,
+        proficiency: pt.proficiency,
+        yearsOfExperience: pt.yearsOfExperience,
+      })) || [],
+    };
+
     logger.info('Project created', { id: project.id, title: project.title });
 
     res.status(201).json({
       success: true,
-      data: projectWithRelations,
+      data: transformedProject,
     });
   } catch (error) {
     logger.error('Error creating project', error);
@@ -316,7 +326,7 @@ router.put('/:slug', async (req: Request, res: Response) => {
             data: {
               name,
               category: category || 'other',
-              color: '#ffffffff',
+              color: '#FF0000',
             },
           });
         }
@@ -347,7 +357,7 @@ router.put('/:slug', async (req: Request, res: Response) => {
             data: {
               name: techName,
               category: 'other',
-              color: '#ffffffff',
+              color: '#FF0000',
             },
           });
         }
@@ -364,11 +374,34 @@ router.put('/:slug', async (req: Request, res: Response) => {
       }
     }
 
+    // Obtener el proyecto actualizado con sus relaciones
+    const updatedProjectWithRelations = await prisma.project.findUnique({
+      where: { id: project.id },
+      include: {
+        technologies: {
+          include: {
+            technology: true,
+          },
+        },
+      },
+    });
+
+    // Transformar para aplanar la estructura de tecnologías
+    const transformedProject = {
+      ...updatedProjectWithRelations,
+      technologies: updatedProjectWithRelations?.technologies.map((pt: any) => ({
+        name: pt.technology.name,
+        category: pt.category,
+        proficiency: pt.proficiency,
+        yearsOfExperience: pt.yearsOfExperience,
+      })) || [],
+    };
+
     logger.info('Project updated', { id: project.id, slug: project.slug });
 
     res.json({
       success: true,
-      data: project,
+      data: transformedProject,
     });
   } catch (error) {
     logger.error('Error updating project', error);

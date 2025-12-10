@@ -91,17 +91,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     if (!isOpen) return;
 
     if (project) {
-      // Inicializar tecnologías
+      // Inicializar tecnologías (ahora con estructura aplanada del backend)
       const existingTechs = project.technologies?.map((t: any) => {
-        // Si tiene la estructura completa de ProjectTechnology
-        if (t.technology && typeof t.technology === 'object') {
-          return {
-            name: t.technology.name || t.name,
-            category: t.category || 'other',
-            proficiency: t.proficiency || 50,
-            yearsOfExperience: t.yearsOfExperience || 0,
-          };
-        }
         // Si es solo un string (nombre de tecnología)
         if (typeof t === 'string') {
           return {
@@ -111,12 +102,13 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
             yearsOfExperience: 0,
           };
         }
-        // Si tiene name directamente
+        
+        // Estructura aplanada del backend
         return {
           name: t.name || '',
           category: t.category || 'other',
-          proficiency: t.proficiency || 50,
-          yearsOfExperience: t.yearsOfExperience || 0,
+          proficiency: t.proficiency !== undefined ? t.proficiency : 50,
+          yearsOfExperience: t.yearsOfExperience !== undefined ? t.yearsOfExperience : 0,
         };
       }).filter((t: any) => t.name) || [];
       
@@ -136,7 +128,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         category: projectCategories[0] || 'web',
         categories: projectCategories,
         technologies: project.technologies?.map((t: any) => 
-          typeof t === 'string' ? t : t.technology?.name || t.name
+          typeof t === 'string' ? t : t.name
         ) || [],
         featured: project.featured || false,
         repositoryUrl: project.repoUrl || project.repositoryUrl || '',
