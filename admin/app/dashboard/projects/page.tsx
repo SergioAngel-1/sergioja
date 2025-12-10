@@ -116,10 +116,7 @@ function ProjectsPageContent() {
     // Filter by category - soportar tanto categories (array) como category (string)
     if (selectedCategory !== 'all') {
       filtered = filtered.filter((p) => {
-        if (Array.isArray(p.categories)) {
-          return p.categories.includes(selectedCategory);
-        }
-        return p.category === selectedCategory;
+        return p.categories.includes(selectedCategory);
       });
     }
 
@@ -153,8 +150,7 @@ function ProjectsPageContent() {
 
     // Contar proyectos por categoría dinámicamente
     projects.forEach((project) => {
-      const projectCategories = project.categories || (project.category ? [project.category] : []);
-      projectCategories.forEach((cat: string) => {
+      project.categories.forEach((cat: string) => {
         if (counts[cat] === undefined) {
           counts[cat] = 0;
         }
@@ -360,16 +356,13 @@ function ProjectsPageContent() {
                 id={project.id}
                 title={project.title}
                 description={project.description}
-                category={project.category}
+                category={project.categories[0] || 'web'}
                 image={project.image}
                 featured={project.featured}
                 demoUrl={project.demoUrl}
                 repoUrl={project.repoUrl}
                 publishedAt={project.publishedAt && project.publishedAt.trim() !== '' ? new Date(project.publishedAt) : null}
-                technologies={project.technologies?.map((t) => ({
-                  name: t.technology?.name || '',
-                  color: t.technology?.color || '#000000',
-                })).filter(t => t.name) || []}
+                technologies={[]}
                 delay={index * 0.05}
                 onEdit={() => handleEditProject(project)}
               />

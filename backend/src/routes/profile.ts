@@ -29,11 +29,11 @@ router.get('/', async (_req: Request, res: Response) => {
         availability: profile.availability,
         location: profile.location,
         email: profile.email,
-        social: {
-          github: profile.githubUrl || undefined,
-          linkedin: profile.linkedinUrl || undefined,
-          twitter: profile.twitterUrl || undefined,
-        },
+        githubUrl: profile.githubUrl || null,
+        linkedinUrl: profile.linkedinUrl || null,
+        twitterUrl: profile.twitterUrl || null,
+        createdAt: profile.createdAt.toISOString(),
+        updatedAt: profile.updatedAt.toISOString(),
       },
       timestamp: new Date().toISOString(),
     };

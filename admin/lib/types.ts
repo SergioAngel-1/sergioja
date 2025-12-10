@@ -4,17 +4,11 @@ export type {
   PaginatedResponse,
   Profile,
   Project,
+  Skill,
   ContactMessage,
   ContactFormData,
   AnalyticsSummary,
 } from '@/shared/types';
-
-import type { Skill as BaseSkill } from '@/shared/types';
-
-// Extend Skill to include projects relation for admin
-export interface Skill extends BaseSkill {
-  projects?: { projectId: string }[];
-}
 
 // Admin-specific types (from Prisma schema)
 

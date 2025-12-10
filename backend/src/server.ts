@@ -14,7 +14,8 @@ import { cleanupExpiredTokens } from './services/authService';
 // Routes
 import authRoutes from './routes/auth';
 import profileRoutes from './routes/profile';
-import projectsRoutes from './routes/projects';
+import adminProjectsRoutes from './routes/admin/projects';
+import portfolioProjectsRoutes from './routes/portfolio/projects';
 import skillsRoutes from './routes/skills';
 import contactRoutes from './routes/contact';
 import analyticsRoutes from './routes/analytics';
@@ -148,11 +149,11 @@ app.use('/api/admin/dashboard', dashboardRoutes);
 app.use('/api/admin/messages', messagesRoutes);
 app.use('/api/admin/newsletter', newsletterRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
-app.use('/api/admin/projects', projectsRoutes);
+app.use('/api/admin/projects', adminProjectsRoutes);
 app.use('/api/admin/categories', categoriesRoutes);
 // Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
-app.use('/api/portfolio/projects', projectsRoutes);
+app.use('/api/portfolio/projects', portfolioProjectsRoutes);
 app.use('/api/portfolio/skills', skillsRoutes);
 app.use('/api/portfolio/contact', contactRoutes);
 app.use('/api/portfolio/newsletter', newsletterRoutes);

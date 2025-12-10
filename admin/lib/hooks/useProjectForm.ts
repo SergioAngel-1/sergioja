@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 interface Category {
   name: string;
@@ -86,21 +86,32 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     if (project) {
       // Inicializar tecnologías
       const existingTechs = project.technologies?.map((t: any) => {
-        if (t.category !== undefined && t.proficiency !== undefined) {
+        // Si tiene la estructura completa de ProjectTechnology
+        if (t.technology && typeof t.technology === 'object') {
           return {
-            name: t.technology?.name || t.name,
-            category: t.category,
-            proficiency: t.proficiency,
+            name: t.technology.name || t.name,
+            category: t.category || 'other',
+            proficiency: t.proficiency || 50,
             yearsOfExperience: t.yearsOfExperience || 0,
           };
         }
+        // Si es solo un string (nombre de tecnología)
+        if (typeof t === 'string') {
+          return {
+            name: t,
+            category: 'other',
+            proficiency: 50,
+            yearsOfExperience: 0,
+          };
+        }
+        // Si tiene name directamente
         return {
-          name: typeof t === 'string' ? t : t.technology?.name || t.name,
-          category: 'other',
-          proficiency: 50,
-          yearsOfExperience: 0,
+          name: t.name || '',
+          category: t.category || 'other',
+          proficiency: t.proficiency || 50,
+          yearsOfExperience: t.yearsOfExperience || 0,
         };
-      }) || [];
+      }).filter((t: any) => t.name) || [];
       
       setProjectTechnologies(existingTechs);
       
@@ -200,7 +211,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     }
   };
 
-  const getSubmitData = () => {
+  const getSubmitData = useCallback(() => {
     return {
       id: formData.id,
       title: formData.title,
@@ -219,7 +230,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       imageUrl: imagePreview || formData.imageUrl || '',
       isCodePublic: formData.isCodePublic,
     };
-  };
+  }, [formData, projectTechnologies, imagePreview]);
 
   const isValid = () => {
     return formData.categories && formData.categories.length > 0;

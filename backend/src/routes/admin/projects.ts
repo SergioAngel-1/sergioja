@@ -1,234 +1,15 @@
 import { Router, Request, Response } from 'express';
-import { ApiResponse, Project, PaginatedResponse } from '../../../shared/types';
-import { prisma } from '../lib/prisma';
-import { logger } from '../lib/logger';
-import { authMiddleware } from '../middleware/auth';
+import { prisma } from '../../lib/prisma';
+import { logger } from '../../lib/logger';
+import { authMiddleware } from '../../middleware/auth';
 
 const router = Router();
 
-// GET /api/projects - Get all projects with filtering and pagination
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const { tech, category, featured, page = '1', limit = '10' } = req.query;
-    const pageNum = parseInt(page as string, 10);
-    const limitNum = parseInt(limit as string, 10);
+// Todas las rutas requieren autenticación
+router.use(authMiddleware);
 
-    // Build where clause
-    const where: any = { publishedAt: { not: null } };
-    
-    if (category && typeof category === 'string') {
-      where.categories = {
-        has: category, // Buscar si el array contiene la categoría
-      };
-    }
-    
-    if (featured === 'true') {
-      where.featured = true;
-    }
-    
-    if (tech && typeof tech === 'string') {
-      where.technologies = {
-        some: {
-          technology: {
-            name: {
-              contains: tech,
-              mode: 'insensitive',
-            },
-          },
-        },
-      };
-    }
-
-    // Get total count
-    const total = await prisma.project.count({ where });
-
-    // If no projects, return empty payload gracefully
-    if (total === 0) {
-      const emptyResponse: ApiResponse<PaginatedResponse<Project>> = {
-        success: true,
-        data: {
-          data: [],
-          pagination: {
-            page: pageNum,
-            limit: limitNum,
-            total: 0,
-            totalPages: 0,
-          },
-        },
-        timestamp: new Date().toISOString(),
-      };
-      return res.json(emptyResponse);
-    }
-
-    // Get paginated projects with technologies
-    const projects = await prisma.project.findMany({
-      where,
-      include: {
-        technologies: {
-          include: {
-            technology: true,
-          },
-        },
-      },
-      orderBy: { publishedAt: 'desc' },
-      skip: (pageNum - 1) * limitNum,
-      take: limitNum,
-    });
-
-    // Transform to match frontend interface
-    const transformedProjects: Project[] = projects.map((p: any) => ({
-      id: p.id,
-      slug: p.slug,
-      title: p.title,
-      description: p.description,
-      longDescription: p.longDescription || undefined,
-      image: p.image || undefined,
-      categories: p.categories || [],
-      featured: p.featured,
-      demoUrl: p.demoUrl || undefined,
-      repoUrl: p.repoUrl || undefined,
-      githubUrl: p.githubUrl || p.repoUrl || undefined,
-      isCodePublic: p.isCodePublic,
-      performanceScore: p.performanceScore || null,
-      accessibilityScore: p.accessibilityScore || null,
-      seoScore: p.seoScore || null,
-      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-      
-      // Campos derivados/computados
-      category: Array.isArray(p.categories) && p.categories.length > 0 ? p.categories[0] : 'web',
-      technologies: p.technologies.map((t: any) => t.technology.name),
-      tech: p.technologies.map((t: any) => t.technology.name),
-      status: 'completed' as const,
-      metrics: p.performanceScore ? {
-        performance: p.performanceScore,
-        accessibility: p.accessibilityScore || 0,
-        seo: p.seoScore || 0,
-      } : undefined,
-    }));
-
-    const response: ApiResponse<PaginatedResponse<Project>> = {
-      success: true,
-      data: {
-        data: transformedProjects,
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total,
-          totalPages: Math.ceil(total / limitNum),
-        },
-      },
-      timestamp: new Date().toISOString(),
-    };
-
-    res.json(response);
-  } catch (error) {
-    logger.error('Error fetching projects', error);
-    // Graceful fallback: respond with empty list to avoid breaking UI
-    const pageNum = parseInt((req.query.page as string) || '1', 10);
-    const limitNum = parseInt((req.query.limit as string) || '10', 10);
-    const emptyResponse: ApiResponse<PaginatedResponse<Project>> = {
-      success: true,
-      data: {
-        data: [],
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total: 0,
-          totalPages: 0,
-        },
-      },
-      message: 'No projects available',
-      timestamp: new Date().toISOString(),
-    };
-    res.json(emptyResponse);
-  }
-});
-
-// GET /api/projects/:slug - Get single project by slug
-router.get('/:slug', async (req: Request, res: Response) => {
-  try {
-    const { slug } = req.params;
-    
-    const project = await prisma.project.findUnique({
-      where: { slug },
-      include: {
-        technologies: {
-          include: {
-            technology: true,
-          },
-        },
-      },
-    });
-
-    if (!project) {
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: 'Project not found',
-          code: 'PROJECT_NOT_FOUND',
-        },
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-    // Transform to match frontend interface
-    const transformedProject: Project = {
-      id: project.id,
-      slug: project.slug,
-      title: project.title,
-      description: project.description,
-      longDescription: project.longDescription || undefined,
-      image: project.image || undefined,
-      categories: project.categories || [],
-      featured: project.featured,
-      demoUrl: project.demoUrl || undefined,
-      repoUrl: project.repoUrl || undefined,
-      githubUrl: project.githubUrl || project.repoUrl || undefined,
-      isCodePublic: project.isCodePublic,
-      performanceScore: project.performanceScore || null,
-      accessibilityScore: project.accessibilityScore || null,
-      seoScore: project.seoScore || null,
-      publishedAt: project.publishedAt ? project.publishedAt.toISOString() : null,
-      createdAt: project.createdAt.toISOString(),
-      updatedAt: project.updatedAt.toISOString(),
-      
-      // Campos derivados/computados
-      category: project.categories?.[0] || 'web',
-      technologies: project.technologies.map((t: any) => t.technology.name),
-      tech: project.technologies.map((t: any) => t.technology.name),
-      status: 'completed' as const,
-      metrics: project.performanceScore ? {
-        performance: project.performanceScore,
-        accessibility: project.accessibilityScore || 0,
-        seo: project.seoScore || 0,
-      } : undefined,
-    };
-
-    const response: ApiResponse<Project> = {
-      success: true,
-      data: transformedProject,
-      timestamp: new Date().toISOString(),
-    };
-
-    res.json(response);
-  } catch (error) {
-    logger.error('Error fetching project', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        message: 'Failed to fetch project',
-        code: 'INTERNAL_ERROR',
-      },
-      timestamp: new Date().toISOString(),
-    });
-  }
-});
-
-// Admin endpoints - requieren autenticación
 // GET /api/admin/projects - Obtener todos los proyectos (incluyendo borradores)
-router.get('/', authMiddleware, async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { category, featured, page = '1', limit = '100' } = req.query;
     const pageNum = parseInt(page as string, 10);
@@ -265,7 +46,6 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 
     // Transform projects to ensure all fields are present and match Prisma schema
     const transformedProjects = projects.map((p: any) => ({
-      // Campos base del schema de Prisma
       id: p.id,
       slug: p.slug,
       title: p.title,
@@ -276,7 +56,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
       featured: p.featured,
       demoUrl: p.demoUrl,
       repoUrl: p.repoUrl,
-      githubUrl: p.githubUrl || p.repoUrl, // Alias for repoUrl
+      githubUrl: p.githubUrl || p.repoUrl,
       isCodePublic: p.isCodePublic,
       performanceScore: p.performanceScore,
       accessibilityScore: p.accessibilityScore,
@@ -284,9 +64,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
       publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
       createdAt: p.createdAt.toISOString(),
       updatedAt: p.updatedAt.toISOString(),
-      
-      // Campos derivados/computados para el frontend
-      category: Array.isArray(p.categories) && p.categories.length > 0 ? p.categories[0] : 'web',
+      // Technologies para el admin (necesario para edición)
       technologies: p.technologies.map((t: any) => ({
         name: t.technology.name,
         category: t.category,
@@ -315,7 +93,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 });
 
 // POST /api/admin/projects - Crear nuevo proyecto
-router.post('/', authMiddleware, async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt } = req.body;
 
@@ -363,7 +141,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
         title,
         slug,
         description,
-        longDescription: description, // Usar la misma descripción por ahora
+        longDescription: description,
         categories: projectCategories,
         featured: featured || false,
         repoUrl: repoUrl || null,
@@ -389,7 +167,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
             data: {
               name,
               category: category || 'other',
-              color: '#00FF00', // Color por defecto
+              color: '#ffffffff',
             },
           });
         }
@@ -417,7 +195,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
             data: {
               name: techName,
               category: 'other',
-              color: '#00FF00',
+              color: '#ffffffff',
             },
           });
         }
@@ -467,7 +245,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
 });
 
 // PUT /api/admin/projects/:slug - Actualizar proyecto
-router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
+router.put('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
     const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt } = req.body;
@@ -532,7 +310,7 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
             data: {
               name,
               category: category || 'other',
-              color: '#00FF00',
+              color: '#ffffffff',
             },
           });
         }
@@ -563,7 +341,7 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
             data: {
               name: techName,
               category: 'other',
-              color: '#00FF00',
+              color: '#ffffffff',
             },
           });
         }
@@ -601,7 +379,7 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
 });
 
 // DELETE /api/admin/projects/:slug - Eliminar proyecto
-router.delete('/:slug', authMiddleware, async (req: Request, res: Response) => {
+router.delete('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
 

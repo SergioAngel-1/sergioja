@@ -40,7 +40,7 @@ export interface Profile {
 }
 
 export interface Project {
-  // Campos base del schema de Prisma
+  // Campos del schema de Prisma
   id: string;
   slug: string;
   title: string;
@@ -60,16 +60,14 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
   
-  // Campos derivados/computados (no en BD)
-  category?: string; // Primera categoría (retrocompatibilidad)
-  technologies?: any[]; // Relación con ProjectTechnology
-  tech?: string[]; // Alias para technologies (usado en frontend)
-  status?: 'completed' | 'in-progress' | 'planned'; // Derivado de publishedAt
-  metrics?: {
-    performance: number;
-    accessibility: number;
-    seo: number;
-  }; // Alias para performanceScore, accessibilityScore, seoScore
+  // Relación con technologies (opcional, solo algunos endpoints lo incluyen)
+  technologies?: {
+    name: string;
+    category: string;
+    proficiency: number;
+    yearsOfExperience: number;
+    technology: Skill;
+  }[];
 }
 
 // Technology/Skill - Shared across all projects
@@ -83,6 +81,9 @@ export interface Skill {
   color: string;
   createdAt: string;
   updatedAt: string;
+  
+  // Relación con projects (opcional, solo algunos endpoints lo incluyen)
+  projects?: { projectId: string }[];
 }
 
 // For form submission (without id and timestamps)
