@@ -35,15 +35,26 @@ export const errorHandler = (
     'Express'
   );
 
-  // Determine status code
+  // Determine status code and error code
   const statusCode = err instanceof AppError ? err.statusCode : 500;
   const message = err instanceof AppError ? err.message : 'Internal Server Error';
+  
+  // Determine error code based on status
+  let code = 'SERVER_ERROR';
+  if (statusCode === 400) code = 'BAD_REQUEST';
+  else if (statusCode === 401) code = 'UNAUTHORIZED';
+  else if (statusCode === 403) code = 'FORBIDDEN';
+  else if (statusCode === 404) code = 'NOT_FOUND';
+  else if (statusCode === 409) code = 'CONFLICT';
+  else if (statusCode === 422) code = 'VALIDATION_ERROR';
+  else if (statusCode === 429) code = 'RATE_LIMIT';
 
   // Send error response
   res.status(statusCode).json({
     success: false,
     error: {
       message,
+      code,
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
     },
     timestamp: new Date().toISOString(),
