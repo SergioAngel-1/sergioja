@@ -9,7 +9,7 @@ declare const process: {
 const prisma = new PrismaClient();
 
 async function main() {
-  logger.info('🌱 Iniciando seed de la base de datos...');
+  logger.info('🌱 Iniciando seed de la base de datos para producción...');
 
   // Limpiar datos existentes en orden correcto (respetando foreign keys)
   logger.info('🗑️  Limpiando datos existentes...');
@@ -34,14 +34,9 @@ async function main() {
   
   logger.info('✅ Todas las tablas limpiadas correctamente');
 
-  // No crear usuarios admin en seed - usar script create-admin.js
-  logger.info('ℹ️  No se crean usuarios admin en seed');
-  logger.info('   Usa: node scripts/create-admin.js para crear usuarios');
-
   logger.info('\n✅ Seed completado exitosamente!');
-  logger.info('📊 Resumen:');
-  logger.info('   - 0 usuarios admin (crear manualmente con script)');
-  logger.info('   - Base de datos lista para usar desde el panel admin');
+  logger.info('� Base de datos lista para producción');
+  logger.info('ℹ️  Usa: node scripts/create-admin.js para crear el usuario administrador');
 }
 
 main()
