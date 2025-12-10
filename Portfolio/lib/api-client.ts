@@ -109,6 +109,9 @@ export const api = {
   getSkills: (category?: string) => apiClient.get('/skills', category ? { category } : undefined),
   getSkillProjects: (skillId: string) => apiClient.get(`/skills/${skillId}/projects`),
 
+  // Categories
+  getProjectCategories: () => apiClient.get('/categories/projects'),
+
   // Timeline
   getTimeline: (type?: string) => apiClient.get('/timeline', type ? { type } : undefined),
 

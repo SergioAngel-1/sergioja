@@ -2,13 +2,18 @@
 
 import { useState, FormEvent, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { useLogger } from '@/shared/hooks/useLogger';
 import PageHeader from '@/components/organisms/PageHeader';
 import Button from '@/components/atoms/Button';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import { api } from '@/lib/api-client';
-import DevTipsModal from '@/components/molecules/DevTipsModal';
+
+// Lazy load DevTipsModal (only needed when user clicks newsletter)
+const DevTipsModal = dynamic(() => import('@/components/molecules/DevTipsModal'), {
+  ssr: false,
+});
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '@/shared/alertSystem';

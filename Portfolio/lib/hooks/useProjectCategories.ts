@@ -1,6 +1,11 @@
-import { useState, useEffect } from 'react';
+'use client';
 
-interface ProjectCategory {
+import { useState, useEffect, useMemo } from 'react';
+import { api } from '../api-client';
+import { logger } from '../logger';
+import { cache, CacheTTL } from '../cache';
+
+export interface ProjectCategory {
   name: string;
   label: string;
   active: boolean;
@@ -8,56 +13,63 @@ interface ProjectCategory {
   icon?: string;
 }
 
-interface UseProjectCategoriesResult {
-  categories: ProjectCategory[];
-  isLoading: boolean;
-  error: Error | null;
+interface UseProjectCategoriesOptions {
+  useCache?: boolean;
 }
 
-/**
- * Hook para cargar categorías de proyectos desde el backend
- */
-export function useProjectCategories(): UseProjectCategoriesResult {
+export function useProjectCategories(options?: UseProjectCategoriesOptions) {
   const [categories, setCategories] = useState<ProjectCategory[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const shouldUseCache = options?.useCache !== false;
+  const cacheKey = 'project_categories';
 
   useEffect(() => {
-    const loadCategories = async () => {
+    const fetchCategories = async () => {
       try {
-        setIsLoading(true);
+        setLoading(true);
         setError(null);
         
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories/projects`);
+        logger.debug('Fetching project categories', 'useProjectCategories');
+        const startTime = performance.now();
         
-        if (!response.ok) {
-          throw new Error('Failed to load categories');
+        let response;
+        if (shouldUseCache) {
+          response = await cache.fetchWithCache(
+            cacheKey,
+            () => api.getProjectCategories(),
+            CacheTTL.TEN_MINUTES
+          );
+        } else {
+          response = await api.getProjectCategories();
         }
         
-        const data = await response.json();
+        const duration = performance.now() - startTime;
+        logger.performance('Project Categories Fetch', duration, 'ms');
         
-        if (data.success && data.data && Array.isArray(data.data)) {
+        if (response.success && response.data) {
+          const data = response.data as ProjectCategory[];
           // Filtrar solo categorías activas
-          const activeCategories = data.data.filter((cat: ProjectCategory) => cat.active);
+          const activeCategories = data.filter(cat => cat.active);
           setCategories(activeCategories);
+          logger.info(`Loaded ${activeCategories.length} active categories ${shouldUseCache ? '(cached)' : ''}`, 'useProjectCategories');
         } else {
-          setCategories([]);
+          const errorMsg = response.error?.message || 'Failed to fetch categories';
+          setError(errorMsg);
+          logger.warn('Failed to fetch categories', response.error, 'useProjectCategories');
         }
       } catch (err) {
-        const error = err instanceof Error ? err : new Error('Unknown error');
-        setError(error);
-        setCategories([]);
+        const errorMsg = err instanceof Error ? err.message : 'An error occurred';
+        setError(errorMsg);
+        logger.error('Error fetching categories', err, 'useProjectCategories');
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    loadCategories();
-  }, []);
+    fetchCategories();
+  }, [cacheKey, shouldUseCache]);
 
-  return {
-    categories,
-    isLoading,
-    error,
-  };
+  return { categories, loading, error };
 }

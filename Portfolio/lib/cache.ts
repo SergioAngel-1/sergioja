@@ -11,10 +11,58 @@ interface CacheEntry<T> {
 class CacheManager {
   private cache: Map<string, CacheEntry<any>>;
   private defaultTTL: number; // Time To Live en milisegundos
+  private storageKey = 'portfolio_cache';
+  private isHydrated = false;
 
   constructor(defaultTTL: number = 5 * 60 * 1000) { // 5 minutos por defecto
     this.cache = new Map();
     this.defaultTTL = defaultTTL;
+    this.hydrate();
+  }
+
+  /**
+   * Carga el caché desde localStorage al inicializar
+   */
+  private hydrate(): void {
+    if (typeof window === 'undefined' || this.isHydrated) return;
+    
+    try {
+      const stored = localStorage.getItem(this.storageKey);
+      if (!stored) return;
+      
+      const parsed = JSON.parse(stored) as Record<string, CacheEntry<any>>;
+      const now = Date.now();
+      
+      // Restaurar solo entradas no expiradas
+      Object.entries(parsed).forEach(([key, entry]) => {
+        if (entry.expiresAt > now) {
+          this.cache.set(key, entry);
+        }
+      });
+      
+      this.isHydrated = true;
+    } catch (error) {
+      // Si hay error al parsear, limpiar localStorage
+      localStorage.removeItem(this.storageKey);
+    }
+  }
+
+  /**
+   * Persiste el caché en localStorage
+   */
+  private persist(): void {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const entries: Record<string, CacheEntry<any>> = {};
+      this.cache.forEach((value, key) => {
+        entries[key] = value;
+      });
+      localStorage.setItem(this.storageKey, JSON.stringify(entries));
+    } catch (error) {
+      // Si localStorage está lleno o hay error, limpiar entradas antiguas
+      this.cleanup();
+    }
   }
 
   /**
@@ -36,6 +84,7 @@ class CacheManager {
       expiresAt: Date.now() + expirationTime,
     };
     this.cache.set(key, entry);
+    this.persist();
   }
 
   /**
@@ -68,7 +117,11 @@ class CacheManager {
    * Elimina un dato específico del caché
    */
   delete(key: string): boolean {
-    return this.cache.delete(key);
+    const result = this.cache.delete(key);
+    if (result) {
+      this.persist();
+    }
+    return result;
   }
 
   /**
@@ -76,6 +129,9 @@ class CacheManager {
    */
   clear(): void {
     this.cache.clear();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(this.storageKey);
+    }
   }
 
   /**
@@ -83,10 +139,17 @@ class CacheManager {
    */
   cleanup(): void {
     const now = Date.now();
+    let hasChanges = false;
+    
     for (const [key, entry] of this.cache.entries()) {
       if (now > entry.expiresAt) {
         this.cache.delete(key);
+        hasChanges = true;
       }
+    }
+    
+    if (hasChanges) {
+      this.persist();
     }
   }
 

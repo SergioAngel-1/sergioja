@@ -4,16 +4,28 @@ import { useEffect, useMemo, useState, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Button from '@/components/atoms/Button';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import TerminalInit from '@/components/molecules/TerminalInit';
-import TerminalHelp from '@/components/molecules/TerminalHelp';
-import TerminalStatus from '@/components/molecules/TerminalStatus';
-import TerminalGames from '@/components/molecules/TerminalGames';
-import TerminalLanguage from '@/components/molecules/TerminalLanguage';
 import MatrixConfirmDialog from '@/components/molecules/MatrixConfirmDialog';
 import MobileTerminalModal from '@/components/molecules/MobileTerminalModal';
+
+// Lazy load heavy terminal components
+const TerminalHelp = dynamic(() => import('@/components/molecules/TerminalHelp'), {
+  loading: () => <div className="text-text-secondary font-mono text-sm">Loading...</div>,
+});
+const TerminalStatus = dynamic(() => import('@/components/molecules/TerminalStatus'), {
+  loading: () => <div className="text-text-secondary font-mono text-sm">Loading...</div>,
+});
+const TerminalGames = dynamic(() => import('@/components/molecules/TerminalGames'), {
+  ssr: false,
+  loading: () => <div className="text-text-secondary font-mono text-sm">Loading games...</div>,
+});
+const TerminalLanguage = dynamic(() => import('@/components/molecules/TerminalLanguage'), {
+  loading: () => <div className="text-text-secondary font-mono text-sm">Loading...</div>,
+});
 import { useLogger } from '@/shared/hooks/useLogger';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
