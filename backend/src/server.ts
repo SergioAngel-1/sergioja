@@ -21,6 +21,7 @@ import analyticsRoutes from './routes/analytics';
 import newsletterRoutes from './routes/newsletter';
 import messagesRoutes from './routes/messages';
 import categoriesRoutes from './routes/categories';
+import dashboardRoutes from './routes/dashboard';
 
 dotenv.config();
 
@@ -143,6 +144,7 @@ app.get('/health', healthResponse);
 logger.info('Setting up routes...');
 // Admin routes
 app.use('/api/admin/auth', authRoutes);
+app.use('/api/admin/dashboard', dashboardRoutes);
 app.use('/api/admin/messages', messagesRoutes);
 app.use('/api/admin/newsletter', newsletterRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);

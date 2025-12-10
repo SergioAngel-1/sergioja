@@ -44,7 +44,6 @@ function ProjectsPageContent() {
   const searchParams = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -139,8 +138,9 @@ function ProjectsPageContent() {
     }
   }, [searchParams, isAuthenticated, isLoadingProjects, router]);
 
-  const filterProjects = useCallback(() => {
-    let filtered = [...projects];
+  // Filtrado optimizado con useMemo
+  const filteredProjects = useMemo(() => {
+    let filtered = projects;
 
     // Filter by category
     if (selectedCategory !== 'all') {
@@ -166,12 +166,8 @@ function ProjectsPageContent() {
       );
     }
 
-    setFilteredProjects(filtered);
+    return filtered;
   }, [projects, selectedCategory, selectedStatus, searchQuery]);
-
-  useEffect(() => {
-    filterProjects();
-  }, [filterProjects]);
 
   // Calculate categories combining backend categories with project counts
   const categories = useMemo(() => {

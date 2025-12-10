@@ -272,6 +272,7 @@ export const api = {
   getAnalytics: () => apiClient.get('/portfolio/analytics/summary'),
   getPageViews: (params?: Record<string, unknown>) => apiClient.get('/admin/analytics/page-views', params),
   getProjectViews: (params?: Record<string, unknown>) => apiClient.get('/admin/analytics/project-views', params),
+  getDashboardStats: () => apiClient.get('/admin/dashboard/stats'),
 
   // Categories
   getProjectCategories: () => apiClient.get('/admin/categories/projects'),
