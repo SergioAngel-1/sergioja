@@ -14,6 +14,7 @@ import { MatrixProvider } from '@/lib/contexts/MatrixContext';
 import { ModalProvider } from '@/lib/contexts/ModalContext';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
+import WebVitalsTracker from '@/components/WebVitalsTracker';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -101,6 +102,7 @@ export default function RootLayout({
             description: siteConfig.description,
           }))}
         </Script>
+        <WebVitalsTracker />
         <LanguageProvider>
           <PerformanceProvider>
             <MatrixProvider>

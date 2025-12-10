@@ -163,4 +163,53 @@ router.get('/project-views', authMiddleware, async (req: Request, res: Response)
   }
 });
 
+// POST /api/analytics/web-vitals - Recibir métricas de Web Vitals
+router.post('/web-vitals', async (req: Request, res: Response) => {
+  try {
+    const { name, value, rating, delta, id, navigationType, url, userAgent, timestamp } = req.body;
+
+    // Validar datos requeridos
+    if (!name || value === undefined || !rating) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_REQUEST',
+          message: 'Missing required fields: name, value, rating',
+        },
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Log de la métrica recibida
+    logger.info('Web Vitals metric received', {
+      name,
+      value,
+      rating,
+      url,
+      timestamp: new Date(timestamp || Date.now()).toISOString(),
+    });
+
+    // TODO: Guardar en base de datos si se necesita persistencia
+    // await prisma.webVitalsMetric.create({
+    //   data: { name, value, rating, delta, id, navigationType, url, userAgent, timestamp: new Date(timestamp) }
+    // });
+
+    res.json({
+      success: true,
+      data: { received: true },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    logger.error('Error processing Web Vitals metric', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to process Web Vitals metric',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 export default router;
