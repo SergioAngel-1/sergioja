@@ -269,7 +269,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
+    const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt } = req.body;
 
     // Validaciones básicas
     if (!title || !description) {
@@ -283,10 +283,21 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
     }
 
     // Crear slug desde el título
-    const slug = title
+    let slug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
+
+    // Verificar si el slug ya existe y agregar sufijo si es necesario
+    let slugExists = await prisma.project.findUnique({ where: { slug } });
+    let counter = 1;
+    const baseSlug = slug;
+    
+    while (slugExists) {
+      slug = `${baseSlug}-${counter}`;
+      slugExists = await prisma.project.findUnique({ where: { slug } });
+      counter++;
+    }
 
     // Determinar categorías (soportar ambos formatos)
     let projectCategories: string[] = [];
@@ -311,7 +322,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
         demoUrl: demoUrl || null,
         image: image || null,
         isCodePublic: isCodePublic !== undefined ? isCodePublic : true,
-        publishedAt: new Date(),
+        publishedAt: publishedAt ? new Date(publishedAt) : null,
       },
     });
 
@@ -375,11 +386,23 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
       }
     }
 
+    // Obtener el proyecto con todas sus relaciones para devolverlo
+    const projectWithRelations = await prisma.project.findUnique({
+      where: { id: project.id },
+      include: {
+        technologies: {
+          include: {
+            technology: true,
+          },
+        },
+      },
+    });
+
     logger.info('Project created', { id: project.id, title: project.title });
 
     res.status(201).json({
       success: true,
-      data: project,
+      data: projectWithRelations,
     });
   } catch (error) {
     logger.error('Error creating project', error);
@@ -388,6 +411,8 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
       error: {
         code: 'INTERNAL_ERROR',
         message: 'Error al crear proyecto',
+        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
+        stack: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined,
       },
     });
   }
@@ -397,7 +422,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
 router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
+    const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -435,6 +460,7 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
         demoUrl: demoUrl !== undefined ? demoUrl : existingProject.demoUrl,
         image: image !== undefined ? image : existingProject.image,
         isCodePublic: isCodePublic !== undefined ? isCodePublic : existingProject.isCodePublic,
+        publishedAt: publishedAt !== undefined ? (publishedAt ? new Date(publishedAt) : null) : existingProject.publishedAt,
       },
     });
 
@@ -519,6 +545,8 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
       error: {
         code: 'INTERNAL_ERROR',
         message: 'Error al actualizar proyecto',
+        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
+        stack: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined,
       },
     });
   }
@@ -567,6 +595,8 @@ router.delete('/:slug', authMiddleware, async (req: Request, res: Response) => {
       error: {
         code: 'INTERNAL_ERROR',
         message: 'Error al eliminar proyecto',
+        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
+        stack: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined,
       },
     });
   }

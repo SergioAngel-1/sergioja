@@ -35,6 +35,7 @@ interface ProjectFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (project: Partial<ProjectFormData>) => Promise<void>;
+  onDelete?: () => Promise<void>;
   project?: any | null; // eslint-disable-line @typescript-eslint/no-explicit-any
   existingSkills?: string[];
 }
@@ -43,10 +44,12 @@ export default function ProjectFormModal({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   project,
   existingSkills = [],
 }: ProjectFormModalProps) {
   const [backendCategories, setBackendCategories] = useState<Array<{ name: string; label: string; active: boolean }>>([]);
+  const [techCategories, setTechCategories] = useState<Array<{ name: string; label: string; active: boolean }>>([]);
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
@@ -68,7 +71,7 @@ export default function ProjectFormModal({
   const [showTechForm, setShowTechForm] = useState(false);
   const [techFormData, setTechFormData] = useState<TechnologyFormData>({
     name: '',
-    category: 'other',
+    category: '',
     proficiency: 50,
     yearsOfExperience: 0,
   });
@@ -80,6 +83,7 @@ export default function ProjectFormModal({
   useEffect(() => {
     if (isOpen) {
       loadBackendCategories();
+      loadTechCategories();
     }
   }, [isOpen]);
 
@@ -101,6 +105,31 @@ export default function ProjectFormModal({
     }
   };
 
+  const loadTechCategories = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories/technologies`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data && Array.isArray(data.data)) {
+          const activeCategories = data.data.filter((cat: any) => cat.active);
+          setTechCategories(activeCategories);
+          
+          // Siempre establecer la primera categoría como default
+          if (activeCategories.length > 0) {
+            setTechFormData(prev => ({ ...prev, category: activeCategories[0].name }));
+          }
+          
+          logger.info(`Loaded ${data.data.length} technology categories for modal`);
+        }
+      }
+    } catch (error) {
+      logger.error('Error loading technology categories', error);
+    }
+  };
+
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) {
@@ -116,20 +145,28 @@ export default function ProjectFormModal({
 
   useEffect(() => {
     if (project) {
+      // Asegurar que categories sea siempre un array
+      const projectCategories = Array.isArray(project.categories) 
+        ? project.categories 
+        : (project.category ? [project.category] : []);
+      
       setFormData({
         ...project,
-        categories: project.categories || (project.category ? [project.category] : []),
+        categories: projectCategories,
         technologies: project.technologies?.map((t: any) => // eslint-disable-line @typescript-eslint/no-explicit-any 
           typeof t === 'string' ? t : t.technology?.name || t.name
         ) || [],
+        repositoryUrl: project.repoUrl || project.repositoryUrl || '',
+        liveUrl: project.demoUrl || project.liveUrl || '', // Mapear demoUrl a liveUrl
+        publishedAt: project.publishedAt || null, // Asegurar que publishedAt se mapee correctamente
       });
       
       // Detectar protocolo de la URL si existe
-      if (project.demoUrl || project.liveUrl) {
-        const url = project.demoUrl || project.liveUrl;
-        if (url.startsWith('https://')) {
+      const urlToCheck = project.demoUrl || project.liveUrl;
+      if (urlToCheck) {
+        if (urlToCheck.startsWith('https://')) {
           setUrlProtocol('https://');
-        } else if (url.startsWith('http://')) {
+        } else if (urlToCheck.startsWith('http://')) {
           setUrlProtocol('http://');
         }
       }
@@ -177,6 +214,25 @@ export default function ProjectFormModal({
     }
   }, [project, isOpen]);
 
+  // Normalizar las categorías del proyecto contra las categorías del backend (por nombre o etiqueta, sin mayúsculas)
+  useEffect(() => {
+    if (!project || backendCategories.length === 0) return;
+    const raw = Array.isArray(project.categories)
+      ? project.categories
+      : (project.category ? [project.category] : []);
+    const normalized = raw
+      .map((c: string) => {
+        const match = backendCategories.find(
+          (bc) => bc.name?.toLowerCase() === c?.toLowerCase() || bc.label?.toLowerCase() === c?.toLowerCase()
+        );
+        return match?.name;
+      })
+      .filter(Boolean) as string[];
+    if (normalized.length > 0) {
+      setFormData((prev) => ({ ...prev, categories: normalized }));
+    }
+  }, [backendCategories, project]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -202,6 +258,9 @@ export default function ProjectFormModal({
       // Preparar datos para enviar al backend
       const dataToSave = {
         ...formData,
+        image: imagePreview || formData.imageUrl || '', // Enviar imagen en base64 o URL
+        repoUrl: formData.repositoryUrl, // Mapear repositoryUrl a repoUrl
+        demoUrl: formData.liveUrl, // Mapear liveUrl a demoUrl
         technologiesData: projectTechnologies, // Enviar información completa de tecnologías
       };
       await onSave(dataToSave);
@@ -215,16 +274,20 @@ export default function ProjectFormModal({
 
   // Filter suggestions based on input
   useEffect(() => {
+    const availableSkills = existingSkills.filter(skill => 
+      !projectTechnologies.find(t => t.name === skill)
+    );
+    
     if (techInput.trim()) {
-      const filtered = existingSkills.filter(skill => 
-        skill.toLowerCase().includes(techInput.toLowerCase()) &&
-        !projectTechnologies.find(t => t.name === skill)
+      const filtered = availableSkills.filter(skill => 
+        skill.toLowerCase().includes(techInput.toLowerCase())
       );
       setFilteredSuggestions(filtered);
       setShowSuggestions(filtered.length > 0);
     } else {
-      setShowSuggestions(false);
-      setFilteredSuggestions([]);
+      // Mostrar todas las tecnologías disponibles cuando el input está vacío
+      setFilteredSuggestions(availableSkills);
+      setShowSuggestions(false); // No mostrar automáticamente, solo al hacer focus
     }
   }, [techInput, existingSkills, projectTechnologies]);
 
@@ -238,8 +301,18 @@ export default function ProjectFormModal({
   };
 
   const handleSelectSuggestion = (skillName: string) => {
-    setTechFormData({ ...techFormData, name: skillName });
-    setShowTechForm(true);
+    // Agregar directamente sin abrir formulario de edición
+    const newTech = {
+      name: skillName,
+      category: techCategories.length > 0 ? techCategories[0].name : 'other',
+      proficiency: 50,
+      yearsOfExperience: 0,
+    };
+    setProjectTechnologies([...projectTechnologies, newTech]);
+    setFormData({
+      ...formData,
+      technologies: [...(formData.technologies || []), skillName],
+    });
     setTechInput('');
     setShowSuggestions(false);
   };
@@ -255,7 +328,7 @@ export default function ProjectFormModal({
       setShowTechForm(false);
       setTechFormData({
         name: '',
-        category: 'other',
+        category: techCategories.length > 0 ? techCategories[0].name : '',
         proficiency: 50,
         yearsOfExperience: 0,
       });
@@ -266,7 +339,7 @@ export default function ProjectFormModal({
     setShowTechForm(false);
     setTechFormData({
       name: '',
-      category: 'other',
+      category: techCategories.length > 0 ? techCategories[0].name : '',
       proficiency: 50,
       yearsOfExperience: 0,
     });
@@ -295,6 +368,23 @@ export default function ProjectFormModal({
       maxWidth="3xl"
       footer={
         <>
+          {project && onDelete && (
+            <Button
+              type="button"
+              onClick={async () => {
+                if (window.confirm('¿Estás seguro de que deseas eliminar este proyecto?')) {
+                  await onDelete();
+                  onClose();
+                }
+              }}
+              variant="secondary"
+              size="md"
+              fullWidth
+              className="!bg-red-500/10 !border-red-500/30 !text-red-500 hover:!bg-red-500/20 hover:!border-red-500/50"
+            >
+              Eliminar
+            </Button>
+          )}
           <Button
             type="button"
             onClick={onClose}
@@ -400,32 +490,40 @@ export default function ProjectFormModal({
                   <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                     Categorías *
                   </label>
-                  <div className="flex flex-wrap" style={{ gap: fluidSizing.space.sm }}>
-                    {backendCategories.map((cat) => {
-                      const isSelected = formData.categories?.includes(cat.name) || false;
-                      return (
-                        <button
-                          key={cat.name}
-                          type="button"
-                          onClick={() => {
-                            const current = formData.categories || [];
-                            const updated = isSelected
-                              ? current.filter(c => c !== cat.name)
-                              : [...current, cat.name];
-                            setFormData({ ...formData, categories: updated, category: updated[0] || cat.name });
-                          }}
-                          className={`rounded-lg border transition-all duration-200 ${
-                            isSelected
-                              ? 'bg-admin-primary/20 border-admin-primary text-admin-primary'
-                              : 'bg-admin-dark-surface border-admin-primary/20 text-text-muted hover:border-admin-primary/50'
-                          }`}
-                          style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}
-                        >
-                          {cat.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {backendCategories.length > 0 ? (
+                    <div className="flex flex-wrap" style={{ gap: fluidSizing.space.sm }}>
+                      {backendCategories.filter(cat => cat.name && cat.label).map((cat) => {
+                        const isSelected = (formData.categories || []).some(
+                          (c) => c?.toLowerCase() === cat.name.toLowerCase() || c?.toLowerCase() === cat.label.toLowerCase()
+                        );
+                        return (
+                          <button
+                            key={cat.name}
+                            type="button"
+                            onClick={() => {
+                              const current = formData.categories || [];
+                              const updated = isSelected
+                                ? current.filter(c => c !== cat.name)
+                                : [...current, cat.name];
+                              setFormData({ ...formData, categories: updated, category: updated[0] || cat.name });
+                            }}
+                            className={`rounded-lg border transition-all duration-200 ${
+                              isSelected
+                                ? 'bg-admin-primary/20 border-admin-primary text-admin-primary'
+                                : 'bg-admin-dark-surface border-admin-primary/20 text-text-muted hover:border-admin-primary/50'
+                            }`}
+                            style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}
+                          >
+                            {cat.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-muted flex items-center justify-center" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}>
+                      Cargando categorías...
+                    </div>
+                  )}
                   {(!formData.categories || formData.categories.length === 0) && (
                     <p className="text-admin-warning" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>
                       Selecciona al menos una categoría
@@ -447,10 +545,12 @@ export default function ProjectFormModal({
                             type="text"
                             value={techInput}
                             onChange={(e) => setTechInput(e.target.value)}
+                            onFocus={() => filteredSuggestions.length > 0 && setShowSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                             onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
                             className="flex-1 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
                             style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
-                            placeholder="Agregar tecnología..."
+                            placeholder="Buscar o agregar tecnología..."
                           />
                           <button
                             type="button"
@@ -516,22 +616,20 @@ export default function ProjectFormModal({
                           <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                             Categoría *
                           </label>
-                          <Select
-                            value={techFormData.category}
-                            onChange={(value) => setTechFormData({ ...techFormData, category: value })}
-                            options={[
-                              { value: 'frontend', label: 'Frontend' },
-                              { value: 'backend', label: 'Backend' },
-                              { value: 'database', label: 'Base de Datos' },
-                              { value: 'devops', label: 'DevOps' },
-                              { value: 'mobile', label: 'Móvil' },
-                              { value: 'design', label: 'Diseño' },
-                              { value: 'testing', label: 'Testing' },
-                              { value: 'cloud', label: 'Cloud' },
-                              { value: 'ai', label: 'IA/ML' },
-                              { value: 'other', label: 'Otros' },
-                            ]}
-                          />
+                          {techCategories.length > 0 ? (
+                            <Select
+                              value={techFormData.category}
+                              onChange={(value) => setTechFormData({ ...techFormData, category: value })}
+                              options={techCategories.map(cat => ({
+                                value: cat.name,
+                                label: cat.label
+                              }))}
+                            />
+                          ) : (
+                            <div className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-muted flex items-center justify-center" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}>
+                              Cargando categorías...
+                            </div>
+                          )}
                         </div>
 
                         {/* Proficiency */}
@@ -646,21 +744,6 @@ export default function ProjectFormModal({
                       />
                     </div>
                   </div>
-                </div>
-
-                {/* Image URL */}
-                <div>
-                  <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
-                    URL de Imagen
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
-                    style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
-                    placeholder="https://..."
-                  />
                 </div>
 
                 {/* Toggles */}

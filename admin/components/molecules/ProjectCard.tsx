@@ -10,7 +10,7 @@ interface ProjectCardProps {
   id: string;
   title: string;
   description: string;
-  category: string;
+  category?: string;
   image?: string | null;
   featured: boolean;
   demoUrl?: string | null;
@@ -43,7 +43,7 @@ export default function ProjectCard({
     fullstack: 'text-red-400 border-red-400/30 bg-red-400/10',
   };
 
-  const categoryColor = categoryColors[category] || categoryColors.web;
+  const categoryColor = category ? (categoryColors[category] || categoryColors.web) : categoryColors.web;
 
   return (
     <motion.div
@@ -95,11 +95,13 @@ export default function ProjectCard({
           </div>
 
           {/* Category badge */}
-          <div className="flex-shrink-0">
-            <span className={`rounded-md font-medium border ${categoryColor}`} style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.xs }}>
-              {category.toUpperCase()}
-            </span>
-          </div>
+          {category && (
+            <div className="flex-shrink-0">
+              <span className={`rounded-md font-medium border ${categoryColor}`} style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.xs }}>
+                {category.toUpperCase()}
+              </span>
+            </div>
+          )}
 
           {/* Technologies */}
           {technologies.length > 0 && (

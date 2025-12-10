@@ -105,8 +105,8 @@ app.use(compression());
 app.use(cors(corsOptions));
 // Handle CORS preflight requests
 app.options('*', cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' })); // Aumentar límite para imágenes en base64
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Rate limiting

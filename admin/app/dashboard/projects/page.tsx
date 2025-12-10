@@ -78,8 +78,14 @@ function ProjectsPageContent() {
         // Transformar las tecnologías del formato de Prisma al formato esperado
         const transformedProjects = projectsData.map((project: any) => ({
           ...project,
-          // Extraer nombres de tecnologías de la relación ProjectTechnology
-          technologies: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || [],
+          // Mantener toda la información de las tecnologías
+          technologies: project.technologies?.map((pt: any) => ({
+            name: pt.technology?.name || pt.name,
+            category: pt.category,
+            proficiency: pt.proficiency,
+            yearsOfExperience: pt.yearsOfExperience || 0,
+            technology: pt.technology,
+          })).filter((t: any) => t.name) || [],
           // Mantener también el array tech si existe
           tech: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || project.tech || [],
         }));
@@ -248,6 +254,22 @@ function ProjectsPageContent() {
     }
   };
 
+  const handleDeleteProject = async () => {
+    if (!selectedProject) return;
+    
+    try {
+      const response = await api.deleteProject(selectedProject.slug);
+      if (response.success) {
+        await loadProjects();
+        setIsModalOpen(false);
+        logger.info('Project deleted successfully');
+      }
+    } catch (error) {
+      logger.error('Error deleting project', error);
+      throw error;
+    }
+  };
+
   if (isLoading || !isAuthenticated) {
     return <Loader fullScreen text="Cargando proyectos..." />;
   }
@@ -392,7 +414,7 @@ function ProjectsPageContent() {
                 featured={project.featured}
                 demoUrl={project.demoUrl}
                 repoUrl={project.repoUrl}
-                publishedAt={project.publishedAt ? new Date(project.publishedAt) : null}
+                publishedAt={project.publishedAt && project.publishedAt.trim() !== '' ? new Date(project.publishedAt) : null}
                 technologies={project.technologies?.map((t) => ({
                   name: t.technology.name,
                   color: t.technology.color,
@@ -410,6 +432,7 @@ function ProjectsPageContent() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveProject}
+        onDelete={handleDeleteProject}
         project={selectedProject}
         existingSkills={existingSkills}
       />
