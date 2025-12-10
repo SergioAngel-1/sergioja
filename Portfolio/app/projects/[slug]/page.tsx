@@ -15,6 +15,8 @@ import ProjectMetrics from '@/components/molecules/ProjectMetrics';
 import ProjectInfo from '@/components/molecules/ProjectInfo';
 import ProjectActions from '@/components/molecules/ProjectActions';
 import RelatedProjects from '@/components/molecules/RelatedProjects';
+import ProjectPreviewViewer from '@/components/molecules/ProjectPreviewViewer';
+import ProjectImageGallery from '@/components/molecules/ProjectImageGallery';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 
@@ -28,6 +30,8 @@ export default function ProjectDetailPage() {
   const { t } = useLanguage();
   const { lowPerformanceMode } = usePerformance();
   const [mounted, setMounted] = useState(false);
+  const [viewMode, setViewMode] = useState<'demo' | 'image'>('demo');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   
   // Track scroll depth and time on page
   usePageAnalytics();
@@ -144,43 +148,36 @@ export default function ProjectDetailPage() {
                 {t('projects.preview')}
               </h2>
               
-              {/* Preview iframe - only if URL exists and not in low performance mode */}
-              {project.demoUrl && !lowPerformanceMode && (
-                <>
-                  {/* Desktop/Tablet View */}
-                  <div className="hidden sm:block flex-1 bg-background-elevated rounded-lg overflow-hidden border border-white/10">
-                    <iframe
-                      src={project.demoUrl}
-                      className="w-full h-full"
-                      title={project.title}
-                      loading="lazy"
-                      sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+              {/* Vista previa dividida: 85% viewer + 15% gallery (o 100% si no hay imágenes) */}
+              <div className="flex-1 flex" style={{ gap: fluidSizing.space.md }}>
+                {/* Viewer - Ajusta su ancho según si hay imágenes o no */}
+                <div className={`min-h-[400px] ${project.images && project.images.length > 0 ? 'flex-[0.85]' : 'flex-1'}`}>
+                  <ProjectPreviewViewer
+                    demoUrl={project.demoUrl}
+                    images={project.images}
+                    title={project.title}
+                    lowPerformanceMode={lowPerformanceMode}
+                    viewMode={viewMode}
+                    selectedImageIndex={selectedImageIndex}
+                    onBackToDemo={() => setViewMode('demo')}
+                  />
+                </div>
+
+                {/* Gallery (15%) - Solo se muestra si hay imágenes */}
+                {project.images && project.images.length > 0 && (
+                  <div className="flex-[0.15] min-w-[120px] max-w-[200px]">
+                    <ProjectImageGallery
+                      images={project.images}
+                      selectedImageIndex={selectedImageIndex}
+                      onImageSelect={(index) => {
+                        setSelectedImageIndex(index);
+                        setViewMode('image');
+                        log.interaction('view_project_image', `${project.slug}-${index}`);
+                      }}
                     />
                   </div>
-                  
-                  {/* Mobile View - Simulated Phone */}
-                  <div className="sm:hidden flex justify-center">
-                    <div className="relative bg-background-dark rounded-[2.5rem] p-3 border-4 border-white/20 shadow-2xl" style={{ width: '320px', height: '640px' }}>
-                      {/* Phone notch */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-background-dark rounded-b-2xl z-10 border-x-4 border-b-4 border-white/20" />
-                      
-                      {/* Screen */}
-                      <div className="relative w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
-                        <iframe
-                          src={project.demoUrl}
-                          className="w-full h-full"
-                          title={project.title}
-                          loading="lazy"
-                          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                        />
-                      </div>
-                      
-                      {/* Home indicator */}
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-white/30 rounded-full" />
-                    </div>
-                  </div>
-                </>
-              )}
+                )}
+              </div>
 
               {/* Low Performance Mode Message */}
               {lowPerformanceMode && project.demoUrl && (

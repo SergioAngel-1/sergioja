@@ -86,6 +86,8 @@ export interface PortfolioTranslations {
   'projects.preview': string;
   'projects.previewNotAvailable': string;
   'projects.previewDisabledPerformance': string;
+  'projects.backToPreview': string;
+  'projects.noPreview': string;
   'projects.info': string;
   'projects.status': string;
   'projects.category': string;
@@ -337,6 +339,8 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.preview': 'Vista Previa',
     'projects.previewNotAvailable': 'Vista previa no disponible',
     'projects.previewDisabledPerformance': 'Vista previa deshabilitada en modo de bajo rendimiento',
+    'projects.backToPreview': 'Volver a Vista Previa',
+    'projects.noPreview': 'No hay vista previa disponible',
     'projects.info': 'Información del Proyecto',
     'projects.status': 'Estado',
     'projects.category': 'Categoría',
@@ -586,6 +590,8 @@ export const portfolioTranslations: Record<Language, PortfolioTranslations> = {
     'projects.preview': 'Preview',
     'projects.previewNotAvailable': 'Preview not available',
     'projects.previewDisabledPerformance': 'Preview disabled in low performance mode',
+    'projects.backToPreview': 'Back to Preview',
+    'projects.noPreview': 'No preview available',
     'projects.info': 'Project Information',
     'projects.status': 'Status',
     'projects.category': 'Category',
