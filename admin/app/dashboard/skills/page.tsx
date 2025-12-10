@@ -16,6 +16,7 @@ import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useCategories } from '@/lib/hooks';
 
 interface Technology {
   id: string;
@@ -37,7 +38,9 @@ export default function SkillsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'proficiency' | 'projects'>('proficiency');
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [backendCategories, setBackendCategories] = useState<Array<{ name: string; label: string; active: boolean }>>([]);
+  
+  // Cargar categorías con hook personalizado
+  const { categories: backendCategories, reload: reloadCategories } = useCategories('technology', isAuthenticated);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -48,7 +51,6 @@ export default function SkillsPage() {
   useEffect(() => {
     if (isAuthenticated) {
       loadSkills();
-      loadBackendCategories();
     }
   }, [isAuthenticated]);
 
@@ -76,23 +78,7 @@ export default function SkillsPage() {
     }
   };
 
-  const loadBackendCategories = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories/technologies`, {
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data && Array.isArray(data.data)) {
-          setBackendCategories(data.data.filter((cat: any) => cat.active));
-          logger.info(`Loaded ${data.data.length} technology categories from backend`);
-        }
-      }
-    } catch (error) {
-      logger.error('Error loading backend categories', error);
-    }
-  };
+  // Categorías se cargan automáticamente con useCategories
 
   // Filter and sort skills
   const filteredSkills = useMemo(() => {
@@ -315,7 +301,7 @@ export default function SkillsPage() {
         onClose={() => {
           setIsCategoryModalOpen(false);
           // Recargar categorías del backend
-          loadBackendCategories();
+          reloadCategories();
           // Recargar skills para actualizar conteos
           loadSkills();
         }}

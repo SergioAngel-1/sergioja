@@ -16,6 +16,7 @@ import CategoryManagementModal from '@/components/molecules/CategoryManagementMo
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useCategories } from '@/lib/hooks';
 
 interface Project {
   id: string;
@@ -25,11 +26,17 @@ interface Project {
   category: string;
   categories?: string[];
   image?: string | null;
+  imageUrl?: string | null;
   featured: boolean;
   demoUrl?: string | null;
   repoUrl?: string | null;
   publishedAt?: string | null;
-  technologies?: { technology: { name: string; color: string } }[];
+  technologies?: {
+    category: string;
+    proficiency: number;
+    yearsOfExperience: number;
+    technology: { name: string; color: string };
+  }[];
 }
 
 function ProjectsPageContent() {
@@ -46,7 +53,9 @@ function ProjectsPageContent() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [existingSkills, setExistingSkills] = useState<string[]>([]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [backendCategories, setBackendCategories] = useState<Array<{ name: string; label: string; active: boolean }>>([]);
+  
+  // Cargar categorías con hook personalizado
+  const { categories: backendCategories, reload: reloadCategories } = useCategories('project', isAuthenticated);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -75,19 +84,11 @@ function ProjectsPageContent() {
         console.log('Raw response:', response);
         console.log('Projects data:', projectsData);
         
-        // Transformar las tecnologías del formato de Prisma al formato esperado
+        // NO transformar las tecnologías - mantener el formato completo de Prisma
         const transformedProjects = projectsData.map((project: any) => ({
           ...project,
-          // Mantener toda la información de las tecnologías
-          technologies: project.technologies?.map((pt: any) => ({
-            name: pt.technology?.name || pt.name,
-            category: pt.category,
-            proficiency: pt.proficiency,
-            yearsOfExperience: pt.yearsOfExperience || 0,
-            technology: pt.technology,
-          })).filter((t: any) => t.name) || [],
-          // Mantener también el array tech si existe
-          tech: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || project.tech || [],
+          // Mantener technologies con metadata completa para el modal
+          // El formato de Prisma es: { category, proficiency, yearsOfExperience, technology: { name, color } }
         }));
         
         console.log('Transformed projects:', transformedProjects);
@@ -120,29 +121,12 @@ function ProjectsPageContent() {
     }
   }, []);
 
-  const loadBackendCategories = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories/projects`, {
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data && Array.isArray(data.data)) {
-          setBackendCategories(data.data.filter((cat: any) => cat.active));
-          logger.info(`Loaded ${data.data.length} project categories from backend`);
-        }
-      }
-    } catch (error) {
-      logger.error('Error loading backend categories', error);
-    }
-  };
+  // Categorías se cargan automáticamente con useCategories
 
   useEffect(() => {
     if (isAuthenticated) {
       loadProjects();
       loadExistingSkills();
-      loadBackendCategories();
     }
   }, [isAuthenticated, loadProjects, loadExistingSkills]);
 
@@ -416,9 +400,9 @@ function ProjectsPageContent() {
                 repoUrl={project.repoUrl}
                 publishedAt={project.publishedAt && project.publishedAt.trim() !== '' ? new Date(project.publishedAt) : null}
                 technologies={project.technologies?.map((t) => ({
-                  name: t.technology.name,
-                  color: t.technology.color,
-                }))}
+                  name: t.technology?.name || '',
+                  color: t.technology?.color || '#000000',
+                })).filter(t => t.name) || []}
                 delay={index * 0.05}
                 onEdit={() => handleEditProject(project)}
               />
@@ -443,7 +427,7 @@ function ProjectsPageContent() {
         onClose={() => {
           setIsCategoryModalOpen(false);
           // Recargar categorías del backend
-          loadBackendCategories();
+          reloadCategories();
           // Recargar proyectos para actualizar conteos
           loadProjects();
         }}
