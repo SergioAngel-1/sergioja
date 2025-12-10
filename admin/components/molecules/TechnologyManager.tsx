@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Icon from '../atoms/Icon';
 import TechnologyForm, { TechnologyFormData } from './TechnologyForm';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { useDebounce } from '@/lib/hooks';
 
 interface Category {
   name: string;
@@ -29,13 +30,15 @@ export default function TechnologyManager({
   const [techInput, setTechInput] = useState('');
   const [showTechForm, setShowTechForm] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const [techFormData, setTechFormData] = useState<TechnologyFormData>({
     name: '',
     category: categories.length > 0 ? categories[0].name : '',
     proficiency: 50,
     yearsOfExperience: 0,
   });
+
+  // Debounce del input para optimizar filtrado (300ms)
+  const debouncedTechInput = useDebounce(techInput, 300);
 
   // Update default category when categories load
   useEffect(() => {
@@ -44,23 +47,25 @@ export default function TechnologyManager({
     }
   }, [categories, techFormData.category]);
 
-  // Filter suggestions based on input
-  useEffect(() => {
+  // Filter suggestions based on debounced input (optimizado con useMemo)
+  const filteredSuggestions = useMemo(() => {
     const available = availableSkills.filter(skill => 
       !technologies.find(t => t.name === skill)
     );
     
-    if (techInput.trim()) {
-      const filtered = available.filter(skill => 
-        skill.toLowerCase().includes(techInput.toLowerCase())
+    if (debouncedTechInput.trim()) {
+      return available.filter(skill => 
+        skill.toLowerCase().includes(debouncedTechInput.toLowerCase())
       );
-      setFilteredSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
-    } else {
-      setFilteredSuggestions(available);
-      setShowSuggestions(false);
     }
-  }, [techInput, availableSkills, technologies]);
+    
+    return available;
+  }, [debouncedTechInput, availableSkills, technologies]);
+
+  // Mostrar sugerencias cuando hay input y resultados
+  useEffect(() => {
+    setShowSuggestions(techInput.trim().length > 0 && filteredSuggestions.length > 0);
+  }, [techInput, filteredSuggestions]);
 
   const handleAddTechnology = () => {
     if (techInput.trim()) {
