@@ -26,14 +26,6 @@ export default function SkillCard({
   projectCount,
   delay = 0,
 }: SkillCardProps) {
-  const categoryLabels: Record<string, string> = {
-    frontend: 'Frontend',
-    backend: 'Backend',
-    devops: 'DevOps',
-    design: 'Diseño',
-    other: 'Otros',
-  };
-
   const getProficiencyLabel = (level: number) => {
     if (level >= 90) return 'Experto';
     if (level >= 70) return 'Avanzado';
@@ -62,7 +54,7 @@ export default function SkillCard({
               {name}
             </h3>
             <p className="text-text-muted uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>
-              {categoryLabels[category] || category}
+              {category}
             </p>
           </div>
 
