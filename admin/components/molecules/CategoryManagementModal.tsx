@@ -7,7 +7,6 @@ import CategoryListItem from './CategoryListItem';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '@/lib/alerts';
 import { api } from '@/lib/api-client';
-import { logger } from '@/lib/logger';
 
 interface Category {
   id?: string;
@@ -51,25 +50,20 @@ export default function CategoryManagementModal({
 
   const loadCategories = async () => {
     try {
-      const endpoint = type === 'project' ? '/api/admin/categories/projects' : '/api/admin/categories/technologies';
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
-        credentials: 'include',
-      });
+      const response = type === 'project' 
+        ? await api.getProjectCategories()
+        : await api.getTechnologyCategories();
       
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data && Array.isArray(data.data)) {
-          setCategories(data.data);
-          logger.info(`Loaded ${data.data.length} ${type} categories`);
-        } else {
-          setCategories([]);
-        }
+      if (response.success && response.data && Array.isArray(response.data)) {
+        setCategories(response.data);
       } else {
         setCategories([]);
+        if (response.error) {
+          alerts.error('Error', response.error.message || 'Error al cargar categorías');
+        }
       }
     } catch (error) {
-      logger.error('Error loading categories', error);
-      alerts.error('Error al cargar categorías');
+      alerts.error('Error', 'Error al cargar categorías');
       setCategories([]);
     }
   };
@@ -95,43 +89,30 @@ export default function CategoryManagementModal({
 
   const handleSave = async () => {
     if (!formData.name || !formData.label) {
-      alerts.error('Por favor completa todos los campos requeridos');
+      alerts.error('Campos requeridos', 'El nombre y la etiqueta son obligatorios');
       return;
     }
 
     try {
-      const endpoint = type === 'project' ? '/api/admin/categories/projects' : '/api/admin/categories/technologies';
+      let response;
       
       if (isAddingNew) {
         // Crear nueva categoría
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(formData),
-        });
-
-        if (response.ok) {
-          alerts.success(`Categoría "${formData.label}" creada exitosamente`);
-          await loadCategories(); // Recargar categorías
-        } else {
-          alerts.error('Error al crear categoría');
-        }
+        response = await api.createCategory(type === 'project' ? 'projects' : 'technologies', formData as unknown as Record<string, unknown>);
       } else if (editingCategory && editingCategory.id) {
         // Actualizar categoría existente
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}/${editingCategory.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(formData),
-        });
-
-        if (response.ok) {
-          alerts.success(`Categoría "${formData.label}" actualizada exitosamente`);
-          await loadCategories(); // Recargar categorías
-        } else {
-          alerts.error('Error al actualizar categoría');
-        }
+        response = await api.updateCategory(
+          type === 'project' ? 'projects' : 'technologies',
+          editingCategory.id,
+          formData as unknown as Record<string, unknown>
+        );
+      }
+      
+      if (response?.success) {
+        alerts.success('Éxito', isAddingNew ? 'Categoría creada exitosamente' : 'Categoría actualizada exitosamente');
+        loadCategories();
+      } else if (response?.error) {
+        alerts.error('Error', response.error.message || 'Error al guardar categoría');
       }
 
       setIsAddingNew(false);
@@ -145,8 +126,7 @@ export default function CategoryManagementModal({
         active: true,
       });
     } catch (error) {
-      logger.error('Error saving category', error);
-      alerts.error('Error al guardar categoría');
+      alerts.error('Error', 'Error al guardar categoría');
     }
   };
 
@@ -167,48 +147,47 @@ export default function CategoryManagementModal({
     if (!category.id) return;
 
     try {
-      const endpoint = type === 'project' ? '/api/admin/categories/projects' : '/api/admin/categories/technologies';
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}/${category.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ ...category, active: !category.active }),
-      });
-
-      if (response.ok) {
-        alerts.info(`Categoría "${category.label}" ${!category.active ? 'activada' : 'desactivada'}`);
-        await loadCategories();
-      } else {
-        alerts.error('Error al actualizar categoría');
+      const response = await api.updateCategory(
+        type === 'project' ? 'projects' : 'technologies',
+        category.id,
+        { ...category, active: !category.active }
+      );
+      
+      if (response.success) {
+        alerts.success('Éxito', `Categoría ${!category.active ? 'activada' : 'desactivada'} exitosamente`);
+        loadCategories();
+      } else if (response.error) {
+        alerts.error('Error', response.error.message || 'Error al cambiar estado de categoría');
       }
     } catch (error) {
-      logger.error('Error toggling category', error);
-      alerts.error('Error al actualizar categoría');
+      alerts.error('Error', 'Error al cambiar estado de categoría');
     }
   };
 
   const handleDelete = async (category: Category) => {
     if (!category.id) return;
-    
-    if (confirm(`¿Estás seguro de eliminar la categoría "${category.label}"?`)) {
-      try {
-        const endpoint = type === 'project' ? '/api/admin/categories/projects' : '/api/admin/categories/technologies';
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}/${category.id}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
 
-        if (response.ok) {
-          alerts.success(`Categoría "${category.label}" eliminada exitosamente`);
-          await loadCategories();
-        } else {
-          alerts.error('Error al eliminar categoría');
+    alerts.confirm(
+      'Eliminar categoría',
+      `¿Estás seguro de eliminar la categoría "${category.label}"?`,
+      async () => {
+        try {
+          const response = await api.deleteCategory(
+            type === 'project' ? 'projects' : 'technologies',
+            category.id!
+          );
+          
+          if (response.success) {
+            alerts.success('Éxito', 'Categoría eliminada exitosamente');
+            loadCategories();
+          } else if (response.error) {
+            alerts.error('Error', response.error.message || 'Error al eliminar categoría');
+          }
+        } catch (error) {
+          alerts.error('Error', 'Error al eliminar categoría');
         }
-      } catch (error) {
-        logger.error('Error deleting category', error);
-        alerts.error('Error al eliminar categoría');
       }
-    }
+    );
   };
 
   const title = type === 'project' ? 'Gestionar Categorías de Proyectos' : 'Gestionar Categorías de Tecnologías';

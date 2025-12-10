@@ -151,19 +151,58 @@ class ApiClient {
 
   private handleError(error: unknown): ApiResponse<never> {
     if (axios.isAxiosError(error)) {
+      // Error de red (sin respuesta del servidor)
+      if (!error.response) {
+        return {
+          success: false,
+          error: {
+            message: error.code === 'ECONNABORTED' 
+              ? 'La solicitud tardó demasiado tiempo. Verifica tu conexión.'
+              : 'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
+            code: 'NETWORK_ERROR',
+            details: error.message,
+          },
+        };
+      }
+
+      // Error HTTP del servidor
+      const status = error.response.status;
+      let message = error.response?.data?.error?.message || error.message;
+      let code = error.response?.data?.error?.code || 'SERVER_ERROR';
+
+      // Mensajes específicos por código de estado
+      if (status === 401) {
+        message = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+        code = 'UNAUTHORIZED';
+      } else if (status === 403) {
+        message = 'No tienes permisos para realizar esta acción.';
+        code = 'FORBIDDEN';
+      } else if (status === 404) {
+        message = 'El recurso solicitado no existe.';
+        code = 'NOT_FOUND';
+      } else if (status === 429) {
+        message = 'Demasiadas solicitudes. Por favor, espera un momento.';
+        code = 'RATE_LIMIT';
+      } else if (status >= 500) {
+        message = 'Error del servidor. Por favor, intenta más tarde.';
+        code = 'SERVER_ERROR';
+      }
+
       return {
         success: false,
         error: {
-          message: error.response?.data?.error?.message || error.message,
-          code: error.response?.data?.error?.code || 'NETWORK_ERROR',
+          message,
+          code,
           details: error.response?.data?.error?.details,
         },
       };
     }
+
+    // Error desconocido
     return {
       success: false,
       error: {
-        message: 'Unknown error occurred',
+        message: 'Ocurrió un error inesperado. Por favor, intenta nuevamente.',
         code: 'UNKNOWN_ERROR',
       },
     };
@@ -233,4 +272,14 @@ export const api = {
   getAnalytics: () => apiClient.get('/portfolio/analytics/summary'),
   getPageViews: (params?: Record<string, unknown>) => apiClient.get('/admin/analytics/page-views', params),
   getProjectViews: (params?: Record<string, unknown>) => apiClient.get('/admin/analytics/project-views', params),
+
+  // Categories
+  getProjectCategories: () => apiClient.get('/admin/categories/projects'),
+  getTechnologyCategories: () => apiClient.get('/admin/categories/technologies'),
+  createCategory: (type: 'projects' | 'technologies', data: Record<string, unknown>) =>
+    apiClient.post(`/admin/categories/${type}`, data),
+  updateCategory: (type: 'projects' | 'technologies', id: string, data: Record<string, unknown>) =>
+    apiClient.put(`/admin/categories/${type}/${id}`, data),
+  deleteCategory: (type: 'projects' | 'technologies', id: string) =>
+    apiClient.delete(`/admin/categories/${type}/${id}`),
 };

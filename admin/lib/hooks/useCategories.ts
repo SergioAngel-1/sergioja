@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { logger } from '@/lib/logger';
+import { api } from '@/lib/api-client';
 
 interface Category {
   name: string;
@@ -15,8 +15,8 @@ interface UseCategoriesResult {
 }
 
 /**
- * Hook para cargar categorías desde el backend
- * Evita fetch directo y centraliza la lógica de carga
+ * Hook para cargar categorías desde el backend usando api-client
+ * Centraliza la lógica de carga con manejo de auth automático
  */
 export function useCategories(
   type: 'project' | 'technology',
@@ -31,29 +31,21 @@ export function useCategories(
       setIsLoading(true);
       setError(null);
       
-      const endpoint = type === 'project' 
-        ? '/api/admin/categories/projects' 
-        : '/api/admin/categories/technologies';
+      const response = type === 'project' 
+        ? await api.getProjectCategories()
+        : await api.getTechnologyCategories();
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data && Array.isArray(data.data)) {
-          const activeCategories = data.data.filter((cat: Category) => cat.active);
-          setCategories(activeCategories);
-          logger.info(`Loaded ${activeCategories.length} ${type} categories`);
-        } else {
-          setCategories([]);
-        }
+      if (response.success && response.data && Array.isArray(response.data)) {
+        const activeCategories = response.data.filter((cat: Category) => cat.active);
+        setCategories(activeCategories);
       } else {
-        throw new Error(`Failed to load categories: ${response.status}`);
+        setCategories([]);
+        if (response.error) {
+          throw new Error(response.error.message || 'Failed to load categories');
+        }
       }
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error');
-      logger.error(`Error loading ${type} categories`, error);
       setError(error);
       setCategories([]);
     } finally {
