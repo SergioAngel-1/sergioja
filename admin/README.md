@@ -93,7 +93,7 @@ npm start
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_SITE_URL=http://localhost:3002
-NEXT_PUBLIC_JWT_SECRET=<secret>
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=<recaptcha_key>
 NEXT_PUBLIC_GTM_ID=<optional>
 ```
 

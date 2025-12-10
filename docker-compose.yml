@@ -126,7 +126,6 @@ services:
         NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: http://localhost:3002
-        NEXT_PUBLIC_JWT_SECRET: ${JWT_SECRET}
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
     container_name: admin-frontend-dev
     restart: unless-stopped
@@ -135,7 +134,6 @@ services:
       NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:5000}
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: http://localhost:3002
-      NEXT_PUBLIC_JWT_SECRET: ${JWT_SECRET}
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
     ports:
       - "3002:3000"

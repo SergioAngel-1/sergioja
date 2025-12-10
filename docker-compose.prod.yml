@@ -215,7 +215,6 @@ services:
         NEXT_PUBLIC_API_URL: ${API_URL}
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: https://admin.sergioja.com
-        NEXT_PUBLIC_JWT_SECRET: ${JWT_SECRET}
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
     container_name: admin-frontend
     restart: unless-stopped
@@ -224,7 +223,6 @@ services:
       NEXT_PUBLIC_API_URL: ${API_URL}
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: https://admin.sergioja.com
-      NEXT_PUBLIC_JWT_SECRET: ${JWT_SECRET}
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
     depends_on:
       - backend
