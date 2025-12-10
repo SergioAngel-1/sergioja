@@ -23,7 +23,7 @@ router.get(
     });
     
     // Contar suscriptores activos
-    const subscribersCount = await prisma.newsletterSubscriber.count({
+    const subscribersCount = await prisma.newsletterSubscription.count({
       where: { status: 'active' }
     });
     
