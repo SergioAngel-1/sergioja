@@ -9,7 +9,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
-import PageLoader from '@/components/molecules/PageLoader';
+import ProjectDetailSkeleton from '@/components/molecules/ProjectDetailSkeleton';
 import ProjectHero from '@/components/organisms/ProjectHero';
 import ProjectMetrics from '@/components/molecules/ProjectMetrics';
 import ProjectInfo from '@/components/molecules/ProjectInfo';
@@ -46,16 +46,9 @@ export default function ProjectDetailPage() {
     }
   }, [project, log]);
 
-  // Show loader while mounting or loading
+  // Show skeleton while mounting or loading
   if (!mounted || loading) {
-    return (
-      <div className="relative min-h-screen pl-0 md:pl-20 with-bottom-nav-inset">
-        <div className="absolute inset-0 cyber-grid opacity-10" />
-        <div className="flex items-center justify-center min-h-screen">
-          <PageLoader variant="simple" isLoading={true} message={t('projects.loading') || 'Cargando proyecto...'} />
-        </div>
-      </div>
-    );
+    return <ProjectDetailSkeleton />;
   }
 
   // Trigger 404 page if project not found
@@ -148,10 +141,10 @@ export default function ProjectDetailPage() {
                 {t('projects.preview')}
               </h2>
               
-              {/* Vista previa dividida: 85% viewer + 15% gallery (o 100% si no hay imágenes) */}
+              {/* Vista previa dividida: 75% viewer + 25% gallery (o 100% si no hay imágenes) */}
               <div className="flex-1 flex min-h-[500px]" style={{ gap: fluidSizing.space.md }}>
                 {/* Viewer - Ajusta su ancho según si hay imágenes o no */}
-                <div className={`h-full ${project.images && project.images.length > 0 ? 'flex-[0.85]' : 'flex-1'}`}>
+                <div className={`h-full ${project.images && project.images.length > 0 ? 'flex-[0.75]' : 'flex-1'}`}>
                   <ProjectPreviewViewer
                     demoUrl={project.demoUrl}
                     images={project.images}
@@ -163,9 +156,9 @@ export default function ProjectDetailPage() {
                   />
                 </div>
 
-                {/* Gallery (15%) - Solo se muestra si hay imágenes */}
+                {/* Gallery (25%) - Solo se muestra si hay imágenes */}
                 {project.images && project.images.length > 0 && (
-                  <div className="flex-[0.15] min-w-[120px] max-w-[200px]">
+                  <div className="flex-[0.25] min-w-[150px] max-w-[280px]">
                     <ProjectImageGallery
                       images={project.images}
                       selectedImageIndex={selectedImageIndex}

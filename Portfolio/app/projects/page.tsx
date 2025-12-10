@@ -6,12 +6,13 @@ import { useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { useProjectCategories } from '@/lib/hooks/useProjectCategories';
 import ProjectCard from '@/components/molecules/ProjectCard';
+import ProjectCardSkeleton from '@/components/molecules/ProjectCardSkeleton';
+import VirtualizedProjectGrid from '@/components/molecules/VirtualizedProjectGrid';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
-import PageLoader from '@/components/molecules/PageLoader';
 import Pagination from '@/components/molecules/Pagination';
 import CategoryFilter from '@/components/molecules/CategoryFilter';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
@@ -52,7 +53,7 @@ export default function WorkPage() {
   }, [projects]);
 
   // Obtener categorías desde el backend
-  const { categories: backendCategories, isLoading: categoriesLoading } = useProjectCategories();
+  const { categories: backendCategories, loading: categoriesLoading } = useProjectCategories();
 
   // Transformar categorías del backend al formato esperado por CategoryFilter
   const categories = useMemo(() => {
@@ -83,11 +84,7 @@ export default function WorkPage() {
   }, [projects, currentPage, projectsPerPage]);
 
   if (!mounted) {
-    return (
-      <div className="relative min-h-screen pl-0 md:pl-20 py-16 md:py-20 px-4 sm:px-6 md:px-8">
-        <div className="absolute inset-0 cyber-grid opacity-10" />
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -167,11 +164,11 @@ export default function WorkPage() {
 
         {/* Projects display */}
         {loading ? (
-          <PageLoader 
-            variant="simple" 
-            isLoading={loading} 
-            message={t('work.loading')} 
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ProjectCardSkeleton key={i} />
+            ))}
+          </div>
         ) : error ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -206,7 +203,22 @@ export default function WorkPage() {
               )}
             </div>
           </motion.div>
+        ) : projects.length > 50 ? (
+          // Use virtualized grid for large lists (>50 projects)
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+          >
+            <VirtualizedProjectGrid
+              projects={paginatedProjects}
+              itemsPerRow={4}
+              itemHeight={400}
+              gap={24}
+            />
+          </motion.div>
         ) : (
+          // Use regular grid for smaller lists
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

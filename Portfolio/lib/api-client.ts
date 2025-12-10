@@ -91,6 +91,17 @@ class ApiClient {
     const response = await this.client.delete<ApiResponse<T>>(url);
     return response.data;
   }
+
+  // Método para rutas públicas (sin prefijo /portfolio)
+  async getPublic<T>(url: string, params?: Record<string, any>): Promise<ApiResponse<T>> {
+    const config: AxiosRequestConfig = params ? { params } : {};
+    const response = await axios.get<ApiResponse<T>>(`${API_URL}/api${url}`, {
+      ...config,
+      timeout: 10000,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+  }
 }
 
 export const apiClient = new ApiClient();
@@ -109,8 +120,8 @@ export const api = {
   getSkills: (category?: string) => apiClient.get('/skills', category ? { category } : undefined),
   getSkillProjects: (skillId: string) => apiClient.get(`/skills/${skillId}/projects`),
 
-  // Categories
-  getProjectCategories: () => apiClient.get('/categories/projects'),
+  // Categories (ruta pública sin prefijo portfolio)
+  getProjectCategories: () => apiClient.getPublic('/categories/projects'),
 
   // Timeline
   getTimeline: (type?: string) => apiClient.get('/timeline', type ? { type } : undefined),
