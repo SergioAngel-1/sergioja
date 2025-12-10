@@ -100,7 +100,7 @@ export default function SubscriberCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <Icon name="newsletter" size={18} className={isActive ? 'text-green-400' : 'text-red-400'} />
+              <Icon name="newsletter" size={18} className="text-white" />
               <h3 className="text-base font-bold text-admin-primary truncate">
                 {email}
               </h3>
