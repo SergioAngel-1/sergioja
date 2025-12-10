@@ -146,6 +146,9 @@ export default function SkillEditModal({
             value={formData.proficiency}
             onChange={(e) => setFormData(prev => ({ ...prev, proficiency: parseInt(e.target.value) }))}
             className="w-full"
+            style={{
+              accentColor: formData.color,
+            }}
           />
           <div className="flex justify-between text-text-muted" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>
             <span>Principiante</span>

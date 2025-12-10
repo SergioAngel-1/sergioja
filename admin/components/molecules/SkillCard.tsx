@@ -86,13 +86,10 @@ export default function SkillCard({
 
           {/* Icon or color indicator */}
           <div
-            className="rounded-lg flex items-center justify-center border transition-all duration-300 group-hover:scale-110"
+            className="rounded-lg flex items-center justify-center border border-admin-primary/20 transition-all duration-300 group-hover:scale-110 bg-admin-dark-surface text-admin-primary"
             style={{
               width: fluidSizing.size.buttonLg,
               height: fluidSizing.size.buttonLg,
-              backgroundColor: `${color}20`,
-              borderColor: `${color}40`,
-              color: color,
             }}
           >
             {icon ? (
@@ -127,7 +124,7 @@ export default function SkillCard({
           </div>
           <div className="flex items-center justify-between text-text-muted" style={{ fontSize: fluidSizing.text.xs }}>
             <span>0%</span>
-            <span className="font-medium" style={{ color }}>
+            <span className="font-medium text-text-primary">
               {proficiency}%
             </span>
             <span>100%</span>
@@ -138,12 +135,10 @@ export default function SkillCard({
         <div className="grid grid-cols-2 border-t border-admin-primary/10" style={{ gap: fluidSizing.space.sm, paddingTop: fluidSizing.space.sm }}>
           <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
             <div
-              className="rounded-lg flex items-center justify-center"
+              className="rounded-lg flex items-center justify-center bg-admin-primary/10 text-admin-primary"
               style={{ 
                 width: fluidSizing.size.buttonSm,
                 height: fluidSizing.size.buttonSm,
-                backgroundColor: `${color}10`,
-                color 
               }}
             >
               <Icon name="zap" size={14} />
@@ -158,12 +153,10 @@ export default function SkillCard({
 
           <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
             <div
-              className="rounded-lg flex items-center justify-center"
+              className="rounded-lg flex items-center justify-center bg-admin-primary/10 text-admin-primary"
               style={{ 
                 width: fluidSizing.size.buttonSm,
                 height: fluidSizing.size.buttonSm,
-                backgroundColor: `${color}10`,
-                color 
               }}
             >
               <Icon name="projects" size={14} />
