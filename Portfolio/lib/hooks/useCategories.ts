@@ -40,13 +40,16 @@ export function useCategories<T extends { category: string }>(
 
 /**
  * Hook para obtener categorías de proyectos con traducciones
+ * Maneja projects con categories como array de strings
  */
-export function useProjectCategories<T extends { category: string }>(items: T[]) {
+export function useProjectCategories<T extends { categories: string[] }>(items: T[]) {
   const { t } = useLanguage();
 
   return useMemo(() => {
-    const categoryMap = items.reduce((acc, item) => {
-      const category = item.category;
+    // Aplanar todas las categorías de todos los proyectos
+    const allCategories = items.flatMap(item => item.categories || []);
+    
+    const categoryMap = allCategories.reduce((acc, category) => {
       if (!acc[category]) {
         acc[category] = 0;
       }

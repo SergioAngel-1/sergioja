@@ -82,7 +82,7 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
             {/* Category badge */}
             <div className="absolute z-20" style={{ bottom: fluidSizing.space.sm, left: fluidSizing.space.sm }}>
               <span className="bg-background-dark/90 backdrop-blur-sm text-white text-[10px] sm:text-xs font-mono rounded-full border border-white/50" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}>
-                {project.category.toUpperCase()}
+                {project.categories?.[0]?.toUpperCase() || 'PROJECT'}
               </span>
             </div>
           </div>

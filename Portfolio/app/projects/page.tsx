@@ -42,10 +42,12 @@ export default function WorkPage() {
 
   // Calculate stats
   const stats = useMemo(() => {
+    // Flatten all categories from all projects and count unique ones
+    const allCategories = projects.flatMap(p => p.categories || []);
     return {
       total: projects.length,
       featured: projects.filter(p => p.featured).length,
-      categories: new Set(projects.map(p => p.category)).size,
+      categories: new Set(allCategories).size,
     };
   }, [projects]);
 

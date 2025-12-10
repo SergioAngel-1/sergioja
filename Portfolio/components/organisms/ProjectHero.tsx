@@ -50,7 +50,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
           className="mb-4"
         >
           <span className="px-3 py-1 bg-background-dark/90 backdrop-blur-sm text-white text-xs font-mono rounded-full border border-white/50 uppercase">
-            {project.category}
+            {project.categories?.[0] || 'PROJECT'}
           </span>
         </motion.div>
 
