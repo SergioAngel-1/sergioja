@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         const config = mergeMetadata(defaultSEO, {
           title: p.title,
           description,
-          keywords: [p.title, 'Proyecto', ...(p.tech || [])],
+          keywords: [p.title, 'Proyecto', ...(p.technologies?.map(t => t.name) || [])],
           alternates: { canonical },
           openGraph: {
             type: 'article',
@@ -111,7 +111,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
           creator: generatePersonSchema({ name: siteConfig.author.name, url: siteConfig.url, sameAs: [siteConfig.author.social.github, siteConfig.author.social.linkedin] }),
           dateCreated: p.createdAt,
           dateModified: p.updatedAt,
-          keywords: p.tech,
+          keywords: p.technologies?.map(t => t.name) || [],
           inLanguage: 'es',
         });
         breadcrumbJsonLd = toJsonLd(breadcrumb);

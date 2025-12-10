@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useSkills } from '@/lib/hooks/useSkills';
 import { useLogger } from '@/shared/hooks/useLogger';
-import { useSkillCategories } from '@/lib/hooks/useCategories';
+import { useTechnologyCategories } from '@/lib/hooks/useTechnologyCategories';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
 import Badge from '@/components/atoms/Badge';
@@ -40,8 +40,29 @@ export default function AboutPage() {
     [skills]
   );
 
-  // Obtener categorías dinámicas desde los skills
-  const categories = useSkillCategories(skills);
+  // Obtener categorías desde el backend
+  const { categories: backendCategories, isLoading: categoriesLoading } = useTechnologyCategories();
+
+  // Transformar categorías del backend al formato esperado por CategoryFilter
+  const categories = useMemo(() => {
+    const categoryOptions: Array<{ value: string | undefined; label: string; count?: number }> = [
+      { value: 'all', label: t('about.all'), count: skills.length },
+    ];
+
+    // Agregar categorías del backend con conteo de skills
+    backendCategories.forEach(cat => {
+      const count = skills.filter(s => s.category === cat.name).length;
+      if (count > 0) {
+        categoryOptions.push({
+          value: cat.name,
+          label: cat.label,
+          count,
+        });
+      }
+    });
+
+    return categoryOptions;
+  }, [backendCategories, skills, t]);
 
   // Memoizar skills filtradas por categoría
   const displayedSkills = useMemo(() => 

@@ -144,7 +144,7 @@ export default function WorkPage() {
         </div>
 
         {/* Filters */}
-        {projects.length > 0 && !error && !categoriesLoading && categories.length > 1 && (
+        {projects.length > 0 && !error && !categoriesLoading && categories.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

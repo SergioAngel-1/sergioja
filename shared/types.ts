@@ -46,8 +46,8 @@ export interface Project {
   title: string;
   description: string;
   longDescription?: string;
-  image?: string; // Primera imagen (para compatibilidad con portfolio)
-  images?: string[]; // Array de imágenes del proyecto
+  image?: string; // Primera imagen (para compatibilidad - calculada desde images[0])
+  images?: string[]; // Array de imágenes del proyecto (campo real en DB)
   categories: string[]; // Array de categorías (web, mobile, ai, backend, fullstack)
   featured: boolean;
   demoUrl?: string;
@@ -62,12 +62,12 @@ export interface Project {
   updatedAt: string;
   
   // Relación con technologies (opcional, solo algunos endpoints lo incluyen)
+  // Estructura aplanada que devuelve el backend
   technologies?: {
     name: string;
     category: string;
     proficiency: number;
     yearsOfExperience: number;
-    technology: Skill;
   }[];
 }
 

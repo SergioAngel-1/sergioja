@@ -23,6 +23,7 @@ import profileRoutes from './routes/portfolio/profile';
 import skillsRoutes from './routes/portfolio/skills';
 import contactRoutes from './routes/portfolio/contact';
 import portfolioProjectsRoutes from './routes/portfolio/projects';
+import portfolioCategoriesRoutes from './routes/portfolio/categories';
 
 // Routes - Shared
 import analyticsRoutes from './routes/shared/analytics';
@@ -162,6 +163,7 @@ app.use('/api/portfolio/skills', skillsRoutes);
 app.use('/api/portfolio/contact', contactRoutes);
 app.use('/api/portfolio/newsletter', newsletterRoutes);
 app.use('/api/portfolio/analytics', analyticsRoutes);
+app.use('/api/categories', portfolioCategoriesRoutes); // Rutas públicas de categorías
 logger.info('Routes configured successfully');
 
 setInterval(() => {
