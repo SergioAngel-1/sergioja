@@ -114,15 +114,17 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Project Metrics */}
-          {project.metrics && (
-            <div className="lg:col-span-1 flex">
-              <ProjectMetrics metrics={project.metrics} />
-            </div>
-          )}
+          <div className="lg:col-span-1 flex">
+            <ProjectMetrics metrics={{
+              performance: project.performanceScore || 0,
+              accessibility: project.accessibilityScore || 0,
+              seo: project.seoScore || 0,
+            }} />
+          </div>
         </div>
 
         {/* Grid Layout: Info + Actions + Preview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-stretch gap-6 sm:gap-8">
           {/* Left Column: Project Info + Actions */}
           <div className="lg:col-span-1 flex flex-col gap-6 sm:gap-8">
             <ProjectInfo project={project} />
@@ -130,12 +132,12 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Project Preview/Description */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 flex">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.6 }}
-              className="bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-4 sm:p-6 md:p-8 hover:border-white/40 transition-all duration-300"
+              className="bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-4 sm:p-6 md:p-8 hover:border-white/40 transition-all duration-300 w-full flex flex-col"
             >
               <h2 className="font-orbitron text-base sm:text-xl md:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
                 <div className="w-0.5 sm:w-1 h-4 sm:h-6 bg-white rounded-full" />
@@ -146,7 +148,7 @@ export default function ProjectDetailPage() {
               {project.demoUrl && !lowPerformanceMode && (
                 <>
                   {/* Desktop/Tablet View */}
-                  <div className="hidden sm:block aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10">
+                  <div className="hidden sm:block flex-1 bg-background-elevated rounded-lg overflow-hidden border border-white/10">
                     <iframe
                       src={project.demoUrl}
                       className="w-full h-full"

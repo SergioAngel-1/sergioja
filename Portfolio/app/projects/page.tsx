@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/shared/hooks/useLogger';
-import { useProjectCategories } from '@/lib/hooks/useCategories';
+import { useProjectCategories } from '@/lib/hooks/useProjectCategories';
 import ProjectCard from '@/components/molecules/ProjectCard';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
@@ -51,8 +51,29 @@ export default function WorkPage() {
     };
   }, [projects]);
 
-  // Obtener categorías dinámicas desde los proyectos
-  const categories = useProjectCategories(projects);
+  // Obtener categorías desde el backend
+  const { categories: backendCategories, isLoading: categoriesLoading } = useProjectCategories();
+
+  // Transformar categorías del backend al formato esperado por CategoryFilter
+  const categories = useMemo(() => {
+    const categoryOptions: Array<{ value: string | undefined; label: string; count?: number }> = [
+      { value: undefined, label: t('work.all'), count: projects.length },
+    ];
+
+    // Agregar categorías del backend con conteo de proyectos
+    backendCategories.forEach(cat => {
+      const count = projects.filter(p => p.categories?.includes(cat.name)).length;
+      if (count > 0) {
+        categoryOptions.push({
+          value: cat.name,
+          label: cat.label,
+          count,
+        });
+      }
+    });
+
+    return categoryOptions;
+  }, [backendCategories, projects, t]);
 
   // Pagination
   const totalPages = Math.ceil(projects.length / projectsPerPage);
@@ -123,7 +144,7 @@ export default function WorkPage() {
         </div>
 
         {/* Filters */}
-        {projects.length > 0 && !error && categories.length > 0 && (
+        {projects.length > 0 && !error && !categoriesLoading && categories.length > 1 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

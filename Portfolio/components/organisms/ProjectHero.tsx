@@ -83,29 +83,21 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
           className="flex flex-wrap"
           style={{ gap: fluidSizing.space.sm }}
         >
-          {project.tech.map((tech, index) => (
+          {project.technologies?.map((tech, index) => (
             <motion.div
-              key={tech}
+              key={tech.name}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.7 + index * 0.05 }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              {/* Mobile: Solo icono sin badge */}
-              <div className="sm:hidden text-white/80">
-                <TechIcon tech={tech} className="w-5 h-5" />
-              </div>
-              
-              {/* Desktop: Badge con icono + nombre */}
-              <div className="hidden sm:block">
-                <Badge variant="blue">
-                  <span className="flex items-center gap-1.5">
-                    <TechIcon tech={tech} className="w-3.5 h-3.5" />
-                    <span>{tech}</span>
-                  </span>
-                </Badge>
-              </div>
+              <Badge variant="blue">
+                <span className="flex items-center gap-2">
+                  <TechIcon tech={tech.name} className="w-4 h-4" />
+                  <span>{tech.name}</span>
+                </span>
+              </Badge>
             </motion.div>
           ))}
         </motion.div>

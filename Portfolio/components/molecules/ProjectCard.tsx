@@ -101,44 +101,44 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
 
             {/* Tech stack */}
             <div className="flex flex-wrap" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.sm }}>
-              {project.tech.slice(0, 6).map((tech, index) => (
+              {project.technologies?.slice(0, 6).map((tech, index) => (
                 <motion.div
-                  key={tech}
+                  key={tech.name}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.05 }}
                 >
                   {/* Mobile: Solo icono sin badge */}
                   <div className="sm:hidden text-white/80">
-                    <TechIcon tech={tech} className="w-4 h-4" />
+                    <TechIcon tech={tech.name} className="w-4 h-4" />
                   </div>
                   
                   {/* Desktop: Badge con icono + nombre */}
                   <div className="hidden sm:block">
                     <Badge variant="blue">
                       <span className="flex items-center gap-1">
-                        <TechIcon tech={tech} className="w-3.5 h-3.5" />
-                        <span>{tech}</span>
+                        <TechIcon tech={tech.name} className="w-3.5 h-3.5" />
+                        <span>{tech.name}</span>
                       </span>
                     </Badge>
                   </div>
                 </motion.div>
               ))}
-              {project.tech.length > 6 && (
+              {(project.technologies?.length || 0) > 6 && (
                 <Badge variant="default">
-                  +{project.tech.length - 6}
+                  +{(project.technologies?.length || 0) - 6}
                 </Badge>
               )}
             </div>
 
             {/* Stats - Metrics */}
-            {project.metrics && (
+            {(project.performanceScore || project.accessibilityScore || project.seoScore) && (
               <>
                 {/* Desktop: Grid */}
                 <div className="hidden sm:grid grid-cols-3" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.md }}>
-                  <StatCard label="Perf" value={project.metrics.performance} index={0} compact />
-                  <StatCard label="A11y" value={project.metrics.accessibility} index={1} compact />
-                  <StatCard label="SEO" value={project.metrics.seo} index={2} compact />
+                  <StatCard label="Perf" value={project.performanceScore || 0} index={0} compact />
+                  <StatCard label="A11y" value={project.accessibilityScore || 0} index={1} compact />
+                  <StatCard label="SEO" value={project.seoScore || 0} index={2} compact />
                 </div>
                 
                 {/* Mobile: Vertical List con contenedor */}
@@ -146,17 +146,17 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
                   <div className="flex flex-col gap-1 text-[10px] font-mono">
                     <div className="flex items-center justify-between">
                       <span className="text-text-secondary">Perf</span>
-                      <span className="text-white font-bold">{project.metrics.performance}</span>
+                      <span className="text-white font-bold">{project.performanceScore || 0}</span>
                     </div>
                     <div className="h-px bg-white/5" />
                     <div className="flex items-center justify-between">
                       <span className="text-text-secondary">A11y</span>
-                      <span className="text-white font-bold">{project.metrics.accessibility}</span>
+                      <span className="text-white font-bold">{project.accessibilityScore || 0}</span>
                     </div>
                     <div className="h-px bg-white/5" />
                     <div className="flex items-center justify-between">
                       <span className="text-text-secondary">SEO</span>
-                      <span className="text-white font-bold">{project.metrics.seo}</span>
+                      <span className="text-white font-bold">{project.seoScore || 0}</span>
                     </div>
                   </div>
                 </div>
