@@ -8,7 +8,8 @@ import { fluidSizing } from '@/lib/fluidSizing';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title?: string;
+  customHeader?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
@@ -19,6 +20,7 @@ export default function Modal({
   isOpen,
   onClose,
   title,
+  customHeader,
   children,
   footer,
   maxWidth = '3xl',
@@ -89,25 +91,31 @@ export default function Modal({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header - Fixed */}
-              <div 
-                className="flex items-center justify-between border-b border-admin-primary/20 flex-shrink-0" 
-                style={{ padding: fluidSizing.space.lg, gap: fluidSizing.space.md }}
-              >
-                <h2 
-                  className="font-orbitron font-bold text-admin-primary" 
-                  style={{ fontSize: fluidSizing.text['2xl'] }}
+              {customHeader ? (
+                <div className="border-b border-admin-primary/20 flex-shrink-0">
+                  {customHeader}
+                </div>
+              ) : (
+                <div 
+                  className="flex items-center justify-between border-b border-admin-primary/20 flex-shrink-0" 
+                  style={{ padding: fluidSizing.space.lg, gap: fluidSizing.space.md }}
                 >
-                  {title}
-                </h2>
-                {showCloseButton && (
-                  <button
-                    onClick={onClose}
-                    className="text-text-muted hover:text-text-primary transition-colors"
+                  <h2 
+                    className="font-orbitron font-bold text-admin-primary" 
+                    style={{ fontSize: fluidSizing.text['2xl'] }}
                   >
-                    <Icon name="plus" size={24} className="rotate-45" />
-                  </button>
-                )}
-              </div>
+                    {title}
+                  </h2>
+                  {showCloseButton && (
+                    <button
+                      onClick={onClose}
+                      className="text-text-muted hover:text-text-primary transition-colors"
+                    >
+                      <Icon name="plus" size={24} className="rotate-45" />
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Content - Scrollable */}
               <div className="flex-1 overflow-y-auto scrollbar-thin">

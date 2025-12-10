@@ -43,9 +43,13 @@ export default function CategorySelector({
         {label} {required && '*'}
       </label>
       
-      {isLoading || categories.length === 0 ? (
+      {isLoading ? (
         <div className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-muted flex items-center justify-center" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}>
           Cargando categorías...
+        </div>
+      ) : categories.length === 0 ? (
+        <div className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-muted flex items-center justify-center" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}>
+          No hay categorías disponibles
         </div>
       ) : (
         <div className="flex flex-wrap" style={{ gap: fluidSizing.space.sm }}>
