@@ -26,10 +26,11 @@ router.post(
       } satisfies ApiResponse);
     }
 
-    const { email, recaptchaToken, recaptchaAction } = req.body as {
+    const { email, recaptchaToken, recaptchaAction, source } = req.body as {
       email: string;
       recaptchaToken?: string;
       recaptchaAction?: string;
+      source?: 'main' | 'portfolio';
     };
 
     try {
@@ -64,6 +65,7 @@ router.post(
           ipAddress: req.ip,
           userAgent: req.get('user-agent') || undefined,
           status: 'active',
+          source: source || 'main',
         },
       });
 
@@ -133,6 +135,35 @@ router.get('/subscribers', authMiddleware, async (req: Request, res: Response) =
       error: {
         code: 'INTERNAL_ERROR',
         message: 'Error al obtener suscriptores',
+      },
+    });
+  }
+});
+
+// PATCH /api/admin/newsletter/subscribers/:id - Marcar como leído
+router.patch('/subscribers/:id', authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { isRead } = req.body;
+
+    const subscriber = await prisma.newsletterSubscription.update({
+      where: { id },
+      data: { isRead: isRead ?? true },
+    });
+
+    logger.info('Subscriber marked as read', { id, isRead: subscriber.isRead });
+
+    res.json({
+      success: true,
+      data: subscriber,
+    });
+  } catch (error) {
+    logger.error('Error updating subscriber', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Error al actualizar suscriptor',
       },
     });
   }

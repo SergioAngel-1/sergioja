@@ -57,6 +57,8 @@ export interface NewsletterSubscription {
   ipAddress?: string | null;
   userAgent?: string | null;
   status: 'active' | 'unsubscribed';
+  source: 'main' | 'portfolio';
+  isRead: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -140,6 +140,15 @@ class ApiClient {
     }
   }
 
+  async patch<T>(url: string, data: unknown): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.client.patch<ApiResponse<T>>(url, data);
+      return response.data;
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
   async delete<T>(url: string): Promise<ApiResponse<T>> {
     try {
       const response = await this.client.delete<ApiResponse<T>>(url);
@@ -266,6 +275,7 @@ export const api = {
 
   // Newsletter
   getSubscribers: (params?: Record<string, unknown>) => apiClient.get('/admin/newsletter/subscribers', params),
+  markSubscriberAsRead: (id: string, isRead: boolean = true) => apiClient.patch(`/admin/newsletter/subscribers/${id}`, { isRead }),
   deleteSubscriber: (id: string) => apiClient.delete(`/admin/newsletter/subscribers/${id}`),
 
   // Analytics

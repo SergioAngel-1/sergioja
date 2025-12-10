@@ -25,6 +25,7 @@ export default function NewsletterPage() {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'email'>('date');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -67,9 +68,46 @@ export default function NewsletterPage() {
       
       if (response.success) {
         setSubscribers(prev => prev.filter(s => s.id !== subscriberId));
+        if (expandedId === subscriberId) {
+          setExpandedId(null);
+        }
       }
     } catch (error) {
       logger.error('Error deleting subscriber', error);
+    }
+  };
+
+  const handleToggleExpand = async (subscriberId: string) => {
+    const newExpandedId = expandedId === subscriberId ? null : subscriberId;
+    setExpandedId(newExpandedId);
+    
+    // Si se está expandiendo (no colapsando) y no está leído, marcarlo como leído
+    if (newExpandedId) {
+      const subscriber = subscribers.find(s => s.id === subscriberId);
+      if (subscriber && !subscriber.isRead) {
+        try {
+          await api.markSubscriberAsRead(subscriberId, true);
+          // Actualizar el estado local
+          setSubscribers(prev => prev.map(s => 
+            s.id === subscriberId ? { ...s, isRead: true } : s
+          ));
+        } catch (error) {
+          console.error('Error marking subscriber as read:', error);
+        }
+      }
+    }
+  };
+
+  const handleToggleRead = async (subscriberId: string, isRead: boolean) => {
+    try {
+      await api.markSubscriberAsRead(subscriberId, isRead);
+      // Actualizar el estado local
+      setSubscribers(prev => prev.map(s => 
+        s.id === subscriberId ? { ...s, isRead } : s
+      ));
+    } catch (error) {
+      logger.error('Error toggling read status', error);
+      throw error;
     }
   };
 
@@ -277,18 +315,23 @@ export default function NewsletterPage() {
             </p>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: fluidSizing.space.lg }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start" style={{ gap: fluidSizing.space.lg }}>
             {filteredSubscribers.map((subscriber, index) => (
               <SubscriberCard
                 key={subscriber.id}
                 id={subscriber.id}
                 email={subscriber.email}
                 status={subscriber.status}
+                source={subscriber.source}
+                isRead={subscriber.isRead}
                 createdAt={new Date(subscriber.createdAt)}
                 ipAddress={subscriber.ipAddress}
                 userAgent={subscriber.userAgent}
                 delay={index * 0.05}
                 onDelete={handleDelete}
+                onToggleRead={handleToggleRead}
+                isExpanded={expandedId === subscriber.id}
+                onToggleExpand={handleToggleExpand}
               />
             ))}
           </div>
