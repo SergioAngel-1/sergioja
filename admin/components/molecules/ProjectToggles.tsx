@@ -29,7 +29,7 @@ export default function ProjectToggles({
 
       <Checkbox
         checked={isPublished}
-        onChange={onPublishedChange}
+        onChange={() => onPublishedChange()}
         label="Publicado"
       />
     </div>

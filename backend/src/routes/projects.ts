@@ -78,26 +78,34 @@ router.get('/', async (req: Request, res: Response) => {
     // Transform to match frontend interface
     const transformedProjects: Project[] = projects.map((p: any) => ({
       id: p.id,
-      title: p.title,
       slug: p.slug,
+      title: p.title,
       description: p.description,
       longDescription: p.longDescription || undefined,
       image: p.image || undefined,
-      technologies: p.technologies.map((t: any) => t.technology.name),
-      tech: p.technologies.map((t: any) => t.technology.name),
-      category: p.category,
+      categories: p.categories || [],
       featured: p.featured,
       demoUrl: p.demoUrl || undefined,
-      githubUrl: p.repoUrl || undefined,
       repoUrl: p.repoUrl || undefined,
+      githubUrl: p.githubUrl || p.repoUrl || undefined,
+      isCodePublic: p.isCodePublic,
+      performanceScore: p.performanceScore || null,
+      accessibilityScore: p.accessibilityScore || null,
+      seoScore: p.seoScore || null,
+      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+      
+      // Campos derivados/computados
+      category: Array.isArray(p.categories) && p.categories.length > 0 ? p.categories[0] : 'web',
+      technologies: p.technologies.map((t: any) => t.technology.name),
+      tech: p.technologies.map((t: any) => t.technology.name),
       status: 'completed' as const,
       metrics: p.performanceScore ? {
         performance: p.performanceScore,
         accessibility: p.accessibilityScore || 0,
         seo: p.seoScore || 0,
       } : undefined,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
     }));
 
     const response: ApiResponse<PaginatedResponse<Project>> = {
@@ -168,27 +176,34 @@ router.get('/:slug', async (req: Request, res: Response) => {
     // Transform to match frontend interface
     const transformedProject: Project = {
       id: project.id,
-      title: project.title,
       slug: project.slug,
+      title: project.title,
       description: project.description,
       longDescription: project.longDescription || undefined,
       image: project.image || undefined,
-      technologies: project.technologies.map((t: any) => t.technology.name),
-      tech: project.technologies.map((t: any) => t.technology.name),
-      category: project.categories?.[0] || 'web', // Primera categoría para retrocompatibilidad
       categories: project.categories || [],
       featured: project.featured,
       demoUrl: project.demoUrl || undefined,
-      githubUrl: project.repoUrl || undefined,
       repoUrl: project.repoUrl || undefined,
+      githubUrl: project.githubUrl || project.repoUrl || undefined,
+      isCodePublic: project.isCodePublic,
+      performanceScore: project.performanceScore || null,
+      accessibilityScore: project.accessibilityScore || null,
+      seoScore: project.seoScore || null,
+      publishedAt: project.publishedAt ? project.publishedAt.toISOString() : null,
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString(),
+      
+      // Campos derivados/computados
+      category: project.categories?.[0] || 'web',
+      technologies: project.technologies.map((t: any) => t.technology.name),
+      tech: project.technologies.map((t: any) => t.technology.name),
       status: 'completed' as const,
       metrics: project.performanceScore ? {
         performance: project.performanceScore,
         accessibility: project.accessibilityScore || 0,
         seo: project.seoScore || 0,
       } : undefined,
-      createdAt: project.createdAt.toISOString(),
-      updatedAt: project.updatedAt.toISOString(),
     };
 
     const response: ApiResponse<Project> = {
@@ -248,11 +263,44 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
       take: limitNum,
     });
 
-    logger.info('Admin projects retrieved', { count: projects.length, total });
+    // Transform projects to ensure all fields are present and match Prisma schema
+    const transformedProjects = projects.map((p: any) => ({
+      // Campos base del schema de Prisma
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      description: p.description,
+      longDescription: p.longDescription,
+      image: p.image,
+      categories: p.categories || [],
+      featured: p.featured,
+      demoUrl: p.demoUrl,
+      repoUrl: p.repoUrl,
+      githubUrl: p.githubUrl || p.repoUrl, // Alias for repoUrl
+      isCodePublic: p.isCodePublic,
+      performanceScore: p.performanceScore,
+      accessibilityScore: p.accessibilityScore,
+      seoScore: p.seoScore,
+      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+      
+      // Campos derivados/computados para el frontend
+      category: Array.isArray(p.categories) && p.categories.length > 0 ? p.categories[0] : 'web',
+      technologies: p.technologies.map((t: any) => ({
+        name: t.technology.name,
+        category: t.category,
+        proficiency: t.proficiency,
+        yearsOfExperience: t.yearsOfExperience,
+        technology: t.technology,
+      })),
+    }));
+
+    logger.info('Admin projects retrieved', { count: transformedProjects.length, total });
 
     res.json({
       success: true,
-      data: projects,
+      data: transformedProjects,
     });
   } catch (error) {
     logger.error('Error fetching admin projects', error);

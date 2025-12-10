@@ -44,32 +44,36 @@ export interface Profile {
 }
 
 export interface Project {
+  // Campos base del schema de Prisma
   id: string;
-  title: string;
   slug: string;
+  title: string;
   description: string;
   longDescription?: string;
   image?: string;
-  images?: string[];
-  technologies: string[];
-  tech: string[]; // Alias para technologies (usado en frontend)
-  category: string; // Primera categoría (retrocompatibilidad)
-  categories?: string[]; // Array de categorías
+  categories: string[]; // Array de categorías (web, mobile, ai, backend, fullstack)
   featured: boolean;
   demoUrl?: string;
-  githubUrl?: string;
-  repoUrl?: string; // Alias para githubUrl
-  isCodePublic?: boolean; // Indica si el código fuente es público
-  status: 'completed' | 'in-progress' | 'planned';
-  startDate?: string;
-  endDate?: string;
+  repoUrl?: string;
+  githubUrl?: string; // Alias for repoUrl
+  isCodePublic: boolean; // Indica si el código fuente es público
+  performanceScore?: number | null;
+  accessibilityScore?: number | null;
+  seoScore?: number | null;
+  publishedAt?: string | null; // Fecha de publicación (null = borrador)
+  createdAt: string;
+  updatedAt: string;
+  
+  // Campos derivados/computados (no en BD)
+  category?: string; // Primera categoría (retrocompatibilidad)
+  technologies?: any[]; // Relación con ProjectTechnology
+  tech?: string[]; // Alias para technologies (usado en frontend)
+  status?: 'completed' | 'in-progress' | 'planned'; // Derivado de publishedAt
   metrics?: {
     performance: number;
     accessibility: number;
     seo: number;
-  };
-  createdAt: string;
-  updatedAt: string;
+  }; // Alias para performanceScore, accessibilityScore, seoScore
 }
 
 export interface Skill {

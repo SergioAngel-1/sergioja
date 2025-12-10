@@ -21,9 +21,11 @@ export default function ProjectUrlFields({
   onLiveUrlChange,
   onIsCodePublicChange,
 }: ProjectUrlFieldsProps) {
-  const handleCodePublicToggle = (checked: boolean) => {
-    onIsCodePublicChange(checked);
-    if (!checked) {
+  const handlePrivateRepoToggle = (checked: boolean) => {
+    // checked = true significa "Repositorio Privado" marcado, entonces isCodePublic = false
+    onIsCodePublicChange(!checked);
+    if (checked) {
+      // Si es privado, limpiar la URL del repositorio
       onRepositoryUrlChange('');
     }
   };
@@ -33,7 +35,7 @@ export default function ProjectUrlFields({
       <div>
         <Checkbox
           checked={!isCodePublic}
-          onChange={() => handleCodePublicToggle(!isCodePublic)}
+          onChange={(e) => handlePrivateRepoToggle(e.target.checked)}
           label="Repositorio Privado"
         />
       </div>

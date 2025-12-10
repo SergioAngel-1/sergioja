@@ -104,15 +104,26 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       
       setProjectTechnologies(existingTechs);
       
-      // Inicializar formData
+      // Determinar categorías: usar normalizedCategories si están disponibles, sino usar las del proyecto
+      const projectCategories = normalizedCategories.length > 0 
+        ? normalizedCategories 
+        : (Array.isArray(project.categories) ? project.categories : (project.category ? [project.category] : ['web']));
+      
+      // Inicializar formData con todos los campos correctamente
       setFormData({
-        ...project,
-        categories: normalizedCategories,
+        id: project.id,
+        title: project.title || '',
+        description: project.description || '',
+        category: projectCategories[0] || 'web',
+        categories: projectCategories,
         technologies: project.technologies?.map((t: any) => 
           typeof t === 'string' ? t : t.technology?.name || t.name
         ) || [],
+        featured: project.featured || false,
         repositoryUrl: project.repoUrl || project.repositoryUrl || '',
         liveUrl: project.demoUrl || project.liveUrl || '',
+        imageUrl: project.imageUrl || project.image || '',
+        isCodePublic: project.isCodePublic !== undefined ? project.isCodePublic : true,
         publishedAt: project.publishedAt || null,
       });
       
@@ -137,20 +148,22 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     }
   }, [project, isOpen, normalizedCategories]);
 
-  // Actualizar categorías cuando se normalizan
+  // Actualizar categorías cuando se normalizan (solo si cambian realmente)
   useEffect(() => {
-    if (!isOpen || !project) return;
+    if (!isOpen || !project || normalizedCategories.length === 0) return;
     
-    // Solo actualizar si las categorías normalizadas son diferentes y válidas
-    if (normalizedCategories.length > 0 && 
-        JSON.stringify(formData.categories) !== JSON.stringify(normalizedCategories)) {
+    // Solo actualizar si las categorías normalizadas son diferentes
+    const currentCats = JSON.stringify(formData.categories?.sort());
+    const normalizedCats = JSON.stringify(normalizedCategories.sort());
+    
+    if (currentCats !== normalizedCats) {
       setFormData(prev => ({
         ...prev,
         categories: normalizedCategories,
         category: normalizedCategories[0] || prev.category,
       }));
     }
-  }, [normalizedCategories, isOpen, project]);
+  }, [normalizedCategories, isOpen, project, formData.categories]);
 
   const updateFormData = (updates: Partial<ProjectFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
@@ -189,11 +202,22 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
 
   const getSubmitData = () => {
     return {
-      ...formData,
-      image: imagePreview || formData.imageUrl || '',
-      repoUrl: formData.repositoryUrl,
-      demoUrl: formData.liveUrl,
+      id: formData.id,
+      title: formData.title,
+      description: formData.description,
+      category: formData.category,
+      categories: formData.categories || [],
+      technologies: formData.technologies,
       technologiesData: projectTechnologies,
+      featured: formData.featured,
+      publishedAt: formData.publishedAt,
+      repositoryUrl: formData.repositoryUrl,
+      repoUrl: formData.repositoryUrl,
+      liveUrl: formData.liveUrl,
+      demoUrl: formData.liveUrl,
+      image: imagePreview || formData.imageUrl || '',
+      imageUrl: imagePreview || formData.imageUrl || '',
+      isCodePublic: formData.isCodePublic,
     };
   };
 

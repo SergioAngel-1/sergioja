@@ -133,9 +133,14 @@ function ProjectsPageContent() {
   const filteredProjects = useMemo(() => {
     let filtered = projects;
 
-    // Filter by category
+    // Filter by category - soportar tanto categories (array) como category (string)
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter((p) => p.category === selectedCategory);
+      filtered = filtered.filter((p) => {
+        if (Array.isArray(p.categories)) {
+          return p.categories.includes(selectedCategory);
+        }
+        return p.category === selectedCategory;
+      });
     }
 
     // Filter by status
