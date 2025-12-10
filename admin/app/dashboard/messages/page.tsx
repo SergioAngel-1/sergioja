@@ -15,25 +15,14 @@ import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
-
-interface Message {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  status: 'new' | 'read' | 'replied' | 'spam';
-  ipAddress?: string | null;
-  userAgent?: string | null;
-  createdAt: string;
-}
+import { ContactSubmission } from '@/lib/types';
 
 export default function MessagesPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ContactSubmission[]>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<ContactSubmission | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedSource, setSelectedSource] = useState('all');
@@ -59,9 +48,9 @@ export default function MessagesPage() {
       if (response.success && response.data) {
         const messagesData = Array.isArray(response.data)
           ? response.data
-          : (response.data as { messages?: Message[] }).messages || [];
+          : (response.data as { messages?: ContactSubmission[] }).messages || [];
         
-        setMessages(messagesData as Message[]);
+        setMessages(messagesData as ContactSubmission[]);
         logger.info('Messages loaded successfully', { count: messagesData.length });
       } else {
         logger.error('Failed to load messages', response.error);
@@ -104,7 +93,7 @@ export default function MessagesPage() {
     }
   };
 
-  const handleMessageClick = async (message: Message) => {
+  const handleMessageClick = async (message: ContactSubmission) => {
     setSelectedMessage(message);
     setIsModalOpen(true);
     

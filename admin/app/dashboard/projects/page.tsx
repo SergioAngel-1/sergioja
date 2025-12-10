@@ -17,27 +17,7 @@ import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useCategories } from '@/lib/hooks';
 import { withAuth } from '@/lib/hoc';
-
-interface Project {
-  id: string;
-  slug: string;
-  title: string;
-  description: string;
-  category: string;
-  categories?: string[];
-  image?: string | null;
-  imageUrl?: string | null;
-  featured: boolean;
-  demoUrl?: string | null;
-  repoUrl?: string | null;
-  publishedAt?: string | null;
-  technologies?: {
-    category: string;
-    proficiency: number;
-    yearsOfExperience: number;
-    technology: { name: string; color: string };
-  }[];
-}
+import { Project } from '@/lib/types';
 
 function ProjectsPageContent() {
   const router = useRouter();

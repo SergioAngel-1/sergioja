@@ -25,22 +25,18 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// Profile Information - Matches Prisma schema
 export interface Profile {
   id: string;
   name: string;
+  availability: string; // available, busy, unavailable
+  location: string;
   email: string;
-  phone?: string;
-  location?: string;
-  avatar?: string;
-  availability?: string;
-  social?: {
-    github?: string;
-    linkedin?: string;
-    twitter?: string;
-    website?: string;
-  };
-  createdAt?: string;
-  updatedAt?: string;
+  githubUrl?: string | null;
+  linkedinUrl?: string | null;
+  twitterUrl?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Project {
@@ -76,35 +72,20 @@ export interface Project {
   }; // Alias para performanceScore, accessibilityScore, seoScore
 }
 
+// Technology/Skill - Shared across all projects
 export interface Skill {
   id: string;
   name: string;
-  category: string;
-  proficiency: number;
-  yearsOfExperience?: number;
-  icon?: string;
-  color?: string;
-  description?: string;
-  projects?: string[];
+  category: string; // frontend, backend, devops, design, other
+  proficiency: number; // 0-100
+  yearsOfExperience: number;
+  icon?: string | null;
+  color: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface TimelineItem {
-  id: string;
-  title: string;
-  organization: string;
-  type: 'work' | 'education' | 'project' | 'achievement';
-  description: string;
-  startDate: string;
-  endDate?: string;
-  current: boolean;
-  location?: string;
-  skills?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
+// For form submission (without id and timestamps)
 export interface ContactMessage {
   name: string;
   email: string;
@@ -132,6 +113,7 @@ export interface NewsletterSubscriptionPayload {
   recaptchaAction?: string;
 }
 
+// Analytics Summary (derived/computed, not in DB)
 export interface AnalyticsSummary {
   totalProjects: number;
   totalSkills: number;

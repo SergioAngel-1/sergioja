@@ -13,22 +13,7 @@ import TopSection from '@/components/molecules/TopSection';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
-
-interface PageView {
-  id: string;
-  path: string;
-  createdAt: string;
-}
-
-interface ProjectView {
-  id: string;
-  projectId: string;
-  createdAt: string;
-  project?: {
-    title: string;
-    slug: string;
-  };
-}
+import { PageView, ProjectView } from '@/lib/types';
 
 export default function AnalyticsPage() {
   const router = useRouter();

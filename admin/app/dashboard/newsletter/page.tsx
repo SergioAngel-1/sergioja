@@ -15,20 +15,12 @@ import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
-
-interface Subscriber {
-  id: string;
-  email: string;
-  status: 'active' | 'unsubscribed';
-  ipAddress?: string | null;
-  userAgent?: string | null;
-  createdAt: string;
-}
+import { NewsletterSubscription } from '@/lib/types';
 
 export default function NewsletterPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [subscribers, setSubscribers] = useState<NewsletterSubscription[]>([]);
   const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,9 +46,9 @@ export default function NewsletterPage() {
       if (response.success && response.data) {
         const subscribersData = Array.isArray(response.data)
           ? response.data
-          : (response.data as { subscribers?: Subscriber[] }).subscribers || [];
+          : (response.data as { subscribers?: NewsletterSubscription[] }).subscribers || [];
         
-        setSubscribers(subscribersData as Subscriber[]);
+        setSubscribers(subscribersData as NewsletterSubscription[]);
       } else {
         logger.error('Failed to load subscribers', response.error);
         setSubscribers([]);

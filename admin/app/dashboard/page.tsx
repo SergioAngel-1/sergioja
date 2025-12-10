@@ -9,13 +9,7 @@ import QuickActionCard from '@/components/molecules/QuickActionCard';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { api } from '@/lib/api-client';
 import { withAuth } from '@/lib/hoc';
-
-interface DashboardStats {
-  projects: number;
-  messages: number;
-  subscribers: number;
-  visits: number;
-}
+import { DashboardStats } from '@/lib/types';
 
 function DashboardPage() {
   const { user } = useAuth();

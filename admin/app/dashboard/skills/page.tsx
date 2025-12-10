@@ -17,22 +17,12 @@ import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useCategories } from '@/lib/hooks';
-
-interface Technology {
-  id: string;
-  name: string;
-  category: string;
-  proficiency: number;
-  yearsOfExperience: number;
-  icon?: string | null;
-  color: string;
-  projects?: { projectId: string }[];
-}
+import { Skill } from '@/lib/types';
 
 export default function SkillsPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
-  const [skills, setSkills] = useState<Technology[]>([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
   const [isLoadingSkills, setIsLoadingSkills] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,9 +52,9 @@ export default function SkillsPage() {
       if (response.success && response.data) {
         const skillsData = Array.isArray(response.data)
           ? response.data
-          : (response.data as { technologies?: Technology[] }).technologies || [];
+          : (response.data as { technologies?: Skill[] }).technologies || [];
         
-        setSkills(skillsData as Technology[]);
+        setSkills(skillsData as Skill[]);
         logger.info('Skills loaded successfully', { count: skillsData.length });
       } else {
         logger.error('Failed to load skills', response.error);
