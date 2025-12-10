@@ -53,7 +53,8 @@ export interface Project {
   images?: string[];
   technologies: string[];
   tech: string[]; // Alias para technologies (usado en frontend)
-  category: string;
+  category: string; // Primera categoría (retrocompatibilidad)
+  categories?: string[]; // Array de categorías
   featured: boolean;
   demoUrl?: string;
   githubUrl?: string;

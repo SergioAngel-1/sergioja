@@ -9,6 +9,7 @@ import Loader from '@/components/atoms/Loader';
 import Icon from '@/components/atoms/Icon';
 import SkillCard from '@/components/molecules/SkillCard';
 import CategoryFilter from '@/components/molecules/CategoryFilter';
+import CategoryManagementModal from '@/components/molecules/CategoryManagementModal';
 import StatCard from '@/components/molecules/StatCard';
 import SearchBar from '@/components/molecules/SearchBar';
 import Select from '@/components/molecules/Select';
@@ -35,6 +36,8 @@ export default function SkillsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'proficiency' | 'projects'>('proficiency');
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [backendCategories, setBackendCategories] = useState<Array<{ name: string; label: string; active: boolean }>>([]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -45,6 +48,7 @@ export default function SkillsPage() {
   useEffect(() => {
     if (isAuthenticated) {
       loadSkills();
+      loadBackendCategories();
     }
   }, [isAuthenticated]);
 
@@ -69,6 +73,24 @@ export default function SkillsPage() {
       setSkills([]);
     } finally {
       setIsLoadingSkills(false);
+    }
+  };
+
+  const loadBackendCategories = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories/technologies`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data && Array.isArray(data.data)) {
+          setBackendCategories(data.data.filter((cat: any) => cat.active));
+          logger.info(`Loaded ${data.data.length} technology categories from backend`);
+        }
+      }
+    } catch (error) {
+      logger.error('Error loading backend categories', error);
     }
   };
 
@@ -102,34 +124,37 @@ export default function SkillsPage() {
     return filtered;
   }, [skills, selectedCategory, searchQuery, sortBy]);
 
-  // Calculate category counts
+  // Calculate category counts combining backend categories with skill counts
   const categories = useMemo(() => {
     const counts: Record<string, number> = {
       all: skills.length,
-      frontend: 0,
-      backend: 0,
-      devops: 0,
-      design: 0,
-      other: 0,
     };
 
+    // Contar skills por categoría dinámicamente
     skills.forEach((skill) => {
-      if (counts[skill.category] !== undefined) {
-        counts[skill.category]++;
-      } else {
-        counts.other++;
+      const category = skill.category || 'other';
+      if (counts[category] === undefined) {
+        counts[category] = 0;
       }
+      counts[category]++;
     });
 
-    return [
-      { value: 'all', label: 'Todas', count: counts.all },
-      { value: 'frontend', label: 'Frontend', count: counts.frontend },
-      { value: 'backend', label: 'Backend', count: counts.backend },
-      { value: 'devops', label: 'DevOps', count: counts.devops },
-      { value: 'design', label: 'Diseño', count: counts.design },
-      { value: 'other', label: 'Otros', count: counts.other },
+    // Crear array de categorías con sus conteos
+    const categoryList = [
+      { value: 'all', label: 'Todas', count: counts.all }
     ];
-  }, [skills]);
+
+    // Agregar categorías del backend (incluso si no tienen skills)
+    backendCategories.forEach((backendCat) => {
+      categoryList.push({
+        value: backendCat.name,
+        label: backendCat.label,
+        count: counts[backendCat.name] || 0
+      });
+    });
+
+    return categoryList;
+  }, [skills, backendCategories]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -238,6 +263,7 @@ export default function SkillsPage() {
             categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
+            onEditCategories={() => setIsCategoryModalOpen(true)}
           />
         </motion.div>
 
@@ -282,6 +308,19 @@ export default function SkillsPage() {
           </div>
         )}
       </div>
+
+      {/* Category Management Modal */}
+      <CategoryManagementModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => {
+          setIsCategoryModalOpen(false);
+          // Recargar categorías del backend
+          loadBackendCategories();
+          // Recargar skills para actualizar conteos
+          loadSkills();
+        }}
+        type="technology"
+      />
     </DashboardLayout>
   );
 }

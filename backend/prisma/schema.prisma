@@ -34,7 +34,7 @@ model Project {
   description     String
   longDescription String    @db.Text
   image           String?
-  category        String    // web, mobile, ai, backend, fullstack
+  categories      String[]  @default([]) // web, mobile, ai, backend, fullstack - múltiples categorías
   featured        Boolean   @default(false)
   demoUrl         String?
   repoUrl         String?
@@ -51,7 +51,7 @@ model Project {
   technologies ProjectTechnology[]
   views        ProjectView[]
 
-  @@index([category, featured]) // Composite index for common query
+  @@index([featured]) // Index for featured projects
   @@index([publishedAt(sort: Desc)]) // For sorting by date
   @@index([slug])
   @@map("projects")
@@ -194,4 +194,36 @@ model RefreshToken {
   @@index([token])
   @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+// Project Categories - Gestión de categorías de proyectos
+model ProjectCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique // web, mobile, ai, backend, fullstack, etc.
+  label       String   // Etiqueta amigable: "Desarrollo Web", "Aplicaciones Móviles"
+  description String?
+  color       String   @default("#00FF00") // Color para UI
+  icon        String?  // Nombre del icono
+  order       Int      @default(0) // Orden de visualización
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("project_categories")
+}
+
+// Technology Categories - Gestión de categorías de tecnologías
+model TechnologyCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique // frontend, backend, devops, design, database, etc.
+  label       String   // Etiqueta amigable: "Frontend", "Backend"
+  description String?
+  color       String   @default("#00FF00") // Color para UI
+  icon        String?  // Nombre del icono
+  order       Int      @default(0) // Orden de visualización
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("technology_categories")
 }

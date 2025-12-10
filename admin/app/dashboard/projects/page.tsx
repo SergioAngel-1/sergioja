@@ -12,6 +12,7 @@ import Icon from '@/components/atoms/Icon';
 import Loader from '@/components/atoms/Loader';
 import Button from '@/components/atoms/Button';
 import ProjectFormModal from '@/components/molecules/ProjectFormModal';
+import CategoryManagementModal from '@/components/molecules/CategoryManagementModal';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
@@ -22,6 +23,7 @@ interface Project {
   title: string;
   description: string;
   category: string;
+  categories?: string[];
   image?: string | null;
   featured: boolean;
   demoUrl?: string | null;
@@ -43,6 +45,8 @@ function ProjectsPageContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [existingSkills, setExistingSkills] = useState<string[]>([]);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [backendCategories, setBackendCategories] = useState<Array<{ name: string; label: string; active: boolean }>>([]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -50,12 +54,91 @@ function ProjectsPageContent() {
     }
   }, [isAuthenticated, isLoading, router]);
 
+  const loadProjects = useCallback(async () => {
+    try {
+      setIsLoadingProjects(true);
+      const response = await api.getProjects();
+      
+      if (response.success && response.data) {
+        // El backend puede devolver { data: [...], pagination: {...} } o directamente [...]
+        let projectsData: any[] = [];
+        const responseData = response.data as any;
+        
+        if (Array.isArray(responseData)) {
+          // Formato directo: { success: true, data: [...] }
+          projectsData = responseData;
+        } else if (responseData.data && Array.isArray(responseData.data)) {
+          // Formato anidado: { success: true, data: { data: [...], pagination: {...} } }
+          projectsData = responseData.data;
+        }
+        
+        console.log('Raw response:', response);
+        console.log('Projects data:', projectsData);
+        
+        // Transformar las tecnologías del formato de Prisma al formato esperado
+        const transformedProjects = projectsData.map((project: any) => ({
+          ...project,
+          // Extraer nombres de tecnologías de la relación ProjectTechnology
+          technologies: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || [],
+          // Mantener también el array tech si existe
+          tech: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || project.tech || [],
+        }));
+        
+        console.log('Transformed projects:', transformedProjects);
+        
+        setProjects(transformedProjects as Project[]);
+        logger.info('Projects loaded successfully', { count: transformedProjects.length });
+      } else {
+        logger.error('Failed to load projects', response.error);
+        setProjects([]);
+      }
+    } catch (error) {
+      logger.error('Error loading projects', error);
+      setProjects([]);
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  }, []);
+
+  const loadExistingSkills = useCallback(async () => {
+    try {
+      const response = await api.getSkills();
+      if (response.success && response.data) {
+        const skillsData = Array.isArray(response.data) ? response.data : [];
+        const skillNames = skillsData.map((skill: any) => skill.name);
+        setExistingSkills(skillNames);
+        logger.info('Skills loaded for autocomplete', { count: skillNames.length });
+      }
+    } catch (error) {
+      logger.error('Error loading skills', error);
+    }
+  }, []);
+
+  const loadBackendCategories = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories/projects`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data && Array.isArray(data.data)) {
+          setBackendCategories(data.data.filter((cat: any) => cat.active));
+          logger.info(`Loaded ${data.data.length} project categories from backend`);
+        }
+      }
+    } catch (error) {
+      logger.error('Error loading backend categories', error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadProjects();
       loadExistingSkills();
+      loadBackendCategories();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, loadProjects, loadExistingSkills]);
 
   // Detectar query param para abrir modal de nuevo proyecto
   useEffect(() => {
@@ -101,92 +184,39 @@ function ProjectsPageContent() {
     filterProjects();
   }, [filterProjects]);
 
-  const loadProjects = async () => {
-    try {
-      setIsLoadingProjects(true);
-      const response = await api.getProjects();
-      
-      if (response.success && response.data) {
-        // El backend puede devolver { data: [...], pagination: {...} } o directamente [...]
-        let projectsData: any[] = [];
-        const responseData = response.data as any;
-        
-        if (Array.isArray(responseData)) {
-          // Formato directo: { success: true, data: [...] }
-          projectsData = responseData;
-        } else if (responseData.data && Array.isArray(responseData.data)) {
-          // Formato anidado: { success: true, data: { data: [...], pagination: {...} } }
-          projectsData = responseData.data;
-        }
-        
-        console.log('Raw response:', response);
-        console.log('Projects data:', projectsData);
-        
-        // Transformar las tecnologías del formato de Prisma al formato esperado
-        const transformedProjects = projectsData.map((project: any) => ({
-          ...project,
-          // Extraer nombres de tecnologías de la relación ProjectTechnology
-          technologies: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || [],
-          // Mantener también el array tech si existe
-          tech: project.technologies?.map((pt: any) => pt.technology?.name).filter(Boolean) || project.tech || [],
-        }));
-        
-        console.log('Transformed projects:', transformedProjects);
-        
-        setProjects(transformedProjects as Project[]);
-        logger.info('Projects loaded successfully', { count: transformedProjects.length });
-      } else {
-        logger.error('Failed to load projects', response.error);
-        setProjects([]);
-      }
-    } catch (error) {
-      logger.error('Error loading projects', error);
-      setProjects([]);
-    } finally {
-      setIsLoadingProjects(false);
-    }
-  };
-
-  const loadExistingSkills = async () => {
-    try {
-      const response = await api.getSkills();
-      if (response.success && response.data) {
-        const skillsData = Array.isArray(response.data) ? response.data : [];
-        const skillNames = skillsData.map((skill: any) => skill.name);
-        setExistingSkills(skillNames);
-        logger.info('Skills loaded for autocomplete', { count: skillNames.length });
-      }
-    } catch (error) {
-      logger.error('Error loading skills', error);
-    }
-  };
-
-  // Calculate categories with counts
+  // Calculate categories combining backend categories with project counts
   const categories = useMemo(() => {
     const counts: Record<string, number> = {
       all: projects.length,
-      web: 0,
-      mobile: 0,
-      ai: 0,
-      backend: 0,
-      fullstack: 0,
     };
 
+    // Contar proyectos por categoría dinámicamente
     projects.forEach((project) => {
-      if (counts[project.category] !== undefined) {
-        counts[project.category]++;
-      }
+      const projectCategories = project.categories || (project.category ? [project.category] : []);
+      projectCategories.forEach((cat: string) => {
+        if (counts[cat] === undefined) {
+          counts[cat] = 0;
+        }
+        counts[cat]++;
+      });
     });
 
-    return [
-      { value: 'all', label: 'Todos', count: counts.all },
-      { value: 'web', label: 'Web', count: counts.web },
-      { value: 'mobile', label: 'Mobile', count: counts.mobile },
-      { value: 'ai', label: 'IA', count: counts.ai },
-      { value: 'backend', label: 'Backend', count: counts.backend },
-      { value: 'fullstack', label: 'Full Stack', count: counts.fullstack },
+    // Crear array de categorías con sus conteos
+    const categoryList = [
+      { value: 'all', label: 'Todos', count: counts.all }
     ];
-  }, [projects]);
+
+    // Agregar categorías del backend (incluso si no tienen proyectos)
+    backendCategories.forEach((backendCat) => {
+      categoryList.push({
+        value: backendCat.name,
+        label: backendCat.label,
+        count: counts[backendCat.name] || 0
+      });
+    });
+
+    return categoryList;
+  }, [projects, backendCategories]);
 
   const handleEditProject = (project: Project) => {
     setSelectedProject(project);
@@ -274,6 +304,7 @@ function ProjectsPageContent() {
             onSearch={setSearchQuery}
             onCategoryChange={setSelectedCategory}
             onStatusChange={setSelectedStatus}
+            onEditCategories={() => setIsCategoryModalOpen(true)}
             categories={categories}
             selectedCategory={selectedCategory}
             selectedStatus={selectedStatus}
@@ -349,7 +380,7 @@ function ProjectsPageContent() {
             )}
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: fluidSizing.space.lg }}>
+          <div className="flex flex-col" style={{ gap: fluidSizing.space.sm }}>
             {filteredProjects.map((project, index) => (
               <ProjectCard
                 key={project.id}
@@ -381,6 +412,19 @@ function ProjectsPageContent() {
         onSave={handleSaveProject}
         project={selectedProject}
         existingSkills={existingSkills}
+      />
+
+      {/* Category Management Modal */}
+      <CategoryManagementModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => {
+          setIsCategoryModalOpen(false);
+          // Recargar categorías del backend
+          loadBackendCategories();
+          // Recargar proyectos para actualizar conteos
+          loadProjects();
+        }}
+        type="project"
       />
     </DashboardLayout>
   );

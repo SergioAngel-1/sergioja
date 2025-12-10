@@ -17,7 +17,9 @@ router.get('/', async (req: Request, res: Response) => {
     const where: any = { publishedAt: { not: null } };
     
     if (category && typeof category === 'string') {
-      where.category = category;
+      where.categories = {
+        has: category, // Buscar si el array contiene la categoría
+      };
     }
     
     if (featured === 'true') {
@@ -173,7 +175,8 @@ router.get('/:slug', async (req: Request, res: Response) => {
       image: project.image || undefined,
       technologies: project.technologies.map((t: any) => t.technology.name),
       tech: project.technologies.map((t: any) => t.technology.name),
-      category: project.category,
+      category: project.categories?.[0] || 'web', // Primera categoría para retrocompatibilidad
+      categories: project.categories || [],
       featured: project.featured,
       demoUrl: project.demoUrl || undefined,
       githubUrl: project.repoUrl || undefined,
@@ -266,7 +269,7 @@ router.get('/', authMiddleware, async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const { title, description, category, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
+    const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
 
     // Validaciones básicas
     if (!title || !description) {
@@ -285,6 +288,16 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
 
+    // Determinar categorías (soportar ambos formatos)
+    let projectCategories: string[] = [];
+    if (categories && Array.isArray(categories)) {
+      projectCategories = categories;
+    } else if (category) {
+      projectCategories = [category];
+    } else {
+      projectCategories = ['web'];
+    }
+
     // Crear proyecto
     const project = await prisma.project.create({
       data: {
@@ -292,7 +305,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
         slug,
         description,
         longDescription: description, // Usar la misma descripción por ahora
-        category: category || 'web',
+        categories: projectCategories,
         featured: featured || false,
         repoUrl: repoUrl || null,
         demoUrl: demoUrl || null,
@@ -384,7 +397,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response) => {
 router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
+    const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -401,6 +414,14 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
       });
     }
 
+    // Determinar categorías (soportar ambos formatos)
+    let projectCategories: string[] | undefined;
+    if (categories && Array.isArray(categories)) {
+      projectCategories = categories;
+    } else if (category) {
+      projectCategories = [category];
+    }
+
     // Actualizar proyecto
     const project = await prisma.project.update({
       where: { slug },
@@ -408,7 +429,7 @@ router.put('/:slug', authMiddleware, async (req: Request, res: Response) => {
         title: title || existingProject.title,
         description: description || existingProject.description,
         longDescription: description || existingProject.longDescription,
-        category: category || existingProject.category,
+        categories: projectCategories !== undefined ? projectCategories : existingProject.categories,
         featured: featured !== undefined ? featured : existingProject.featured,
         repoUrl: repoUrl !== undefined ? repoUrl : existingProject.repoUrl,
         demoUrl: demoUrl !== undefined ? demoUrl : existingProject.demoUrl,

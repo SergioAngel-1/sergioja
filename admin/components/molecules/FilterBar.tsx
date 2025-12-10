@@ -9,6 +9,7 @@ interface FilterBarProps {
   onSearch: (query: string) => void;
   onCategoryChange: (category: string) => void;
   onStatusChange: (status: string) => void;
+  onEditCategories?: () => void;
   categories?: { value: string; label: string; count: number }[];
   selectedCategory?: string;
   selectedStatus?: string;
@@ -19,6 +20,7 @@ export default function FilterBar({
   onSearch,
   onCategoryChange,
   onStatusChange,
+  onEditCategories,
   categories,
   selectedCategory = 'all',
   selectedStatus = 'all',
@@ -50,6 +52,7 @@ export default function FilterBar({
               categories={categories}
               selectedCategory={selectedCategory}
               onCategoryChange={onCategoryChange}
+              onEditCategories={onEditCategories}
             />
           </div>
         )}

@@ -7,6 +7,7 @@ import Checkbox from '../atoms/Checkbox';
 import Modal from './Modal';
 import Select from './Select';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { logger } from '@/lib/logger';
 
 interface TechnologyFormData {
   name: string;
@@ -20,6 +21,7 @@ interface ProjectFormData {
   title: string;
   description: string;
   category: string;
+  categories?: string[];
   technologies: string[];
   featured: boolean;
   publishedAt: string | null;
@@ -44,10 +46,12 @@ export default function ProjectFormModal({
   project,
   existingSkills = [],
 }: ProjectFormModalProps) {
-  const [formData, setFormData] = useState<Partial<ProjectFormData>>({
+  const [backendCategories, setBackendCategories] = useState<Array<{ name: string; label: string; active: boolean }>>([]);
+  const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
     category: 'web',
+    categories: [],
     technologies: [],
     featured: false,
     publishedAt: null,
@@ -56,6 +60,7 @@ export default function ProjectFormModal({
     imageUrl: '',
     isCodePublic: true,
   });
+  const [urlProtocol, setUrlProtocol] = useState<'http://' | 'https://'>('https://');
   const [techInput, setTechInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -70,6 +75,31 @@ export default function ProjectFormModal({
   const [projectTechnologies, setProjectTechnologies] = useState<TechnologyFormData[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+
+  // Cargar categorías del backend
+  useEffect(() => {
+    if (isOpen) {
+      loadBackendCategories();
+    }
+  }, [isOpen]);
+
+  const loadBackendCategories = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/categories/projects`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data && Array.isArray(data.data)) {
+          setBackendCategories(data.data.filter((cat: any) => cat.active));
+          logger.info(`Loaded ${data.data.length} project categories for modal`);
+        }
+      }
+    } catch (error) {
+      logger.error('Error loading backend categories', error);
+    }
+  };
 
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -88,10 +118,21 @@ export default function ProjectFormModal({
     if (project) {
       setFormData({
         ...project,
+        categories: project.categories || (project.category ? [project.category] : []),
         technologies: project.technologies?.map((t: any) => // eslint-disable-line @typescript-eslint/no-explicit-any 
           typeof t === 'string' ? t : t.technology?.name || t.name
         ) || [],
       });
+      
+      // Detectar protocolo de la URL si existe
+      if (project.demoUrl || project.liveUrl) {
+        const url = project.demoUrl || project.liveUrl;
+        if (url.startsWith('https://')) {
+          setUrlProtocol('https://');
+        } else if (url.startsWith('http://')) {
+          setUrlProtocol('http://');
+        }
+      }
       setImagePreview(project.imageUrl || project.image || '');
       setImageFile(null);
       
@@ -120,6 +161,7 @@ export default function ProjectFormModal({
         title: '',
         description: '',
         category: 'web',
+        categories: [],
         technologies: [],
         featured: false,
         publishedAt: null,
@@ -128,6 +170,7 @@ export default function ProjectFormModal({
         imageUrl: '',
         isCodePublic: true,
       });
+      setUrlProtocol('https://');
       setImagePreview('');
       setImageFile(null);
       setProjectTechnologies([]);
@@ -316,16 +359,17 @@ export default function ProjectFormModal({
                   </label>
                   
                   {imagePreview ? (
-                    <div className="relative">
+                    <div className="relative" style={{ margin: 0, padding: 0 }}>
                       <img
                         src={imagePreview}
                         alt="Preview"
                         className="w-full h-48 object-cover rounded-lg border border-admin-primary/20"
+                        style={{ display: 'block', margin: 0 }}
                       />
                       <button
                         type="button"
                         onClick={handleRemoveImage}
-                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 transition-colors"
+                        className="absolute top-2 right-2 bg-white hover:bg-gray-100 text-black rounded-full p-2 transition-colors shadow-lg"
                       >
                         <Icon name="x" size={16} />
                       </button>
@@ -351,19 +395,43 @@ export default function ProjectFormModal({
                   )}
                 </div>
 
-                {/* Category */}
-                <Select
-                  value={formData.category || 'web'}
-                  onChange={(value) => setFormData({ ...formData, category: value })}
-                  options={[
-                    { value: 'web', label: 'Web' },
-                    { value: 'mobile', label: 'Mobile' },
-                    { value: 'ai', label: 'IA' },
-                    { value: 'backend', label: 'Backend' },
-                    { value: 'fullstack', label: 'Full Stack' },
-                  ]}
-                  label="Categoría *"
-                />
+                {/* Categories - Múltiple selección */}
+                <div>
+                  <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
+                    Categorías *
+                  </label>
+                  <div className="flex flex-wrap" style={{ gap: fluidSizing.space.sm }}>
+                    {backendCategories.map((cat) => {
+                      const isSelected = formData.categories?.includes(cat.name) || false;
+                      return (
+                        <button
+                          key={cat.name}
+                          type="button"
+                          onClick={() => {
+                            const current = formData.categories || [];
+                            const updated = isSelected
+                              ? current.filter(c => c !== cat.name)
+                              : [...current, cat.name];
+                            setFormData({ ...formData, categories: updated, category: updated[0] || cat.name });
+                          }}
+                          className={`rounded-lg border transition-all duration-200 ${
+                            isSelected
+                              ? 'bg-admin-primary/20 border-admin-primary text-admin-primary'
+                              : 'bg-admin-dark-surface border-admin-primary/20 text-text-muted hover:border-admin-primary/50'
+                          }`}
+                          style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}
+                        >
+                          {cat.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {(!formData.categories || formData.categories.length === 0) && (
+                    <p className="text-admin-warning" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>
+                      Selecciona al menos una categoría
+                    </p>
+                  )}
+                </div>
 
                 {/* Technologies */}
                 <div>
@@ -454,8 +522,13 @@ export default function ProjectFormModal({
                             options={[
                               { value: 'frontend', label: 'Frontend' },
                               { value: 'backend', label: 'Backend' },
+                              { value: 'database', label: 'Base de Datos' },
                               { value: 'devops', label: 'DevOps' },
+                              { value: 'mobile', label: 'Móvil' },
                               { value: 'design', label: 'Diseño' },
+                              { value: 'testing', label: 'Testing' },
+                              { value: 'cloud', label: 'Cloud' },
+                              { value: 'ai', label: 'IA/ML' },
                               { value: 'other', label: 'Otros' },
                             ]}
                           />
@@ -553,14 +626,25 @@ export default function ProjectFormModal({
                     <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
                       URL en Vivo
                     </label>
-                    <input
-                      type="url"
-                      value={formData.liveUrl}
-                      onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
-                      className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
-                      style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
-                      placeholder="https://..."
-                    />
+                    <div className="flex" style={{ gap: fluidSizing.space.sm }}>
+                      {/* Toggle HTTP/HTTPS */}
+                      <button
+                        type="button"
+                        onClick={() => setUrlProtocol(urlProtocol === 'https://' ? 'http://' : 'https://')}
+                        className="bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-admin-primary hover:bg-admin-primary/10 transition-all duration-200 font-mono flex-shrink-0"
+                        style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm, minWidth: '90px' }}
+                      >
+                        {urlProtocol}
+                      </button>
+                      <input
+                        type="text"
+                        value={formData.liveUrl?.replace(/^https?:\/\//, '') || ''}
+                        onChange={(e) => setFormData({ ...formData, liveUrl: urlProtocol + e.target.value })}
+                        className="flex-1 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+                        style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
+                        placeholder="ejemplo.com"
+                      />
+                    </div>
                   </div>
                 </div>
 

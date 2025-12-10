@@ -20,6 +20,7 @@ import contactRoutes from './routes/contact';
 import analyticsRoutes from './routes/analytics';
 import newsletterRoutes from './routes/newsletter';
 import messagesRoutes from './routes/messages';
+import categoriesRoutes from './routes/categories';
 
 dotenv.config();
 
@@ -146,6 +147,7 @@ app.use('/api/admin/messages', messagesRoutes);
 app.use('/api/admin/newsletter', newsletterRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/admin/projects', projectsRoutes);
+app.use('/api/admin/categories', categoriesRoutes);
 // Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
 app.use('/api/portfolio/projects', projectsRoutes);
