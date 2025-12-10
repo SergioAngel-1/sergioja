@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../atoms/Icon';
 import StatusBadge from '../atoms/StatusBadge';
 import { useState } from 'react';
+import { alerts } from '@/lib/alerts';
 
 interface MessageDetailModalProps {
   isOpen: boolean;
@@ -51,16 +52,23 @@ export default function MessageDetailModal({
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm('¿Estás seguro de eliminar este mensaje?')) return;
-    
-    setIsDeleting(true);
-    try {
-      await onDelete(message.id);
-      onClose();
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleDelete = () => {
+    alerts.confirm(
+      'Eliminar mensaje',
+      '¿Estás seguro de eliminar este mensaje? Esta acción no se puede deshacer.',
+      async () => {
+        setIsDeleting(true);
+        try {
+          await onDelete(message.id);
+          onClose();
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+      undefined,
+      'Eliminar',
+      'Cancelar'
+    );
   };
 
   const handleReply = () => {

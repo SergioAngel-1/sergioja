@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Icon from '../atoms/Icon';
 import { useState } from 'react';
+import { alerts } from '@/lib/alerts';
 
 interface SubscriberCardProps {
   id: string;
@@ -49,15 +50,22 @@ export default function SubscriberCard({
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm(`¿Eliminar suscriptor ${email}?`)) return;
-    
-    setIsDeleting(true);
-    try {
-      await onDelete(id);
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleDelete = () => {
+    alerts.confirm(
+      'Eliminar suscriptor',
+      `¿Estás seguro de eliminar al suscriptor ${email}? Esta acción no se puede deshacer.`,
+      async () => {
+        setIsDeleting(true);
+        try {
+          await onDelete(id);
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+      undefined,
+      'Eliminar',
+      'Cancelar'
+    );
   };
 
   return (
