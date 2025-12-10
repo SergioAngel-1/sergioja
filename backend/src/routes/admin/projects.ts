@@ -169,9 +169,30 @@ router.post('/', async (req: Request, res: Response) => {
             data: {
               name,
               category: category || 'other',
+              proficiency: proficiency !== undefined ? proficiency : 50,
+              yearsOfExperience: yearsOfExperience !== undefined ? yearsOfExperience : 0,
               color: '#FF0000',
             },
           });
+        } else {
+          // Actualizar Technology con los valores más recientes si son mayores
+          const shouldUpdate = 
+            (proficiency !== undefined && proficiency > technology.proficiency) ||
+            (yearsOfExperience !== undefined && yearsOfExperience > technology.yearsOfExperience);
+          
+          if (shouldUpdate) {
+            await prisma.technology.update({
+              where: { id: technology.id },
+              data: {
+                proficiency: proficiency !== undefined && proficiency > technology.proficiency 
+                  ? proficiency 
+                  : technology.proficiency,
+                yearsOfExperience: yearsOfExperience !== undefined && yearsOfExperience > technology.yearsOfExperience
+                  ? yearsOfExperience
+                  : technology.yearsOfExperience,
+              },
+            });
+          }
         }
 
         // Crear relación con datos específicos del proyecto
@@ -326,9 +347,30 @@ router.put('/:slug', async (req: Request, res: Response) => {
             data: {
               name,
               category: category || 'other',
+              proficiency: proficiency !== undefined ? proficiency : 50,
+              yearsOfExperience: yearsOfExperience !== undefined ? yearsOfExperience : 0,
               color: '#FF0000',
             },
           });
+        } else {
+          // Actualizar Technology con los valores más recientes si son mayores
+          const shouldUpdate = 
+            (proficiency !== undefined && proficiency > technology.proficiency) ||
+            (yearsOfExperience !== undefined && yearsOfExperience > technology.yearsOfExperience);
+          
+          if (shouldUpdate) {
+            await prisma.technology.update({
+              where: { id: technology.id },
+              data: {
+                proficiency: proficiency !== undefined && proficiency > technology.proficiency 
+                  ? proficiency 
+                  : technology.proficiency,
+                yearsOfExperience: yearsOfExperience !== undefined && yearsOfExperience > technology.yearsOfExperience
+                  ? yearsOfExperience
+                  : technology.yearsOfExperience,
+              },
+            });
+          }
         }
 
         await prisma.projectTechnology.create({

@@ -14,6 +14,8 @@ interface SkillCardProps {
   icon?: string | null;
   projectCount: number;
   delay?: number;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export default function SkillCard({
@@ -25,6 +27,8 @@ export default function SkillCard({
   icon,
   projectCount,
   delay = 0,
+  onEdit,
+  onDelete,
 }: SkillCardProps) {
   const getProficiencyLabel = (level: number) => {
     if (level >= 90) return 'Experto';
@@ -44,6 +48,28 @@ export default function SkillCard({
     >
       {/* Background grid effect */}
       <div className="absolute inset-0 cyber-grid opacity-5 rounded-lg" />
+
+      {/* Action buttons */}
+      <div className="absolute top-2 right-2 z-20 flex flex-col opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ gap: fluidSizing.space.xs }}>
+        {onEdit && (
+          <button
+            onClick={onEdit}
+            className="bg-admin-dark-surface/80 hover:bg-admin-primary/20 border border-admin-primary/30 hover:border-admin-primary rounded-lg p-2 transition-all duration-300"
+            aria-label="Editar tecnología"
+          >
+            <Icon name="edit" size={16} className="text-admin-primary" />
+          </button>
+        )}
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className="bg-admin-dark-surface/80 hover:bg-admin-error/20 border border-admin-error/30 hover:border-admin-error rounded-lg p-2 transition-all duration-300"
+            aria-label="Eliminar tecnología"
+          >
+            <Icon name="trash" size={16} className="text-admin-error" />
+          </button>
+        )}
+      </div>
 
       {/* Content */}
       <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>

@@ -81,13 +81,14 @@ export default function TechnologyManager({
   };
 
   const handleSelectSuggestion = (skillName: string) => {
-    const newTech: TechnologyFormData = {
+    // Abrir el formulario para configurar la tecnología
+    setTechFormData({
       name: skillName,
       category: categories.length > 0 ? categories[0].name : 'other',
       proficiency: 50,
       yearsOfExperience: 0,
-    };
-    onChange([...technologies, newTech]);
+    });
+    setShowTechForm(true);
     setTechInput('');
     setShowSuggestions(false);
   };

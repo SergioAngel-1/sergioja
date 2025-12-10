@@ -10,6 +10,7 @@ import Icon from '@/components/atoms/Icon';
 import SkillCard from '@/components/molecules/SkillCard';
 import CategoryFilter from '@/components/molecules/CategoryFilter';
 import CategoryManagementModal from '@/components/molecules/CategoryManagementModal';
+import SkillEditModal from '@/components/molecules/SkillEditModal';
 import StatCard from '@/components/molecules/StatCard';
 import SearchBar from '@/components/molecules/SearchBar';
 import Select from '@/components/molecules/Select';
@@ -18,6 +19,7 @@ import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useCategories } from '@/lib/hooks';
 import { Skill } from '@/lib/types';
+import { alerts } from '@/shared/alertSystem';
 
 export default function SkillsPage() {
   const router = useRouter();
@@ -28,6 +30,8 @@ export default function SkillsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'proficiency' | 'projects'>('proficiency');
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isSkillEditModalOpen, setIsSkillEditModalOpen] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   
   // Cargar categorías con hook personalizado
   const { categories: backendCategories, reload: reloadCategories } = useCategories('technology', isAuthenticated);
@@ -66,6 +70,54 @@ export default function SkillsPage() {
     } finally {
       setIsLoadingSkills(false);
     }
+  };
+
+  const handleEditSkill = (skill: Skill) => {
+    setSelectedSkill(skill);
+    setIsSkillEditModalOpen(true);
+  };
+
+  const handleSaveSkill = async (skillData: Partial<Skill>) => {
+    try {
+      if (!skillData.id) return;
+
+      const response = await api.updateSkill(skillData.id, skillData);
+      
+      if (response.success) {
+        alerts.success('Tecnología actualizada correctamente');
+        await loadSkills();
+      } else {
+        alerts.error('Error al actualizar la tecnología');
+      }
+    } catch (error) {
+      logger.error('Error updating skill', error);
+      alerts.error('Error al actualizar la tecnología');
+    }
+  };
+
+  const handleDeleteSkill = async (skill: Skill) => {
+    alerts.confirm(
+      'Eliminar Tecnología',
+      `¿Estás seguro de eliminar "${skill.name}"? Esta acción no se puede deshacer y eliminará todas las relaciones con proyectos.`,
+      async () => {
+        try {
+          const response = await api.deleteSkill(skill.id);
+          
+          if (response.success) {
+            alerts.success('Tecnología eliminada correctamente');
+            await loadSkills();
+          } else {
+            alerts.error('Error al eliminar la tecnología');
+          }
+        } catch (error) {
+          logger.error('Error deleting skill', error);
+          alerts.error('Error al eliminar la tecnología');
+        }
+      },
+      undefined,
+      'Eliminar',
+      'Cancelar'
+    );
   };
 
   // Categorías se cargan automáticamente con useCategories
@@ -279,6 +331,8 @@ export default function SkillsPage() {
                 icon={skill.icon}
                 projectCount={skill.projects?.length || 0}
                 delay={index * 0.05}
+                onEdit={() => handleEditSkill(skill)}
+                onDelete={() => handleDeleteSkill(skill)}
               />
             ))}
           </div>
@@ -296,6 +350,17 @@ export default function SkillsPage() {
           loadSkills();
         }}
         type="technology"
+      />
+
+      {/* Skill Edit Modal */}
+      <SkillEditModal
+        isOpen={isSkillEditModalOpen}
+        onClose={() => {
+          setIsSkillEditModalOpen(false);
+          setSelectedSkill(null);
+        }}
+        onSave={handleSaveSkill}
+        skill={selectedSkill}
       />
     </DashboardLayout>
   );
