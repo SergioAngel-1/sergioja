@@ -128,7 +128,12 @@ export default function TechnologyManager({
                 type="text"
                 value={techInput}
                 onChange={(e) => setTechInput(e.target.value)}
-                onFocus={() => filteredSuggestions.length > 0 && setShowSuggestions(true)}
+                onFocus={() => {
+                  // Mostrar sugerencias si hay disponibles, incluso con input vacío
+                  if (filteredSuggestions.length > 0) {
+                    setShowSuggestions(true);
+                  }
+                }}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
                 className="flex-1 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"

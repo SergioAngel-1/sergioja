@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '../atoms/Icon';
 import { fluidSizing } from '@/lib/fluidSizing';
 
@@ -20,6 +20,11 @@ export default function ImageUploader({
   acceptedFormats = 'PNG, JPG, WEBP',
 }: ImageUploaderProps) {
   const [preview, setPreview] = useState<string>(value);
+
+  // Sincronizar preview con value del padre
+  useEffect(() => {
+    setPreview(value);
+  }, [value]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

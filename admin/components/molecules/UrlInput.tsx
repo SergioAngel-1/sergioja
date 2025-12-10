@@ -28,6 +28,9 @@ export default function UrlInput({
       } else if (value.startsWith('http://')) {
         setProtocol('http://');
       }
+    } else {
+      // Resetear a https:// cuando value está vacío
+      setProtocol('https://');
     }
   }, [value]);
 
