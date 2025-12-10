@@ -74,7 +74,7 @@ export default function SkillCard({
       {/* Content */}
       <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
         {/* Header */}
-        <div className="flex items-start justify-between" style={{ gap: fluidSizing.space.sm }}>
+        <div className="flex items-center justify-between" style={{ gap: fluidSizing.space.sm }}>
           <div className="flex-1 min-w-0">
             <h3 className="font-orbitron font-bold text-admin-primary group-hover:text-glow-subtle transition-all duration-300 truncate" style={{ fontSize: fluidSizing.text.lg }}>
               {name}
@@ -86,14 +86,14 @@ export default function SkillCard({
 
           {/* Icon or color indicator */}
           <div
-            className="rounded-lg flex items-center justify-center border border-admin-primary/20 transition-all duration-300 group-hover:scale-110 bg-admin-dark-surface text-admin-primary"
+            className="rounded-lg flex items-center justify-center border border-admin-primary/20 transition-all duration-300 group-hover:scale-110 bg-admin-dark-surface text-admin-primary flex-shrink-0"
             style={{
               width: fluidSizing.size.buttonLg,
               height: fluidSizing.size.buttonLg,
             }}
           >
             {icon ? (
-              <div className="relative w-8 h-8">
+              <div className="relative" style={{ width: '2rem', height: '2rem' }}>
                 <Image src={icon} alt={name} fill className="object-contain" sizes="32px" />
               </div>
             ) : (
