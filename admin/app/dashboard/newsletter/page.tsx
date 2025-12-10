@@ -111,23 +111,6 @@ export default function NewsletterPage() {
     }
   };
 
-  const handleExport = () => {
-    const activeEmails = subscribers
-      .filter(s => s.status === 'active')
-      .map(s => s.email)
-      .join('\n');
-    
-    const blob = new Blob([activeEmails], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `newsletter-subscribers-${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const filteredSubscribers = useMemo(() => {
     let filtered = [...subscribers];
 
@@ -197,24 +180,6 @@ export default function NewsletterPage() {
             </p>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="w-full sm:w-auto"
-          >
-            <Button
-              onClick={handleExport}
-              disabled={stats.active === 0}
-              icon="server"
-              variant="primary"
-              size="md"
-              fullWidth
-              className="sm:w-auto"
-            >
-              Exportar Emails
-            </Button>
-          </motion.div>
         </motion.div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
