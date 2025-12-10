@@ -25,7 +25,7 @@ export default function ProjectDetailPage() {
   const router = useRouter();
   const slug = params.slug as string;
   const { project, loading, error } = useProject(slug);
-  const { projects } = useProjects();
+  const { projects } = useProjects({ limit: 4 });
   const log = useLogger('ProjectDetailPage');
   const { t } = useLanguage();
   const { lowPerformanceMode } = usePerformance();
@@ -149,9 +149,9 @@ export default function ProjectDetailPage() {
               </h2>
               
               {/* Vista previa dividida: 85% viewer + 15% gallery (o 100% si no hay imágenes) */}
-              <div className="flex-1 flex" style={{ gap: fluidSizing.space.md }}>
+              <div className="flex-1 flex min-h-[500px]" style={{ gap: fluidSizing.space.md }}>
                 {/* Viewer - Ajusta su ancho según si hay imágenes o no */}
-                <div className={`min-h-[400px] ${project.images && project.images.length > 0 ? 'flex-[0.85]' : 'flex-1'}`}>
+                <div className={`h-full ${project.images && project.images.length > 0 ? 'flex-[0.85]' : 'flex-1'}`}>
                   <ProjectPreviewViewer
                     demoUrl={project.demoUrl}
                     images={project.images}

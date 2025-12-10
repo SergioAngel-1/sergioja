@@ -28,59 +28,18 @@ export default function ProjectPreviewViewer({
   onBackToDemo,
 }: ProjectPreviewViewerProps) {
   const { t } = useLanguage();
-  const [showIframe, setShowIframe] = useState(false);
   const [imageError, setImageError] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Validar URL y determinar si mostrar iframe
+  // Log cuando se intenta cargar el iframe
   useEffect(() => {
-    if (!demoUrl || viewMode !== 'demo' || lowPerformanceMode) {
-      setShowIframe(false);
-      return;
-    }
-
-    // Validar que la URL sea válida
-    try {
-      const url = new URL(demoUrl);
-      // Solo permitir http y https
-      if (url.protocol === 'http:' || url.protocol === 'https:') {
-        setShowIframe(true);
-        logger.debug('Loading iframe', { url: demoUrl }, 'ProjectPreviewViewer');
-        
-        // Timeout para detectar si el iframe no carga
-        const timeout = setTimeout(() => {
-          // Verificar si el iframe realmente cargó
-          const iframe = iframeRef.current;
-          if (iframe) {
-            try {
-              // Intentar acceder al contentDocument para verificar si cargó
-              // Si falla por CORS o X-Frame-Options, mostrará el fallback
-              const doc = iframe.contentDocument || iframe.contentWindow?.document;
-              if (!doc || doc.readyState !== 'complete') {
-                logger.warn('Iframe did not load completely, showing fallback', { url: demoUrl }, 'ProjectPreviewViewer');
-                setShowIframe(false);
-              }
-            } catch (e) {
-              // Error de acceso = probablemente CORS o X-Frame-Options
-              logger.warn('Iframe blocked by security policy, showing fallback', { url: demoUrl, error: e }, 'ProjectPreviewViewer');
-              setShowIframe(false);
-            }
-          }
-        }, 5000); // 5 segundos
-
-        return () => clearTimeout(timeout);
-      } else {
-        logger.error('Invalid protocol for iframe', { protocol: url.protocol, url: demoUrl }, 'ProjectPreviewViewer');
-        setShowIframe(false);
-      }
-    } catch (error) {
-      logger.error('Invalid URL for iframe', { url: demoUrl, error }, 'ProjectPreviewViewer');
-      setShowIframe(false);
+    if (demoUrl && viewMode === 'demo' && !lowPerformanceMode) {
+      logger.debug('Loading iframe', { url: demoUrl }, 'ProjectPreviewViewer');
     }
   }, [demoUrl, viewMode, lowPerformanceMode]);
 
   return (
-    <div className="flex-1 flex flex-col" style={{ gap: fluidSizing.space.md }}>
+    <div className="flex-1 flex flex-col h-full" style={{ gap: fluidSizing.space.md }}>
       {/* Botón de volver a demo */}
       <AnimatePresence>
         {viewMode === 'image' && demoUrl && (
@@ -108,7 +67,7 @@ export default function ProjectPreviewViewer({
       {/* Contenedor de vista */}
       <div className="flex-1 bg-background-elevated rounded-lg overflow-hidden border border-white/10 relative">
         <AnimatePresence mode="wait">
-          {viewMode === 'demo' && showIframe ? (
+          {viewMode === 'demo' && demoUrl && !lowPerformanceMode ? (
             <motion.div
               key="demo"
               initial={{ opacity: 0 }}
@@ -118,42 +77,13 @@ export default function ProjectPreviewViewer({
               className="w-full h-full"
             >
               {/* Desktop/Tablet View */}
-              <div className="hidden sm:block w-full h-full relative">
-                {!showIframe && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-background-elevated z-20">
-                    <div className="text-center">
-                      <svg 
-                        className="mx-auto opacity-50" 
-                        style={{ 
-                          width: fluidSizing.size.hexButton, 
-                          height: fluidSizing.size.hexButton,
-                          marginBottom: fluidSizing.space.md,
-                        }} 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
-                      <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm }}>
-                        {t('projects.previewNotAvailable') || 'Vista previa no disponible'}
-                      </p>
-                      <p className="text-text-muted mt-2" style={{ fontSize: fluidSizing.text.xs }}>
-                        La página no permite ser mostrada en un iframe
-                      </p>
-                    </div>
-                  </div>
-                )}
+              <div className="hidden sm:block w-full h-full">
                 <iframe
                   ref={iframeRef}
                   src={demoUrl}
                   className="w-full h-full"
                   title={title}
                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                  onError={() => {
-                    logger.error('Iframe failed to load', { url: demoUrl }, 'ProjectPreviewViewer');
-                    setShowIframe(false);
-                  }}
                 />
               </div>
               
@@ -165,38 +95,12 @@ export default function ProjectPreviewViewer({
                   
                   {/* Screen */}
                   <div className="relative w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
-                    {!showIframe && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background-elevated z-20">
-                        <div className="text-center px-4">
-                          <svg 
-                            className="mx-auto opacity-50" 
-                            style={{ 
-                              width: '48px', 
-                              height: '48px',
-                              marginBottom: fluidSizing.space.sm,
-                            }} 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                          </svg>
-                          <p className="text-text-muted text-xs">
-                            {t('projects.previewNotAvailable') || 'Vista previa no disponible'}
-                          </p>
-                        </div>
-                      </div>
-                    )}
                     <iframe
                       ref={iframeRef}
                       src={demoUrl}
                       className="w-full h-full"
                       title={title}
                       sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                      onError={() => {
-                        logger.error('Iframe failed to load (mobile)', { url: demoUrl }, 'ProjectPreviewViewer');
-                        setShowIframe(false);
-                      }}
                     />
                   </div>
                   
