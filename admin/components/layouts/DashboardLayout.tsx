@@ -149,7 +149,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         } : undefined}
       >
         {/* Logo/Header */}
-        <div className="border-b border-admin-primary/30 flex items-center" style={{ padding: fluidSizing.space.lg, justifyContent: sidebarOpen ? 'flex-start' : 'center', minHeight: '80px' }}>
+        <div className="border-b border-admin-primary/30 flex items-center" style={{ padding: fluidSizing.space.lg, justifyContent: sidebarOpen ? 'flex-start' : 'center', minHeight: fluidSizing.size.buttonLg }}>
           <Link href="/dashboard">
             <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: sidebarOpen ? fluidSizing.text['2xl'] : fluidSizing.text.xl }}>
               {sidebarOpen ? 'ADMIN' : 'A'}
@@ -175,16 +175,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       gap: fluidSizing.space.sm,
                       padding: sidebarOpen ? `${fluidSizing.space.sm} ${fluidSizing.space.md}` : fluidSizing.space.sm,
                       justifyContent: sidebarOpen ? 'flex-start' : 'center',
-                      minHeight: '48px'
+                      minHeight: fluidSizing.size.buttonMd
                     }}
                   >
-                    <Icon name={section.icon!} size={sidebarOpen ? 20 : 24} />
+                    <div style={{ width: sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd, height: sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd }}>
+                      <Icon name={section.icon!} />
+                    </div>
                     {sidebarOpen && (
                       <span className="font-medium" style={{ fontSize: fluidSizing.text.base }}>{section.name}</span>
                     )}
                     
                     {/* Tooltip "Próximamente" */}
-                    <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
+                    <div className="fixed left-[80px] bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.xs }}>
                       <span className="text-sm font-medium text-text-primary">Próximamente</span>
                     </div>
                   </div>
@@ -205,17 +207,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     gap: fluidSizing.space.sm,
                     padding: sidebarOpen ? `${fluidSizing.space.sm} ${fluidSizing.space.md}` : fluidSizing.space.sm,
                     justifyContent: sidebarOpen ? 'flex-start' : 'center',
-                    minHeight: '48px'
+                    minHeight: fluidSizing.size.buttonMd
                   }}
                 >
-                  <Icon name={section.icon!} size={sidebarOpen ? 20 : 24} />
+                  <div style={{ width: sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd, height: sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd }}>
+                    <Icon name={section.icon!} />
+                  </div>
                   {sidebarOpen && (
                     <span className="font-medium" style={{ fontSize: fluidSizing.text.base }}>{section.name}</span>
                   )}
                   
                   {/* Tooltip cuando está colapsado */}
                   {!sidebarOpen && (
-                    <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
+                    <div className="fixed left-[80px] bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.xs }}>
                       <span className="text-sm font-medium text-text-primary">{section.name}</span>
                     </div>
                   )}
@@ -232,22 +236,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     {sectionIndex > 0 && (
                       <div className="border-t border-admin-primary/10" style={{ marginBottom: fluidSizing.space.xs }} />
                     )}
-                    <div
-                      className="flex items-center rounded-lg transition-all duration-200 relative group text-text-secondary hover:bg-admin-dark-surface hover:text-text-primary cursor-pointer"
+                    <Link
+                      href={section.items?.[0]?.href || '#'}
+                      onClick={() => setSidebarOpen(true)}
+                      className="flex items-center rounded-lg transition-all duration-200 relative group text-text-secondary hover:bg-admin-dark-surface hover:text-text-primary"
                       style={{
                         gap: fluidSizing.space.sm,
                         padding: fluidSizing.space.sm,
                         justifyContent: 'center',
-                        minHeight: '48px'
+                        minHeight: fluidSizing.size.buttonMd
                       }}
                     >
-                      <Icon name={section.items?.[0]?.icon || 'dashboard'} size={24} />
+                      <div style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}>
+                        <Icon name={section.items?.[0]?.icon || 'dashboard'} />
+                      </div>
                       
                       {/* Tooltip con nombre de categoría */}
-                      <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
+                      <div className="fixed left-[80px] bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.xs }}>
                         <span className="text-sm font-medium text-text-primary">{section.name}</span>
                       </div>
-                    </div>
+                    </Link>
                   </>
                 ) : (
                   <>
@@ -277,15 +285,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                               gap: fluidSizing.space.sm,
                               padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
                               justifyContent: 'flex-start',
-                              minHeight: '44px',
+                              minHeight: fluidSizing.size.buttonSm,
                               marginLeft: fluidSizing.space.sm,
                             }}
                           >
-                            <Icon name={item.icon} size={18} />
+                            <div style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm }}>
+                              <Icon name={item.icon} />
+                            </div>
                             <span className="font-medium" style={{ fontSize: fluidSizing.text.sm }}>{item.name}</span>
                             
                             {/* Tooltip "Próximamente" */}
-                            <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
+                            <div className="fixed left-[80px] bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.xs }}>
                               <span className="text-sm font-medium text-text-primary">Próximamente</span>
                             </div>
                           </div>
@@ -305,11 +315,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             gap: fluidSizing.space.sm,
                             padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
                             justifyContent: 'flex-start',
-                            minHeight: '44px',
+                            minHeight: fluidSizing.size.buttonSm,
                             marginLeft: fluidSizing.space.sm,
                           }}
                         >
-                          <Icon name={item.icon} size={18} />
+                          <div style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm }}>
+                            <Icon name={item.icon} />
+                          </div>
                           <span className="font-medium" style={{ fontSize: fluidSizing.text.sm }}>{item.name}</span>
                         </Link>
                       );
@@ -411,10 +423,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 >
                   <Icon name="cpu" size={20} />
                   
-                  {/* Tooltip configuración */}
-                  <div className="fixed left-[80px] px-3 py-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ marginLeft: '8px' }}>
-                    <span className="text-sm font-medium text-text-primary">Configuración</span>
-                  </div>
+                  {/* Tooltip configuración - solo visible cuando NO está abierto el dropdown */}
+                  {!settingsOpen && (
+                    <div className="absolute left-full bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.sm, top: '50%', transform: 'translateY(-50%)' }}>
+                      <span className="text-sm font-medium text-text-primary">Configuración</span>
+                    </div>
+                  )}
                 </button>
 
                 {/* Dropdown de configuración */}
@@ -425,8 +439,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       animate={{ opacity: 1, x: 0, scale: 1 }}
                       exit={{ opacity: 0, x: -10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="fixed left-[80px] bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl overflow-hidden z-50 min-w-[200px]"
-                      style={{ marginLeft: '8px' }}
+                      className="absolute left-full bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl overflow-hidden z-50 min-w-[200px]"
+                      style={{ marginLeft: fluidSizing.space.sm, top: '50%', transform: 'translateY(-50%)' }}
                     >
                       <button
                         onClick={handleChangePassword}
