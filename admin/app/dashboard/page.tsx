@@ -1,15 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import StatCard from '@/components/molecules/StatCard';
 import QuickActionCard from '@/components/molecules/QuickActionCard';
-import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { api } from '@/lib/api-client';
+import { withAuth } from '@/lib/hoc';
 
 interface DashboardStats {
   projects: number;
@@ -18,9 +17,8 @@ interface DashboardStats {
   visits: number;
 }
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading, user } = useAuth();
+function DashboardPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     projects: 0,
     messages: 0,
@@ -30,16 +28,8 @@ export default function DashboardPage() {
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, isLoading, router]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadStats();
-    }
-  }, [isAuthenticated]);
+    loadStats();
+  }, []);
 
   const loadStats = async () => {
     try {
@@ -54,10 +44,6 @@ export default function DashboardPage() {
       setIsLoadingStats(false);
     }
   };
-
-  if (isLoading || !isAuthenticated) {
-    return <Loader fullScreen text="Cargando dashboard..." />;
-  }
 
   return (
     <DashboardLayout>
@@ -165,3 +151,5 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
+
+export default withAuth(DashboardPage, { loadingText: 'Cargando dashboard...' });

@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/lib/contexts/AuthContext';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
 import ProjectCard from '@/components/molecules/ProjectCard';
 import FilterBar from '@/components/molecules/FilterBar';
@@ -17,6 +16,7 @@ import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useCategories } from '@/lib/hooks';
+import { withAuth } from '@/lib/hoc';
 
 interface Project {
   id: string;
@@ -42,7 +42,6 @@ interface Project {
 function ProjectsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, isLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -54,13 +53,7 @@ function ProjectsPageContent() {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   
   // Cargar categorías con hook personalizado
-  const { categories: backendCategories, reload: reloadCategories } = useCategories('project', isAuthenticated);
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, isLoading, router]);
+  const { categories: backendCategories, reload: reloadCategories } = useCategories('project', true);
 
   const loadProjects = useCallback(async () => {
     try {
@@ -122,21 +115,19 @@ function ProjectsPageContent() {
   // Categorías se cargan automáticamente con useCategories
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadProjects();
-      loadExistingSkills();
-    }
-  }, [isAuthenticated, loadProjects, loadExistingSkills]);
+    loadProjects();
+    loadExistingSkills();
+  }, [loadProjects, loadExistingSkills]);
 
   // Detectar query param para abrir modal de nuevo proyecto
   useEffect(() => {
     const shouldOpenModal = searchParams.get('new') === 'true';
-    if (shouldOpenModal && isAuthenticated && !isLoadingProjects) {
+    if (shouldOpenModal && !isLoadingProjects) {
       setIsModalOpen(true);
       // Limpiar el query param de la URL
       router.replace('/dashboard/projects');
     }
-  }, [searchParams, isAuthenticated, isLoadingProjects, router]);
+  }, [searchParams, isLoadingProjects, router]);
 
   // Filtrado optimizado con useMemo
   const filteredProjects = useMemo(() => {
@@ -248,10 +239,6 @@ function ProjectsPageContent() {
       throw error;
     }
   };
-
-  if (isLoading || !isAuthenticated) {
-    return <Loader fullScreen text="Cargando proyectos..." />;
-  }
 
   return (
     <DashboardLayout>
@@ -432,10 +419,12 @@ function ProjectsPageContent() {
   );
 }
 
-export default function ProjectsPage() {
+const ProjectsPage = withAuth(function ProjectsPage() {
   return (
     <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-text-primary">Cargando...</div></div>}>
       <ProjectsPageContent />
     </Suspense>
   );
-}
+}, { loadingText: 'Cargando proyectos...' });
+
+export default ProjectsPage;
