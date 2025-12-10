@@ -18,8 +18,6 @@ export default function ProjectToggles({
   onPublishedChange,
 }: ProjectTogglesProps) {
   const isPublished = !!publishedAt && (typeof publishedAt === 'string' ? publishedAt.trim() !== '' : true);
-  
-  logger.info('ProjectToggles render:', { featured, publishedAt, isPublished });
 
   return (
     <div className="flex" style={{ gap: fluidSizing.space.lg }}>

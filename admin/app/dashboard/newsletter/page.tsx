@@ -57,7 +57,6 @@ export default function NewsletterPage() {
           : (response.data as { subscribers?: Subscriber[] }).subscribers || [];
         
         setSubscribers(subscribersData as Subscriber[]);
-        logger.info('Subscribers loaded successfully', { count: subscribersData.length });
       } else {
         logger.error('Failed to load subscribers', response.error);
         setSubscribers([]);
@@ -76,7 +75,6 @@ export default function NewsletterPage() {
       
       if (response.success) {
         setSubscribers(prev => prev.filter(s => s.id !== subscriberId));
-        logger.info('Subscriber deleted', { subscriberId });
       }
     } catch (error) {
       logger.error('Error deleting subscriber', error);

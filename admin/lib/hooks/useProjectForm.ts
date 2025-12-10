@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { logger } from '@/lib/logger';
 
 interface Category {
   name: string;
@@ -85,8 +84,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     if (!isOpen) return;
 
     if (project) {
-      logger.info('Initializing project form', { projectId: project.id });
-      
       // Inicializar tecnologías
       const existingTechs = project.technologies?.map((t: any) => {
         if (t.category !== undefined && t.proficiency !== undefined) {
@@ -122,7 +119,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       setImagePreview(project.imageUrl || project.image || '');
     } else {
       // Nuevo proyecto
-      logger.info('Initializing new project form');
       setFormData({
         title: '',
         description: '',
@@ -148,10 +144,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     // Solo actualizar si las categorías normalizadas son diferentes y válidas
     if (normalizedCategories.length > 0 && 
         JSON.stringify(formData.categories) !== JSON.stringify(normalizedCategories)) {
-      logger.info('Updating form categories', { 
-        from: formData.categories, 
-        to: normalizedCategories 
-      });
       setFormData(prev => ({
         ...prev,
         categories: normalizedCategories,
@@ -182,7 +174,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
 
   const handlePublishToggle = () => {
     const newValue = formData.publishedAt ? null : new Date().toISOString();
-    logger.info('Toggling publishedAt', { from: formData.publishedAt, to: newValue });
     setFormData(prev => ({
       ...prev,
       publishedAt: newValue,

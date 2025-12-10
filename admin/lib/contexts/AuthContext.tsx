@@ -44,17 +44,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (response.success && response.data && typeof response.data === 'object' && 'user' in response.data) {
           setUser(response.data.user as User);
-          logger.info('Auth: Usuario autenticado', { userId: (response.data.user as User).id });
         } else {
           setUser(null);
-          logger.debug('Auth: No hay sesión activa');
         }
       } catch (error: unknown) {
-        // Si es 401, es normal (no hay sesión), no logueamos como error
+        // Si es 401, es normal (no hay sesión)
         const axiosError = error as { response?: { status?: number } };
-        if (axiosError?.response?.status === 401) {
-          logger.debug('Auth: No autenticado (sin sesión)');
-        } else {
+        if (axiosError?.response?.status !== 401) {
           logger.error('Auth: Error verificando sesión', error);
         }
         setUser(null);
@@ -73,7 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     recaptchaAction?: string
   ): Promise<boolean> => {
     try {
-      logger.info('Auth: Intentando login', { email });
       const response = await api.login(email, password, recaptchaToken, recaptchaAction);
       
       if (response.success && response.data && typeof response.data === 'object' && 'user' in response.data) {
@@ -89,11 +84,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('refreshToken', tokens.refreshToken);
         }
         
-        logger.info('Auth: Login exitoso', { userId: user.id, email: user.email });
         return true;
       }
       
-      logger.warn('Auth: Login fallido - respuesta inválida');
       return false;
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: unknown }; message?: string };
@@ -107,10 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      logger.info('Auth: Cerrando sesión');
       // Llamar al endpoint de logout para revocar el refresh token
       await api.logout();
-      logger.info('Auth: Sesión cerrada exitosamente');
     } catch (error: unknown) {
       logger.error('Auth: Error al cerrar sesión', error);
     } finally {
@@ -129,23 +120,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshAuth = async () => {
     try {
-      logger.debug('Auth: Refrescando información de usuario');
       // Obtener información actualizada del usuario
       const response = await api.getMe();
       
       if (response.success && response.data && typeof response.data === 'object' && 'user' in response.data) {
         setUser(response.data.user as User);
-        logger.debug('Auth: Usuario actualizado');
       } else {
-        logger.warn('Auth: Refresh falló - cerrando sesión');
         await logout();
       }
     } catch (error: unknown) {
-      // Si es 401, la sesión expiró
+      // Si no es 401, loguear error
       const axiosError = error as { response?: { status?: number } };
-      if (axiosError?.response?.status === 401) {
-        logger.info('Auth: Sesión expirada');
-      } else {
+      if (axiosError?.response?.status !== 401) {
         logger.error('Auth: Error refrescando usuario', error);
       }
       await logout();

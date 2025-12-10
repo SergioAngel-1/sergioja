@@ -60,7 +60,6 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
 
           if (response.success) {
             alerts.success('Contraseña actualizada', 'Tu contraseña ha sido cambiada exitosamente. Cerrando sesión...');
-            logger.info('Password changed successfully');
             handleClose();
             
             // Cerrar sesión correctamente (revoca refresh token en backend)

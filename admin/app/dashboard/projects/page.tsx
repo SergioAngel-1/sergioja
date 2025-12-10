@@ -114,7 +114,6 @@ function ProjectsPageContent() {
         const skillsData = Array.isArray(response.data) ? response.data : [];
         const skillNames = skillsData.map((skill: any) => skill.name);
         setExistingSkills(skillNames);
-        logger.info('Skills loaded for autocomplete', { count: skillNames.length });
       }
     } catch (error) {
       logger.error('Error loading skills', error);
