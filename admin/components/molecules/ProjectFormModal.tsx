@@ -166,7 +166,7 @@ export default function ProjectFormModal({
           {/* Categories */}
           <CategorySelector
             categories={backendCategories}
-            selectedCategories={formData.categories && formData.categories.length > 0 ? formData.categories : normalizedCategories}
+            selectedCategories={formData.categories || []}
             onChange={handleCategoriesChange}
             required
             isLoading={loadingProjectCats}

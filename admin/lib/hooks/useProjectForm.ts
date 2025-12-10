@@ -159,23 +159,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     }
   }, [project, isOpen, normalizedCategories]);
 
-  // Actualizar categorías cuando se normalizan (solo si cambian realmente)
-  useEffect(() => {
-    if (!isOpen || !project || normalizedCategories.length === 0) return;
-    
-    // Solo actualizar si las categorías normalizadas son diferentes
-    const currentCats = JSON.stringify(formData.categories?.sort());
-    const normalizedCats = JSON.stringify(normalizedCategories.sort());
-    
-    if (currentCats !== normalizedCats) {
-      setFormData(prev => ({
-        ...prev,
-        categories: normalizedCategories,
-        category: normalizedCategories[0] || prev.category,
-      }));
-    }
-  }, [normalizedCategories, isOpen, project, formData.categories]);
-
   const updateFormData = (updates: Partial<ProjectFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
   };
