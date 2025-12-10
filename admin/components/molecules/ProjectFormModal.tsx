@@ -9,6 +9,7 @@ import TechnologyManager from './TechnologyManager';
 import ProjectBasicFields from './ProjectBasicFields';
 import ProjectUrlFields from './ProjectUrlFields';
 import ProjectToggles from './ProjectToggles';
+import ProjectScoresFields from './ProjectScoresFields';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { useCategories, useProjectForm } from '@/lib/hooks';
@@ -153,8 +154,10 @@ export default function ProjectFormModal({
           <ProjectBasicFields
             title={formData.title}
             description={formData.description}
+            longDescription={formData.longDescription}
             onTitleChange={(title) => updateFormData({ title })}
             onDescriptionChange={(description) => updateFormData({ description })}
+            onLongDescriptionChange={(longDescription) => updateFormData({ longDescription })}
           />
 
           {/* Image Upload */}
@@ -188,6 +191,16 @@ export default function ProjectFormModal({
             onRepositoryUrlChange={(url) => updateFormData({ repositoryUrl: url })}
             onLiveUrlChange={(url) => updateFormData({ liveUrl: url })}
             onIsCodePublicChange={(isPublic) => updateFormData({ isCodePublic: isPublic })}
+          />
+
+          {/* Scores */}
+          <ProjectScoresFields
+            performanceScore={formData.performanceScore}
+            accessibilityScore={formData.accessibilityScore}
+            seoScore={formData.seoScore}
+            onPerformanceScoreChange={(performanceScore) => updateFormData({ performanceScore })}
+            onAccessibilityScoreChange={(accessibilityScore) => updateFormData({ accessibilityScore })}
+            onSeoScoreChange={(seoScore) => updateFormData({ seoScore })}
           />
 
           {/* Toggles */}

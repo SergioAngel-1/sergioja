@@ -95,7 +95,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt } = req.body;
+    const { title, description, longDescription, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
 
     // Validaciones básicas
     if (!title || !description) {
@@ -141,7 +141,7 @@ router.post('/', async (req: Request, res: Response) => {
         title,
         slug,
         description,
-        longDescription: description,
+        longDescription: longDescription || description,
         categories: projectCategories,
         featured: featured || false,
         repoUrl: repoUrl || null,
@@ -149,6 +149,9 @@ router.post('/', async (req: Request, res: Response) => {
         image: image || null,
         isCodePublic: isCodePublic !== undefined ? isCodePublic : true,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
+        performanceScore: performanceScore ?? null,
+        accessibilityScore: accessibilityScore ?? null,
+        seoScore: seoScore ?? null,
       },
     });
 
@@ -248,7 +251,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, description, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt } = req.body;
+    const { title, description, longDescription, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -279,7 +282,7 @@ router.put('/:slug', async (req: Request, res: Response) => {
       data: {
         title: title || existingProject.title,
         description: description || existingProject.description,
-        longDescription: description || existingProject.longDescription,
+        longDescription: longDescription !== undefined ? longDescription : existingProject.longDescription,
         categories: projectCategories !== undefined ? projectCategories : existingProject.categories,
         featured: featured !== undefined ? featured : existingProject.featured,
         repoUrl: repoUrl !== undefined ? repoUrl : existingProject.repoUrl,
@@ -287,6 +290,9 @@ router.put('/:slug', async (req: Request, res: Response) => {
         image: image !== undefined ? image : existingProject.image,
         isCodePublic: isCodePublic !== undefined ? isCodePublic : existingProject.isCodePublic,
         publishedAt: publishedAt !== undefined ? (publishedAt ? new Date(publishedAt) : null) : existingProject.publishedAt,
+        performanceScore: performanceScore !== undefined ? performanceScore : existingProject.performanceScore,
+        accessibilityScore: accessibilityScore !== undefined ? accessibilityScore : existingProject.accessibilityScore,
+        seoScore: seoScore !== undefined ? seoScore : existingProject.seoScore,
       },
     });
 

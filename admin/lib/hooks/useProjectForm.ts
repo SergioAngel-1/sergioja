@@ -17,6 +17,7 @@ interface ProjectFormData {
   id?: string;
   title: string;
   description: string;
+  longDescription: string;
   category: string;
   categories?: string[];
   technologies: string[];
@@ -26,6 +27,9 @@ interface ProjectFormData {
   liveUrl?: string;
   imageUrl?: string;
   isCodePublic?: boolean;
+  performanceScore: number | null;
+  accessibilityScore: number | null;
+  seoScore: number | null;
 }
 
 interface UseProjectFormOptions {
@@ -42,6 +46,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
+    longDescription: '',
     category: 'web',
     categories: [],
     technologies: [],
@@ -51,6 +56,9 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     liveUrl: '',
     imageUrl: '',
     isCodePublic: true,
+    performanceScore: null,
+    accessibilityScore: null,
+    seoScore: null,
   });
 
   const [projectTechnologies, setProjectTechnologies] = useState<TechnologyFormData[]>([]);
@@ -125,6 +133,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         id: project.id,
         title: project.title || '',
         description: project.description || '',
+        longDescription: project.longDescription || '',
         category: projectCategories[0] || 'web',
         categories: projectCategories,
         technologies: project.technologies?.map((t: any) => 
@@ -136,6 +145,9 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         imageUrl: project.imageUrl || project.image || '',
         isCodePublic: project.isCodePublic !== undefined ? project.isCodePublic : true,
         publishedAt: project.publishedAt || null,
+        performanceScore: project.performanceScore ?? null,
+        accessibilityScore: project.accessibilityScore ?? null,
+        seoScore: project.seoScore ?? null,
       });
       
       setImagePreview(project.imageUrl || project.image || '');
@@ -144,6 +156,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       setFormData({
         title: '',
         description: '',
+        longDescription: '',
         category: 'web',
         categories: [],
         technologies: [],
@@ -153,6 +166,9 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         liveUrl: '',
         imageUrl: '',
         isCodePublic: true,
+        performanceScore: null,
+        accessibilityScore: null,
+        seoScore: null,
       });
       setImagePreview('');
       setProjectTechnologies([]);
@@ -199,6 +215,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       id: formData.id,
       title: formData.title,
       description: formData.description,
+      longDescription: formData.longDescription,
       category: formData.category,
       categories: formData.categories || [],
       technologies: formData.technologies,
@@ -212,6 +229,9 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       image: imagePreview || formData.imageUrl || '',
       imageUrl: imagePreview || formData.imageUrl || '',
       isCodePublic: formData.isCodePublic,
+      performanceScore: formData.performanceScore,
+      accessibilityScore: formData.accessibilityScore,
+      seoScore: formData.seoScore,
     };
   }, [formData, projectTechnologies, imagePreview]);
 
