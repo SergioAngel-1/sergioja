@@ -150,11 +150,15 @@ model NewsletterSubscription {
   ipAddress String?
   userAgent String?
   status    String   @default("active") // active, unsubscribed
+  source    String   @default("main") // main, portfolio
+  isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([createdAt])
+  @@index([source])
+  @@index([isRead])
   @@map("newsletter_subscriptions")
 }
 
