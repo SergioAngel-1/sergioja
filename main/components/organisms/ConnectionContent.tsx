@@ -79,31 +79,28 @@ export default function ConnectionContent() {
     setSending(true);
     log.info('contact_submit_start');
     
-    // Cargar script de reCAPTCHA Enterprise bajo demanda y obtener token
-    if (process.env.NODE_ENV === 'production') {
-      const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
-      if (key) {
-        try { await loadRecaptchaEnterprise(key); } catch {}
+    // Cargar script de reCAPTCHA Enterprise bajo demanda y obtener token (solo en producción)
+    let recaptchaToken: string | null | undefined = undefined;
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+    
+    if (siteKey && process.env.NODE_ENV === 'production') {
+      try { await loadRecaptchaEnterprise(siteKey); } catch {}
+      recaptchaToken = await getReCaptchaToken(siteKey, 'submit_contact');
+      
+      if (!recaptchaToken) {
+        setConsoleHistory(prev => [
+          ...prev,
+          `> Error: ${t('contact.recaptchaRequired')}`
+        ]);
+        alerts.error(
+          t('alerts.sendError'),
+          t('contact.recaptchaRequired'),
+          6000
+        );
+        setSending(false);
+        log.error('recaptcha_token_missing');
+        return;
       }
-    }
-    const recaptchaToken = await getReCaptchaToken(
-      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
-      'submit_contact'
-    );
-    if (!recaptchaToken) {
-      setConsoleHistory(prev => [
-        ...prev,
-        `> Error: ${t('contact.recaptchaRequired')}`
-      ]);
-      // Mostrar alerta visual
-      alerts.error(
-        t('alerts.sendError'),
-        t('contact.recaptchaRequired'),
-        6000
-      );
-      setSending(false);
-      log.error('recaptcha_token_missing');
-      return;
     }
     setConsoleHistory(prev => [
       ...prev,

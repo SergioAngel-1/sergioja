@@ -43,24 +43,24 @@ export default function ContactPage() {
   usePageAnalytics();
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
-      if (key) {
-        loadRecaptchaEnterprise(key).catch(() => {});
-      }
+    const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+    if (key && process.env.NODE_ENV === 'production') {
+      loadRecaptchaEnterprise(key).catch(() => {});
     }
   }, []);
 
 
   const handleNewsletterSubmit = async (email: string) => {
-    // Suscripción al newsletter con reCAPTCHA Enterprise
-    const recaptchaToken = await getReCaptchaToken(
-      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
-      'subscribe_newsletter'
-    );
-    if (!recaptchaToken) {
-      alerts.error(t('alerts.sendError'), t('contact.recaptchaRequired'), 6000);
-      throw new Error('Missing reCAPTCHA token');
+    // Suscripción al newsletter con reCAPTCHA Enterprise (solo en producción)
+    let recaptchaToken: string | null | undefined = undefined;
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+    
+    if (siteKey && process.env.NODE_ENV === 'production') {
+      recaptchaToken = await getReCaptchaToken(siteKey, 'subscribe_newsletter');
+      if (!recaptchaToken) {
+        alerts.error(t('alerts.sendError'), t('contact.recaptchaRequired'), 6000);
+        throw new Error('Missing reCAPTCHA token');
+      }
     }
     try {
       const res = await api.subscribeNewsletter({
@@ -100,15 +100,17 @@ export default function ContactPage() {
 
     setStatus('loading');
     
-    // Obtener token de reCAPTCHA v3
-    const recaptchaToken = await getReCaptchaToken(
-      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '',
-      'submit_contact'
-    );
-    if (!recaptchaToken) {
-      setStatus('error');
-      setErrorMessage(t('contact.recaptchaRequired') || 'Por favor completa el reCAPTCHA');
-      return;
+    // Obtener token de reCAPTCHA v3 (solo en producción con siteKey configurado)
+    let recaptchaToken: string | null | undefined = undefined;
+    const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
+    
+    if (siteKey && process.env.NODE_ENV === 'production') {
+      recaptchaToken = await getReCaptchaToken(siteKey, 'submit_contact');
+      if (!recaptchaToken) {
+        setStatus('error');
+        setErrorMessage(t('contact.recaptchaRequired') || 'Por favor completa el reCAPTCHA');
+        return;
+      }
     }
     log.interaction('submit_contact_form', 'contact_form', formData);
 

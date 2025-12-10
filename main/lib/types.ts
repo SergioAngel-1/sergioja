@@ -7,7 +7,6 @@ export type {
   Profile,
   Project,
   Skill,
-  TimelineItem,
   ContactMessage,
   ContactSubmissionPayload,
   NewsletterSubscriptionPayload,
