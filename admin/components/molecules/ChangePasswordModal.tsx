@@ -8,6 +8,7 @@ import { fluidSizing } from '@/lib/fluidSizing';
 import { api } from '@/lib/api-client';
 import { alerts } from '@/lib/alerts';
 import { logger } from '@/lib/logger';
+import { useAuth } from '@/lib/contexts/AuthContext';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface ChangePasswordModalProps {
 }
 
 export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProps) {
+  const { logout } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -57,14 +59,14 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
           });
 
           if (response.success) {
-            alerts.success('Contraseña actualizada', 'Tu contraseña ha sido cambiada exitosamente. Redirigiendo al login...');
+            alerts.success('Contraseña actualizada', 'Tu contraseña ha sido cambiada exitosamente. Cerrando sesión...');
             logger.info('Password changed successfully');
             handleClose();
             
-            // Cerrar sesión después de 2 segundos
-            setTimeout(() => {
-              window.location.href = '/login';
-            }, 2000);
+            // Cerrar sesión correctamente (revoca refresh token en backend)
+            setTimeout(async () => {
+              await logout();
+            }, 1500);
           } else {
             const errorMessage = typeof response.error === 'string' 
               ? response.error 
