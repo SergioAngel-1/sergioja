@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import Button from '../atoms/Button';
 import Modal from './Modal';
-import ImageUploader from './ImageUploader';
 import CategorySelector from './CategorySelector';
 import TechnologyManager from './TechnologyManager';
 import ProjectBasicFields from './ProjectBasicFields';
 import ProjectUrlFields from './ProjectUrlFields';
 import ProjectToggles from './ProjectToggles';
 import ProjectScoresFields from './ProjectScoresFields';
+import MultiImageUploader from './MultiImageUploader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { useCategories, useProjectForm } from '@/lib/hooks';
@@ -56,13 +56,11 @@ export default function ProjectFormModal({
   const {
     formData,
     projectTechnologies,
-    imagePreview,
     normalizedCategories,
     updateFormData,
     handleTechnologiesChange,
     handleCategoriesChange,
     handlePublishToggle,
-    handleImageChange,
     getSubmitData,
     isValid,
   } = useProjectForm({ project, backendCategories, isOpen });
@@ -160,10 +158,11 @@ export default function ProjectFormModal({
             onLongDescriptionChange={(longDescription) => updateFormData({ longDescription })}
           />
 
-          {/* Image Upload */}
-          <ImageUploader
-            value={imagePreview}
-            onChange={handleImageChange}
+          {/* Multi Image Upload */}
+          <MultiImageUploader
+            images={formData.images}
+            onChange={(images) => updateFormData({ images })}
+            maxImages={5}
           />
 
           {/* Categories */}

@@ -92,7 +92,7 @@ router.get('/:id/projects', async (req: Request, res: Response) => {
       title: pt.project.title,
       description: pt.project.description,
       longDescription: pt.project.longDescription || undefined,
-      image: pt.project.image || undefined,
+      image: (pt.project.images && pt.project.images.length > 0) ? pt.project.images[0] : undefined,
       categories: pt.project.categories || [],
       featured: pt.project.featured,
       demoUrl: pt.project.demoUrl || undefined,

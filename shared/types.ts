@@ -46,7 +46,8 @@ export interface Project {
   title: string;
   description: string;
   longDescription?: string;
-  image?: string;
+  image?: string; // Primera imagen (para compatibilidad con portfolio)
+  images?: string[]; // Array de imágenes del proyecto
   categories: string[]; // Array de categorías (web, mobile, ai, backend, fullstack)
   featured: boolean;
   demoUrl?: string;

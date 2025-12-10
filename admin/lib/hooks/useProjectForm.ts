@@ -25,7 +25,7 @@ interface ProjectFormData {
   publishedAt: string | null;
   repositoryUrl?: string;
   liveUrl?: string;
-  imageUrl?: string;
+  images: string[];
   isCodePublic?: boolean;
   performanceScore: number | null;
   accessibilityScore: number | null;
@@ -54,7 +54,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     publishedAt: null,
     repositoryUrl: '',
     liveUrl: '',
-    imageUrl: '',
+    images: [],
     isCodePublic: true,
     performanceScore: null,
     accessibilityScore: null,
@@ -62,7 +62,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
   });
 
   const [projectTechnologies, setProjectTechnologies] = useState<TechnologyFormData[]>([]);
-  const [imagePreview, setImagePreview] = useState<string>('');
 
   // Normalizar categorías del proyecto contra las del backend
   const normalizedCategories = useMemo(() => {
@@ -142,15 +141,13 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         featured: project.featured || false,
         repositoryUrl: project.repoUrl || project.repositoryUrl || '',
         liveUrl: project.demoUrl || project.liveUrl || '',
-        imageUrl: project.imageUrl || project.image || '',
+        images: Array.isArray(project.images) ? project.images : [],
         isCodePublic: project.isCodePublic !== undefined ? project.isCodePublic : true,
         publishedAt: project.publishedAt || null,
         performanceScore: project.performanceScore ?? null,
         accessibilityScore: project.accessibilityScore ?? null,
         seoScore: project.seoScore ?? null,
       });
-      
-      setImagePreview(project.imageUrl || project.image || '');
     } else {
       // Nuevo proyecto
       setFormData({
@@ -164,13 +161,12 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         publishedAt: null,
         repositoryUrl: '',
         liveUrl: '',
-        imageUrl: '',
+        images: [],
         isCodePublic: true,
         performanceScore: null,
         accessibilityScore: null,
         seoScore: null,
       });
-      setImagePreview('');
       setProjectTechnologies([]);
     }
   }, [project, isOpen, normalizedCategories]);
@@ -203,12 +199,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     }));
   };
 
-  const handleImageChange = (file: File | null, preview: string) => {
-    setImagePreview(preview);
-    if (!preview) {
-      setFormData(prev => ({ ...prev, imageUrl: '' }));
-    }
-  };
 
   const getSubmitData = useCallback(() => {
     return {
@@ -226,14 +216,13 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       repoUrl: formData.repositoryUrl,
       liveUrl: formData.liveUrl,
       demoUrl: formData.liveUrl,
-      image: imagePreview || formData.imageUrl || '',
-      imageUrl: imagePreview || formData.imageUrl || '',
+      images: formData.images,
       isCodePublic: formData.isCodePublic,
       performanceScore: formData.performanceScore,
       accessibilityScore: formData.accessibilityScore,
       seoScore: formData.seoScore,
     };
-  }, [formData, projectTechnologies, imagePreview]);
+  }, [formData, projectTechnologies]);
 
   const isValid = () => {
     return formData.categories && formData.categories.length > 0;
@@ -242,13 +231,11 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
   return {
     formData,
     projectTechnologies,
-    imagePreview,
     normalizedCategories,
     updateFormData,
     handleTechnologiesChange,
     handleCategoriesChange,
     handlePublishToggle,
-    handleImageChange,
     getSubmitData,
     isValid,
   };

@@ -357,7 +357,7 @@ function ProjectsPageContent() {
                 title={project.title}
                 description={project.description}
                 category={project.categories[0] || 'web'}
-                image={project.image}
+                image={project.images && project.images.length > 0 ? project.images[0] : undefined}
                 featured={project.featured}
                 demoUrl={project.demoUrl}
                 repoUrl={project.repoUrl}

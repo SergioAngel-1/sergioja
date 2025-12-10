@@ -51,7 +51,7 @@ router.get('/', async (req: Request, res: Response) => {
       title: p.title,
       description: p.description,
       longDescription: p.longDescription,
-      image: p.image,
+      images: p.images || [],
       categories: p.categories || [],
       featured: p.featured,
       demoUrl: p.demoUrl,
@@ -95,7 +95,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { title, description, longDescription, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
+    const { title, description, longDescription, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
 
     // Validaciones básicas
     if (!title || !description) {
@@ -146,7 +146,7 @@ router.post('/', async (req: Request, res: Response) => {
         featured: featured || false,
         repoUrl: repoUrl || null,
         demoUrl: demoUrl || null,
-        image: image || null,
+        images: Array.isArray(images) ? images : [],
         isCodePublic: isCodePublic !== undefined ? isCodePublic : true,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
         performanceScore: performanceScore ?? null,
@@ -251,7 +251,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, description, longDescription, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, image, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
+    const { title, description, longDescription, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -287,7 +287,7 @@ router.put('/:slug', async (req: Request, res: Response) => {
         featured: featured !== undefined ? featured : existingProject.featured,
         repoUrl: repoUrl !== undefined ? repoUrl : existingProject.repoUrl,
         demoUrl: demoUrl !== undefined ? demoUrl : existingProject.demoUrl,
-        image: image !== undefined ? image : existingProject.image,
+        images: images !== undefined ? (Array.isArray(images) ? images : []) : existingProject.images,
         isCodePublic: isCodePublic !== undefined ? isCodePublic : existingProject.isCodePublic,
         publishedAt: publishedAt !== undefined ? (publishedAt ? new Date(publishedAt) : null) : existingProject.publishedAt,
         performanceScore: performanceScore !== undefined ? performanceScore : existingProject.performanceScore,
