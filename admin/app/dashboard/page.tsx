@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
@@ -9,16 +9,51 @@ import StatCard from '@/components/molecules/StatCard';
 import QuickActionCard from '@/components/molecules/QuickActionCard';
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
+import { api } from '@/lib/api-client';
+
+interface DashboardStats {
+  projects: number;
+  messages: number;
+  subscribers: number;
+  visits: number;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading, user } = useAuth();
+  const [stats, setStats] = useState<DashboardStats>({
+    projects: 0,
+    messages: 0,
+    subscribers: 0,
+    visits: 0,
+  });
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }
   }, [isAuthenticated, isLoading, router]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadStats();
+    }
+  }, [isAuthenticated]);
+
+  const loadStats = async () => {
+    try {
+      setIsLoadingStats(true);
+      const response = await api.getDashboardStats();
+      if (response.success && response.data) {
+        setStats(response.data as DashboardStats);
+      }
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
 
   if (isLoading || !isAuthenticated) {
     return <Loader fullScreen text="Cargando dashboard..." />;
@@ -48,26 +83,26 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
           <StatCard
             title="Proyectos"
-            value="0"
+            value={isLoadingStats ? '...' : stats.projects.toString()}
             icon="projects"
             delay={0.1}
             variant="accent"
           />
           <StatCard
             title="Mensajes"
-            value="0"
+            value={isLoadingStats ? '...' : stats.messages.toString()}
             icon="messages"
             delay={0.2}
           />
           <StatCard
             title="Suscriptores"
-            value="0"
+            value={isLoadingStats ? '...' : stats.subscribers.toString()}
             icon="users"
             delay={0.3}
           />
           <StatCard
             title="Visitas"
-            value="0"
+            value={isLoadingStats ? '...' : stats.visits.toString()}
             icon="eye"
             delay={0.4}
           />

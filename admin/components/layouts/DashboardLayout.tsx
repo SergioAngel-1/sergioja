@@ -123,13 +123,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     ? 'bg-admin-primary/20 text-admin-primary border border-admin-primary/50'
                     : 'text-text-secondary hover:bg-admin-dark-surface hover:text-text-primary'
                 }`}
-                style={{ 
-                  gap: fluidSizing.space.sm, 
-                  padding: sidebarOpen ? `${fluidSizing.space.sm} ${fluidSizing.space.md}` : fluidSizing.space.md,
+                style={{
+                  gap: fluidSizing.space.sm,
+                  padding: sidebarOpen ? `${fluidSizing.space.sm} ${fluidSizing.space.md}` : fluidSizing.space.sm,
                   justifyContent: sidebarOpen ? 'flex-start' : 'center',
                   minHeight: '48px'
                 }}
-                title={!sidebarOpen ? item.name : undefined}
               >
                 <Icon name={item.icon} size={sidebarOpen ? 20 : 24} />
                 {sidebarOpen && (
@@ -168,7 +167,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     onClick={() => setSettingsOpen(!settingsOpen)}
                     className="flex-shrink-0 hover:bg-admin-primary/10 text-text-primary rounded-lg transition-all duration-200"
                     style={{ padding: fluidSizing.space.xs }}
-                    title="Configuración"
                   >
                     <Icon name="cpu" size={18} />
                   </button>
@@ -212,7 +210,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   }}
                   className="flex-shrink-0 hover:bg-red-500/10 rounded-lg transition-all duration-200"
                   style={{ padding: fluidSizing.space.xs, color: '#ff0000' }}
-                  title="Cerrar sesión"
                 >
                   <Icon name="logout" size={18} />
                 </button>
@@ -236,7 +233,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   onClick={() => setSettingsOpen(!settingsOpen)}
                   className="hover:bg-admin-primary/10 text-text-primary rounded-lg transition-all duration-200 relative group flex items-center justify-center"
                   style={{ padding: fluidSizing.space.sm, minWidth: '40px', minHeight: '40px' }}
-                  title="Configuración"
                 >
                   <Icon name="cpu" size={20} />
                   
@@ -286,7 +282,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 }}
                 className="hover:bg-red-500/10 rounded-lg transition-all duration-200 relative group flex items-center justify-center"
                 style={{ padding: fluidSizing.space.sm, minWidth: '40px', minHeight: '40px', color: '#ff0000' }}
-                title="Cerrar sesión"
               >
                 <Icon name="logout" size={20} />
                 
