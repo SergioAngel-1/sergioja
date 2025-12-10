@@ -179,25 +179,31 @@ export default function MessageDetailModal({
                 {/* Status Actions */}
                 <div className="flex flex-wrap gap-2">
                   <button
-                    onClick={() => handleStatusChange('read')}
-                    disabled={isChangingStatus || message.status === 'read'}
-                    className="px-4 py-2 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 rounded-lg text-sm font-medium hover:bg-yellow-400/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => handleStatusChange(message.status === 'read' ? 'new' : 'read')}
+                    disabled={isChangingStatus}
+                    className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/20 text-white rounded-lg text-sm font-medium hover:bg-white/10 hover:border-white/40 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                    title={message.status === 'read' ? 'Marcar como no leído' : 'Marcar como leído'}
                   >
-                    Marcar como leído
+                    <Icon name="eye" size={16} />
+                    <span className="hidden sm:inline">{message.status === 'read' ? 'No leído' : 'Leído'}</span>
                   </button>
                   <button
-                    onClick={() => handleStatusChange('replied')}
-                    disabled={isChangingStatus || message.status === 'replied'}
-                    className="px-4 py-2 bg-green-400/10 border border-green-400/30 text-green-400 rounded-lg text-sm font-medium hover:bg-green-400/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => handleStatusChange(message.status === 'replied' ? 'new' : 'replied')}
+                    disabled={isChangingStatus}
+                    className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/20 text-white rounded-lg text-sm font-medium hover:bg-white/10 hover:border-white/40 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                    title={message.status === 'replied' ? 'Marcar como no respondido' : 'Marcar como respondido'}
                   >
-                    Marcar como respondido
+                    <Icon name="check" size={16} />
+                    <span className="hidden sm:inline">{message.status === 'replied' ? 'No respondido' : 'Respondido'}</span>
                   </button>
                   <button
-                    onClick={() => handleStatusChange('spam')}
-                    disabled={isChangingStatus || message.status === 'spam'}
-                    className="px-4 py-2 bg-red-400/10 border border-red-400/30 text-red-400 rounded-lg text-sm font-medium hover:bg-red-400/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => handleStatusChange(message.status === 'spam' ? 'new' : 'spam')}
+                    disabled={isChangingStatus}
+                    className="flex items-center gap-2 px-3 py-2 bg-admin-error/10 border border-admin-error/30 text-admin-error rounded-lg text-sm font-medium hover:bg-admin-error/20 hover:border-admin-error/50 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                    title={message.status === 'spam' ? 'Marcar como no spam' : 'Marcar como spam'}
                   >
-                    Marcar como spam
+                    <Icon name="x" size={16} />
+                    <span className="hidden sm:inline">{message.status === 'spam' ? 'No spam' : 'Spam'}</span>
                   </button>
                 </div>
 
@@ -205,17 +211,20 @@ export default function MessageDetailModal({
                 <div className="flex gap-2">
                   <button
                     onClick={handleReply}
-                    className="flex items-center gap-2 px-6 py-2 bg-admin-primary text-admin-dark rounded-lg font-medium hover:bg-admin-primary/90 transition-all duration-200"
+                    className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-white/90 transition-all duration-200"
+                    title="Responder por email"
                   >
                     <Icon name="messages" size={16} />
-                    Responder
+                    <span className="hidden sm:inline">Responder</span>
                   </button>
                   <button
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="px-4 py-2 bg-admin-error/20 border border-admin-error/30 text-admin-error rounded-lg font-medium hover:bg-admin-error/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-2 bg-admin-error text-white rounded-lg font-medium hover:bg-admin-error/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Eliminar mensaje"
                   >
-                    {isDeleting ? 'Eliminando...' : 'Eliminar'}
+                    <Icon name="trash" size={16} />
+                    <span className="hidden sm:inline">{isDeleting ? 'Eliminando...' : 'Eliminar'}</span>
                   </button>
                 </div>
               </div>

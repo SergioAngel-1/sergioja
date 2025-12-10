@@ -15,6 +15,7 @@ interface MessageCardProps {
   source: 'portfolio' | 'landing';
   delay?: number;
   onClick: () => void;
+  messageCount?: number; // Número total de mensajes de este remitente
 }
 
 export default function MessageCard({
@@ -28,6 +29,7 @@ export default function MessageCard({
   source,
   delay = 0,
   onClick,
+  messageCount = 1,
 }: MessageCardProps) {
   const isNew = status === 'new';
   const sourceConfig = {
@@ -99,6 +101,11 @@ export default function MessageCard({
               <h3 className="text-base font-bold text-admin-primary group-hover:text-glow-subtle transition-all duration-300 truncate">
                 {name}
               </h3>
+              {messageCount > 1 && (
+                <span className="px-2 py-0.5 text-xs font-medium bg-admin-primary/10 border border-admin-primary/30 text-admin-primary rounded">
+                  {messageCount} mensajes
+                </span>
+              )}
               <StatusBadge status={status} size="sm" />
             </div>
             <p className="text-text-muted text-sm truncate">{email}</p>

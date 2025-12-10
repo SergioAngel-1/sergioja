@@ -136,6 +136,15 @@ export default function MessagesPage() {
     return filtered;
   }, [messages, selectedStatus, selectedSource, searchQuery]);
 
+  // Calcular contador de mensajes por email
+  const messageCountByEmail = useMemo(() => {
+    const counts: Record<string, number> = {};
+    messages.forEach(m => {
+      counts[m.email] = (counts[m.email] || 0) + 1;
+    });
+    return counts;
+  }, [messages]);
+
   const stats = useMemo(() => {
     const newCount = messages.filter(m => m.status === 'new').length;
     const readCount = messages.filter(m => m.status === 'read').length;
@@ -280,6 +289,7 @@ export default function MessagesPage() {
                 source={getMessageSource(message.subject)}
                 delay={index * 0.05}
                 onClick={() => handleMessageClick(message)}
+                messageCount={messageCountByEmail[message.email] || 1}
               />
             ))}
           </div>
