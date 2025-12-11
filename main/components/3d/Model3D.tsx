@@ -177,6 +177,11 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
     const interval = lowPerformanceMode ? 1 / 20 : 1 / 30;
     if (now - tickRef.current < interval) return;
     tickRef.current = now;
+    
+    // Keep rendering while model is interpolating (for smooth deceleration)
+    // Schedule next frame to continue animation even when mouse stops
+    schedule(200);
+    
     if (groupRef.current) {
       // Mantener z estable
       groupRef.current.position.z = 0;
@@ -208,7 +213,11 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
         const targetRotationY = BASE_ROT_Y + inputRotY;
         const targetRotationX = BASE_ROT_X + inputRotX;
         const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetRotationX, targetRotationY, 0, 'XYZ'));
-        groupRef.current.quaternion.slerp(targetQuat, 0.1);
+        
+        // Smooth damping: very low slerp factor for gradual deceleration
+        // Lower values = more inertia and smoother stopping (like physics)
+        const dampingFactor = lowPerformanceMode ? 0.02 : 0.03;
+        groupRef.current.quaternion.slerp(targetQuat, dampingFactor);
       }
       // En bajo rendimiento, el modelo queda estático después de la animación inicial
     }
