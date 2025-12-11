@@ -54,6 +54,13 @@ export interface BaseTranslations {
   'projects.viewDemo': string;
   'projects.github': string;
   'projects.inProgress': string;
+  'projects.preview': string;
+  'projects.gallery': string;
+  'projects.backToDemo': string;
+  'projects.viewPage': string;
+  'projects.viewCode': string;
+  'projects.privateCode': string;
+  'projects.actions': string;
   
   // Contact form
   'contact.name': string;
@@ -228,6 +235,13 @@ export const translations: Record<Language, Translations> = {
     'projects.viewDemo': 'Ver demo →',
     'projects.github': 'GitHub →',
     'projects.inProgress': 'EN DESARROLLO',
+    'projects.preview': 'Vista Previa',
+    'projects.gallery': 'Imágenes del Proyecto',
+    'projects.backToDemo': 'Volver a demo',
+    'projects.viewPage': 'Ver Página',
+    'projects.viewCode': 'Ver Repositorio',
+    'projects.privateCode': 'Repositorio Privado',
+    'projects.actions': 'Acciones',
     
     // Contact form
     'contact.name': 'Nombre',
@@ -397,6 +411,13 @@ export const translations: Record<Language, Translations> = {
     'projects.viewDemo': 'View demo →',
     'projects.github': 'GitHub →',
     'projects.inProgress': 'IN PROGRESS',
+    'projects.preview': 'Preview',
+    'projects.gallery': 'Project Images',
+    'projects.backToDemo': 'Back to demo',
+    'projects.viewPage': 'View Page',
+    'projects.viewCode': 'View Repository',
+    'projects.privateCode': 'Private Repository',
+    'projects.actions': 'Actions',
     
     // Contact form
     'contact.name': 'Name',
