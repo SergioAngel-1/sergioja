@@ -10,19 +10,24 @@ import { defaultSEO, siteConfig } from '@/lib/seo/config';
 const orbitron = Orbitron({
   subsets: ['latin'],
   variable: '--font-orbitron',
-  weight: ['400', '500', '700', '900'],
+  weight: ['400', '700', '900'],
+  display: 'swap',
+  preload: true,
 });
 
 const rajdhani = Rajdhani({
   subsets: ['latin'],
   variable: '--font-rajdhani',
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '700'],
+  display: 'swap',
+  preload: true,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains-mono',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500'],
+  display: 'swap',
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://sergioja.com';
