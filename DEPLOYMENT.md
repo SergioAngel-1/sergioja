@@ -208,6 +208,9 @@ docker compose --env-file .env -f docker-compose.yml config
 # Estado y logs
 docker compose --env-file .env -f docker-compose.yml ps
 docker compose --env-file .env -f docker-compose.yml logs -f
+
+#Crear usuario admin
+docker compose --env-file .env -f docker-compose.yml exec backend npx tsx scripts/create-admin.ts
 ```
 
 ## Notas Importantes
