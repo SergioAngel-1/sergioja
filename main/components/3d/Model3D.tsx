@@ -57,6 +57,16 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
       }
     };
   }, [invalidate]);
+
+  // Cleanup RAF on unmount to prevent memory leak
+  useEffect(() => {
+    return () => {
+      if (rafRef.current != null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+  }, []);
   // Pose base (esquina arriba-izquierda)
   const BASE_ROT_X = -0.2; // mirada ligeramente hacia arriba
   const BASE_ROT_Y = -0.1; // giro hacia la izquierda (aún menos sesgo)
@@ -160,16 +170,11 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
     schedule(120);
   }, [mousePosition.x, mousePosition.y, schedule]);
 
-  useEffect(() => {
-    return () => {
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
-
 
   useFrame((state) => {
     const now = state.clock.getElapsedTime();
-    const interval = 1 / 30;
+    // Adaptive FPS: 20fps in low performance, 30fps normal
+    const interval = lowPerformanceMode ? 1 / 20 : 1 / 30;
     if (now - tickRef.current < interval) return;
     tickRef.current = now;
     if (groupRef.current) {
