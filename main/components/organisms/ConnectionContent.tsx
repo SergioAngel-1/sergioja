@@ -84,21 +84,36 @@ export default function ConnectionContent() {
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
     
     if (siteKey && process.env.NODE_ENV === 'production') {
-      try { await loadRecaptchaEnterprise(siteKey); } catch {}
-      recaptchaToken = await getReCaptchaToken(siteKey, 'submit_contact');
-      
-      if (!recaptchaToken) {
+      try {
+        await loadRecaptchaEnterprise(siteKey);
+        recaptchaToken = await getReCaptchaToken(siteKey, 'submit_contact');
+        
+        if (!recaptchaToken) {
+          setConsoleHistory(prev => [
+            ...prev,
+            `> Error: ${t('contact.recaptchaRequired')}`
+          ]);
+          alerts.error(
+            t('alerts.sendError'),
+            t('contact.recaptchaRequired'),
+            6000
+          );
+          setSending(false);
+          log.error('recaptcha_token_missing');
+          return;
+        }
+      } catch (error) {
         setConsoleHistory(prev => [
           ...prev,
-          `> Error: ${t('contact.recaptchaRequired')}`
+          '> Error: Error al cargar verificación de seguridad'
         ]);
         alerts.error(
           t('alerts.sendError'),
-          t('contact.recaptchaRequired'),
+          'Error al cargar verificación de seguridad. Por favor, intenta nuevamente.',
           6000
         );
         setSending(false);
-        log.error('recaptcha_token_missing');
+        log.error('recaptcha_load_failed', error as any);
         return;
       }
     }
