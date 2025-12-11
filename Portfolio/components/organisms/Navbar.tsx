@@ -127,16 +127,16 @@ export default function Navbar() {
       <div className="absolute right-0 top-0 w-px h-full bg-gradient-to-b from-transparent via-white to-transparent opacity-30" />
 
       {/* Floating particles - desde separador hasta indicador rojo */}
-      {mounted && particles.map((particle) => (
+      {mounted && !lowPerformanceMode && particles.map((particle) => (
         <motion.div
           key={particle.id}
           className="absolute w-1 h-1 bg-cyber-red rounded-full z-0"
           style={{ left: '50%', top: '75%' }}
-          animate={lowPerformanceMode ? {} : {
+          animate={{
             y: [0, '-60vh'],
             opacity: [0, 1, 0],
           }}
-          transition={lowPerformanceMode ? {} : {
+          transition={{
             duration: particle.duration,
             repeat: Infinity,
             delay: particle.delay,
