@@ -49,29 +49,27 @@ export default function Home() {
     }
   }, [activeModal]);
 
-  // Track visual viewport center to keep hero perfectly centered on iOS/Android when browser UI shows/hides
+  // Set hero size once (constant value)
+  useEffect(() => {
+    document.documentElement.style.setProperty('--hero-size', fluidSizing.size.heroContainer);
+  }, []);
+
+  // Track viewport center to keep hero centered (use window.innerHeight to avoid keyboard jump on iOS)
   useEffect(() => {
     const updateCenter = () => {
-      const vv: any = (window as any).visualViewport;
-      const centerY = (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight) / 2;
+      // Use window.innerHeight instead of visualViewport to prevent hero jumping when keyboard appears
+      const centerY = window.innerHeight / 2;
       if (heroCenterRef.current) {
         heroCenterRef.current.style.setProperty('--vv-center-y', `${centerY}px`);
       }
-      // Also expose globally to ensure fixed descendants can read it regardless of stacking contexts
       document.documentElement.style.setProperty('--vv-center-y', `${centerY}px`);
-      // Expose hero size globally for CTA positioning (use fluidSizing token)
-      document.documentElement.style.setProperty('--hero-size', fluidSizing.size.heroContainer);
     };
     updateCenter();
     window.addEventListener('resize', updateCenter);
     window.addEventListener('orientationchange', updateCenter);
-    (window as any).visualViewport?.addEventListener('resize', updateCenter);
-    (window as any).visualViewport?.addEventListener('scroll', updateCenter);
     return () => {
       window.removeEventListener('resize', updateCenter);
       window.removeEventListener('orientationchange', updateCenter);
-      (window as any).visualViewport?.removeEventListener('resize', updateCenter);
-      (window as any).visualViewport?.removeEventListener('scroll', updateCenter);
     };
   }, []);
 
@@ -171,65 +169,73 @@ export default function Home() {
         }
       />
 
-      {/* Modales */}
-      <Modal
-        isOpen={activeModal === 'navigation'}
-        onClose={closeModal}
-        title={t('nav.navigation')}
-        position="top-left"
-        icon={
-          <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        }
-      >
-        <NavigationContent onNavigate={(modal) => setActiveModal(modal)} />
-      </Modal>
+      {/* Modales - Lazy loaded: only render when opened */}
+      {activeModal === 'navigation' && (
+        <Modal
+          isOpen={true}
+          onClose={closeModal}
+          title={t('nav.navigation')}
+          position="top-left"
+          icon={
+            <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          }
+        >
+          <NavigationContent onNavigate={(modal) => setActiveModal(modal)} />
+        </Modal>
+      )}
 
-      <Modal
-        isOpen={activeModal === 'identity'}
-        onClose={closeModal}
-        title={t('nav.identity')}
-        position="top-right"
-        icon={
-          <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-        }
-      >
-        <IdentityContent />
-      </Modal>
+      {activeModal === 'identity' && (
+        <Modal
+          isOpen={true}
+          onClose={closeModal}
+          title={t('nav.identity')}
+          position="top-right"
+          icon={
+            <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          }
+        >
+          <IdentityContent />
+        </Modal>
+      )}
 
-      <Modal
-        isOpen={activeModal === 'projects'}
-        onClose={closeModal}
-        title={t('nav.purpose')}
-        position="bottom-left"
-        icon={
-          <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="8" strokeWidth={2} />
-            <circle cx="12" cy="12" r="5" strokeWidth={2} />
-            <circle cx="12" cy="12" r="2" strokeWidth={2} />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v2m0 16v2M2 12h2m16 0h2" />
-          </svg>
-        }
-      >
-        <ProjectsContent />
-      </Modal>
+      {activeModal === 'projects' && (
+        <Modal
+          isOpen={true}
+          onClose={closeModal}
+          title={t('nav.purpose')}
+          position="bottom-left"
+          icon={
+            <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="8" strokeWidth={2} />
+              <circle cx="12" cy="12" r="5" strokeWidth={2} />
+              <circle cx="12" cy="12" r="2" strokeWidth={2} />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v2m0 16v2M2 12h2m16 0h2" />
+            </svg>
+          }
+        >
+          <ProjectsContent />
+        </Modal>
+      )}
 
-      <Modal
-        isOpen={activeModal === 'connection'}
-        onClose={closeModal}
-        title={t('nav.connection')}
-        position="bottom-right"
-        icon={
-          <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-          </svg>
-        }
-      >
-        <ConnectionContent />
-      </Modal>
+      {activeModal === 'connection' && (
+        <Modal
+          isOpen={true}
+          onClose={closeModal}
+          title={t('nav.connection')}
+          position="bottom-right"
+          icon={
+            <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+            </svg>
+          }
+        >
+          <ConnectionContent />
+        </Modal>
+      )}
 
       {/* Main content - centered across full page */}
       <main className="relative z-20 h-full">
