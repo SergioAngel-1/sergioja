@@ -62,7 +62,7 @@ export default function GlowEffect({
     setIsMounted(true);
   }, []);
 
-  const baseClasses = `absolute ${colorClasses[color]} ${sizeClasses[size]} ${blurClasses[blur]} rounded-full`;
+  const baseClasses = `absolute -z-10 ${colorClasses[color]} ${sizeClasses[size]} ${blurClasses[blur]} rounded-full`;
   
   const positionStyles = {
     top: position.top,
