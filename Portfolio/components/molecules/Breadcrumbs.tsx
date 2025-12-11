@@ -14,9 +14,16 @@ interface BreadcrumbItem {
 
 interface BreadcrumbsProps {
   items?: BreadcrumbItem[];
+  maxLength?: number;
 }
 
-export default function Breadcrumbs({ items }: BreadcrumbsProps) {
+// Helper function to truncate text
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+}
+
+export default function Breadcrumbs({ items, maxLength = 25 }: BreadcrumbsProps) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { t } = useLanguage();
@@ -56,12 +63,13 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
               <Link
                 href={item.href}
                 className="font-mono text-text-muted hover:text-white transition-colors text-fluid-xs"
+                title={item.label}
               >
-                {item.label}
+                {truncateText(item.label, maxLength)}
               </Link>
             ) : (
-              <span className="font-mono text-white font-semibold text-fluid-xs">
-                {item.label}
+              <span className="font-mono text-white font-semibold text-fluid-xs" title={item.label}>
+                {truncateText(item.label, maxLength)}
               </span>
             )}
             
@@ -84,12 +92,13 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
               <Link
                 href={item.href}
                 className="font-mono text-text-muted hover:text-white transition-colors text-fluid-xs"
+                title={item.label}
               >
-                {item.label}
+                {truncateText(item.label, maxLength)}
               </Link>
             ) : (
-              <span className="font-mono text-white font-semibold text-fluid-xs">
-                {item.label}
+              <span className="font-mono text-white font-semibold text-fluid-xs" title={item.label}>
+                {truncateText(item.label, maxLength)}
               </span>
             )}
             
