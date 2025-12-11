@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Modal from './Modal';
 import Button from '../atoms/Button';
 import Select from './Select';
+import SvgUpload from '../atoms/SvgUpload';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { Skill } from '@/lib/types';
 import { useCategories } from '@/lib/hooks';
@@ -200,20 +201,13 @@ export default function SkillEditModal({
           </div>
         </div>
 
-        {/* Icon URL */}
-        <div>
-          <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
-            URL del Ícono (opcional)
-          </label>
-          <input
-            type="text"
-            value={formData.icon}
-            onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-            className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary focus:border-admin-primary focus:outline-none transition-colors"
-            style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
-            placeholder="https://..."
-          />
-        </div>
+        {/* SVG Icon Upload */}
+        <SvgUpload
+          value={formData.icon}
+          onChange={(svg) => setFormData(prev => ({ ...prev, icon: svg }))}
+          label="Ícono SVG (opcional)"
+          placeholder="Pega el código SVG o sube un archivo .svg"
+        />
       </div>
     </Modal>
   );

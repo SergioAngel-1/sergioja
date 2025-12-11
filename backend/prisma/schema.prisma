@@ -64,7 +64,7 @@ model Technology {
   category          String   // frontend, backend, devops, design, other
   proficiency       Int      @default(0) // 0-100
   yearsOfExperience Float    @default(0)
-  icon              String?
+  icon              String?  @db.Text // SVG content (not URL)
   color             String   @default("#FF0000")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

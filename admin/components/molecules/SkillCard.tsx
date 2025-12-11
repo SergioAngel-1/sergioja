@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import Icon from '../atoms/Icon';
 import { fluidSizing } from '@/lib/fluidSizing';
 
@@ -93,9 +92,10 @@ export default function SkillCard({
             }}
           >
             {icon ? (
-              <div className="relative" style={{ width: '2rem', height: '2rem' }}>
-                <Image src={icon} alt={name} fill className="object-contain" sizes="32px" />
-              </div>
+              <div 
+                className="w-8 h-8 flex items-center justify-center"
+                dangerouslySetInnerHTML={{ __html: icon }}
+              />
             ) : (
               <Icon name="code" size={24} />
             )}

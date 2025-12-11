@@ -43,6 +43,15 @@ export default function AboutPage() {
   // Obtener categorías desde el backend
   const { categories: backendCategories, isLoading: categoriesLoading } = useTechnologyCategories();
 
+  // Crear mapa de colores por categoría
+  const categoryColorMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    backendCategories.forEach(cat => {
+      map[cat.name] = cat.color || '#ff0000';
+    });
+    return map;
+  }, [backendCategories]);
+
   // Transformar categorías del backend al formato esperado por CategoryFilter
   const categories = useMemo(() => {
     const categoryOptions: Array<{ value: string | undefined; label: string; count?: number }> = [
@@ -288,7 +297,10 @@ export default function AboutPage() {
                   {/* Category header */}
                   <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-5">
                     <div className="flex items-center gap-2">
-                      <div className="w-1 h-6 bg-cyber-red rounded-full" />
+                      <div 
+                        className="w-1 h-6 rounded-full" 
+                        style={{ backgroundColor: categoryColorMap[category] || '#FF0000' }}
+                      />
                       <h3 className="font-orbitron text-lg sm:text-xl md:text-2xl font-bold text-white uppercase tracking-wider">
                         {category}
                       </h3>
@@ -309,17 +321,20 @@ export default function AboutPage() {
                         transition={{ delay: catIndex * 0.05 + index * 0.01, duration: 0.15 }}
                         className="group"
                       >
-                        <div className="relative bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-2.5 sm:p-3 hover:border-white/50 transition-all duration-300">
-                          {/* Skill name and years */}
-                          <div className="flex items-start justify-between gap-1 mb-1.5">
-                            <h4 className="font-orbitron text-xs font-bold text-white truncate flex-1">
+                        <div className="relative bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-2.5 sm:p-3 hover:border-white/50 transition-all duration-300 overflow-hidden">
+                          {/* SVG Icon in top-right corner */}
+                          {skill.icon && (
+                            <div 
+                              className="absolute top-2 right-2 w-5 h-5 sm:w-6 sm:h-6 opacity-30 group-hover:opacity-50 transition-opacity duration-300 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
+                              dangerouslySetInnerHTML={{ __html: skill.icon }}
+                            />
+                          )}
+
+                          {/* Skill name */}
+                          <div className="mb-1.5 pr-6">
+                            <h4 className="font-orbitron text-xs font-bold text-white truncate">
                               {skill.name}
                             </h4>
-                            {skill.yearsOfExperience > 0 && (
-                              <span className="text-[10px] text-text-muted font-mono whitespace-nowrap">
-                                {skill.yearsOfExperience}{skill.yearsOfExperience === 1 ? 'a' : 'a'}
-                              </span>
-                            )}
                           </div>
 
                           {/* Proficiency percentage */}
@@ -328,17 +343,25 @@ export default function AboutPage() {
                           </div>
 
                           {/* Progress bar */}
-                          <div className="relative h-0.5 bg-background-elevated rounded-full overflow-hidden">
+                          <div className="relative h-0.5 bg-background-elevated rounded-full overflow-hidden mb-2">
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${skill.proficiency}%` }}
                               transition={{ delay: catIndex * 0.05 + index * 0.01, duration: 0.4, ease: 'easeOut' }}
-                              className="absolute h-full rounded-full bg-gradient-to-r from-cyber-red to-cyber-red/80"
+                              className="absolute h-full rounded-full"
                               style={{
-                                boxShadow: '0 0 8px rgba(255, 0, 0, 0.5)',
+                                background: `linear-gradient(to right, ${skill.color}, ${skill.color}CC)`,
+                                boxShadow: `0 0 8px ${skill.color}80`,
                               }}
                             />
                           </div>
+
+                          {/* Years at bottom */}
+                          {skill.yearsOfExperience > 0 && (
+                            <div className="text-[10px] text-text-muted font-mono">
+                              {skill.yearsOfExperience}{skill.yearsOfExperience === 1 ? ' año' : ' años'}
+                            </div>
+                          )}
 
                           {/* Hover glow */}
                           <motion.div
@@ -367,17 +390,20 @@ export default function AboutPage() {
                   transition={{ delay: index * 0.01, duration: 0.15 }}
                   className="group"
                 >
-                  <div className="relative bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-2.5 sm:p-3 hover:border-white/50 transition-all duration-300">
-                    {/* Skill name and years */}
-                    <div className="flex items-start justify-between gap-1 mb-1.5">
-                      <h4 className="font-orbitron text-xs font-bold text-white truncate flex-1">
+                  <div className="relative bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-2.5 sm:p-3 hover:border-white/50 transition-all duration-300 overflow-hidden">
+                    {/* SVG Icon in top-right corner */}
+                    {skill.icon && (
+                      <div 
+                        className="absolute top-2 right-2 w-5 h-5 sm:w-6 sm:h-6 opacity-30 group-hover:opacity-50 transition-opacity duration-300 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
+                        dangerouslySetInnerHTML={{ __html: skill.icon }}
+                      />
+                    )}
+
+                    {/* Skill name */}
+                    <div className="mb-1.5 pr-6">
+                      <h4 className="font-orbitron text-xs font-bold text-white truncate">
                         {skill.name}
                       </h4>
-                      {skill.yearsOfExperience > 0 && (
-                        <span className="text-[10px] text-text-muted font-mono whitespace-nowrap">
-                          {skill.yearsOfExperience}{skill.yearsOfExperience === 1 ? 'a' : 'a'}
-                        </span>
-                      )}
                     </div>
 
                     {/* Proficiency percentage */}
@@ -386,17 +412,25 @@ export default function AboutPage() {
                     </div>
 
                     {/* Progress bar */}
-                    <div className="relative h-1 bg-background-elevated rounded-full overflow-hidden">
+                    <div className="relative h-1 bg-background-elevated rounded-full overflow-hidden mb-2">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${skill.proficiency}%` }}
                         transition={{ delay: index * 0.01, duration: 0.4, ease: 'easeOut' }}
-                        className="absolute h-full rounded-full bg-gradient-to-r from-cyber-red to-cyber-red/80"
+                        className="absolute h-full rounded-full"
                         style={{
-                          boxShadow: '0 0 8px rgba(255, 0, 0, 0.5)',
+                          background: `linear-gradient(to right, ${skill.color}, ${skill.color}CC)`,
+                          boxShadow: `0 0 8px ${skill.color}80`,
                         }}
                       />
                     </div>
+
+                    {/* Years at bottom */}
+                    {skill.yearsOfExperience > 0 && (
+                      <div className="text-[10px] text-text-muted font-mono">
+                        {skill.yearsOfExperience}{skill.yearsOfExperience === 1 ? ' año' : ' años'}
+                      </div>
+                    )}
 
                     {/* Hover glow */}
                     <motion.div
