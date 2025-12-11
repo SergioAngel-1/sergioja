@@ -15,6 +15,7 @@ interface BreadcrumbItem {
 interface BreadcrumbsProps {
   items?: BreadcrumbItem[];
   maxLength?: number;
+  maxLengthMobile?: number;
 }
 
 // Helper function to truncate text
@@ -23,7 +24,7 @@ function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength) + '...';
 }
 
-export default function Breadcrumbs({ items, maxLength = 25 }: BreadcrumbsProps) {
+export default function Breadcrumbs({ items, maxLength = 25, maxLengthMobile = 15 }: BreadcrumbsProps) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { t } = useLanguage();
@@ -65,11 +66,11 @@ export default function Breadcrumbs({ items, maxLength = 25 }: BreadcrumbsProps)
                 className="font-mono text-text-muted hover:text-white transition-colors text-fluid-xs"
                 title={item.label}
               >
-                {truncateText(item.label, maxLength)}
+                {truncateText(item.label, maxLengthMobile)}
               </Link>
             ) : (
               <span className="font-mono text-white font-semibold text-fluid-xs" title={item.label}>
-                {truncateText(item.label, maxLength)}
+                {truncateText(item.label, maxLengthMobile)}
               </span>
             )}
             

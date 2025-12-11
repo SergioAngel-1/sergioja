@@ -60,53 +60,51 @@ export default function ProjectPreviewViewer({
         )}
       </AnimatePresence>
 
-      {/* Contenedor de vista */}
-      <div className="flex-1 bg-background-elevated rounded-lg overflow-hidden border border-white/10 relative">
-        <AnimatePresence mode="wait">
-          {viewMode === 'demo' && demoUrl && !lowPerformanceMode ? (
-            <motion.div
-              key="demo"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-full h-full"
-            >
-              {/* Desktop/Tablet View */}
-              <div className="hidden sm:block w-full h-full">
-                <iframe
-                  ref={iframeRef}
-                  src={demoUrl}
-                  className="w-full h-full"
-                  title={title}
-                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                  loading="lazy"
-                />
-              </div>
-              
-              {/* Mobile View - Simulated Phone */}
-              <div className="sm:hidden flex justify-center items-center h-full" style={{ padding: fluidSizing.space.md }}>
-                <div className="relative bg-background-dark rounded-[2.5rem] border-4 border-white/20 shadow-2xl" style={{ width: '320px', height: '640px', padding: fluidSizing.space.sm }}>
-                  {/* Phone notch */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-background-dark rounded-b-2xl z-10 border-x-4 border-b-4 border-white/20" />
-                  
-                  {/* Screen */}
-                  <div className="relative w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
-                    <iframe
-                      ref={iframeRef}
-                      src={demoUrl}
-                      className="w-full h-full"
-                      title={title}
-                      sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                      loading="lazy"
-                    />
-                  </div>
-                  
-                  {/* Home indicator */}
-                  <div className="absolute left-1/2 -translate-x-1/2 bg-white/30 rounded-full" style={{ bottom: fluidSizing.space.sm, width: '6rem', height: '0.25rem' }} />
+      <AnimatePresence mode="wait">
+        {viewMode === 'demo' && demoUrl && !lowPerformanceMode ? (
+          <motion.div
+            key="demo"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1"
+          >
+            {/* Desktop/Tablet View */}
+            <div className="hidden sm:block w-full h-full bg-background-elevated rounded-lg overflow-hidden border border-white/10">
+              <iframe
+                ref={iframeRef}
+                src={demoUrl}
+                className="w-full h-full"
+                title={title}
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                loading="lazy"
+              />
+            </div>
+            
+            {/* Mobile View - Simulated Phone */}
+            <div className="sm:hidden flex justify-center items-center h-full">
+              <div className="relative bg-background-dark rounded-[2.5rem] border-2 border-white/20 shadow-2xl" style={{ width: '360px', height: '720px', padding: fluidSizing.space.sm }}>
+                {/* Phone notch */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-background-dark rounded-b-2xl z-10 border-x-2 border-b-2 border-white/20" />
+                
+                {/* Screen */}
+                <div className="relative w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
+                  <iframe
+                    ref={iframeRef}
+                    src={demoUrl}
+                    className="w-full h-full"
+                    title={title}
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                    loading="lazy"
+                  />
                 </div>
+                
+                {/* Home indicator */}
+                <div className="absolute left-1/2 -translate-x-1/2 bg-white/30 rounded-full" style={{ bottom: fluidSizing.space.sm, width: '6rem', height: '0.25rem' }} />
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
           ) : viewMode === 'image' && images && selectedImageIndex !== null && images[selectedImageIndex] && !imageError ? (
             <motion.div
               key={`image-${selectedImageIndex}`}
@@ -188,7 +186,6 @@ export default function ProjectPreviewViewer({
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
     </div>
   );
 }
