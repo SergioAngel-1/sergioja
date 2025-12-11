@@ -310,22 +310,22 @@ export default function AboutPage() {
                         className="group"
                       >
                         <div className="relative bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-2.5 sm:p-3 hover:border-white/50 transition-all duration-300">
-                          {/* Skill name */}
-                          <h4 className="font-orbitron text-xs font-bold text-white mb-1.5 truncate">
-                            {skill.name}
-                          </h4>
-
-                          {/* Proficiency percentage */}
-                          <div className="font-orbitron text-lg sm:text-xl font-bold text-white mb-1">
-                            {skill.proficiency}%
+                          {/* Skill name and years */}
+                          <div className="flex items-start justify-between gap-1 mb-1.5">
+                            <h4 className="font-orbitron text-xs font-bold text-white truncate flex-1">
+                              {skill.name}
+                            </h4>
+                            {skill.yearsOfExperience > 0 && (
+                              <span className="text-[10px] text-text-muted font-mono whitespace-nowrap">
+                                {skill.yearsOfExperience}{skill.yearsOfExperience === 1 ? 'a' : 'a'}
+                              </span>
+                            )}
                           </div>
 
-                          {/* Years of experience */}
-                          {skill.yearsOfExperience > 0 && (
-                            <div className="text-[10px] text-text-muted font-mono mb-1.5">
-                              {skill.yearsOfExperience} {skill.yearsOfExperience === 1 ? 'año' : 'años'}
-                            </div>
-                          )}
+                          {/* Proficiency percentage */}
+                          <div className="font-orbitron text-lg sm:text-xl font-bold text-white mb-1.5">
+                            {skill.proficiency}%
+                          </div>
 
                           {/* Progress bar */}
                           <div className="relative h-0.5 bg-background-elevated rounded-full overflow-hidden">
@@ -368,22 +368,22 @@ export default function AboutPage() {
                   className="group"
                 >
                   <div className="relative bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-2.5 sm:p-3 hover:border-white/50 transition-all duration-300">
-                    {/* Skill name */}
-                    <h4 className="font-orbitron text-xs font-bold text-white mb-1.5 truncate">
-                      {skill.name}
-                    </h4>
-
-                    {/* Proficiency percentage */}
-                    <div className="font-orbitron text-lg sm:text-xl font-bold text-white mb-1">
-                      {skill.proficiency}%
+                    {/* Skill name and years */}
+                    <div className="flex items-start justify-between gap-1 mb-1.5">
+                      <h4 className="font-orbitron text-xs font-bold text-white truncate flex-1">
+                        {skill.name}
+                      </h4>
+                      {skill.yearsOfExperience > 0 && (
+                        <span className="text-[10px] text-text-muted font-mono whitespace-nowrap">
+                          {skill.yearsOfExperience}{skill.yearsOfExperience === 1 ? 'a' : 'a'}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Years of experience */}
-                    {skill.yearsOfExperience > 0 && (
-                      <div className="text-[10px] text-text-muted font-mono mb-1.5">
-                        {skill.yearsOfExperience} {skill.yearsOfExperience === 1 ? 'año' : 'años'}
-                      </div>
-                    )}
+                    {/* Proficiency percentage */}
+                    <div className="font-orbitron text-lg sm:text-xl font-bold text-white mb-1.5">
+                      {skill.proficiency}%
+                    </div>
 
                     {/* Progress bar */}
                     <div className="relative h-1 bg-background-elevated rounded-full overflow-hidden">
