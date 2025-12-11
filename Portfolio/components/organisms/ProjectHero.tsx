@@ -27,7 +27,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="absolute z-10 bg-white/10 backdrop-blur-sm text-white font-orbitron font-bold rounded border border-white/50 flex items-center shadow-lg shadow-white/20"
+          className="absolute z-10 bg-white/10 backdrop-blur-sm text-white font-orbitron font-bold rounded border border-white/50 flex items-center"
           style={{ top: '-0.5rem', right: '-0.5rem', padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, gap: fluidSizing.space.xs, fontSize: fluidSizing.text.xs }}
         >
           <svg className="text-cyber-red" style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm }} fill="currentColor" viewBox="0 0 20 20">

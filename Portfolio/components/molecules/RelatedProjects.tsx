@@ -16,10 +16,10 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
   const { t } = useLanguage();
   const router = useRouter();
 
-  // Filtrar proyectos relacionados (excluir el actual y tomar máximo 3)
+  // Filtrar proyectos relacionados (excluir el actual y tomar máximo 4)
   const relatedProjects = projects
     .filter(project => project.id !== currentProjectId)
-    .slice(0, 3);
+    .slice(0, 4);
 
   if (relatedProjects.length === 0) {
     return null;
@@ -57,7 +57,7 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
         style={{ gap: fluidSizing.space.lg }}
       >
         {relatedProjects.map((project, index) => (
@@ -82,43 +82,12 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
       >
         <motion.button
           onClick={() => router.push('/projects')}
-          className="group relative bg-background-surface/50 backdrop-blur-sm border border-white/30 hover:border-white rounded-lg text-white font-rajdhani font-semibold transition-all duration-300 flex items-center overflow-hidden"
-          style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base, gap: fluidSizing.space.sm }}
+          className="font-orbitron font-bold uppercase tracking-wider border-2 border-white bg-white text-black hover:bg-transparent hover:text-white transition-all duration-300 flex items-center"
+          style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.sm, gap: fluidSizing.space.sm }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          {/* Background animation */}
-          <motion.div
-            className="absolute inset-0 bg-white/10"
-            initial={{ x: '-100%' }}
-            whileHover={{ x: '100%' }}
-            transition={{ duration: 0.5 }}
-          />
-          
-          {/* Icon */}
-          <svg className="relative z-10" style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-          
-          {/* Text */}
-          <span className="relative z-10">{t('projects.viewAllProjects')}</span>
-          
-          {/* Arrow */}
-          <motion.svg
-            className="relative z-10"
-            style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            animate={{ x: [0, 4, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </motion.svg>
-
-          {/* Corner accents */}
-          <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white opacity-50 group-hover:opacity-100 transition-opacity" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
-          <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white opacity-50 group-hover:opacity-100 transition-opacity" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
+          {t('projects.viewAllProjects')}
         </motion.button>
       </motion.div>
     </section>
