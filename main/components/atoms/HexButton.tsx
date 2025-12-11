@@ -211,29 +211,16 @@ export default function HexButton({
             }}
           />
 
-          {/* Hexágono interior con dash animado */}
-          <motion.polygon
+          {/* Hexágono interior con dash animado - CSS animation for better performance */}
+          <polygon
             points="65,23.4 101.4,42.9 101.4,87.1 65,106.6 28.6,87.1 28.6,42.9"
             fill="none"
             stroke="#FFFFFF"
             strokeWidth="1.3"
             strokeDasharray="4 4"
             opacity={isActive ? "0.6" : "0.4"}
-            initial={{ strokeDashoffset: 0 }}
-            animate={
-              isActive
-                ? (lowPerformanceMode
-                    ? { strokeDashoffset: 0, opacity: 0.6 }
-                    : { strokeDashoffset: [0, -24], opacity: 0.6 })
-                : { strokeDashoffset: 0, opacity: 0.4 }
-            }
-            transition={
-              isActive
-                ? (lowPerformanceMode
-                    ? { opacity: { duration: 0.3 } }
-                    : { strokeDashoffset: { duration: 4, repeat: Infinity, ease: 'linear' }, opacity: { duration: 0.3 } })
-                : { opacity: { duration: 0.3 } }
-            }
+            className={isActive && !lowPerformanceMode ? 'hex-dash-animate' : ''}
+            style={{ transition: 'opacity 0.3s' }}
           />
 
           {/* Círculo central cuando está activo */}
