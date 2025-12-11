@@ -31,7 +31,7 @@ export default function ProjectDetailPage() {
   const { lowPerformanceMode } = usePerformance();
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'demo' | 'image'>('demo');
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   
   // Track scroll depth and time on page
   usePageAnalytics();
@@ -90,13 +90,14 @@ export default function ProjectDetailPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-8"
+          style={{ marginBottom: fluidSizing.space.lg }}
         >
           <button
             onClick={() => router.push('/projects')}
-            className="flex items-center gap-2 text-text-secondary hover:text-white transition-colors font-rajdhani text-sm"
+            className="flex items-center text-text-secondary hover:text-white transition-colors font-rajdhani"
+            style={{ gap: fluidSizing.space.sm, fontSize: fluidSizing.text.sm }}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             <span>{t('projects.backToProjects') || 'Volver a Proyectos'}</span>
@@ -104,14 +105,14 @@ export default function ProjectDetailPage() {
         </motion.div>
 
         {/* Project Hero & Metrics Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-stretch gap-6 sm:gap-8 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-stretch" style={{ gap: fluidSizing.space.lg, marginBottom: fluidSizing.space.lg }}>
           {/* Project Hero */}
-          <div className="lg:col-span-2 flex">
+          <div className="lg:col-span-2 flex h-full">
             <ProjectHero project={project} />
           </div>
 
           {/* Project Metrics */}
-          <div className="lg:col-span-1 flex">
+          <div className="lg:col-span-1 flex h-full">
             <ProjectMetrics metrics={{
               performance: project.performanceScore || 0,
               accessibility: project.accessibilityScore || 0,
@@ -121,28 +122,29 @@ export default function ProjectDetailPage() {
         </div>
 
         {/* Grid Layout: Info + Actions + Preview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-stretch gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-stretch" style={{ gap: fluidSizing.space.lg }}>
           {/* Left Column: Project Info + Actions */}
-          <div className="lg:col-span-1 flex flex-col gap-6 sm:gap-8">
+          <div className="lg:col-span-1 flex flex-col h-full" style={{ gap: fluidSizing.space.lg }}>
             <ProjectInfo project={project} />
             <ProjectActions project={project} />
           </div>
 
           {/* Project Preview/Description */}
-          <div className="lg:col-span-2 flex">
+          <div className="lg:col-span-2 flex h-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.6 }}
-              className="bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg p-4 sm:p-6 md:p-8 hover:border-white/40 transition-all duration-300 w-full flex flex-col"
+              className="bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300 w-full flex flex-col"
+              style={{ padding: fluidSizing.space.lg }}
             >
-              <h2 className="font-orbitron text-base sm:text-xl md:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-                <div className="w-0.5 sm:w-1 h-4 sm:h-6 bg-white rounded-full" />
+              <h2 className="font-orbitron font-bold text-white flex items-center" style={{ fontSize: fluidSizing.text['2xl'], marginBottom: fluidSizing.space.md, gap: fluidSizing.space.sm }}>
+                <div className="bg-white rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.lg }} />
                 {t('projects.preview')}
               </h2>
               
               {/* Vista previa dividida: 75% viewer + 25% gallery (o 100% si no hay imágenes) */}
-              <div className="flex-1 flex min-h-[500px]" style={{ gap: fluidSizing.space.md }}>
+              <div className="flex-1 flex" style={{ minHeight: '500px', gap: fluidSizing.space.md }}>
                 {/* Viewer - Ajusta su ancho según si hay imágenes o no */}
                 <div className={`h-full ${project.images && project.images.length > 0 ? 'flex-[0.75]' : 'flex-1'}`}>
                   <ProjectPreviewViewer
@@ -152,13 +154,20 @@ export default function ProjectDetailPage() {
                     lowPerformanceMode={lowPerformanceMode}
                     viewMode={viewMode}
                     selectedImageIndex={selectedImageIndex}
-                    onBackToDemo={() => setViewMode('demo')}
+                    onBackToDemo={() => {
+                      setViewMode('demo');
+                      setSelectedImageIndex(null);
+                    }}
                   />
                 </div>
 
                 {/* Gallery (25%) - Solo se muestra si hay imágenes */}
                 {project.images && project.images.length > 0 && (
-                  <div className="flex-[0.25] min-w-[150px] max-w-[280px]">
+                  <div className="flex-[0.25] flex flex-col overflow-visible" style={{ minWidth: '150px', maxWidth: '280px', gap: fluidSizing.space.md }}>
+                    {/* Título de galería */}
+                    <h3 className="font-orbitron font-bold text-white/90" style={{ fontSize: fluidSizing.text.sm }}>
+                      {t('projects.gallery')}
+                    </h3>
                     <ProjectImageGallery
                       images={project.images}
                       selectedImageIndex={selectedImageIndex}
@@ -174,13 +183,13 @@ export default function ProjectDetailPage() {
 
               {/* Low Performance Mode Message */}
               {lowPerformanceMode && project.demoUrl && (
-                <div className="relative aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10">
+                <div className="relative aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10" style={{ marginTop: fluidSizing.space.md }}>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center px-4">
-                      <svg className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-white mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="text-center" style={{ padding: `0 ${fluidSizing.space.md}` }}>
+                      <svg className="text-white mx-auto" style={{ width: fluidSizing.size.hexButton, height: fluidSizing.size.hexButton, marginBottom: fluidSizing.space.md }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
-                      <p className="text-text-muted font-mono text-xs sm:text-sm">
+                      <p className="text-text-muted font-mono" style={{ fontSize: fluidSizing.text.sm }}>
                         {t('projects.previewDisabledPerformance') || 'Vista previa deshabilitada en modo de bajo rendimiento'}
                       </p>
                     </div>
@@ -190,13 +199,13 @@ export default function ProjectDetailPage() {
 
               {/* No preview available */}
               {!project.demoUrl && (
-                <div className="relative aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10">
+                <div className="relative aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10" style={{ marginTop: fluidSizing.space.md }}>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center px-4">
-                      <svg className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-white mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="text-center" style={{ padding: `0 ${fluidSizing.space.md}` }}>
+                      <svg className="text-white mx-auto" style={{ width: fluidSizing.size.hexButton, height: fluidSizing.size.hexButton, marginBottom: fluidSizing.space.md }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                       </svg>
-                      <p className="text-text-muted font-mono text-xs sm:text-sm">{t('projects.previewNotAvailable')}</p>
+                      <p className="text-text-muted font-mono" style={{ fontSize: fluidSizing.text.sm }}>{t('projects.previewNotAvailable')}</p>
                     </div>
                   </div>
                 </div>

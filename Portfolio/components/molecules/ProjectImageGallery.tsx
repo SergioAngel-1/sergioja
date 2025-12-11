@@ -6,7 +6,7 @@ import { fluidSizing } from '@/lib/utils/fluidSizing';
 
 interface ProjectImageGalleryProps {
   images: string[];
-  selectedImageIndex: number;
+  selectedImageIndex: number | null;
   onImageSelect: (index: number) => void;
 }
 
@@ -20,16 +20,16 @@ export default function ProjectImageGallery({
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar" style={{ gap: fluidSizing.space.sm }}>
+    <div className="flex flex-col h-full overflow-y-auto overflow-x-visible custom-scrollbar p-2" style={{ gap: fluidSizing.space.sm }}>
       {images.map((image, index) => {
-        const isSelected = selectedImageIndex === index;
+        const isSelected = selectedImageIndex !== null && selectedImageIndex === index;
         return (
           <motion.button
             key={index}
             onClick={() => onImageSelect(index)}
             className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all duration-300 flex-shrink-0 ${
               isSelected
-                ? 'border-white shadow-lg shadow-white/20'
+                ? 'border-white'
                 : 'border-white/20 hover:border-white/50'
             }`}
             whileHover={{ scale: 1.05 }}
@@ -45,13 +45,6 @@ export default function ProjectImageGallery({
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 15vw"
             />
-            {isSelected && (
-              <motion.div
-                layoutId="selectedImage"
-                className="absolute inset-0 bg-white/10 backdrop-blur-[1px]"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              />
-            )}
             <div 
               className="absolute bg-black/50 backdrop-blur-sm text-white rounded"
               style={{ 

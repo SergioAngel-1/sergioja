@@ -32,7 +32,8 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
         initial={{ opacity: 0, scaleX: 0 }}
         animate={{ opacity: 1, scaleX: 1 }}
         transition={{ duration: 0.6 }}
-        className="w-full h-px bg-gradient-to-r from-transparent via-white/30 to-transparent mb-12"
+        className="w-full h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
+        style={{ marginBottom: fluidSizing.space['2xl'] }}
       />
 
       {/* Título */}
@@ -40,13 +41,13 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.6 }}
-        className="mb-8"
+        style={{ marginBottom: fluidSizing.space.lg }}
       >
-        <h2 className="font-orbitron text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-3">
-          <div className="w-1 h-6 sm:h-8 bg-white rounded-full" />
+        <h2 className="font-orbitron font-bold text-white flex items-center" style={{ fontSize: fluidSizing.text['3xl'], marginBottom: fluidSizing.space.sm, gap: fluidSizing.space.sm }}>
+          <div className="bg-white rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.lg }} />
           {t('projects.relatedProjects')}
         </h2>
-        <p className="text-text-secondary text-sm sm:text-base ml-7">
+        <p className="text-text-secondary" style={{ fontSize: fluidSizing.text.base, marginLeft: fluidSizing.space.lg }}>
           {t('projects.relatedProjectsDesc')}
         </p>
       </motion.div>
@@ -81,7 +82,8 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
       >
         <motion.button
           onClick={() => router.push('/projects')}
-          className="group relative px-8 py-4 bg-background-surface/50 backdrop-blur-sm border border-white/30 hover:border-white rounded-lg text-white font-rajdhani font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-3 overflow-hidden"
+          className="group relative bg-background-surface/50 backdrop-blur-sm border border-white/30 hover:border-white rounded-lg text-white font-rajdhani font-semibold transition-all duration-300 flex items-center overflow-hidden"
+          style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}`, fontSize: fluidSizing.text.base, gap: fluidSizing.space.sm }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -94,7 +96,7 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
           />
           
           {/* Icon */}
-          <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="relative z-10" style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
           
@@ -103,7 +105,8 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
           
           {/* Arrow */}
           <motion.svg
-            className="w-5 h-5 relative z-10"
+            className="relative z-10"
+            style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -114,8 +117,8 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
           </motion.svg>
 
           {/* Corner accents */}
-          <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white opacity-50 group-hover:opacity-100 transition-opacity" />
-          <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white opacity-50 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white opacity-50 group-hover:opacity-100 transition-opacity" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
+          <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white opacity-50 group-hover:opacity-100 transition-opacity" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
         </motion.button>
       </motion.div>
     </section>

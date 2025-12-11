@@ -14,7 +14,7 @@ interface ProjectPreviewViewerProps {
   title: string;
   lowPerformanceMode: boolean;
   viewMode: 'demo' | 'image';
-  selectedImageIndex: number;
+  selectedImageIndex: number | null;
   onBackToDemo: () => void;
 }
 
@@ -40,27 +40,23 @@ export default function ProjectPreviewViewer({
 
   return (
     <div className="flex-1 flex flex-col h-full" style={{ gap: fluidSizing.space.md }}>
-      {/* Botón de volver a demo */}
+      {/* Botón minimalista de volver a demo */}
       <AnimatePresence>
         {viewMode === 'image' && demoUrl && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+          <motion.button
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
             transition={{ duration: 0.2 }}
+            onClick={onBackToDemo}
+            className="flex items-center text-white/70 hover:text-white transition-colors font-mono self-start"
+            style={{ gap: fluidSizing.space.sm, fontSize: fluidSizing.text.sm }}
           >
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onBackToDemo}
-              className="border-white text-white hover:bg-white hover:text-black"
-            >
-              <svg style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm, marginRight: fluidSizing.space.sm }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              {t('projects.backToPreview') || 'Volver a Vista Previa'}
-            </Button>
-          </motion.div>
+            <svg style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            {t('projects.backToDemo')}
+          </motion.button>
         )}
       </AnimatePresence>
 
@@ -88,8 +84,8 @@ export default function ProjectPreviewViewer({
               </div>
               
               {/* Mobile View - Simulated Phone */}
-              <div className="sm:hidden flex justify-center items-center h-full p-4">
-                <div className="relative bg-background-dark rounded-[2.5rem] p-3 border-4 border-white/20 shadow-2xl" style={{ width: '320px', height: '640px' }}>
+              <div className="sm:hidden flex justify-center items-center h-full" style={{ padding: fluidSizing.space.md }}>
+                <div className="relative bg-background-dark rounded-[2.5rem] border-4 border-white/20 shadow-2xl" style={{ width: '320px', height: '640px', padding: fluidSizing.space.sm }}>
                   {/* Phone notch */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-background-dark rounded-b-2xl z-10 border-x-4 border-b-4 border-white/20" />
                   
@@ -105,11 +101,11 @@ export default function ProjectPreviewViewer({
                   </div>
                   
                   {/* Home indicator */}
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-white/30 rounded-full" />
+                  <div className="absolute left-1/2 -translate-x-1/2 bg-white/30 rounded-full" style={{ bottom: fluidSizing.space.sm, width: '6rem', height: '0.25rem' }} />
                 </div>
               </div>
             </motion.div>
-          ) : viewMode === 'image' && images && images[selectedImageIndex] && !imageError ? (
+          ) : viewMode === 'image' && images && selectedImageIndex !== null && images[selectedImageIndex] && !imageError ? (
             <motion.div
               key={`image-${selectedImageIndex}`}
               initial={{ opacity: 0, scale: 0.95 }}
