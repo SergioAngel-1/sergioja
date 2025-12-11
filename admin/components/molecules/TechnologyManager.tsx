@@ -12,9 +12,17 @@ interface Category {
   active: boolean;
 }
 
+interface Skill {
+  id: string;
+  name: string;
+  category: string;
+  proficiency: number;
+  yearsOfExperience: number;
+}
+
 interface TechnologyManagerProps {
   technologies: TechnologyFormData[];
-  availableSkills: string[];
+  availableSkills: Skill[];
   categories: Category[];
   onChange: (technologies: TechnologyFormData[]) => void;
   label?: string;
@@ -50,12 +58,12 @@ export default function TechnologyManager({
   // Filter suggestions based on debounced input (optimizado con useMemo)
   const filteredSuggestions = useMemo(() => {
     const available = availableSkills.filter(skill => 
-      !technologies.find(t => t.name === skill)
+      !technologies.find(t => t.name === skill.name)
     );
     
     if (debouncedTechInput.trim()) {
       return available.filter(skill => 
-        skill.toLowerCase().includes(debouncedTechInput.toLowerCase())
+        skill.name.toLowerCase().includes(debouncedTechInput.toLowerCase())
       );
     }
     
@@ -80,15 +88,19 @@ export default function TechnologyManager({
     }
   };
 
-  const handleSelectSuggestion = (skillName: string) => {
-    // Abrir el formulario para configurar la tecnología
-    setTechFormData({
-      name: skillName,
-      category: categories.length > 0 ? categories[0].name : 'other',
-      proficiency: 50,
-      yearsOfExperience: 0,
-    });
-    setShowTechForm(true);
+  const handleSelectSuggestion = (skill: Skill) => {
+    // Agregar directamente la tecnología existente sin abrir el formulario
+    const techData = {
+      name: skill.name,
+      category: skill.category || (categories.length > 0 ? categories[0].name : 'other'),
+      proficiency: skill.proficiency || 50,
+      yearsOfExperience: skill.yearsOfExperience || 0,
+    };
+    
+    if (!technologies.find(t => t.name === techData.name)) {
+      onChange([...technologies, techData]);
+    }
+    
     setTechInput('');
     setShowSuggestions(false);
   };
@@ -164,13 +176,13 @@ export default function TechnologyManager({
               >
                 {filteredSuggestions.map((skill) => (
                   <button
-                    key={skill}
+                    key={skill.id}
                     type="button"
                     onClick={() => handleSelectSuggestion(skill)}
                     className="w-full text-left px-4 py-2 hover:bg-admin-primary/20 text-text-primary transition-colors"
                     style={{ fontSize: fluidSizing.text.sm }}
                   >
-                    {skill}
+                    {skill.name}
                   </button>
                 ))}
               </div>

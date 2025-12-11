@@ -29,13 +29,21 @@ interface ProjectFormData {
   isCodePublic?: boolean;
 }
 
+interface Skill {
+  id: string;
+  name: string;
+  category: string;
+  proficiency: number;
+  yearsOfExperience: number;
+}
+
 interface ProjectFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (project: Partial<ProjectFormData>) => Promise<void>;
   onDelete?: () => Promise<void>;
   project?: any | null; // eslint-disable-line @typescript-eslint/no-explicit-any
-  existingSkills?: string[];
+  existingSkills?: Skill[];
 }
 
 export default function ProjectFormModal({

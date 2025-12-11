@@ -29,7 +29,7 @@ function ProjectsPageContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [existingSkills, setExistingSkills] = useState<string[]>([]);
+  const [existingSkills, setExistingSkills] = useState<any[]>([]);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   
   // Cargar categorías con hook personalizado
@@ -84,8 +84,7 @@ function ProjectsPageContent() {
       const response = await api.getSkills();
       if (response.success && response.data) {
         const skillsData = Array.isArray(response.data) ? response.data : [];
-        const skillNames = skillsData.map((skill: any) => skill.name);
-        setExistingSkills(skillNames);
+        setExistingSkills(skillsData);
       }
     } catch (error) {
       logger.error('Error loading skills', error);

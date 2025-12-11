@@ -316,9 +316,16 @@ export default function AboutPage() {
                           </h4>
 
                           {/* Proficiency percentage */}
-                          <div className="font-orbitron text-lg sm:text-xl font-bold text-white mb-1.5">
+                          <div className="font-orbitron text-lg sm:text-xl font-bold text-white mb-1">
                             {skill.proficiency}%
                           </div>
+
+                          {/* Years of experience */}
+                          {skill.yearsOfExperience > 0 && (
+                            <div className="text-[10px] text-text-muted font-mono mb-1.5">
+                              {skill.yearsOfExperience} {skill.yearsOfExperience === 1 ? 'año' : 'años'}
+                            </div>
+                          )}
 
                           {/* Progress bar */}
                           <div className="relative h-0.5 bg-background-elevated rounded-full overflow-hidden">
@@ -367,9 +374,16 @@ export default function AboutPage() {
                     </h4>
 
                     {/* Proficiency percentage */}
-                    <div className="font-orbitron text-lg sm:text-xl font-bold text-white mb-1.5">
+                    <div className="font-orbitron text-lg sm:text-xl font-bold text-white mb-1">
                       {skill.proficiency}%
                     </div>
+
+                    {/* Years of experience */}
+                    {skill.yearsOfExperience > 0 && (
+                      <div className="text-[10px] text-text-muted font-mono mb-1.5">
+                        {skill.yearsOfExperience} {skill.yearsOfExperience === 1 ? 'año' : 'años'}
+                      </div>
+                    )}
 
                     {/* Progress bar */}
                     <div className="relative h-1 bg-background-elevated rounded-full overflow-hidden">
