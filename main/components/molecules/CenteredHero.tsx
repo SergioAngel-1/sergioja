@@ -1,9 +1,8 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
-
+import Model3D from '@/components/3d/Model3D';
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
@@ -17,18 +16,17 @@ function Loading3D() {
   );
 }
 
-const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
-  ssr: false,
-  loading: () => <Loading3D />,
-});
-
 export default function CenteredHero({ onModelIntroComplete }: { onModelIntroComplete?: () => void }) {
   const [mounted, setMounted] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const rafIdRef = useRef<number | null>(null);
+  const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     setMounted(true);
     
+    // Optimized mouse tracking: Use RAF to batch updates at monitor refresh rate
+    // This allows smooth 3D tracking while preventing excessive re-renders
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
@@ -37,11 +35,28 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
       const x = (clientX / innerWidth) * 2 - 1;
       const y = (clientY / innerHeight) * 2 - 1;
       
-      setMousePosition({ x, y });
+      // Store pending position
+      pendingPositionRef.current = { x, y };
+      
+      // Schedule update on next animation frame if not already scheduled
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(() => {
+          if (pendingPositionRef.current) {
+            setMousePosition(pendingPositionRef.current);
+            pendingPositionRef.current = null;
+          }
+          rafIdRef.current = null;
+        });
+      }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
   }, []);
 
   // No dynamic centering needed; wrapper compensates safe-areas symmetrically
