@@ -210,10 +210,10 @@ export default function Modal({
                     {icon && (
                       <motion.div
                         className="text-white"
-                        animate={{
+                        animate={lowPerformanceMode ? {} : {
                           scale: [1, 1.08, 1],
                         }}
-                        transition={{
+                        transition={lowPerformanceMode ? {} : {
                           duration: 2.5,
                           repeat: Infinity,
                           ease: 'easeInOut'
@@ -232,11 +232,11 @@ export default function Modal({
                         <motion.div
                           className="rounded-full bg-white"
                           style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }}
-                          animate={{
+                          animate={lowPerformanceMode ? {} : {
                             scale: [1, 1.4, 1],
                             opacity: [1, 0.4, 1],
                           }}
-                          transition={{
+                          transition={lowPerformanceMode ? {} : {
                             duration: 2,
                             repeat: Infinity,
                           }}
@@ -294,11 +294,11 @@ export default function Modal({
                         key={i}
                         className="w-1 bg-white/40"
                         style={{ height: `${(i + 1) * 3}px` }}
-                        animate={{ 
+                        animate={lowPerformanceMode ? {} : { 
                           opacity: [0.4, 1, 0.4],
                           scaleY: [1, 1.2, 1]
                         }}
-                        transition={{ 
+                        transition={lowPerformanceMode ? {} : { 
                           duration: 1.8,
                           repeat: Infinity,
                           delay: i * 0.15,
@@ -319,13 +319,13 @@ export default function Modal({
               {/* Líneas decorativas */}
               <motion.div 
                 className="absolute top-0 left-1/4 w-1/2 h-px bg-white/30"
-                animate={{ opacity: [0.3, 0.7, 0.3] }}
-                transition={{ duration: 3, repeat: Infinity }}
+                animate={lowPerformanceMode ? {} : { opacity: [0.3, 0.7, 0.3] }}
+                transition={lowPerformanceMode ? {} : { duration: 3, repeat: Infinity }}
               />
               <motion.div 
                 className="absolute bottom-0 right-1/4 w-1/2 h-px bg-white/30"
-                animate={{ opacity: [0.3, 0.7, 0.3] }}
-                transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
+                animate={lowPerformanceMode ? {} : { opacity: [0.3, 0.7, 0.3] }}
+                transition={lowPerformanceMode ? {} : { duration: 3, repeat: Infinity, delay: 1.5 }}
               />
             </div>
           </motion.div>
