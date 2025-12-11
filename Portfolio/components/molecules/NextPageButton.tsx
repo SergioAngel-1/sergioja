@@ -133,7 +133,7 @@ export default function NextPageButton() {
               <span className="font-mono text-text-secondary text-fluid-xs">
                 {isBackButton ? (
                   <>
-                    <span className="font-orbitron font-semibold text-white">{t('common.back')}</span> {t('nextpage.next')}: <span className="font-orbitron font-semibold text-white">{t(nextRoute.labelKey)}</span>
+                    <span className="font-orbitron font-semibold text-white">{t('common.back')}</span>: <span className="font-orbitron font-semibold text-white">{t(nextRoute.labelKey)}</span>
                   </>
                 ) : (
                   <>

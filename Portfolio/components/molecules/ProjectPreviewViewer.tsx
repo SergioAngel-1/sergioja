@@ -80,6 +80,7 @@ export default function ProjectPreviewViewer({
                   className="w-full h-full"
                   title={title}
                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                  loading="lazy"
                 />
               </div>
               
@@ -97,6 +98,7 @@ export default function ProjectPreviewViewer({
                       className="w-full h-full"
                       title={title}
                       sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                      loading="lazy"
                     />
                   </div>
                   
@@ -118,7 +120,7 @@ export default function ProjectPreviewViewer({
                 src={images[selectedImageIndex]}
                 alt={`${title} - Image ${selectedImageIndex + 1}`}
                 fill
-                className="object-contain"
+                className="object-cover"
                 sizes="(max-width: 768px) 100vw, 85vw"
                 priority
                 onError={() => setImageError(true)}
@@ -145,20 +147,43 @@ export default function ProjectPreviewViewer({
               className="w-full h-full flex items-center justify-center text-text-muted"
             >
               <div className="text-center">
-                <svg 
-                  className="mx-auto opacity-50" 
-                  style={{ 
-                    width: fluidSizing.size.hexButton, 
-                    height: fluidSizing.size.hexButton,
-                    marginBottom: fluidSizing.space.md,
-                  }} 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p style={{ fontSize: fluidSizing.text.sm }}>{t('projects.noPreview') || 'No hay vista previa disponible'}</p>
+                {lowPerformanceMode && demoUrl ? (
+                  // Low performance mode message
+                  <>
+                    <svg 
+                      className="mx-auto opacity-50" 
+                      style={{ 
+                        width: fluidSizing.size.hexButton, 
+                        height: fluidSizing.size.hexButton,
+                        marginBottom: fluidSizing.space.md,
+                      }} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <p style={{ fontSize: fluidSizing.text.sm }}>{t('projects.previewDisabledPerformance') || 'Vista previa deshabilitada en modo de bajo rendimiento'}</p>
+                  </>
+                ) : (
+                  // No preview available message
+                  <>
+                    <svg 
+                      className="mx-auto opacity-50" 
+                      style={{ 
+                        width: fluidSizing.size.hexButton, 
+                        height: fluidSizing.size.hexButton,
+                        marginBottom: fluidSizing.space.md,
+                      }} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p style={{ fontSize: fluidSizing.text.sm }}>{t('projects.noPreview') || 'No hay vista previa disponible'}</p>
+                  </>
+                )}
               </div>
             </motion.div>
           )}

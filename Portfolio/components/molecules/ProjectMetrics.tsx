@@ -83,7 +83,8 @@ export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
             <div className="relative z-10 flex-1 flex items-end justify-center" style={{ minHeight: '80px', maxHeight: '120px' }}>
               <div className="relative h-full bg-background-elevated rounded-full overflow-hidden" style={{ width: '6px' }}>
                 <motion.div
-                  className="absolute bottom-0 w-full bg-gradient-to-t from-white to-white/80 rounded-full"
+                  className="absolute bottom-0 w-full rounded-full"
+                  style={{ background: 'linear-gradient(to top, #ff0000, #ff0000cc)' }}
                   initial={{ height: 0 }}
                   animate={{ height: `${metric.value}%` }}
                   transition={{ delay: 0.8 + index * 0.1, duration: 0.8, ease: 'easeOut' }}
@@ -94,7 +95,7 @@ export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
             {/* Value */}
             <motion.div
               className="font-orbitron font-bold text-white flex-shrink-0"
-              style={{ fontSize: fluidSizing.text['3xl'] }}
+              style={{ fontSize: fluidSizing.text['2xl'] }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 + index * 0.1 }}

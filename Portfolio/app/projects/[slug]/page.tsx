@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter, notFound } from 'next/navigation';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useProject, useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/shared/hooks/useLogger';
@@ -32,6 +33,8 @@ export default function ProjectDetailPage() {
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'demo' | 'image'>('demo');
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [initialLowModeSet, setInitialLowModeSet] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
   
   // Track scroll depth and time on page
   usePageAnalytics();
@@ -45,6 +48,15 @@ export default function ProjectDetailPage() {
       log.info('Project loaded', { slug: project.slug });
     }
   }, [project, log]);
+
+  // Auto-select first image in low performance mode if images are available
+  useEffect(() => {
+    if (lowPerformanceMode && project?.images && project.images.length > 0 && !initialLowModeSet) {
+      setSelectedImageIndex(0);
+      setViewMode('image');
+      setInitialLowModeSet(true);
+    }
+  }, [lowPerformanceMode, project, initialLowModeSet]);
 
   // Show skeleton while mounting or loading
   if (!mounted || loading) {
@@ -130,7 +142,7 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Project Preview/Description */}
-          <div className="lg:col-span-2 flex h-full">
+          <div ref={previewRef} className="lg:col-span-2 flex h-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -143,76 +155,95 @@ export default function ProjectDetailPage() {
                 {t('projects.preview')}
               </h2>
               
-              {/* Vista previa dividida: 75% viewer + 25% gallery (o 100% si no hay imágenes) */}
-              <div className="flex-1 flex" style={{ minHeight: '500px', gap: fluidSizing.space.md }}>
-                {/* Viewer - Ajusta su ancho según si hay imágenes o no */}
-                <div className={`h-full ${project.images && project.images.length > 0 ? 'flex-[0.75]' : 'flex-1'}`}>
-                  <ProjectPreviewViewer
-                    demoUrl={project.demoUrl}
-                    images={project.images}
-                    title={project.title}
-                    lowPerformanceMode={lowPerformanceMode}
-                    viewMode={viewMode}
-                    selectedImageIndex={selectedImageIndex}
-                    onBackToDemo={() => {
-                      setViewMode('demo');
-                      setSelectedImageIndex(null);
-                    }}
-                  />
-                </div>
-
-                {/* Gallery (25%) - Solo se muestra si hay imágenes */}
-                {project.images && project.images.length > 0 && (
-                  <div className="flex-[0.25] flex flex-col overflow-visible" style={{ minWidth: '150px', maxWidth: '280px', gap: fluidSizing.space.md }}>
-                    {/* Título de galería */}
-                    <h3 className="font-orbitron font-bold text-white/90" style={{ fontSize: fluidSizing.text.sm }}>
-                      {t('projects.gallery')}
-                    </h3>
-                    <ProjectImageGallery
-                      images={project.images}
-                      selectedImageIndex={selectedImageIndex}
-                      onImageSelect={(index) => {
-                        setSelectedImageIndex(index);
-                        setViewMode('image');
-                        log.interaction('view_project_image', `${project.slug}-${index}`);
-                      }}
-                    />
-                  </div>
-                )}
+              {/* Vista previa - Full width */}
+              <div className="flex-1" style={{ minHeight: '500px' }}>
+                <ProjectPreviewViewer
+                  demoUrl={project.demoUrl}
+                  images={project.images}
+                  title={project.title}
+                  lowPerformanceMode={lowPerformanceMode}
+                  viewMode={viewMode}
+                  selectedImageIndex={selectedImageIndex}
+                  onBackToDemo={() => {
+                    setViewMode('demo');
+                    setSelectedImageIndex(null);
+                  }}
+                />
               </div>
-
-              {/* Low Performance Mode Message */}
-              {lowPerformanceMode && project.demoUrl && (
-                <div className="relative aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10" style={{ marginTop: fluidSizing.space.md }}>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center" style={{ padding: `0 ${fluidSizing.space.md}` }}>
-                      <svg className="text-white mx-auto" style={{ width: fluidSizing.size.hexButton, height: fluidSizing.size.hexButton, marginBottom: fluidSizing.space.md }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      <p className="text-text-muted font-mono" style={{ fontSize: fluidSizing.text.sm }}>
-                        {t('projects.previewDisabledPerformance') || 'Vista previa deshabilitada en modo de bajo rendimiento'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* No preview available */}
-              {!project.demoUrl && (
-                <div className="relative aspect-video bg-background-elevated rounded-lg overflow-hidden border border-white/10" style={{ marginTop: fluidSizing.space.md }}>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center" style={{ padding: `0 ${fluidSizing.space.md}` }}>
-                      <svg className="text-white mx-auto" style={{ width: fluidSizing.size.hexButton, height: fluidSizing.size.hexButton, marginBottom: fluidSizing.space.md }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                      </svg>
-                      <p className="text-text-muted font-mono" style={{ fontSize: fluidSizing.text.sm }}>{t('projects.previewNotAvailable')}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </motion.div>
           </div>
         </div>
+
+        {/* Project Gallery - New Section */}
+        {project.images && project.images.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0, duration: 0.6 }}
+            className="bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300"
+            style={{ marginTop: fluidSizing.space.lg, padding: fluidSizing.space.lg }}
+          >
+            {/* Gallery Title */}
+            <h2 className="font-orbitron font-bold text-white flex items-center" style={{ fontSize: fluidSizing.text['2xl'], marginBottom: fluidSizing.space.md, gap: fluidSizing.space.sm }}>
+              <div className="bg-white rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.lg }} />
+              {t('projects.galleryTitle') || 'Galería del Proyecto'}
+            </h2>
+
+            {/* Gallery Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
+              {project.images.map((image, index) => (
+                <motion.button
+                  key={index}
+                  onClick={() => {
+                    setSelectedImageIndex(index);
+                    setViewMode('image');
+                    log.interaction('view_project_image', `${project.slug}-${index}`);
+                    
+                    // Scroll to preview section
+                    setTimeout(() => {
+                      previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                  }}
+                  className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                    selectedImageIndex === index && viewMode === 'image'
+                      ? 'border-white'
+                      : 'border-white/20 hover:border-white/50'
+                  }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.1 + index * 0.05 }}
+                >
+                  <Image
+                    src={image}
+                    alt={`${project.title} - Image ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors" />
+                  <div 
+                    className="absolute bg-black/70 backdrop-blur-sm text-white rounded font-mono"
+                    style={{
+                      bottom: fluidSizing.space.xs,
+                      right: fluidSizing.space.xs,
+                      padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+                      fontSize: fluidSizing.text.xs,
+                    }}
+                  >
+                    {index + 1}
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+
+            {/* Corner Accents */}
+            <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white opacity-50" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
+            <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white opacity-50" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
+          </motion.div>
+        )}
 
         {/* Related Projects */}
         <div style={{ marginTop: fluidSizing.space['2xl'] }}>

@@ -56,11 +56,14 @@ export interface BaseTranslations {
   'projects.inProgress': string;
   'projects.preview': string;
   'projects.gallery': string;
+  'projects.galleryTitle': string;
   'projects.backToDemo': string;
   'projects.viewPage': string;
   'projects.viewCode': string;
   'projects.privateCode': string;
   'projects.actions': string;
+  'projects.previewDisabledPerformance': string;
+  'projects.noPreview': string;
   
   // Contact form
   'contact.name': string;
@@ -237,11 +240,14 @@ export const translations: Record<Language, Translations> = {
     'projects.inProgress': 'EN DESARROLLO',
     'projects.preview': 'Vista Previa',
     'projects.gallery': 'Imágenes del Proyecto',
+    'projects.galleryTitle': 'Galería del Proyecto',
     'projects.backToDemo': 'Volver a demo',
     'projects.viewPage': 'Ver Página',
     'projects.viewCode': 'Ver Repositorio',
     'projects.privateCode': 'Repositorio Privado',
     'projects.actions': 'Acciones',
+    'projects.previewDisabledPerformance': 'Vista previa deshabilitada en modo de bajo rendimiento',
+    'projects.noPreview': 'No hay vista previa disponible',
     
     // Contact form
     'contact.name': 'Nombre',
@@ -413,11 +419,14 @@ export const translations: Record<Language, Translations> = {
     'projects.inProgress': 'IN PROGRESS',
     'projects.preview': 'Preview',
     'projects.gallery': 'Project Images',
+    'projects.galleryTitle': 'Project Gallery',
     'projects.backToDemo': 'Back to demo',
     'projects.viewPage': 'View Page',
     'projects.viewCode': 'View Repository',
     'projects.privateCode': 'Private Repository',
     'projects.actions': 'Actions',
+    'projects.previewDisabledPerformance': 'Preview disabled in low performance mode',
+    'projects.noPreview': 'No preview available',
     
     // Contact form
     'contact.name': 'Name',
