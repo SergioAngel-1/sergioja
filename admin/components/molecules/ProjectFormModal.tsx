@@ -17,7 +17,6 @@ import { useCategories, useProjectForm } from '@/lib/hooks';
 interface ProjectFormData {
   id?: string;
   title: string;
-  description: string;
   category: string;
   categories?: string[];
   technologies: string[];
@@ -159,11 +158,9 @@ export default function ProjectFormModal({
           {/* Basic Fields */}
           <ProjectBasicFields
             title={formData.title}
-            description={formData.description}
             longDescriptionEs={formData.longDescriptionEs}
             longDescriptionEn={formData.longDescriptionEn}
             onTitleChange={(title) => updateFormData({ title })}
-            onDescriptionChange={(description) => updateFormData({ description })}
             onLongDescriptionEsChange={(longDescriptionEs) => updateFormData({ longDescriptionEs })}
             onLongDescriptionEnChange={(longDescriptionEn) => updateFormData({ longDescriptionEn })}
           />

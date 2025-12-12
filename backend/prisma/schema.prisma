@@ -35,7 +35,6 @@ model Project {
   id              String    @id @default(cuid())
   slug            String    @unique
   title           String
-  description     String
   longDescriptionEs String?  @db.Text
   longDescriptionEn String?  @db.Text
   images          String[]  @default([]) // Múltiples imágenes del proyecto

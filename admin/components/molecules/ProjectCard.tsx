@@ -9,7 +9,8 @@ import { fluidSizing } from '@/lib/fluidSizing';
 interface ProjectCardProps {
   id: string;
   title: string;
-  description: string;
+  longDescriptionEs?: string | null;
+  longDescriptionEn?: string | null;
   category?: string;
   image?: string | null;
   featured: boolean;
@@ -24,7 +25,8 @@ interface ProjectCardProps {
 export default function ProjectCard({
   id,
   title,
-  description,
+  longDescriptionEs,
+  longDescriptionEn,
   category,
   image,
   featured,
@@ -35,6 +37,15 @@ export default function ProjectCard({
   delay = 0,
   onEdit,
 }: ProjectCardProps) {
+  const excerptFromLongDescription = (text?: string | null) => {
+    if (!text) return '';
+    const normalized = text.replace(/\s+/g, ' ').trim();
+    if (!normalized) return '';
+    return normalized.length > 120 ? `${normalized.slice(0, 120)}…` : normalized;
+  };
+
+  const excerpt = excerptFromLongDescription(longDescriptionEs) || excerptFromLongDescription(longDescriptionEn);
+
   const categoryColors: Record<string, string> = {
     web: 'text-blue-400 border-blue-400/30 bg-blue-400/10',
     mobile: 'text-purple-400 border-purple-400/30 bg-purple-400/10',
@@ -50,15 +61,18 @@ export default function ProjectCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.23, 1, 0.32, 1] }}
-      className="group relative bg-admin-dark-elevated border border-admin-primary/20 rounded-lg transition-all duration-300 hover:border-admin-primary/50 hover:shadow-lg hover:shadow-admin-primary/10"
+      className="group relative bg-admin-dark-elevated border border-admin-primary/20 rounded-lg transition-all duration-300 hover:border-admin-primary/50 hover:shadow-lg hover:shadow-admin-primary/10 overflow-hidden"
     >
       <div 
-        className="flex items-center cursor-pointer" 
+        className="flex flex-col sm:flex-row sm:items-center cursor-pointer" 
         style={{ padding: fluidSizing.space.md, gap: fluidSizing.space.md }}
         onClick={onEdit}
       >
         {/* Image section - compacta */}
-        <div className="relative flex-shrink-0 bg-admin-dark-surface rounded-lg overflow-hidden" style={{ width: '120px', height: '80px' }}>
+        <div
+          className="relative flex-shrink-0 bg-admin-dark-surface rounded-lg overflow-hidden w-full sm:w-auto"
+          style={{ width: '120px', height: '80px' }}
+        >
           {image ? (
             <Image
               src={image}
@@ -75,7 +89,7 @@ export default function ProjectCard({
         </div>
 
         {/* Content section - horizontal */}
-        <div className="flex-1 flex items-center" style={{ gap: fluidSizing.space.lg }}>
+        <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center" style={{ gap: fluidSizing.space.lg }}>
           {/* Info principal */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.xs }}>
@@ -89,98 +103,108 @@ export default function ProjectCard({
                 </span>
               )}
             </div>
-            <p className="text-text-muted line-clamp-1" style={{ fontSize: fluidSizing.text.sm }}>
-              {description}
-            </p>
+            {excerpt && (
+              <p className="text-text-muted line-clamp-1" style={{ fontSize: fluidSizing.text.sm }}>
+                {excerpt}
+              </p>
+            )}
           </div>
 
-          {/* Category badge */}
-          {category && (
-            <div className="flex-shrink-0">
-              <span className={`rounded-md font-medium border ${categoryColor}`} style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.xs }}>
-                {category.toUpperCase()}
-              </span>
-            </div>
-          )}
-
-          {/* Technologies */}
-          {technologies.length > 0 && (
-            <div className="flex flex-wrap flex-shrink-0" style={{ gap: fluidSizing.space.xs, maxWidth: '300px' }}>
-              {technologies.slice(0, 3).map((tech, index) => (
-                <span
-                  key={index}
-                  className="rounded border border-admin-primary/20 bg-admin-dark-surface text-text-secondary"
-                  style={{ 
-                    padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
-                    fontSize: fluidSizing.text.xs,
-                    borderColor: `${tech.color}40`,
-                    color: tech.color 
-                  }}
-                >
-                  {tech.name}
-                </span>
-              ))}
-              {technologies.length > 3 && (
-                <span className="rounded border border-admin-primary/20 bg-admin-dark-surface text-text-muted" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.xs }}>
-                  +{technologies.length - 3}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Status y acciones */}
-          <div className="flex items-center flex-shrink-0" style={{ gap: fluidSizing.space.md }}>
-            {/* Quick actions */}
-            <div className="flex" style={{ gap: fluidSizing.space.xs }}>
-              {demoUrl && (
-                <a
-                  href={demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-admin-dark-surface border border-admin-primary/30 rounded-lg flex items-center justify-center text-admin-primary hover:bg-admin-primary hover:text-admin-dark transition-all duration-200"
-                  style={{ width: '32px', height: '32px' }}
-                  onClick={(e) => e.stopPropagation()}
-                  title="Ver demo"
-                >
-                  <Icon name="eye" size={14} />
-                </a>
-              )}
-              {repoUrl && (
-                <a
-                  href={repoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-admin-dark-surface border border-admin-primary/30 rounded-lg flex items-center justify-center text-admin-primary hover:bg-admin-primary hover:text-admin-dark transition-all duration-200"
-                  style={{ width: '32px', height: '32px' }}
-                  onClick={(e) => e.stopPropagation()}
-                  title="Ver código"
-                >
-                  <Icon name="code" size={14} />
-                </a>
-              )}
-            </div>
-
-            {/* Status */}
-            <div className="flex items-center text-text-muted" style={{ gap: fluidSizing.space.xs, fontSize: fluidSizing.text.xs, minWidth: '80px' }}>
-              {publishedAt ? (
-                <>
-                  <Icon name="zap" size={12} />
-                  <span>
-                    {new Date(publishedAt).toLocaleDateString('es-ES', {
-                      month: 'short',
-                      year: '2-digit',
-                    })}
+          {/* Meta row: categoría, tecnologías, status y acciones (wrapping en mobile) */}
+          <div
+            className="flex flex-wrap items-center justify-between w-full md:w-auto"
+            style={{ gap: fluidSizing.space.sm }}
+          >
+            <div className="flex flex-wrap items-center min-w-0" style={{ gap: fluidSizing.space.sm }}>
+              {/* Category badge */}
+              {category && (
+                <div className="flex-shrink-0">
+                  <span className={`rounded-md font-medium border ${categoryColor}`} style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.xs }}>
+                    {category.toUpperCase()}
                   </span>
-                </>
-              ) : (
-                <span className="text-admin-warning">Borrador</span>
+                </div>
+              )}
+
+              {/* Technologies */}
+              {technologies.length > 0 && (
+                <div className="flex flex-wrap min-w-0" style={{ gap: fluidSizing.space.xs }}>
+                  {technologies.slice(0, 3).map((tech, index) => (
+                    <span
+                      key={index}
+                      className="rounded border border-admin-primary/20 bg-admin-dark-surface text-text-secondary max-w-[140px] truncate"
+                      style={{ 
+                        padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+                        fontSize: fluidSizing.text.xs,
+                        borderColor: `${tech.color}40`,
+                        color: tech.color 
+                      }}
+                      title={tech.name}
+                    >
+                      {tech.name}
+                    </span>
+                  ))}
+                  {technologies.length > 3 && (
+                    <span className="rounded border border-admin-primary/20 bg-admin-dark-surface text-text-muted" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, fontSize: fluidSizing.text.xs }}>
+                      +{technologies.length - 3}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 
-            {/* Edit button */}
-            <div className="flex items-center text-admin-primary font-medium group-hover:translate-x-1 transition-transform duration-300" style={{ gap: fluidSizing.space.xs, fontSize: fluidSizing.text.xs }}>
-              <span>Editar</span>
-              <Icon name="chevronRight" size={14} />
+            <div className="flex items-center flex-wrap justify-end" style={{ gap: fluidSizing.space.sm }}>
+              {/* Quick actions */}
+              <div className="flex" style={{ gap: fluidSizing.space.xs }}>
+                {demoUrl && (
+                  <a
+                    href={demoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-admin-dark-surface border border-admin-primary/30 rounded-lg flex items-center justify-center text-admin-primary hover:bg-admin-primary hover:text-admin-dark transition-all duration-200"
+                    style={{ width: '32px', height: '32px' }}
+                    onClick={(e) => e.stopPropagation()}
+                    title="Ver demo"
+                  >
+                    <Icon name="eye" size={14} />
+                  </a>
+                )}
+                {repoUrl && (
+                  <a
+                    href={repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-admin-dark-surface border border-admin-primary/30 rounded-lg flex items-center justify-center text-admin-primary hover:bg-admin-primary hover:text-admin-dark transition-all duration-200"
+                    style={{ width: '32px', height: '32px' }}
+                    onClick={(e) => e.stopPropagation()}
+                    title="Ver código"
+                  >
+                    <Icon name="code" size={14} />
+                  </a>
+                )}
+              </div>
+
+              {/* Status */}
+              <div className="flex items-center text-text-muted" style={{ gap: fluidSizing.space.xs, fontSize: fluidSizing.text.xs }}>
+                {publishedAt ? (
+                  <>
+                    <Icon name="zap" size={12} />
+                    <span className="whitespace-nowrap">
+                      {new Date(publishedAt).toLocaleDateString('es-ES', {
+                        month: 'short',
+                        year: '2-digit',
+                      })}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-admin-warning whitespace-nowrap">Borrador</span>
+                )}
+              </div>
+
+              {/* Edit affordance */}
+              <div className="flex items-center text-admin-primary font-medium group-hover:translate-x-1 transition-transform duration-300" style={{ gap: fluidSizing.space.xs, fontSize: fluidSizing.text.xs }}>
+                <span className="hidden sm:inline">Editar</span>
+                <Icon name="chevronRight" size={14} />
+              </div>
             </div>
           </div>
         </div>

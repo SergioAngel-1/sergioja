@@ -17,7 +17,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       const json = (await res.json()) as ApiResponse<Project>;
       const p = json.data;
       if (p) {
-        const description = truncateDescription(p.description || defaultSEO.description);
+        const description = truncateDescription(
+          p.longDescriptionEs || p.longDescriptionEn || defaultSEO.description
+        );
         const canonical = `${baseUrl}/projects/${p.slug}`;
         const image = p.image ? normalizeUrl(p.image, baseUrl) : `${baseUrl}/media/logo-sergioja.png`;
 
@@ -105,7 +107,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
         ]);
         const project = generateProjectSchema({
           name: p.title,
-          description: p.description,
+          description: p.longDescriptionEs || p.longDescriptionEn || defaultSEO.description,
           url: canonical,
           image,
           creator: generatePersonSchema({ name: siteConfig.author.name, url: siteConfig.url, sameAs: [siteConfig.author.social.github, siteConfig.author.social.linkedin] }),

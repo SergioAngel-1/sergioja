@@ -47,7 +47,6 @@ export interface Project {
   id: string;
   slug: string;
   title: string;
-  description: string;
   longDescriptionEs?: string | null;
   longDescriptionEn?: string | null;
   image?: string; // Primera imagen (para compatibilidad - calculada desde images[0])

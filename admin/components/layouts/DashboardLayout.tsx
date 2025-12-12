@@ -37,6 +37,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
+  const showNavIcons = !isMobile && !sidebarOpen;
+
+  const navIconSize = isMobile
+    ? fluidSizing.size.iconSm
+    : (sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd);
+  const navTextSize = isMobile ? fluidSizing.text.lg : fluidSizing.text.base;
+  const navItemMinHeight = isMobile ? fluidSizing.size.buttonLg : fluidSizing.size.buttonMd;
+  const categoryLabelTextSize = isMobile ? fluidSizing.text.base : fluidSizing.text.sm;
+  const navItemGap = showNavIcons ? fluidSizing.space.sm : 0;
+
   // Detectar si es mobile
   useEffect(() => {
     const checkMobile = () => {
@@ -152,17 +162,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     key={section.name}
                     className="flex items-center rounded-lg transition-all duration-200 relative group opacity-40 cursor-not-allowed text-text-secondary"
                     style={{
-                      gap: fluidSizing.space.sm,
+                      gap: navItemGap,
                       padding: sidebarOpen ? `${fluidSizing.space.sm} ${fluidSizing.space.md}` : fluidSizing.space.sm,
                       justifyContent: sidebarOpen ? 'flex-start' : 'center',
-                      minHeight: fluidSizing.size.buttonMd
+                      minHeight: navItemMinHeight
                     }}
                   >
-                    <div style={{ width: sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd, height: sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd }}>
-                      <Icon name={section.icon!} />
-                    </div>
+                    {showNavIcons && (
+                      <div style={{ width: navIconSize, height: navIconSize }}>
+                        <Icon name={section.icon!} />
+                      </div>
+                    )}
                     {sidebarOpen && (
-                      <span className="font-medium" style={{ fontSize: fluidSizing.text.base }}>{section.name}</span>
+                      <span className="font-medium" style={{ fontSize: navTextSize }}>{section.name}</span>
                     )}
                     
                     {/* Tooltip "Próximamente" */}
@@ -184,17 +196,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       : 'text-text-secondary hover:bg-admin-dark-surface hover:text-text-primary'
                   }`}
                   style={{
-                    gap: fluidSizing.space.sm,
+                    gap: navItemGap,
                     padding: sidebarOpen ? `${fluidSizing.space.sm} ${fluidSizing.space.md}` : fluidSizing.space.sm,
                     justifyContent: sidebarOpen ? 'flex-start' : 'center',
-                    minHeight: fluidSizing.size.buttonMd
+                    minHeight: navItemMinHeight
                   }}
                 >
-                  <div style={{ width: sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd, height: sidebarOpen ? fluidSizing.size.iconSm : fluidSizing.size.iconMd }}>
-                    <Icon name={section.icon!} />
-                  </div>
+                  {showNavIcons && (
+                    <div style={{ width: navIconSize, height: navIconSize }}>
+                      <Icon name={section.icon!} />
+                    </div>
+                  )}
                   {sidebarOpen && (
-                    <span className="font-medium" style={{ fontSize: fluidSizing.text.base }}>{section.name}</span>
+                    <span className="font-medium" style={{ fontSize: navTextSize }}>{section.name}</span>
                   )}
                   
                   {/* Tooltip cuando está colapsado */}
@@ -221,15 +235,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       onClick={() => setSidebarOpen(true)}
                       className="flex items-center rounded-lg transition-all duration-200 relative group text-text-secondary hover:bg-admin-dark-surface hover:text-text-primary"
                       style={{
-                        gap: fluidSizing.space.sm,
+                        gap: navItemGap,
                         padding: fluidSizing.space.sm,
                         justifyContent: 'center',
-                        minHeight: fluidSizing.size.buttonMd
+                        minHeight: navItemMinHeight
                       }}
                     >
-                      <div style={{ width: fluidSizing.size.iconMd, height: fluidSizing.size.iconMd }}>
-                        <Icon name={section.items?.[0]?.icon || 'dashboard'} />
-                      </div>
+                      {showNavIcons && (
+                        <div style={{ width: navIconSize, height: navIconSize }}>
+                          <Icon name={section.items?.[0]?.icon || 'dashboard'} />
+                        </div>
+                      )}
                       
                       {/* Tooltip con nombre de categoría */}
                       <div className="fixed left-[80px] bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.xs }}>
@@ -243,7 +259,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <div 
                       className="text-text-muted uppercase tracking-wider font-medium"
                       style={{ 
-                        fontSize: fluidSizing.text.xs,
+                        fontSize: categoryLabelTextSize,
                         paddingLeft: fluidSizing.space.sm,
                         paddingTop: sectionIndex === 0 ? '0' : fluidSizing.space.xs,
                       }}
@@ -262,17 +278,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                             key={item.name}
                             className="flex items-center rounded-lg transition-all duration-200 relative group opacity-40 cursor-not-allowed text-text-secondary"
                             style={{
-                              gap: fluidSizing.space.sm,
+                              gap: navItemGap,
                               padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
                               justifyContent: 'flex-start',
-                              minHeight: fluidSizing.size.buttonSm,
+                              minHeight: navItemMinHeight,
                               marginLeft: fluidSizing.space.sm,
                             }}
                           >
-                            <div style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm }}>
-                              <Icon name={item.icon} />
-                            </div>
-                            <span className="font-medium" style={{ fontSize: fluidSizing.text.sm }}>{item.name}</span>
+                            {showNavIcons && (
+                              <div style={{ width: navIconSize, height: navIconSize }}>
+                                <Icon name={item.icon} />
+                              </div>
+                            )}
+                            <span className="font-medium" style={{ fontSize: navTextSize }}>{item.name}</span>
                             
                             {/* Tooltip "Próximamente" */}
                             <div className="fixed left-[80px] bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.xs }}>
@@ -292,17 +310,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                               : 'text-text-secondary hover:bg-admin-dark-surface hover:text-text-primary'
                           }`}
                           style={{
-                            gap: fluidSizing.space.sm,
+                            gap: navItemGap,
                             padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
                             justifyContent: 'flex-start',
-                            minHeight: fluidSizing.size.buttonSm,
+                            minHeight: navItemMinHeight,
                             marginLeft: fluidSizing.space.sm,
                           }}
                         >
-                          <div style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm }}>
-                            <Icon name={item.icon} />
-                          </div>
-                          <span className="font-medium" style={{ fontSize: fluidSizing.text.sm }}>{item.name}</span>
+                          {showNavIcons && (
+                            <div style={{ width: navIconSize, height: navIconSize }}>
+                              <Icon name={item.icon} />
+                            </div>
+                          )}
+                          <span className="font-medium" style={{ fontSize: navTextSize }}>{item.name}</span>
                         </Link>
                       );
                     })}

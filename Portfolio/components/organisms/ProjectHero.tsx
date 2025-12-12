@@ -16,8 +16,8 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
 
   const localizedLongDescription =
     language === 'en'
-      ? project.longDescriptionEn || project.longDescriptionEs || project.description
-      : project.longDescriptionEs || project.longDescriptionEn || project.description;
+      ? project.longDescriptionEn || project.longDescriptionEs || ''
+      : project.longDescriptionEs || project.longDescriptionEn || '';
   
   return (
     <motion.div
@@ -79,9 +79,11 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
           className="flex-1 overflow-y-auto custom-scrollbar"
           style={{ maxHeight: '200px', marginBottom: fluidSizing.space.md }}
         >
-          <p className="text-text-secondary leading-relaxed" style={{ fontSize: fluidSizing.text.base }}>
-            {localizedLongDescription}
-          </p>
+          {localizedLongDescription && (
+            <p className="text-text-secondary leading-relaxed whitespace-pre-line" style={{ fontSize: fluidSizing.text.base }}>
+              {localizedLongDescription}
+            </p>
+          )}
         </motion.div>
 
         {/* Tech Stack */}

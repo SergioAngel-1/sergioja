@@ -70,8 +70,8 @@ export default function ProjectDetailPage() {
 
   const localizedLongDescription =
     language === 'en'
-      ? project.longDescriptionEn || project.longDescriptionEs || project.description
-      : project.longDescriptionEs || project.longDescriptionEn || project.description;
+      ? project.longDescriptionEn || project.longDescriptionEs || ''
+      : project.longDescriptionEs || project.longDescriptionEn || '';
 
   return (
     <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
@@ -174,12 +174,6 @@ export default function ProjectDetailPage() {
                     setSelectedImageIndex(null);
                   }}
                 />
-              </div>
-
-              <div style={{ marginTop: fluidSizing.space.lg }}>
-                <p className="text-text-secondary leading-relaxed" style={{ fontSize: fluidSizing.text.base }}>
-                  {localizedLongDescription}
-                </p>
               </div>
             </motion.div>
           </div>

@@ -19,7 +19,7 @@ router.get('/', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = {};
     
     if (category && typeof category === 'string') {
-      where.category = category;
+      where.categories = { has: category };
     }
     
     if (featured === 'true') {
@@ -49,7 +49,6 @@ router.get('/', async (req: Request, res: Response) => {
       id: p.id,
       slug: p.slug,
       title: p.title,
-      description: p.description,
       longDescriptionEs: p.longDescriptionEs ?? null,
       longDescriptionEn: p.longDescriptionEn ?? null,
       images: p.images || [],
@@ -95,15 +94,28 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { title, description, longDescription, longDescriptionEs, longDescriptionEn, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
+    const { title, longDescription, longDescriptionEs, longDescriptionEn, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
 
     // Validaciones básicas
-    if (!title || !description) {
+    if (!title) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: 'Título y descripción son requeridos',
+          message: 'Título es requerido',
+        },
+      });
+    }
+
+    const resolvedLongDescriptionEs = (longDescriptionEs ?? longDescription) ?? null;
+    const resolvedLongDescriptionEn = longDescriptionEn ?? null;
+
+    if (!resolvedLongDescriptionEs && !resolvedLongDescriptionEn) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Debes proporcionar una descripción detallada (ES y/o EN)',
         },
       });
     }
@@ -140,9 +152,8 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         title,
         slug,
-        description,
-        longDescriptionEs: (longDescriptionEs ?? longDescription) || description,
-        longDescriptionEn: longDescriptionEn ?? null,
+        longDescriptionEs: resolvedLongDescriptionEs,
+        longDescriptionEn: resolvedLongDescriptionEn,
         categories: projectCategories,
         featured: featured || false,
         repoUrl: repoUrl || null,
@@ -284,7 +295,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, description, longDescription, longDescriptionEs, longDescriptionEn, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
+    const { title, longDescription, longDescriptionEs, longDescriptionEn, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -314,7 +325,6 @@ router.put('/:slug', async (req: Request, res: Response) => {
       where: { slug },
       data: {
         title: title || existingProject.title,
-        description: description || existingProject.description,
         longDescriptionEs:
           longDescriptionEs !== undefined
             ? longDescriptionEs

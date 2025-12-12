@@ -25,10 +25,19 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
   const pathname = usePathname();
   const [imageError, setImageError] = useState(false);
 
-  const localizedDescription =
+  const excerptFromLongDescription = (text?: string | null) => {
+    if (!text) return '';
+    const normalized = text.replace(/\s+/g, ' ').trim();
+    if (!normalized) return '';
+    return normalized.length > 140 ? `${normalized.slice(0, 140)}…` : normalized;
+  };
+
+  const localizedDescriptionRaw =
     language === 'en'
-      ? project.longDescriptionEn || project.longDescriptionEs || project.description
-      : project.longDescriptionEs || project.longDescriptionEn || project.description;
+      ? project.longDescriptionEn || project.longDescriptionEs
+      : project.longDescriptionEs || project.longDescriptionEn;
+
+  const localizedDescription = excerptFromLongDescription(localizedDescriptionRaw);
 
   const handleClick = () => {
     const targetPath = `/projects/${project.slug}`;
@@ -102,9 +111,11 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
             </h3>
             
             {/* Description */}
-            <p className="text-text-secondary text-xs sm:text-sm leading-relaxed flex-1 line-clamp-2" style={{ marginBottom: fluidSizing.space.sm }}>
-              {localizedDescription}
-            </p>
+            {localizedDescription && (
+              <p className="text-text-secondary text-xs sm:text-sm leading-relaxed flex-1 line-clamp-2" style={{ marginBottom: fluidSizing.space.sm }}>
+                {localizedDescription}
+              </p>
+            )}
 
             {/* Tech stack */}
             <div className="flex flex-wrap" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.sm }}>

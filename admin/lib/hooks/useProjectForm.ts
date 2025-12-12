@@ -16,7 +16,6 @@ interface TechnologyFormData {
 interface ProjectFormData {
   id?: string;
   title: string;
-  description: string;
   longDescriptionEs: string;
   longDescriptionEn: string;
   category: string;
@@ -46,7 +45,6 @@ interface UseProjectFormOptions {
 export function useProjectForm({ project, backendCategories, isOpen }: UseProjectFormOptions) {
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
-    description: '',
     longDescriptionEs: '',
     longDescriptionEn: '',
     category: 'web',
@@ -125,7 +123,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       setFormData({
         id: project.id,
         title: project.title || '',
-        description: project.description || '',
         longDescriptionEs: project.longDescriptionEs || project.longDescription || '',
         longDescriptionEn: project.longDescriptionEn || '',
         category: projectCategories[0] || 'web',
@@ -147,7 +144,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       // Nuevo proyecto
       setFormData({
         title: '',
-        description: '',
         longDescriptionEs: '',
         longDescriptionEn: '',
         category: 'web',
@@ -195,14 +191,29 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     }));
   };
 
+  const normalizeLongDescription = (value: string) => {
+    // Preserve line breaks but avoid multiple blank lines.
+    // - Normalize Windows newlines
+    // - Collapse 3+ consecutive newlines into 2 (max one empty line)
+    // - Trim trailing spaces per line
+    const normalized = (value ?? '')
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .split('\n')
+      .map((line) => line.replace(/\s+$/g, ''))
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n');
+
+    return normalized;
+  };
+
 
   const getSubmitData = useCallback(() => {
     return {
       id: formData.id,
       title: formData.title,
-      description: formData.description,
-      longDescriptionEs: formData.longDescriptionEs,
-      longDescriptionEn: formData.longDescriptionEn,
+      longDescriptionEs: normalizeLongDescription(formData.longDescriptionEs),
+      longDescriptionEn: normalizeLongDescription(formData.longDescriptionEn),
       category: formData.category,
       categories: formData.categories || [],
       technologies: formData.technologies,

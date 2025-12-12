@@ -134,7 +134,7 @@ function ProjectsPageContent() {
       filtered = filtered.filter(
         (p) =>
           p.title.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query)
+          (p.longDescriptionEs || p.longDescriptionEn || '').toLowerCase().includes(query)
       );
     }
 
@@ -354,7 +354,8 @@ function ProjectsPageContent() {
                 key={project.id}
                 id={project.id}
                 title={project.title}
-                description={project.description}
+                longDescriptionEs={project.longDescriptionEs}
+                longDescriptionEn={project.longDescriptionEn}
                 category={project.categories[0] || 'web'}
                 image={project.images && project.images.length > 0 ? project.images[0] : undefined}
                 featured={project.featured}
