@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import Input from '@/components/atoms/Input';
 
 interface DevTipsModalProps {
   isOpen: boolean;
@@ -113,18 +114,16 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}>
-                <label htmlFor="email" className="block font-mono text-white text-fluid-base">
-                  {t('devTips.emailLabel')}
-                </label>
-                <input
+                <Input
                   type="email"
                   id="email"
+                  name="email"
+                  label={t('devTips.emailLabel')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('devTips.emailPlaceholder')}
-                  className="w-full bg-background-elevated border border-white/30 rounded text-text-primary placeholder-text-muted placeholder:text-xs focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all font-mono text-fluid-base"
-                  style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: 16 }}
                   disabled={isSubmitting}
+                  className="font-mono"
                 />
                 {error && (
                   <motion.p
