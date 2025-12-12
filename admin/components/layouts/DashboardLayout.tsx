@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import Icon from '../atoms/Icon';
 import { alerts } from '@/lib/alerts';
 import { fluidSizing } from '@/lib/fluidSizing';
-import ChangePasswordModal from '../molecules/ChangePasswordModal';
+import SettingsModal from '../molecules/SettingsModal';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -35,9 +35,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
-  const settingsRef = useRef<HTMLDivElement>(null);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // Detectar si es mobile
   useEffect(() => {
@@ -54,26 +52,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Cerrar settings dropdown al hacer click fuera
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
-        setSettingsOpen(false);
-      }
-    };
-
-    if (settingsOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [settingsOpen]);
-
-  const handleChangePassword = () => {
-    setSettingsOpen(false);
-    setIsChangePasswordModalOpen(true);
+  const handleOpenSettings = () => {
+    setIsSettingsModalOpen(true);
   };
 
   const navigation: NavigationSection[] = [
@@ -349,37 +329,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               
               <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
                 {/* Botón de configuración */}
-                <div className="relative" ref={settingsRef}>
-                  <button
-                    onClick={() => setSettingsOpen(!settingsOpen)}
-                    className="flex-shrink-0 hover:bg-admin-primary/10 text-text-primary rounded-lg transition-all duration-200"
-                    style={{ padding: fluidSizing.space.xs }}
-                  >
-                    <Icon name="cpu" size={18} />
-                  </button>
-
-                  {/* Dropdown de configuración */}
-                  <AnimatePresence>
-                    {settingsOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute bottom-full left-0 mb-2 bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl overflow-hidden z-50 min-w-[200px]"
-                      >
-                        <button
-                          onClick={handleChangePassword}
-                          className="w-full text-left px-4 py-3 text-text-primary hover:bg-admin-primary/10 transition-colors duration-200 flex items-center"
-                          style={{ gap: fluidSizing.space.sm, fontSize: fluidSizing.text.sm }}
-                        >
-                          <Icon name="plus" size={16} />
-                          <span>Cambiar contraseña</span>
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <button
+                  onClick={handleOpenSettings}
+                  className="flex-shrink-0 hover:bg-admin-primary/10 text-text-primary rounded-lg transition-all duration-200"
+                  style={{ padding: fluidSizing.space.xs }}
+                >
+                  <Icon name="cpu" size={18} />
+                </button>
 
                 {/* Botón de logout */}
                 <button
@@ -415,45 +371,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
               
               {/* Botón de configuración */}
-              <div className="relative" ref={settingsRef}>
-                <button
-                  onClick={() => setSettingsOpen(!settingsOpen)}
-                  className="hover:bg-admin-primary/10 text-text-primary rounded-lg transition-all duration-200 relative group flex items-center justify-center"
-                  style={{ padding: fluidSizing.space.sm, minWidth: '40px', minHeight: '40px' }}
-                >
-                  <Icon name="cpu" size={20} />
-                  
-                  {/* Tooltip configuración - solo visible cuando NO está abierto el dropdown */}
-                  {!settingsOpen && (
-                    <div className="absolute left-full bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.sm, top: '50%', transform: 'translateY(-50%)' }}>
-                      <span className="text-sm font-medium text-text-primary">Configuración</span>
-                    </div>
-                  )}
-                </button>
-
-                {/* Dropdown de configuración */}
-                <AnimatePresence>
-                  {settingsOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, x: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, x: 0, scale: 1 }}
-                      exit={{ opacity: 0, x: -10, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute left-full bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl overflow-hidden z-50 min-w-[200px]"
-                      style={{ marginLeft: fluidSizing.space.sm, top: '50%', transform: 'translateY(-50%)' }}
-                    >
-                      <button
-                        onClick={handleChangePassword}
-                        className="w-full text-left px-4 py-3 text-text-primary hover:bg-admin-primary/10 transition-colors duration-200 flex items-center"
-                        style={{ gap: fluidSizing.space.sm, fontSize: fluidSizing.text.sm }}
-                      >
-                        <Icon name="plus" size={16} />
-                        <span>Cambiar contraseña</span>
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <button
+                onClick={handleOpenSettings}
+                className="hover:bg-admin-primary/10 text-text-primary rounded-lg transition-all duration-200 relative group flex items-center justify-center"
+                style={{ padding: fluidSizing.space.sm, minWidth: '40px', minHeight: '40px' }}
+              >
+                <Icon name="cpu" size={20} />
+                
+                {/* Tooltip configuración */}
+                <div className="absolute left-full bg-admin-dark-elevated border border-admin-primary/30 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg" style={{ padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, marginLeft: fluidSizing.space.sm, top: '50%', transform: 'translateY(-50%)' }}>
+                  <span className="text-sm font-medium text-text-primary">Configuración</span>
+                </div>
+              </button>
 
               {/* Botón de logout */}
               <button
@@ -534,10 +463,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </main>
 
-      {/* Change Password Modal */}
-      <ChangePasswordModal
-        isOpen={isChangePasswordModalOpen}
-        onClose={() => setIsChangePasswordModalOpen(false)}
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
       />
     </div>
   );
