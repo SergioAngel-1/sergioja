@@ -6,6 +6,7 @@ import AlertContainer from '@/components/molecules/AlertContainer';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
+import WebVitalsTracker from '@/components/WebVitalsTracker';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -102,6 +103,7 @@ export default function RootLayout({
           <main className="h-viewport overflow-hidden">{children}</main>
           <AlertContainer />
         </LanguageProvider>
+        <WebVitalsTracker />
       </body>
     </html>
   );
