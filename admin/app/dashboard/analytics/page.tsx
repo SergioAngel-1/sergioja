@@ -12,7 +12,7 @@ import StatCard from '@/components/molecules/StatCard';
 import TopSection from '@/components/molecules/TopSection';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
-import { fluidSizing } from '@/lib/fluidSizing';
+import { clamp, fluidSizing } from '@/lib/fluidSizing';
 import { PageView, ProjectView } from '@/lib/types';
 
 export default function AnalyticsPage() {
@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
           style={{ gap: fluidSizing.space.md }}
         >
           <div className="flex-1">
-            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: `clamp(1.75rem, 5vw, 2.5rem)` }}>
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: clamp('1.75rem', '5vw', '2.5rem') }}>
               ANALYTICS
             </h1>
             <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>

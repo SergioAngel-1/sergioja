@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { fluidSizing } from '@/lib/fluidSizing';
+import { clamp, fluidSizing } from '@/lib/fluidSizing';
 import Button from '@/components/atoms/Button';
 import { useAuth } from '@/lib/contexts/AuthContext';
 
@@ -28,7 +28,7 @@ export default function NotFound() {
           <h1
             className="font-orbitron font-black text-white"
             style={{ 
-              fontSize: 'clamp(6rem, 20vw, 12rem)', 
+              fontSize: clamp('6rem', '20vw', '12rem'),
               lineHeight: '1',
               marginBottom: fluidSizing.space.xl 
             }}

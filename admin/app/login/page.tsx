@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { alerts } from '@/lib/alerts';
-import { fluidSizing } from '@/lib/fluidSizing';
+import { clamp, fluidSizing } from '@/lib/fluidSizing';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/lib/recaptcha';
 import { trackLoginSuccess, trackLoginFailed, trackLoginError } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
@@ -95,20 +95,20 @@ export default function LoginPage() {
       >
         <div 
           style={{
-            padding: `clamp(1.5rem, 4vw, 3rem)`,
+            padding: clamp('1.5rem', '4vw', '3rem'),
           }}
         >
           {/* Logo/Title */}
           <div 
             className="text-center"
             style={{
-              marginBottom: `clamp(1.5rem, 4vw, 3rem)`,
+              marginBottom: clamp('1.5rem', '4vw', '3rem'),
             }}
           >
             <h1 
               className="font-orbitron font-bold text-admin-primary text-glow-white"
               style={{
-                fontSize: `clamp(2rem, 6vw, 3rem)`,
+                fontSize: clamp('2rem', '6vw', '3rem'),
                 marginBottom: fluidSizing.space.sm,
               }}
             >

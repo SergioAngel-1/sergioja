@@ -14,7 +14,7 @@ import SearchBar from '@/components/molecules/SearchBar';
 import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
-import { fluidSizing } from '@/lib/fluidSizing';
+import { clamp, fluidSizing } from '@/lib/fluidSizing';
 import { NewsletterSubscription } from '@/lib/types';
 
 export default function NewsletterPage() {
@@ -172,7 +172,7 @@ export default function NewsletterPage() {
           style={{ gap: fluidSizing.space.md }}
         >
           <div className="flex-1">
-            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: `clamp(1.75rem, 5vw, 2.5rem)` }}>
+            <h1 className="font-orbitron font-bold text-admin-primary text-glow-white" style={{ fontSize: clamp('1.75rem', '5vw', '2.5rem') }}>
               NEWSLETTER
             </h1>
             <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, marginTop: fluidSizing.space.xs }}>

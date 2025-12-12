@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Icon from '../atoms/Icon';
-import { fluidSizing } from '@/lib/fluidSizing';
+import { clamp, fluidSizing } from '@/lib/fluidSizing';
 
 interface QuickActionCardProps {
   title: string;
@@ -58,8 +58,8 @@ export default function QuickActionCard({
               group-hover:rotate-6
             "
             style={{
-              width: `clamp(2.5rem, 5vw, 3rem)`,
-              height: `clamp(2.5rem, 5vw, 3rem)`
+              width: clamp('2.5rem', '5vw', '3rem'),
+              height: clamp('2.5rem', '5vw', '3rem')
             }}>
               <Icon name={icon} size={22} />
             </div>
