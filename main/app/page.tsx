@@ -28,6 +28,15 @@ export default function Home() {
   const { lowPerformanceMode } = usePerformance();
   const [isMobile, setIsMobile] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+
+  const isInIframe = () => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return window.self !== window.top;
+    } catch {
+      return true;
+    }
+  };
   
   // Track scroll depth and time on page
   usePageAnalytics();
@@ -290,7 +299,12 @@ export default function Home() {
           className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
           style={{ top: 'var(--vv-center-y, 50%)' }}
         >
-          <CenteredHero onModelIntroComplete={() => setActiveModal((prev) => prev ?? 'navigation')} />
+          <CenteredHero
+            onModelIntroComplete={() => {
+              if (isInIframe() || isMobile) return;
+              setActiveModal((prev) => prev ?? 'navigation');
+            }}
+          />
         </div>
       </main>
 
