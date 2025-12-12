@@ -4,6 +4,10 @@
  */
 
 import { logger } from './logger';
+import { sharedTranslations } from './i18n';
+
+const ENABLE_TRANSLATION_DEBUG =
+  typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_DEBUG_TRANSLATIONS === 'true';
 
 export type Language = 'es' | 'en';
 
@@ -197,376 +201,7 @@ export interface BaseTranslations {
 // Alias para compatibilidad
 export type Translations = BaseTranslations;
 
-export const translations: Record<Language, Translations> = {
-  es: {
-    // Navigation
-    'nav.portfolio': 'Portfolio',
-    'nav.portfolioDesc': 'Ver trabajos y proyectos completos',
-    'nav.identity': 'Identidad',
-    'nav.projects': 'Proyectos',
-    'nav.purpose': 'Propósito',
-    'nav.navigation': 'Navegación',
-    'nav.menu': 'Menú',
-    'nav.connection': 'Conexión',
-    'nav.sections': 'SECCIONES',
-    'nav.language': 'IDIOMA',
-    'nav.clickToView': 'Haz clic para ver cada sección',
-    'nav.clickToChangeLanguage': 'Haz clic para cambiar de idioma',
-    
-    // Performance
-    'performance.title': 'RENDIMIENTO',
-    'performance.low': 'Bajo',
-    'performance.high': 'Alto',
-    'performance.matrix': 'Matrix',
-    'performance.lowDesc': 'Animaciones deshabilitadas para mejor rendimiento',
-    'performance.highDesc': 'Todas las animaciones activas',
-    'performance.matrixDesc': '⚠️ Modo intensivo - Alto consumo de recursos',
-    'performance.comingSoon': 'Próximamente',
-    'performance.modeActive': 'Modo de bajo rendimiento activo',
-    
-    // Identity
-    'identity.title': 'Ser el puente entre ideas abstractas y realidades digitales.',
-    'identity.paragraph1': 'Como explorador en la intersección de tecnología e innovación, valoro la simplicidad en medio de la complejidad, priorizando soluciones intuitivas que respeten al usuario y generen resultados.',
-    'identity.paragraph2': 'Mi esencia se define por una curiosidad incesante que me impulsa a desafiar límites. Siempre guiado por el deseo de inspirar a otros a materializar conceptos audaces que transformen sus necesidades.',
-    'identity.available': 'Hagamos algo grande.',
-    'identity.busy': 'Estoy enfocado en colaboraciones activas. Escríbeme y agendamos la siguiente.',
-    'identity.unavailable': 'Agenda cerrada momentáneamente. Déjame un mensaje y te responderé apenas abra espacio.',
-    'identity.statusAvailableTag': 'Online',
-    'identity.statusBusyTag': 'En foco',
-    'identity.statusUnavailableTag': 'Standby',
-    
-    'purpose.title': 'Impulsar un futuro donde la tecnología eleve la humanidad.',
-    'purpose.paragraph1': 'Creo en la tecnología como catalizador para ideas que generen impacto positivo a escala global. Mi enfoque radica en fusionar innovación técnica con diseño empático, creando soluciones que resuelvan problemas complejos de manera sostenible y accesible.',
-    'purpose.paragraph2': 'Me motiva el equilibrio entre funcionalidad y experiencia humana, anticipando necesidades futuras para construir un ecosistema digital que inspire cambio',
-    
-    // Projects
-    'projects.featured': 'Proyectos Destacados',
-    'projects.loading': 'Cargando proyectos...',
-    'projects.noProjects': 'No hay proyectos disponibles en este momento.',
-    'projects.viewFull': 'Ver portafolio completo →',
-    'projects.viewAll': 'Ver todos los proyectos →',
-    'projects.viewDemo': 'Ver demo →',
-    'projects.github': 'GitHub →',
-    'projects.inProgress': 'EN DESARROLLO',
-    'projects.preview': 'Vista Previa',
-    'projects.gallery': 'Imágenes del Proyecto',
-    'projects.galleryTitle': 'Galería del Proyecto',
-    'projects.backToDemo': 'Volver a demo',
-    'projects.viewPage': 'Ver Página',
-    'projects.viewCode': 'Ver Repositorio',
-    'projects.privateCode': 'Repositorio Privado',
-    'projects.actions': 'Acciones',
-    'projects.previewDisabledPerformance': 'Vista previa deshabilitada en modo de bajo rendimiento',
-    'projects.noPreview': 'No hay vista previa disponible',
-    
-    // Contact form
-    'contact.name': 'Nombre',
-    'contact.email': 'Email',
-    'contact.subject': 'Asunto',
-    'contact.message': 'Mensaje',
-    'contact.send': 'Enviar',
-    'contact.sending': 'Enviando...',
-    'contact.success': '¡Mensaje enviado!',
-    'contact.error': 'Error al enviar',
-    'contact.recaptchaRequired': 'Por favor completa el reCAPTCHA',
-    
-    // Connection modal
-    'connection.title': 'Busco aprender de otros creadores, ingenieros y diseñadores',
-    'connection.subtitle': 'Si tienes ideas, proyectos o simplemente quieres intercambiar perspectivas sobre tecnología y diseño, conectemos.',
-    'connection.github': 'GitHub',
-    'connection.githubHandle': '@SergioJA',
-    'connection.githubDesc': 'Código y proyectos',
-    'connection.linkedin': 'LinkedIn',
-    'connection.linkedinHandle': 'Sergio Jáuregui',
-    'connection.linkedinDesc': 'Red profesional',
-    'connection.emailLabel': 'Email',
-    'connection.emailHandle': 'contact@sergioja.com',
-    'connection.emailDesc': 'Contacto directo',
-    'connection.formTitle': 'Envíame un mensaje',
-    'connection.namePlaceholder': 'Nombre',
-    'connection.emailPlaceholder': 'Email',
-    'connection.messagePlaceholder': 'Tu mensaje...',
-    'connection.sendButton': 'ENVIAR MENSAJE',
-    'connection.sendingButton': 'ENVIANDO...',
-    'connection.consoleInit': '> Sistema de conexión iniciado...',
-    'connection.consoleWaiting': '> Esperando tu mensaje...',
-    'connection.consoleSending': '> Enviando mensaje de',
-    'connection.consoleSuccess': '> ✓ Mensaje enviado correctamente',
-    'connection.consoleSuccessMsg': '> Te responderé pronto. Gracias por conectar.',
-    'connection.consoleError': '> ✗ Error:',
-    'connection.consoleErrorRetry': '> Intenta de nuevo o contáctame por email directo',
-    'connection.consoleNetError': '> ✗ Error de red. Verifica tu conexión',
-    'connection.consoleNetErrorMsg': '> O contáctame directamente por email',
-    'connection.consoleWaitingResponse': 'Esperando respuesta...',
-    
-    // Alerts
-    'alerts.success': '¡Éxito!',
-    'alerts.error': 'Error',
-    'alerts.warning': 'Advertencia',
-    'alerts.info': 'Información',
-    'alerts.messageSent': '¡Mensaje enviado!',
-    'alerts.messageSentDesc': 'Te responderé lo antes posible. Revisa tu email para la confirmación.',
-    'alerts.sendError': 'Error al enviar',
-    'alerts.connectionError': 'Error de conexión',
-    'alerts.connectionErrorDesc': 'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
-    'alerts.validationError': 'Error de validación',
-    'alerts.checkForm': 'Por favor verifica los campos del formulario',
-    
-    // Validations
-    'validation.emailRequired': 'El email es requerido',
-    'validation.emailInvalid': 'Ingresa un correo válido',
-    'validation.emailDomain': 'El dominio debe incluir un punto (ej: gmail.com)',
-    'validation.nameRequired': 'El nombre es requerido',
-    'validation.nameInvalid': 'El nombre solo puede contener letras y espacios',
-    'validation.nameMinLength': 'El nombre debe tener al menos 2 caracteres',
-    'validation.nameMaxLength': 'El nombre no puede exceder 100 caracteres',
-    'validation.subjectRequired': 'El asunto es requerido',
-    'validation.subjectMinLength': 'El asunto debe tener al menos 3 caracteres',
-    'validation.subjectMaxLength': 'El asunto no puede exceder 200 caracteres',
-    'validation.messageRequired': 'El mensaje es requerido',
-    'validation.messageMinLength': 'El mensaje debe tener al menos 10 caracteres',
-    'validation.messageMaxLength': 'El mensaje no puede exceder 2000 caracteres',
-    
-    // reCAPTCHA disclaimer
-    'recaptcha.disclaimer': 'Este sitio está protegido por reCAPTCHA y se aplican la',
-    'recaptcha.privacy': 'Política de Privacidad',
-    'recaptcha.terms': 'Términos de Servicio',
-    
-    // Matrix mode
-    'matrix.warning': 'ALERTA: MODO MATRIX',
-    'matrix.systemAlert': 'Alerta del sistema',
-    'matrix.message': 'El modo Matrix es visualmente intensivo y puede afectar el rendimiento de tu dispositivo, especialmente en móviles y laptops.',
-    'matrix.highCPU': 'Uso elevado de CPU',
-    'matrix.highGPU': 'Uso elevado de GPU',
-    'matrix.batteryDrain': 'Mayor consumo de batería',
-    'matrix.recommendation': 'Recomendación: úsalo solo si tu dispositivo es potente.',
-    'matrix.cancel': 'Cancelar',
-    'matrix.activate': 'Activar Matrix',
-    
-    // Dev Tips Modal
-    'devTips.title': 'Dev Tips',
-    'devTips.description': 'Recibe tips de desarrollo, mejores prácticas y recursos directamente en tu inbox.',
-    'devTips.benefit1': 'Tips semanales de desarrollo',
-    'devTips.benefit2': 'Recursos y herramientas útiles',
-    'devTips.benefit3': 'Actualizaciones de proyectos',
-    'devTips.emailLabel': 'Email',
-    'devTips.emailPlaceholder': 'tu@email.com',
-    'devTips.emailRequired': 'El email es requerido',
-    'devTips.emailInvalid': 'Email inválido',
-    'devTips.submitError': 'Error al suscribirse. Intenta de nuevo.',
-    'devTips.submitting': 'Enviando...',
-    'devTips.subscribe': 'Suscribirse',
-    'devTips.success': '¡Suscripción completada!',
-    
-    // Common
-    'common.cancel': 'Cancelar',
-
-    // Not Found 404
-    'notfound.title': 'PÁGINA NO ENCONTRADA',
-    'notfound.subtitle': '404',
-    'notfound.message': 'La página que buscas no existe o ha sido movida. Verifica la URL o regresa al inicio.',
-    'notfound.description': 'La página que buscas no existe o ha sido movida.',
-    'notfound.backHome': 'VOLVER AL INICIO',
-    'notfound.viewProjects': 'Ver Proyectos',
-    'notfound.contact': 'Contactar',
-    'notfound.errorCodeLabel': 'ERROR CODE',
-    'notfound.errorCode': 'PAGE_NOT_FOUND',
-    'notfound.statusLabel': 'STATUS',
-
-    // Gyroscope
-    'gyro.movePhone': 'Mueve tu móvil',
-    'gyro.enable': 'ACTIVAR GIROSCOPIO',
-    'newsletter.label': 'Newsletter',
-
-    // Loader
-    'loader.loadingModel': 'Cargando modelo',
-    'loader.initializing': 'Inicializando',
-  },
-  en: {
-    // Navigation
-    'nav.portfolio': 'Portfolio',
-    'nav.portfolioDesc': 'View complete works and projects',
-    'nav.identity': 'Identity',
-    'nav.projects': 'Projects',
-    'nav.purpose': 'Purpose',
-    'nav.navigation': 'Navigation',
-    'nav.menu': 'Menu',
-    'nav.connection': 'Connection',
-    'nav.sections': 'SECTIONS',
-    'nav.language': 'LANGUAGE',
-    'nav.clickToView': 'Click to view each section',
-    'nav.clickToChangeLanguage': 'Click to change language',
-    
-    // Performance
-    'performance.title': 'PERFORMANCE',
-    'performance.low': 'Low',
-    'performance.high': 'High',
-    'performance.matrix': 'Matrix',
-    'performance.lowDesc': 'Animations disabled for better performance',
-    'performance.highDesc': 'All animations enabled',
-    'performance.matrixDesc': '⚠️ Intensive mode - High resource usage',
-    'performance.comingSoon': 'Coming soon',
-    'performance.modeActive': 'Low performance mode active',
-    
-    // Identity
-    'identity.title': 'The bridge between abstract ideas and digital realities.',
-    'identity.paragraph1': 'As an explorer at the intersection of technology and innovation, I value simplicity amid complexity, prioritizing intuitive solutions that respect the user and drive results.',
-    'identity.paragraph2': 'My essence is defined by relentless curiosity that pushes me to challenge limits. Always guided by the desire to inspire others to bring bold concepts to life that transform their needs into reality.',
-    'identity.available': 'Let\'s build something great.',
-    'identity.busy': 'Currently focused on active collaborations. Drop me a note and we\'ll sync soon.',
-    'identity.unavailable': 'Temporarily not taking new projects. Leave a message and I\'ll respond once bandwidth opens.',
-    'identity.statusAvailableTag': 'Online',
-    'identity.statusBusyTag': 'In Focus',
-    'identity.statusUnavailableTag': 'Standby',
-    
-    'purpose.title': 'Driving a future where technology elevates humanity.',
-    'purpose.paragraph1': 'I believe in technology as a catalyst for ideas that create positive, global-scale impact. My focus is on blending technical innovation with empathetic design to build solutions that solve complex problems sustainably and accessibly.',
-    'purpose.paragraph2': 'I am motivated by the balance between functionality and human experience, anticipating future needs to build a digital ecosystem that inspires change',
-    
-    // Projects
-    'projects.featured': 'Featured Projects',
-    'projects.loading': 'Loading projects...',
-    'projects.noProjects': 'No projects available at the moment.',
-    'projects.viewFull': 'View full portfolio →',
-    'projects.viewAll': 'View all projects →',
-    'projects.viewDemo': 'View demo →',
-    'projects.github': 'GitHub →',
-    'projects.inProgress': 'IN PROGRESS',
-    'projects.preview': 'Preview',
-    'projects.gallery': 'Project Images',
-    'projects.galleryTitle': 'Project Gallery',
-    'projects.backToDemo': 'Back to demo',
-    'projects.viewPage': 'View Page',
-    'projects.viewCode': 'View Repository',
-    'projects.privateCode': 'Private Repository',
-    'projects.actions': 'Actions',
-    'projects.previewDisabledPerformance': 'Preview disabled in low performance mode',
-    'projects.noPreview': 'No preview available',
-    
-    // Contact form
-    'contact.name': 'Name',
-    'contact.email': 'Email',
-    'contact.subject': 'Subject',
-    'contact.message': 'Message',
-    'contact.send': 'Send',
-    'contact.sending': 'Sending...',
-    'contact.success': 'Message sent!',
-    'contact.error': 'Error sending',
-    'contact.recaptchaRequired': 'Please complete the reCAPTCHA',
-    
-    // Connection modal
-    'connection.title': 'Looking to learn from other creators, engineers and designers',
-    'connection.subtitle': 'If you have ideas, projects or just want to exchange perspectives on technology and design, let\'s connect.',
-    'connection.github': 'GitHub',
-    'connection.githubHandle': '@SergioJA',
-    'connection.githubDesc': 'Code and projects',
-    'connection.linkedin': 'LinkedIn',
-    'connection.linkedinHandle': 'Sergio Jáuregui',
-    'connection.linkedinDesc': 'Professional network',
-    'connection.emailLabel': 'Email',
-    'connection.emailHandle': 'contact@sergioja.com',
-    'connection.emailDesc': 'Direct contact',
-    'connection.formTitle': 'Send me a message',
-    'connection.namePlaceholder': 'Name',
-    'connection.emailPlaceholder': 'Email',
-    'connection.messagePlaceholder': 'Your message...',
-    'connection.sendButton': 'SEND MESSAGE',
-    'connection.sendingButton': 'SENDING...',
-    'connection.consoleInit': '> Connection system initialized...',
-    'connection.consoleWaiting': '> Waiting for your message...',
-    'connection.consoleSending': '> Sending message from',
-    'connection.consoleSuccess': '> ✓ Message sent successfully',
-    'connection.consoleSuccessMsg': '> I\'ll get back to you soon. Thanks for connecting.',
-    'connection.consoleError': '> ✗ Error:',
-    'connection.consoleErrorRetry': '> Try again or contact me directly via email',
-    'connection.consoleNetError': '> ✗ Network error. Check your connection',
-    'connection.consoleNetErrorMsg': '> Or contact me directly via email',
-    'connection.consoleWaitingResponse': 'Waiting for response...',
-    
-    // Alerts
-    'alerts.success': 'Success!',
-    'alerts.error': 'Error',
-    'alerts.warning': 'Warning',
-    'alerts.info': 'Information',
-    'alerts.messageSent': 'Message sent!',
-    'alerts.messageSentDesc': 'I\'ll get back to you soon. Check your email for confirmation.',
-    'alerts.sendError': 'Send error',
-    'alerts.connectionError': 'Connection error',
-    'alerts.connectionErrorDesc': 'Could not connect to server. Check your internet connection.',
-    'alerts.validationError': 'Validation error',
-    'alerts.checkForm': 'Please check the form fields',
-    
-    // Validations
-    'validation.emailRequired': 'Email is required',
-    'validation.emailInvalid': 'Enter a valid email',
-    'validation.emailDomain': 'Domain must include a dot (e.g., gmail.com)',
-    'validation.nameRequired': 'Name is required',
-    'validation.nameInvalid': 'Name can only contain letters and spaces',
-    'validation.nameMinLength': 'Name must be at least 2 characters',
-    'validation.nameMaxLength': 'Name cannot exceed 100 characters',
-    'validation.subjectRequired': 'Subject is required',
-    'validation.subjectMinLength': 'Subject must be at least 3 characters',
-    'validation.subjectMaxLength': 'Subject cannot exceed 200 characters',
-    'validation.messageRequired': 'Message is required',
-    'validation.messageMinLength': 'Message must be at least 10 characters',
-    'validation.messageMaxLength': 'Message cannot exceed 2000 characters',
-    
-    // reCAPTCHA disclaimer
-    'recaptcha.disclaimer': 'This site is protected by reCAPTCHA and the Google',
-    'recaptcha.privacy': 'Privacy Policy',
-    'recaptcha.terms': 'Terms of Service',
-    
-    // Matrix mode
-    'matrix.warning': 'ALERT: MATRIX MODE',
-    'matrix.systemAlert': 'System alert',
-    'matrix.message': 'Matrix mode is visually intensive and may affect your device performance, especially on mobile and laptops.',
-    'matrix.highCPU': 'High CPU usage',
-    'matrix.highGPU': 'High GPU usage',
-    'matrix.batteryDrain': 'Battery drain',
-    'matrix.recommendation': 'Recommendation: use only on capable hardware.',
-    'matrix.cancel': 'Cancel',
-    'matrix.activate': 'Activate Matrix',
-    
-    // Dev Tips Modal
-    'devTips.title': 'Dev Tips',
-    'devTips.description': 'Get development tips, best practices, and resources directly in your inbox.',
-    'devTips.benefit1': 'Weekly development tips',
-    'devTips.benefit2': 'Useful resources and tools',
-    'devTips.benefit3': 'Project updates',
-    'devTips.emailLabel': 'Email',
-    'devTips.emailPlaceholder': 'your@email.com',
-    'devTips.emailRequired': 'Email is required',
-    'devTips.emailInvalid': 'Invalid email',
-    'devTips.submitError': 'Error subscribing. Please try again.',
-    'devTips.submitting': 'Submitting...',
-    'devTips.subscribe': 'Subscribe',
-    'devTips.success': 'Subscription completed!',
-    
-    // Common
-    'common.cancel': 'Cancel',
-
-    // Not Found 404
-    'notfound.title': 'PAGE NOT FOUND',
-    'notfound.subtitle': '404',
-    'notfound.message': 'The page you are looking for does not exist or has been moved. Check the URL or return to home.',
-    'notfound.description': 'The page you are looking for does not exist or has been moved.',
-    'notfound.backHome': 'BACK TO HOME',
-    'notfound.viewProjects': 'View Projects',
-    'notfound.contact': 'Contact',
-    'notfound.errorCodeLabel': 'ERROR CODE',
-    'notfound.errorCode': 'PAGE_NOT_FOUND',
-    'notfound.statusLabel': 'STATUS',
-
-    // Gyroscope
-    'gyro.movePhone': 'Move your phone',
-    'gyro.enable': 'ENABLE GYROSCOPE',
-    'newsletter.label': 'Newsletter',
-
-    // Loader
-    'loader.loadingModel': 'Loading model',
-    'loader.initializing': 'Initializing',
-  },
-};
+export const translations: Record<Language, Translations> = sharedTranslations as any;
 
 /**
  * Función de traducción base
@@ -579,7 +214,9 @@ export function translate(key: keyof BaseTranslations, language: Language = 'es'
     return key;
   }
   
-  logger.debug(`Translation lookup: ${key}`, { language, value: translation }, 'Translations');
+  if (ENABLE_TRANSLATION_DEBUG) {
+    logger.debug(`Translation lookup: ${key}`, { language, value: translation }, 'Translations');
+  }
   return translation;
 }
 
@@ -590,20 +227,26 @@ export function createExtendedTranslator<T extends Record<string, any>>(
   language: Language,
   extendedTranslations: Record<Language, T>
 ) {
-  logger.info('Creating extended translator', { language, hasExtended: !!extendedTranslations }, 'Translations');
+  if (ENABLE_TRANSLATION_DEBUG) {
+    logger.info('Creating extended translator', { language, hasExtended: !!extendedTranslations }, 'Translations');
+  }
   
   return (key: string): string => {
     // Primero buscar en traducciones extendidas
     const extended = extendedTranslations[language]?.[key];
     if (extended !== undefined) {
-      logger.debug(`Extended translation found: ${key}`, { language, source: 'extended' }, 'Translations');
+      if (ENABLE_TRANSLATION_DEBUG) {
+        logger.debug(`Extended translation found: ${key}`, { language, source: 'extended' }, 'Translations');
+      }
       return extended;
     }
     
     // Luego buscar en traducciones base
     const base = translations[language]?.[key as keyof BaseTranslations];
     if (base !== undefined) {
-      logger.debug(`Base translation found: ${key}`, { language, source: 'base' }, 'Translations');
+      if (ENABLE_TRANSLATION_DEBUG) {
+        logger.debug(`Base translation found: ${key}`, { language, source: 'base' }, 'Translations');
+      }
       return base;
     }
     
