@@ -62,9 +62,9 @@
 
 :root {
   --bg-light: 255 255 255;
-  --bg-surface: 18 18 22;
+  --bg-surface: 5 5 8;
   --bg-elevated: 32 32 36;
-  --bg-dark: 10 10 15;
+  --bg-dark: 0 0 0;
   --text-primary: 224 224 224;
   --text-secondary: 160 160 176;
   --text-muted: 112 112 128;
@@ -142,25 +142,25 @@
 @layer components {
   /* Glow effect utility */
   .glow-red {
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), 0 0 40px rgba(255, 0, 0, 0.3);
+    box-shadow: 0 0 20px rgba(254, 0, 0, 0.5), 0 0 40px rgba(254, 0, 0, 0.3);
   }
 
   .glow-blue {
     box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 0 40px rgba(0, 191, 255, 0.3);
   }
 
-  .glow-purple {
-    box-shadow: 0 0 20px rgba(139, 0, 255, 0.5), 0 0 40px rgba(139, 0, 255, 0.3);
-  }
-
   .glow-white {
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3);
+  }
+
+  .glow-gray {
+    box-shadow: 0 0 20px rgba(160, 160, 176, 0.5), 0 0 40px rgba(160, 160, 176, 0.3);
   }
 
   /* Animated border gradient */
   .border-gradient {
     position: relative;
-    background: linear-gradient(90deg, #FF0000, #0000FF, #FF0000);
+    background: linear-gradient(90deg, #FE0000, #00BFFF, #FE0000);
     background-size: 200% 100%;
     animation: gradient-shift 3s ease infinite;
   }
@@ -195,7 +195,7 @@
 
   .glitch-text::before {
     left: 2px;
-    text-shadow: -2px 0 #FF0000;
+    text-shadow: -2px 0 #FE0000;
     clip: rect(24px, 550px, 90px, 0);
     animation: glitch-anim 3s infinite linear alternate-reverse;
   }
@@ -270,11 +270,11 @@
   .max-h-95-viewport { max-height: 95vh; max-height: 95svh; max-height: 95dvh; }
 
   .text-gradient-cyber {
-    @apply bg-gradient-to-r from-cyber-red via-cyber-purple to-cyber-blue-cyan bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-cyber-red to-cyber-blue-cyan bg-clip-text text-transparent;
   }
 
   .shadow-glow-red {
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5), 0 0 40px rgba(255, 0, 0, 0.3);
+    box-shadow: 0 0 20px rgba(254, 0, 0, 0.5), 0 0 40px rgba(254, 0, 0, 0.3);
   }
 
   .shadow-glow-blue {

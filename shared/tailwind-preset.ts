@@ -5,13 +5,21 @@ const preset = {
     extend: {
       colors: {
         cyber: {
-          red: '#FF0000',
-          'red-neon': '#FF4500',
-          blue: '#0000FF',
+          red: '#FE0000',
           'blue-cyan': '#00BFFF',
-          purple: '#8B00FF',
-          pink: '#FF00FF',
           black: '#000000',
+          white: '#FFFFFF',
+          gray: {
+            900: '#0F0F13',
+            800: '#18181C',
+            700: '#202024',
+            600: '#323238',
+            500: '#7C7C8A',
+            400: '#A0A0B0',
+            300: '#C8C8D0',
+            200: '#E0E0E8',
+            100: '#F0F0F5',
+          },
         },
         background: {
           // Valores via CSS variables para permitir tema por proyecto
@@ -32,11 +40,11 @@ const preset = {
         mono: ['var(--font-jetbrains-mono)', 'monospace'],
       },
       boxShadow: {
-        'glow-red': '0 0 20px rgba(255, 0, 0, 0.5), 0 0 40px rgba(255, 0, 0, 0.3)',
-        'glow-red-lg': '0 0 30px rgba(255, 0, 0, 0.6), 0 0 60px rgba(255, 0, 0, 0.4)',
+        'glow-red': '0 0 20px rgba(254, 0, 0, 0.5), 0 0 40px rgba(254, 0, 0, 0.3)',
+        'glow-red-lg': '0 0 30px rgba(254, 0, 0, 0.6), 0 0 60px rgba(254, 0, 0, 0.4)',
         'glow-blue': '0 0 20px rgba(0, 191, 255, 0.5), 0 0 40px rgba(0, 191, 255, 0.3)',
         'glow-blue-lg': '0 0 30px rgba(0, 191, 255, 0.6), 0 0 60px rgba(0, 191, 255, 0.4)',
-        'glow-purple': '0 0 20px rgba(139, 0, 255, 0.5), 0 0 40px rgba(139, 0, 255, 0.3)',
+        'glow-white': '0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3)',
         'glow-black': '0 0 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.2)',
       },
       animation: {
@@ -78,7 +86,8 @@ const preset = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-cyber': 'linear-gradient(135deg, #FF0000 0%, #0000FF 100%)',
+        'gradient-cyber': 'linear-gradient(135deg, #FE0000 0%, #00BFFF 100%)',
+        'gradient-grayscale': 'linear-gradient(135deg, #000000 0%, #FFFFFF 100%)',
       },
     },
   },

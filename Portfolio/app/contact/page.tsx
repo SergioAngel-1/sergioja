@@ -576,7 +576,7 @@ export default function ContactPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.3, duration: 0.6 }}
-              className="bg-gradient-to-br from-white/10 to-white/10 backdrop-blur-sm border border-white/30 rounded-lg"
+              className="bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg"
               style={{ padding: fluidSizing.space.lg }}
             >
               <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.sm }}>
