@@ -76,7 +76,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="flex-1 overflow-y-auto custom-scrollbar"
+          className="flex-1 overflow-y-auto custom-scrollbar-thin"
           style={{ maxHeight: '200px', marginBottom: fluidSizing.space.md }}
         >
           {localizedLongDescription && (
