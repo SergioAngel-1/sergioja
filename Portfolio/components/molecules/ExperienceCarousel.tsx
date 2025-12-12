@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
-import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { fluidSizing, clamp } from '@/lib/utils/fluidSizing';
 
 interface ExperienceItem {
   label: string;
@@ -47,15 +47,19 @@ export default function ExperienceCarousel({ items }: ExperienceCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const { lowPerformanceMode } = usePerformance();
+  const [isDragging, setIsDragging] = useState(false);
+  const AUTO_MS = 8000;
+  const PROGRESS_SEC = AUTO_MS / 1000;
 
+  // Resettable autoplay to keep timing consistent after manual interactions
   useEffect(() => {
-    const timer = setInterval(() => {
+    if (isDragging) return;
+    const timer = setTimeout(() => {
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % items.length);
-    }, 4000); // Cambiar cada 4 segundos
-
-    return () => clearInterval(timer);
-  }, [items.length]);
+    }, AUTO_MS);
+    return () => clearTimeout(timer);
+  }, [currentIndex, items.length, isDragging]);
 
   const handleNext = () => {
     setDirection(1);
@@ -93,17 +97,17 @@ export default function ExperienceCarousel({ items }: ExperienceCarouselProps) {
   const currentItem = items[currentIndex];
 
   return (
-    <div className="relative h-full w-full max-w-full flex flex-col overflow-hidden" style={{ minHeight: 'clamp(220px, 30vw, 260px)' }}>
+    <div className="relative h-full w-full max-w-full flex flex-col overflow-hidden" style={{ minHeight: clamp('280px', '35vw', '360px') }}>
       {/* Main carousel card */}
-      <div className="relative w-full max-w-full bg-background-elevated border border-white/30 rounded-lg overflow-hidden flex-1 flex items-center justify-center" style={{ padding: fluidSizing.space.lg }}>
+      <div className="relative w-full max-w-full bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg overflow-hidden flex-1 flex items-center justify-center hover:border-white/40 transition-all duration-500" style={{ padding: fluidSizing.space.xl }}>
         {/* Background glow effect */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-white/5 via-white/5 to-transparent"
+          className="absolute inset-0 bg-gradient-to-br from-white/3 via-transparent to-white/3"
           animate={{
-            opacity: [0.3, 0.6, 0.3],
+            opacity: [0.2, 0.5, 0.2],
           }}
           transition={{
-            duration: 3,
+            duration: 4,
             repeat: Infinity,
             ease: 'easeInOut',
           }}
@@ -125,87 +129,93 @@ export default function ExperienceCarousel({ items }: ExperienceCarouselProps) {
             }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={1}
+            dragElastic={0.5}
+            dragMomentum={false}
+            onDragStart={() => setIsDragging(true)}
             onDragEnd={(e, { offset, velocity }) => {
-              const swipe = Math.abs(offset.x) * velocity.x;
+              const swipe = offset.x * velocity.x;
+              const swipeThreshold = 50;
               
-              if (swipe < -10000) {
+              // More sensitive swipe detection for mobile
+              if (Math.abs(offset.x) > swipeThreshold) {
+                if (offset.x < 0) {
+                  handleNext();
+                } else {
+                  handlePrev();
+                }
+              } else if (swipe < -5000) {
                 handleNext();
-              } else if (swipe > 10000) {
+              } else if (swipe > 5000) {
                 handlePrev();
               }
+              setIsDragging(false);
             }}
-            className="relative z-10 text-center cursor-grab active:cursor-grabbing"
+            className="relative z-10 text-center cursor-grab active:cursor-grabbing touch-pan-y"
+            style={{ touchAction: 'pan-y' }}
           >
-            {/* Icon */}
+            {/* Icon with enhanced styling */}
             <motion.div
-              className="inline-flex items-center justify-center rounded-full bg-white/10 border border-white/30 text-white"
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-br from-white/15 to-white/5 border-2 border-white/40 text-white shadow-lg"
               style={{ 
-                width: fluidSizing.size.buttonLg, 
-                height: fluidSizing.size.buttonLg,
-                marginBottom: fluidSizing.space.md
+                width: clamp('56px', '8vw', '72px'),
+                height: clamp('56px', '8vw', '72px'),
+                marginBottom: fluidSizing.space.lg,
+                boxShadow: '0 0 20px rgba(255, 255, 255, 0.15), inset 0 0 20px rgba(255, 255, 255, 0.05)',
               }}
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: 'spring', stiffness: 400 }}
+              whileHover={{ scale: 1.15, rotate: 10 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
             >
               {icons[currentItem.icon]}
             </motion.div>
 
-            {/* Label */}
-            <div className="text-text-muted font-mono uppercase tracking-widest text-fluid-xs" style={{ marginBottom: fluidSizing.space.sm }}>
+            {/* Label with better hierarchy */}
+            <div className="text-white/80 font-orbitron uppercase tracking-[0.2em] font-bold" style={{ fontSize: clamp('10px', '1.2vw', '13px'), marginBottom: fluidSizing.space.md, letterSpacing: '0.15em' }}>
               {currentItem.label}
             </div>
 
-            {/* Value */}
-            <div className="text-text-secondary font-rajdhani leading-relaxed text-fluid-base" style={{ padding: `0 ${fluidSizing.space.md}` }}>
+            {/* Value with improved readability */}
+            <div className="text-text-secondary font-rajdhani leading-relaxed" style={{ fontSize: clamp('13px', '1.8vw', '16px'), padding: `0 ${fluidSizing.space.lg}`, lineHeight: '1.7' }}>
               {currentItem.value}
             </div>
           </motion.div>
         </AnimatePresence>
-
-        {/* Navigation arrows - Hidden on mobile */}
-        <button
-          onClick={handlePrev}
-          className="hidden sm:flex absolute top-1/2 -translate-y-1/2 rounded-full bg-background-dark/50 border border-white/30 text-white hover:bg-white/10 hover:border-white/60 transition-all duration-300 z-20 items-center justify-center"
-          style={{ left: fluidSizing.space.md, padding: fluidSizing.space.sm }}
-          aria-label="Previous"
-        >
-          <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        <button
-          onClick={handleNext}
-          className="hidden sm:flex absolute top-1/2 -translate-y-1/2 rounded-full bg-background-dark/50 border border-white/30 text-white hover:bg-white/10 hover:border-white/60 transition-all duration-300 z-20 items-center justify-center"
-          style={{ right: fluidSizing.space.md, padding: fluidSizing.space.sm }}
-          aria-label="Next"
-        >
-          <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-
-        {/* Corner accents */}
-        <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white/50" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
-        <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white/50" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
-      </div>
-
-      {!lowPerformanceMode && (
-        <div className="h-0.5 bg-background-elevated rounded-full overflow-hidden" style={{ marginTop: fluidSizing.space.sm }}>
-          <motion.div
-            className="h-full bg-gradient-to-r from-white to-cyber-red"
-            initial={{ width: '0%' }}
-            animate={{ width: '100%' }}
-            transition={{
-              duration: 4,
-              ease: 'linear',
-              repeat: Infinity,
-            }}
-            key={currentIndex}
-          />
+        
+        {/* Dot indicators - inside card */}
+        <div className="absolute z-20 left-1/2 -translate-x-1/2 flex items-center justify-center" style={{ bottom: fluidSizing.space.sm, gap: fluidSizing.space.xs }}>
+          {items.map((_, index) => (
+            <motion.button
+              key={index}
+              onClick={() => handleDotClick(index)}
+              className="relative rounded-full transition-all duration-300 overflow-hidden bg-background-elevated"
+              style={{
+                width: clamp('16px', '1.6vw', '20px'),
+                height: clamp('3px', '0.5vw', '4px'),
+                opacity: currentIndex === index ? 1 : 0.6,
+              }}
+              aria-label={`Go to slide ${index + 1}`}
+              aria-current={currentIndex === index ? 'true' : 'false'}
+            >
+              {currentIndex === index && !lowPerformanceMode && !isDragging && (
+                <motion.div
+                  className="absolute left-0 top-0 h-full rounded-full bg-white"
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{
+                    duration: PROGRESS_SEC,
+                    ease: 'linear',
+                  }}
+                  key={currentIndex}
+                />
+              )}
+            </motion.button>
+          ))}
         </div>
-      )}
+
+        {/* Corner accents - Enhanced */}
+        <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white/60" style={{ width: fluidSizing.space.xl, height: fluidSizing.space.xl }} />
+        <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white/60" style={{ width: fluidSizing.space.xl, height: fluidSizing.space.xl }} />
+      </div>
+      
     </div>
   );
 }
