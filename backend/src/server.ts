@@ -20,6 +20,7 @@ import adminProjectsRoutes from './routes/admin/projects';
 
 // Routes - Portfolio
 import profileRoutes from './routes/portfolio/profile';
+import cvRoutes from './routes/portfolio/cv';
 import skillsRoutes from './routes/portfolio/skills';
 import contactRoutes from './routes/portfolio/contact';
 import portfolioProjectsRoutes from './routes/portfolio/projects';
@@ -158,6 +159,7 @@ app.use('/api/admin/projects', adminProjectsRoutes);
 app.use('/api/admin/categories', categoriesRoutes);
 // Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
+app.use('/api/portfolio/cv', cvRoutes);
 app.use('/api/portfolio/projects', portfolioProjectsRoutes);
 app.use('/api/portfolio/skills', skillsRoutes);
 app.use('/api/portfolio/contact', contactRoutes);

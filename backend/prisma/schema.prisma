@@ -17,9 +17,13 @@ model Profile {
   availability String   @default("available") // available, busy, unavailable
   location     String
   email        String   @unique
+  phone        String?
   githubUrl    String?
   linkedinUrl  String?
   twitterUrl   String?
+  cvData       String?  @db.Text // PDF file as base64
+  cvFileName   String?  // Original filename for display
+  cvMimeType   String?  @default("application/pdf") // MIME type
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

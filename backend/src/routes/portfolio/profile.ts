@@ -27,9 +27,12 @@ router.get('/', async (_req: Request, res: Response) => {
         availability: profile.availability,
         location: profile.location,
         email: profile.email,
+        phone: profile.phone || null,
         githubUrl: profile.githubUrl || null,
         linkedinUrl: profile.linkedinUrl || null,
         twitterUrl: profile.twitterUrl || null,
+        cvFileName: profile.cvFileName || null,
+        cvMimeType: profile.cvMimeType || null,
         createdAt: profile.createdAt.toISOString(),
         updatedAt: profile.updatedAt.toISOString(),
       },
@@ -52,7 +55,7 @@ router.get('/', async (_req: Request, res: Response) => {
 // PUT /api/profile - Update profile information (admin only)
 router.put('/', authMiddleware, adminRoleMiddleware, async (req: Request, res: Response) => {
   try {
-    const { name, availability, location, email, githubUrl, linkedinUrl, twitterUrl } = req.body;
+    const { name, availability, location, email, phone, githubUrl, linkedinUrl, twitterUrl, cvData, cvFileName, cvMimeType } = req.body;
 
     // Validaciones básicas
     if (!name || !email || !location) {
@@ -105,9 +108,13 @@ router.put('/', authMiddleware, adminRoleMiddleware, async (req: Request, res: R
           availability: availability || 'available',
           location,
           email,
+          phone: phone || null,
           githubUrl: githubUrl || null,
           linkedinUrl: linkedinUrl || null,
           twitterUrl: twitterUrl || null,
+          cvData: cvData || null,
+          cvFileName: cvFileName || null,
+          cvMimeType: cvMimeType || 'application/pdf',
         },
       });
     } else {
@@ -119,9 +126,13 @@ router.put('/', authMiddleware, adminRoleMiddleware, async (req: Request, res: R
           availability: availability || existingProfile.availability,
           location,
           email,
+          phone: phone || null,
           githubUrl: githubUrl || null,
           linkedinUrl: linkedinUrl || null,
           twitterUrl: twitterUrl || null,
+          ...(cvData !== undefined && { cvData: cvData || null }),
+          ...(cvFileName !== undefined && { cvFileName: cvFileName || null }),
+          ...(cvMimeType !== undefined && { cvMimeType: cvMimeType || 'application/pdf' }),
         },
       });
     }
@@ -134,9 +145,12 @@ router.put('/', authMiddleware, adminRoleMiddleware, async (req: Request, res: R
         availability: updatedProfile.availability,
         location: updatedProfile.location,
         email: updatedProfile.email,
+        phone: updatedProfile.phone || null,
         githubUrl: updatedProfile.githubUrl || null,
         linkedinUrl: updatedProfile.linkedinUrl || null,
         twitterUrl: updatedProfile.twitterUrl || null,
+        cvFileName: updatedProfile.cvFileName || null,
+        cvMimeType: updatedProfile.cvMimeType || null,
         createdAt: updatedProfile.createdAt.toISOString(),
         updatedAt: updatedProfile.updatedAt.toISOString(),
       },
