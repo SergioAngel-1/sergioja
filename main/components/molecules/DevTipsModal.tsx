@@ -78,7 +78,7 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-xl backdrop-brightness-50 backdrop-contrast-75 backdrop-saturate-150 p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
           onClick={handleClose}
         >
           <motion.div
