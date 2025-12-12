@@ -77,6 +77,7 @@ services:
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: http://localhost:3000
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+        NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     container_name: portfolio-frontend-dev
     restart: unless-stopped
     environment:
@@ -85,6 +86,7 @@ services:
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+      NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     ports:
       - "3000:3000"
     depends_on:
@@ -102,6 +104,7 @@ services:
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: http://localhost:3001
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+        NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     container_name: main-frontend-dev
     restart: unless-stopped
     environment:
@@ -110,6 +113,7 @@ services:
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: http://localhost:3001
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+      NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     ports:
       - "3001:3000"
     depends_on:
@@ -127,6 +131,7 @@ services:
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: http://localhost:3002
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+        NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     container_name: admin-frontend-dev
     restart: unless-stopped
     environment:
@@ -135,6 +140,7 @@ services:
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: http://localhost:3002
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID:-GTM-PDFQKTDZ}
+      NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     ports:
       - "3002:3000"
     depends_on:

@@ -143,6 +143,7 @@ services:
         NEXT_PUBLIC_SITE_URL: https://portfolio.sergioja.com
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
         NEXT_PUBLIC_TWITTER_HANDLE: ${NEXT_PUBLIC_TWITTER_HANDLE}
+        NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     container_name: portfolio-frontend
     restart: unless-stopped
     environment:
@@ -180,6 +181,7 @@ services:
         NEXT_PUBLIC_SITE_URL: https://sergioja.com
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
         NEXT_PUBLIC_TWITTER_HANDLE: ${NEXT_PUBLIC_TWITTER_HANDLE}
+        NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     container_name: main-frontend
     restart: unless-stopped
     environment:
@@ -189,6 +191,7 @@ services:
       NEXT_PUBLIC_SITE_URL: https://sergioja.com
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
       NEXT_PUBLIC_TWITTER_HANDLE: ${NEXT_PUBLIC_TWITTER_HANDLE}
+      NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     depends_on:
       - backend
     networks:
@@ -216,6 +219,7 @@ services:
         NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
         NEXT_PUBLIC_SITE_URL: https://admin.sergioja.com
         NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
+        NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     container_name: admin-frontend
     restart: unless-stopped
     environment:
@@ -224,6 +228,7 @@ services:
       NEXT_PUBLIC_RECAPTCHA_SITE_KEY: ${NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
       NEXT_PUBLIC_SITE_URL: https://admin.sergioja.com
       NEXT_PUBLIC_GTM_ID: ${NEXT_PUBLIC_GTM_ID}
+      NEXT_PUBLIC_DEBUG_API: ${NEXT_PUBLIC_DEBUG_API:-false}
     depends_on:
       - backend
     networks:

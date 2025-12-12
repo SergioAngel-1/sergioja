@@ -43,6 +43,9 @@ const levels: LogLevel[] = ['debug', 'info', 'warn', 'error'];
 // En producción: solo errores críticos (error)
 let currentLevel: LogLevel = getIsDev() ? 'debug' : 'error';
 
+const ENABLE_API_DEBUG =
+  typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_DEBUG_API === 'true';
+
 /**
  * Lista de errores conocidos que se deben ignorar en producción
  * 
@@ -139,7 +142,11 @@ export const logger: SharedLogger = {
     if (shouldIgnoreError(message, error)) return;
     baseLog('error', message, error, context);
   },
-  apiRequest: (method, url, data?) => baseLog('debug', `API Request: ${method} ${url}`, data, 'API'),
+  apiRequest: (method, url, data?) => {
+    if (ENABLE_API_DEBUG) {
+      baseLog('debug', `API Request: ${method} ${url}`, data, 'API');
+    }
+  },
   apiResponse: (method, url, status, data?) => {
     const msg = `API Response: ${method} ${url} - ${status}`;
     if (status >= 400) {
@@ -147,7 +154,9 @@ export const logger: SharedLogger = {
       if (shouldIgnoreError(msg, data)) return;
       baseLog('error', msg, data, 'API');
     } else {
-      baseLog('debug', msg, data, 'API');
+      if (ENABLE_API_DEBUG) {
+        baseLog('debug', msg, data, 'API');
+      }
     }
   },
   apiError: (method, url, error?) => {
