@@ -6,6 +6,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { createPortal } from 'react-dom';
 import { useLogger } from '@/shared/hooks/useLogger';
+import Input from '@/components/atoms/Input';
 
 interface DevTipsModalProps {
   isOpen: boolean;
@@ -137,32 +138,16 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.sm }}>
-                <label htmlFor="email" className="block font-mono text-white text-fluid-base">
-                  {t('devTips.emailLabel')}
-                </label>
-                <input
+                <Input
                   type="email"
                   id="email"
+                  label={t('devTips.emailLabel')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('devTips.emailPlaceholder')}
-                  className="w-full bg-black/40 border border-white/30 rounded text-white placeholder:text-white/40 placeholder:text-xs focus:outline-none focus:border-white focus:ring-1 focus:ring-white/40 transition-all font-mono text-fluid-base"
-                  style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: 16 }}
                   disabled={isSubmitting}
+                  error={error}
                 />
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-white flex items-center text-fluid-sm"
-                    style={{ gap: fluidSizing.space.xs }}
-                  >
-                    <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {error}
-                  </motion.p>
-                )}
               </div>
 
               <div className="flex" style={{ gap: fluidSizing.space.md, paddingTop: fluidSizing.space.sm }}>

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import HexButton from '@/components/atoms/HexButton';
 import Modal from '@/components/molecules/Modal';
 import HexagonGrid from '@/components/atoms/HexagonGrid';
@@ -16,6 +16,9 @@ import { loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+import { api } from '@/lib/api-client';
+import type { Profile } from '@/lib/types';
+import type { AvailabilityStatus } from '@/components/organisms/IdentityContent';
 
 export default function Home() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
@@ -24,6 +27,7 @@ export default function Home() {
   const log = useLogger('Home');
   const { lowPerformanceMode } = usePerformance();
   const [isMobile, setIsMobile] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
   
   // Track scroll depth and time on page
   usePageAnalytics();
@@ -34,6 +38,29 @@ export default function Home() {
     };
     checkMobile();
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProfile = async () => {
+      try {
+        const response = await api.getProfile();
+        if (!isMounted) return;
+        if (response.success) {
+          setProfile((response.data as Profile) || null);
+        } else {
+          log.warn('Failed to load profile data', response.error);
+        }
+      } catch (error) {
+        if (isMounted) {
+          log.error('Error fetching profile', error);
+        }
+      }
+    };
+    fetchProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, [log]);
 
   useEffect(() => {
     if (activeModal === 'connection' && process.env.NODE_ENV === 'production') {
@@ -72,6 +99,21 @@ export default function Home() {
       window.removeEventListener('orientationchange', updateCenter);
     };
   }, []);
+
+  const availabilityStatus: AvailabilityStatus =
+    profile?.availability === 'busy' || profile?.availability === 'unavailable'
+      ? profile.availability
+      : 'available';
+
+  const statusLabel = useMemo(() => {
+    const fallback = 'Online';
+    const map: Record<AvailabilityStatus, string> = {
+      available: t('identity.statusAvailableTag') || fallback,
+      busy: t('identity.statusBusyTag') || fallback,
+      unavailable: t('identity.statusUnavailableTag') || fallback,
+    };
+    return map[availabilityStatus] || fallback;
+  }, [availabilityStatus, t]);
 
   const closeModal = () => setActiveModal(null);
 
@@ -176,6 +218,7 @@ export default function Home() {
           onClose={closeModal}
           title={t('nav.navigation')}
           position="top-left"
+          statusLabel={statusLabel}
           icon={
             <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -192,13 +235,14 @@ export default function Home() {
           onClose={closeModal}
           title={t('nav.identity')}
           position="top-right"
+          statusLabel={statusLabel}
           icon={
             <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           }
         >
-          <IdentityContent />
+          <IdentityContent profile={profile} availabilityStatus={availabilityStatus} />
         </Modal>
       )}
 
@@ -208,6 +252,7 @@ export default function Home() {
           onClose={closeModal}
           title={t('nav.purpose')}
           position="bottom-left"
+          statusLabel={statusLabel}
           icon={
             <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <circle cx="12" cy="12" r="8" strokeWidth={2} />
@@ -227,13 +272,14 @@ export default function Home() {
           onClose={closeModal}
           title={t('nav.connection')}
           position="bottom-right"
+          statusLabel={statusLabel}
           icon={
             <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
             </svg>
           }
         >
-          <ConnectionContent />
+          <ConnectionContent profile={profile} />
         </Modal>
       )}
 

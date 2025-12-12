@@ -1,12 +1,38 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { trackOutboundLink } from '@/lib/analytics';
+import type { Profile } from '@/lib/types';
 
-export default function IdentityContent() {
+export type AvailabilityStatus = 'available' | 'busy' | 'unavailable';
+
+interface IdentityContentProps {
+  profile: Profile | null;
+  availabilityStatus: AvailabilityStatus;
+}
+
+export default function IdentityContent({ profile, availabilityStatus }: IdentityContentProps) {
   const { t } = useLanguage();
+  const availabilityCopy = useMemo(() => {
+    const map: Record<AvailabilityStatus, { text: string; color: string }> = {
+      available: {
+        text: t('identity.available') || 'Let\'s build something great.',
+        color: '#00F7C0',
+      },
+      busy: {
+        text: t('identity.busy') || 'Currently focused on active collaborations.',
+        color: '#FACC15',
+      },
+      unavailable: {
+        text: t('identity.unavailable') || 'Temporarily not taking new projects.',
+        color: '#FE4C4C',
+      },
+    };
+    return map[availabilityStatus];
+  }, [availabilityStatus, t]);
   
   // Portfolio card
   const isDev = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
@@ -55,8 +81,18 @@ export default function IdentityContent() {
         className="flex items-center text-fluid-xs"
         style={{ gap: fluidSizing.space.sm }}
       >
-        <div className="bg-[#ff0000] rounded-full animate-pulse" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
-        <span className="text-white/60">{t('identity.available')}</span>
+        <motion.div
+          className="rounded-full"
+          style={{
+            width: fluidSizing.space.sm,
+            height: fluidSizing.space.sm,
+            backgroundColor: availabilityCopy.color,
+            boxShadow: `0 0 12px ${availabilityCopy.color}`,
+          }}
+          animate={{ opacity: [0.9, 0.4, 0.9], scale: [1, 1.3, 1] }}
+          transition={{ duration: 2.2, repeat: Infinity }}
+        />
+        <span className="text-white/60">{availabilityCopy.text}</span>
       </motion.div>
 
       {/* Portfolio Card */}

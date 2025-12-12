@@ -13,6 +13,7 @@ interface ModalProps {
   icon?: ReactNode;
   children: ReactNode;
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  statusLabel?: string;
 }
 
 export default function Modal({ 
@@ -21,7 +22,8 @@ export default function Modal({
   title, 
   icon,
   children,
-  position = 'top-left'
+  position = 'top-left',
+  statusLabel = 'Online',
 }: ModalProps) {
 
   const log = useLogger('Modal');
@@ -242,7 +244,7 @@ export default function Modal({
                           }}
                         />
                         <span className="font-mono text-white/60 tracking-widest uppercase text-fluid-xs">
-                          Online
+                          {statusLabel}
                         </span>
                       </div>
                     </div>

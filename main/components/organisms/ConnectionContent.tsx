@@ -3,8 +3,10 @@
 import { motion } from 'framer-motion';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { api } from '@/lib/api-client';
-import type { ContactMessage, ContactSubmissionPayload } from '@/lib/types';
+import type { ContactMessage, ContactSubmissionPayload, Profile } from '@/lib/types';
 import { fluidSizing } from '@/lib/fluidSizing';
+import Input from '@/components/atoms/Input';
+import Textarea from '@/components/atoms/Textarea';
 import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
@@ -13,7 +15,11 @@ import { useLogger } from '@/shared/hooks/useLogger';
 import { trackContactSubmit, trackOutboundLink } from '@/lib/analytics';
 
 
-export default function ConnectionContent() {
+interface ConnectionContentProps {
+  profile: Profile | null;
+}
+
+export default function ConnectionContent({ profile }: ConnectionContentProps) {
   const log = useLogger('ConnectionContent');
   const [formData, setFormData] = useState<ContactMessage>({
     name: '',
@@ -190,18 +196,22 @@ export default function ConnectionContent() {
     }
   };
 
-  const connections = [
-    {
-      platform: t('connection.emailLabel'),
-      handle: t('connection.emailHandle'),
-      description: t('connection.emailDesc'),
-      icon: (
-        <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      )
-    }
-  ];
+  const email = profile?.email || null;
+  const connections = email
+    ? [
+        {
+          platform: t('connection.emailLabel'),
+          handle: email,
+          description: t('connection.emailDesc'),
+          href: `mailto:${email}`,
+          icon: (
+            <svg className="size-icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          )
+        }
+      ]
+    : [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
@@ -231,32 +241,29 @@ export default function ConnectionContent() {
         
         {/* Form */}
         <form ref={formRef} onSubmit={handleConsoleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }} noValidate>
-          <div className="grid grid-cols-2" style={{ gap: fluidSizing.space.sm }}>
-            <input
+          <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: fluidSizing.space.sm }}>
+            <Input
               type="text"
+              label={t('contact.name')}
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder={t('connection.namePlaceholder')}
-              className="bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 placeholder:text-xs text-fluid-xs"
-              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: 16 }}
             />
-            <input
-              type="text"
+            <Input
+              type="email"
+              label={t('contact.email')}
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
               placeholder={t('connection.emailPlaceholder')}
-              className="bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 placeholder:text-xs text-fluid-xs"
-              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: 16 }}
             />
           </div>
           
-          <textarea
+          <Textarea
+            label={t('contact.message')}
             value={formData.message}
             onChange={(e) => handleInputChange('message', e.target.value)}
             placeholder={t('connection.messagePlaceholder')}
             rows={3}
-            className="w-full bg-black/40 border border-white/20 rounded text-white font-mono outline-none focus:border-white/40 placeholder:text-white/30 placeholder:text-xs resize-none text-fluid-xs"
-            style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: 16 }}
           />
 
           <button
@@ -296,10 +303,10 @@ export default function ConnectionContent() {
         {connections.map((connection, index) => (
           <a
             key={index}
-            href="mailto:sergio.jauregui@sergioja.com"
+            href={connection.href}
             className="group flex items-center rounded-lg border border-white/10 hover:border-white/30 hover:bg-white/5 transition-all duration-300"
             style={{ gap: fluidSizing.space.md, padding: fluidSizing.space.md }}
-            onClick={() => trackOutboundLink('mailto:sergio.jauregui@sergioja.com', 'Email')}
+            onClick={() => trackOutboundLink(connection.href, 'Email')}
           >
             <div className="rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors text-white" style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}>
               {connection.icon}
