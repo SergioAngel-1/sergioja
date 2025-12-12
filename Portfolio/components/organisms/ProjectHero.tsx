@@ -27,7 +27,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
       className="relative group w-full h-full flex"
     >
       {/* Featured Badge */}
-      {project.featured && (
+      {project.isFeatured && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}

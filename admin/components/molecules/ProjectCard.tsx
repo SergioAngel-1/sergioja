@@ -13,7 +13,8 @@ interface ProjectCardProps {
   longDescriptionEn?: string | null;
   category?: string;
   image?: string | null;
-  featured: boolean;
+  isFeatured: boolean;
+  status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
   demoUrl?: string | null;
   repoUrl?: string | null;
   publishedAt?: Date | null;
@@ -29,7 +30,8 @@ export default function ProjectCard({
   longDescriptionEn,
   category,
   image,
-  featured,
+  isFeatured,
+  status,
   demoUrl,
   repoUrl,
   publishedAt,
@@ -96,7 +98,7 @@ export default function ProjectCard({
               <h3 className="font-orbitron font-bold text-admin-primary group-hover:text-glow-subtle transition-all duration-300 truncate" style={{ fontSize: fluidSizing.text.base }}>
                 {title}
               </h3>
-              {featured && (
+              {isFeatured && (
                 <span className="bg-admin-primary text-admin-dark rounded-full font-bold flex items-center flex-shrink-0" style={{ padding: `2px ${fluidSizing.space.xs}`, gap: '4px', fontSize: '10px' }}>
                   <Icon name="zap" size={10} />
                   DESTACADO
@@ -185,7 +187,7 @@ export default function ProjectCard({
 
               {/* Status */}
               <div className="flex items-center text-text-muted" style={{ gap: fluidSizing.space.xs, fontSize: fluidSizing.text.xs }}>
-                {publishedAt ? (
+                {status === 'PUBLISHED' && publishedAt ? (
                   <>
                     <Icon name="zap" size={12} />
                     <span className="whitespace-nowrap">
@@ -195,6 +197,8 @@ export default function ProjectCard({
                       })}
                     </span>
                   </>
+                ) : status === 'IN_PROGRESS' ? (
+                  <span className="text-admin-primary whitespace-nowrap">En proceso</span>
                 ) : (
                   <span className="text-admin-warning whitespace-nowrap">Borrador</span>
                 )}

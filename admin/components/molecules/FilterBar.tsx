@@ -30,6 +30,7 @@ export default function FilterBar({
   const statusOptions = [
     { value: 'all', label: 'Todos' },
     { value: 'published', label: 'Publicados' },
+    { value: 'in_progress', label: 'En proceso' },
     { value: 'draft', label: 'Borradores' },
     { value: 'featured', label: 'Destacados' },
   ];

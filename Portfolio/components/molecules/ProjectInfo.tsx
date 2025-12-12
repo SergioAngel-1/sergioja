@@ -24,7 +24,12 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
     },
     {
       label: t('projects.status'),
-      value: project.publishedAt ? t('projects.completed') : t('projects.planned'),
+      value:
+        project.status === 'PUBLISHED'
+          ? t('projects.completed')
+          : project.status === 'IN_PROGRESS'
+            ? t('projects.inProgress')
+            : t('projects.planned'),
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -34,7 +39,7 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
   ];
 
   // Agregar fecha de publicación si existe
-  if (project.publishedAt) {
+  if (project.status === 'PUBLISHED' && project.publishedAt) {
     infoItems.push({
       label: t('projects.date'),
       value: new Date(project.publishedAt).getFullYear().toString(),

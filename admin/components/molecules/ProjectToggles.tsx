@@ -1,36 +1,57 @@
 'use client';
 
 import { fluidSizing } from '@/lib/fluidSizing';
-import Checkbox from '../atoms/Checkbox';
-import { logger } from '@/lib/logger';
+import Select from './Select';
 
 interface ProjectTogglesProps {
-  featured: boolean;
-  publishedAt: string | null;
-  onFeaturedChange: (featured: boolean) => void;
-  onPublishedChange: () => void;
+  isFeatured: boolean;
+  isCodePublic: boolean;
+  status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
+  onIsFeaturedChange: (isFeatured: boolean) => void;
+  onIsCodePublicChange: (isPublic: boolean) => void;
+  onStatusChange: (status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED') => void;
 }
 
 export default function ProjectToggles({
-  featured,
-  publishedAt,
-  onFeaturedChange,
-  onPublishedChange,
+  isFeatured,
+  isCodePublic,
+  status,
+  onIsFeaturedChange,
+  onIsCodePublicChange,
+  onStatusChange,
 }: ProjectTogglesProps) {
-  const isPublished = !!publishedAt && (typeof publishedAt === 'string' ? publishedAt.trim() !== '' : true);
+  const yesNoOptions = [
+    { value: 'no', label: 'No' },
+    { value: 'yes', label: 'Sí' },
+  ];
+
+  const statusOptions = [
+    { value: 'DRAFT', label: 'Borrador' },
+    { value: 'IN_PROGRESS', label: 'En proceso' },
+    { value: 'PUBLISHED', label: 'Publicado' },
+  ];
 
   return (
-    <div className="flex" style={{ gap: fluidSizing.space.lg }}>
-      <Checkbox
-        checked={featured}
-        onChange={(e) => onFeaturedChange(e.target.checked)}
+    <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: fluidSizing.space.lg, alignItems: 'end' }}>
+      <Select
+        value={!isCodePublic ? 'yes' : 'no'}
+        onChange={(value) => onIsCodePublicChange(value === 'no')}
+        options={yesNoOptions}
+        label="Repositorio Privado"
+      />
+
+      <Select
+        value={isFeatured ? 'yes' : 'no'}
+        onChange={(value) => onIsFeaturedChange(value === 'yes')}
+        options={yesNoOptions}
         label="Destacado"
       />
 
-      <Checkbox
-        checked={isPublished}
-        onChange={() => onPublishedChange()}
-        label="Publicado"
+      <Select
+        value={status}
+        onChange={(value) => onStatusChange(value as ProjectTogglesProps['status'])}
+        options={statusOptions}
+        label="Estado"
       />
     </div>
   );

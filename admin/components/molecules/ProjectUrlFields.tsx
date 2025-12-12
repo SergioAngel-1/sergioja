@@ -1,7 +1,6 @@
 'use client';
 
 import { fluidSizing } from '@/lib/fluidSizing';
-import Checkbox from '../atoms/Checkbox';
 import UrlInput from './UrlInput';
 
 interface ProjectUrlFieldsProps {
@@ -10,7 +9,6 @@ interface ProjectUrlFieldsProps {
   isCodePublic: boolean;
   onRepositoryUrlChange: (url: string) => void;
   onLiveUrlChange: (url: string) => void;
-  onIsCodePublicChange: (isPublic: boolean) => void;
 }
 
 export default function ProjectUrlFields({
@@ -19,27 +17,9 @@ export default function ProjectUrlFields({
   isCodePublic,
   onRepositoryUrlChange,
   onLiveUrlChange,
-  onIsCodePublicChange,
 }: ProjectUrlFieldsProps) {
-  const handlePrivateRepoToggle = (checked: boolean) => {
-    // checked = true significa "Repositorio Privado" marcado, entonces isCodePublic = false
-    onIsCodePublicChange(!checked);
-    if (checked) {
-      // Si es privado, limpiar la URL del repositorio
-      onRepositoryUrlChange('');
-    }
-  };
-
   return (
     <>
-      <div>
-        <Checkbox
-          checked={!isCodePublic}
-          onChange={(e) => handlePrivateRepoToggle(e.target.checked)}
-          label="Repositorio Privado"
-        />
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: fluidSizing.space.lg }}>
         {isCodePublic && (
           <div>

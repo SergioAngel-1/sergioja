@@ -10,6 +10,12 @@ datasource db {
   directUrl = env("DATABASE_URL")
 }
 
+enum ProjectStatus {
+  DRAFT
+  IN_PROGRESS
+  PUBLISHED
+}
+
 // Profile Information
 model Profile {
   id           String   @id @default(cuid())
@@ -39,7 +45,8 @@ model Project {
   longDescriptionEn String?  @db.Text
   images          String[]  @default([]) // Múltiples imágenes del proyecto
   categories      String[]  @default([]) // web, mobile, ai, backend, fullstack - múltiples categorías
-  featured        Boolean   @default(false)
+  status          ProjectStatus @default(DRAFT)
+  isFeatured      Boolean   @default(false)
   demoUrl         String?
   repoUrl         String?
   githubUrl       String?   // Alias for repoUrl
@@ -55,7 +62,8 @@ model Project {
   technologies ProjectTechnology[]
   views        ProjectView[]
 
-  @@index([featured]) // Index for featured projects
+  @@index([status])
+  @@index([isFeatured])
   @@index([publishedAt(sort: Desc)]) // For sorting by date
   @@index([slug])
   @@map("projects")

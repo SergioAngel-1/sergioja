@@ -98,7 +98,9 @@ router.get('/:id/projects', async (req: Request, res: Response) => {
       });
     }
 
-    const projects: Project[] = technology.projects.map((pt: any) => ({
+    const projects: Project[] = technology.projects
+      .filter((pt: any) => pt.project?.status !== 'DRAFT')
+      .map((pt: any) => ({
       id: pt.project.id,
       slug: pt.project.slug,
       title: pt.project.title,
@@ -106,7 +108,8 @@ router.get('/:id/projects', async (req: Request, res: Response) => {
       longDescriptionEn: pt.project.longDescriptionEn ?? null,
       image: (pt.project.images && pt.project.images.length > 0) ? pt.project.images[0] : undefined,
       categories: pt.project.categories || [],
-      featured: pt.project.featured,
+      status: pt.project.status,
+      isFeatured: pt.project.isFeatured,
       demoUrl: pt.project.demoUrl || undefined,
       repoUrl: pt.project.repoUrl || undefined,
       githubUrl: pt.project.githubUrl || pt.project.repoUrl || undefined,

@@ -13,7 +13,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limitNum = parseInt(limit as string, 10);
 
     // Build where clause - Solo proyectos publicados
-    const where: any = { publishedAt: { not: null } };
+    const where: any = { status: { in: ['PUBLISHED', 'IN_PROGRESS'] } };
     
     if (category && typeof category === 'string') {
       where.categories = {
@@ -22,7 +22,7 @@ router.get('/', async (req: Request, res: Response) => {
     }
     
     if (featured === 'true') {
-      where.featured = true;
+      where.isFeatured = true;
     }
     
     if (tech && typeof tech === 'string') {
@@ -69,7 +69,7 @@ router.get('/', async (req: Request, res: Response) => {
           },
         },
       },
-      orderBy: { publishedAt: 'desc' },
+      orderBy: [{ publishedAt: 'desc' }, { updatedAt: 'desc' }],
       skip: (pageNum - 1) * limitNum,
       take: limitNum,
     });
@@ -83,7 +83,8 @@ router.get('/', async (req: Request, res: Response) => {
       longDescriptionEn: p.longDescriptionEn ?? null,
       images: p.images || [],
       categories: p.categories || [],
-      featured: p.featured,
+      status: p.status,
+      isFeatured: p.isFeatured,
       demoUrl: p.demoUrl || undefined,
       repoUrl: p.repoUrl || undefined,
       githubUrl: p.githubUrl || p.repoUrl || undefined,
@@ -150,7 +151,7 @@ router.get('/:slug', async (req: Request, res: Response) => {
       },
     });
 
-    if (!project) {
+    if (!project || project.status === 'DRAFT') {
       return res.status(404).json({
         success: false,
         error: {
@@ -170,7 +171,8 @@ router.get('/:slug', async (req: Request, res: Response) => {
       longDescriptionEn: project.longDescriptionEn ?? null,
       images: project.images || [],
       categories: project.categories || [],
-      featured: project.featured,
+      status: project.status,
+      isFeatured: project.isFeatured,
       demoUrl: project.demoUrl || undefined,
       repoUrl: project.repoUrl || undefined,
       githubUrl: project.githubUrl || project.repoUrl || undefined,

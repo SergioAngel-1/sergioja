@@ -20,7 +20,8 @@ interface ProjectFormData {
   category: string;
   categories?: string[];
   technologies: string[];
-  featured: boolean;
+  isFeatured: boolean;
+  status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
   publishedAt: string | null;
   repositoryUrl?: string;
   liveUrl?: string;
@@ -54,11 +55,17 @@ export default function ProjectFormModal({
   existingSkills = [],
 }: ProjectFormModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Cargar categorías usando hook personalizado
-  const { categories: backendCategories, isLoading: loadingProjectCats } = useCategories('project', isOpen);
-  const { categories: techCategories, isLoading: loadingTechCats } = useCategories('technology', isOpen);
-  
+  const { categories: backendCategories, isLoading: loadingProjectCats } = useCategories(
+    'project',
+    isOpen
+  );
+  const { categories: techCategories, isLoading: loadingTechCats } = useCategories(
+    'technology',
+    isOpen
+  );
+
   // Manejar lógica del formulario con hook personalizado
   const {
     formData,
@@ -67,7 +74,7 @@ export default function ProjectFormModal({
     updateFormData,
     handleTechnologiesChange,
     handleCategoriesChange,
-    handlePublishToggle,
+    handleStatusChange,
     getSubmitData,
     isValid,
   } = useProjectForm({ project, backendCategories, isOpen });
@@ -78,12 +85,12 @@ export default function ProjectFormModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isValid()) {
       alerts.error('Error', 'Debes seleccionar al menos una categoría');
       return;
     }
-    
+
     setIsSubmitting(true);
     try {
       const dataToSave = getSubmitData();
@@ -130,13 +137,7 @@ export default function ProjectFormModal({
               Eliminar
             </Button>
           )}
-          <Button
-            type="button"
-            onClick={onClose}
-            variant="secondary"
-            size="md"
-            fullWidth
-          >
+          <Button type="button" onClick={onClose} variant="secondary" size="md" fullWidth>
             Cancelar
           </Button>
           <Button
@@ -154,7 +155,14 @@ export default function ProjectFormModal({
       }
     >
       <form id="project-form" onSubmit={handleSubmit}>
-        <div style={{ padding: fluidSizing.space.lg, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
+        <div
+          style={{
+            padding: fluidSizing.space.lg,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: fluidSizing.space.lg,
+          }}
+        >
           {/* Basic Fields */}
           <ProjectBasicFields
             title={formData.title}
@@ -189,6 +197,21 @@ export default function ProjectFormModal({
             onChange={handleTechnologiesChange}
           />
 
+          {/* Toggles */}
+          <ProjectToggles
+            isFeatured={formData.isFeatured}
+            isCodePublic={formData.isCodePublic ?? true}
+            status={formData.status}
+            onIsFeaturedChange={(isFeatured) => updateFormData({ isFeatured })}
+            onIsCodePublicChange={(isPublic) => {
+              updateFormData({
+                isCodePublic: isPublic,
+                ...(isPublic ? {} : { repositoryUrl: '' }),
+              });
+            }}
+            onStatusChange={handleStatusChange}
+          />
+
           {/* URL Fields */}
           <ProjectUrlFields
             repositoryUrl={formData.repositoryUrl || ''}
@@ -196,7 +219,6 @@ export default function ProjectFormModal({
             isCodePublic={formData.isCodePublic ?? true}
             onRepositoryUrlChange={(url) => updateFormData({ repositoryUrl: url })}
             onLiveUrlChange={(url) => updateFormData({ liveUrl: url })}
-            onIsCodePublicChange={(isPublic) => updateFormData({ isCodePublic: isPublic })}
           />
 
           {/* Scores */}
@@ -205,16 +227,10 @@ export default function ProjectFormModal({
             accessibilityScore={formData.accessibilityScore}
             seoScore={formData.seoScore}
             onPerformanceScoreChange={(performanceScore) => updateFormData({ performanceScore })}
-            onAccessibilityScoreChange={(accessibilityScore) => updateFormData({ accessibilityScore })}
+            onAccessibilityScoreChange={(accessibilityScore) =>
+              updateFormData({ accessibilityScore })
+            }
             onSeoScoreChange={(seoScore) => updateFormData({ seoScore })}
-          />
-
-          {/* Toggles */}
-          <ProjectToggles
-            featured={formData.featured}
-            publishedAt={formData.publishedAt}
-            onFeaturedChange={(featured) => updateFormData({ featured })}
-            onPublishedChange={handlePublishToggle}
           />
         </div>
       </form>

@@ -42,6 +42,8 @@ export interface Profile {
   updatedAt: string;
 }
 
+export type ProjectStatus = 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
+
 export interface Project {
   // Campos del schema de Prisma
   id: string;
@@ -52,7 +54,8 @@ export interface Project {
   image?: string; // Primera imagen (para compatibilidad - calculada desde images[0])
   images?: string[]; // Array de imágenes del proyecto (campo real en DB)
   categories: string[]; // Array de categorías (web, mobile, ai, backend, fullstack)
-  featured: boolean;
+  status: ProjectStatus;
+  isFeatured: boolean;
   demoUrl?: string;
   repoUrl?: string;
   githubUrl?: string; // Alias for repoUrl

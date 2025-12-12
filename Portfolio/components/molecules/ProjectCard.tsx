@@ -60,7 +60,7 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
         <div className="relative h-full bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg overflow-hidden transition-all duration-300 flex flex-col">
 
           {/* Featured badge */}
-          {project.featured && (
+          {project.isFeatured && (
             <motion.div
               className="absolute z-50 bg-white/10 backdrop-blur-sm text-white text-[8px] sm:text-[10px] font-orbitron font-bold rounded border border-white/50 flex items-center"
               style={{ top: fluidSizing.space.sm, right: fluidSizing.space.sm, padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`, gap: fluidSizing.space.xs }}

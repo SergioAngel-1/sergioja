@@ -21,7 +21,8 @@ interface ProjectFormData {
   category: string;
   categories?: string[];
   technologies: string[];
-  featured: boolean;
+  isFeatured: boolean;
+  status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
   publishedAt: string | null;
   repositoryUrl?: string;
   liveUrl?: string;
@@ -50,7 +51,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     category: 'web',
     categories: [],
     technologies: [],
-    featured: false,
+    isFeatured: false,
+    status: 'DRAFT',
     publishedAt: null,
     repositoryUrl: '',
     liveUrl: '',
@@ -130,7 +132,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         technologies: project.technologies?.map((t: any) => 
           typeof t === 'string' ? t : t.name
         ) || [],
-        featured: project.featured || false,
+        isFeatured: project.isFeatured || false,
+        status: project.status || (project.publishedAt ? 'PUBLISHED' : 'DRAFT'),
         repositoryUrl: project.repoUrl || project.repositoryUrl || '',
         liveUrl: project.demoUrl || project.liveUrl || '',
         images: Array.isArray(project.images) ? project.images : [],
@@ -149,7 +152,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         category: 'web',
         categories: [],
         technologies: [],
-        featured: false,
+        isFeatured: false,
+        status: 'DRAFT',
         publishedAt: null,
         repositoryUrl: '',
         liveUrl: '',
@@ -183,12 +187,18 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     }));
   };
 
-  const handlePublishToggle = () => {
-    const newValue = formData.publishedAt ? null : new Date().toISOString();
-    setFormData(prev => ({
-      ...prev,
-      publishedAt: newValue,
-    }));
+  const handleStatusChange = (status: ProjectFormData['status']) => {
+    setFormData((prev) => {
+      const nextPublishedAt = status === 'PUBLISHED'
+        ? (prev.publishedAt || new Date().toISOString())
+        : null;
+
+      return {
+        ...prev,
+        status,
+        publishedAt: nextPublishedAt,
+      };
+    });
   };
 
   const normalizeLongDescription = (value: string) => {
@@ -209,6 +219,10 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
 
 
   const getSubmitData = useCallback(() => {
+    const resolvedPublishedAt = formData.status === 'PUBLISHED'
+      ? (formData.publishedAt || new Date().toISOString())
+      : null;
+
     return {
       id: formData.id,
       title: formData.title,
@@ -218,8 +232,9 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       categories: formData.categories || [],
       technologies: formData.technologies,
       technologiesData: projectTechnologies,
-      featured: formData.featured,
-      publishedAt: formData.publishedAt,
+      status: formData.status,
+      isFeatured: formData.isFeatured,
+      publishedAt: resolvedPublishedAt,
       repositoryUrl: formData.repositoryUrl,
       repoUrl: formData.repositoryUrl,
       liveUrl: formData.liveUrl,
@@ -243,7 +258,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     updateFormData,
     handleTechnologiesChange,
     handleCategoriesChange,
-    handlePublishToggle,
+    handleStatusChange,
     getSubmitData,
     isValid,
   };

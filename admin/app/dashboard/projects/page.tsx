@@ -121,11 +121,13 @@ function ProjectsPageContent() {
 
     // Filter by status
     if (selectedStatus === 'published') {
-      filtered = filtered.filter((p) => p.publishedAt !== null);
+      filtered = filtered.filter((p) => p.status === 'PUBLISHED');
+    } else if (selectedStatus === 'in_progress') {
+      filtered = filtered.filter((p) => p.status === 'IN_PROGRESS');
     } else if (selectedStatus === 'draft') {
-      filtered = filtered.filter((p) => p.publishedAt === null);
+      filtered = filtered.filter((p) => p.status === 'DRAFT');
     } else if (selectedStatus === 'featured') {
-      filtered = filtered.filter((p) => p.featured);
+      filtered = filtered.filter((p) => p.isFeatured);
     }
 
     // Filter by search query
@@ -281,7 +283,7 @@ function ProjectsPageContent() {
         </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
+        <div className="grid grid-cols-2 sm:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
           <StatCard
             title="Total"
             value={projects.length}
@@ -290,21 +292,28 @@ function ProjectsPageContent() {
           />
           <StatCard
             title="Publicados"
-            value={projects.filter((p) => p.publishedAt).length}
+            value={projects.filter((p) => p.status === 'PUBLISHED').length}
             color="green-400"
             variant="simple"
             delay={0.25}
           />
           <StatCard
+            title="En proceso"
+            value={projects.filter((p) => p.status === 'IN_PROGRESS').length}
+            color="blue-400"
+            variant="simple"
+            delay={0.28}
+          />
+          <StatCard
             title="Borradores"
-            value={projects.filter((p) => !p.publishedAt).length}
+            value={projects.filter((p) => p.status === 'DRAFT').length}
             color="yellow-400"
             variant="simple"
             delay={0.3}
           />
           <StatCard
             title="Destacados"
-            value={projects.filter((p) => p.featured).length}
+            value={projects.filter((p) => p.isFeatured).length}
             color="red-400"
             variant="simple"
             delay={0.35}
@@ -358,7 +367,8 @@ function ProjectsPageContent() {
                 longDescriptionEn={project.longDescriptionEn}
                 category={project.categories[0] || 'web'}
                 image={project.images && project.images.length > 0 ? project.images[0] : undefined}
-                featured={project.featured}
+                isFeatured={project.isFeatured}
+                status={project.status}
                 demoUrl={project.demoUrl}
                 repoUrl={project.repoUrl}
                 publishedAt={project.publishedAt && project.publishedAt.trim() !== '' ? new Date(project.publishedAt) : null}

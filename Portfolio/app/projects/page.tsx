@@ -47,7 +47,7 @@ export default function WorkPage() {
     const allCategories = projects.flatMap(p => p.categories || []);
     return {
       total: projects.length,
-      featured: projects.filter(p => p.featured).length,
+      featured: projects.filter(p => p.isFeatured).length,
       categories: new Set(allCategories).size,
     };
   }, [projects]);

@@ -33,7 +33,7 @@ export default function ProjectActions({ project }: ProjectActionsProps) {
         {project.demoUrl && (
           <Link href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="w-full">
             <Button variant="outline" size="lg" className="w-full border-white text-white hover:bg-white hover:text-black">
-              {project.publishedAt ? t('projects.viewPage') : t('projects.viewDemo')}
+              {project.status === 'PUBLISHED' ? t('projects.viewPage') : t('projects.viewDemo')}
             </Button>
           </Link>
         )}

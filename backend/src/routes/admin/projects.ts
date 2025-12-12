@@ -5,6 +5,11 @@ import { authMiddleware } from '../../middleware/auth';
 
 const router = Router();
 
+const projectStatusValues = ['DRAFT', 'IN_PROGRESS', 'PUBLISHED'] as const;
+type ProjectStatus = typeof projectStatusValues[number];
+const isProjectStatus = (value: unknown): value is ProjectStatus =>
+  typeof value === 'string' && (projectStatusValues as readonly string[]).includes(value);
+
 // Todas las rutas requieren autenticación
 router.use(authMiddleware);
 
@@ -23,7 +28,7 @@ router.get('/', async (req: Request, res: Response) => {
     }
     
     if (featured === 'true') {
-      where.featured = true;
+      where.isFeatured = true;
     }
 
     // Get total count
@@ -53,7 +58,8 @@ router.get('/', async (req: Request, res: Response) => {
       longDescriptionEn: p.longDescriptionEn ?? null,
       images: p.images || [],
       categories: p.categories || [],
-      featured: p.featured,
+      status: p.status,
+      isFeatured: p.isFeatured,
       demoUrl: p.demoUrl,
       repoUrl: p.repoUrl,
       githubUrl: p.githubUrl || p.repoUrl,
@@ -94,7 +100,27 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { title, longDescription, longDescriptionEs, longDescriptionEn, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
+    const {
+      title,
+      longDescription,
+      longDescriptionEs,
+      longDescriptionEn,
+      category,
+      categories,
+      technologies,
+      technologiesData,
+      featured,
+      isFeatured,
+      status,
+      repoUrl,
+      demoUrl,
+      images,
+      isCodePublic,
+      publishedAt,
+      performanceScore,
+      accessibilityScore,
+      seoScore,
+    } = req.body;
 
     // Validaciones básicas
     if (!title) {
@@ -148,6 +174,14 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     // Crear proyecto
+    const resolvedStatus: ProjectStatus = isProjectStatus(status)
+      ? status
+      : (publishedAt ? 'PUBLISHED' : 'DRAFT');
+
+    const resolvedPublishedAt = resolvedStatus === 'PUBLISHED'
+      ? (publishedAt ? new Date(publishedAt) : new Date())
+      : null;
+
     const project = await prisma.project.create({
       data: {
         title,
@@ -155,12 +189,13 @@ router.post('/', async (req: Request, res: Response) => {
         longDescriptionEs: resolvedLongDescriptionEs,
         longDescriptionEn: resolvedLongDescriptionEn,
         categories: projectCategories,
-        featured: featured || false,
+        status: resolvedStatus,
+        isFeatured: (isFeatured !== undefined ? isFeatured : featured) || false,
         repoUrl: repoUrl || null,
         demoUrl: demoUrl || null,
         images: Array.isArray(images) ? images : [],
         isCodePublic: isCodePublic !== undefined ? isCodePublic : true,
-        publishedAt: publishedAt ? new Date(publishedAt) : null,
+        publishedAt: resolvedPublishedAt,
         performanceScore: performanceScore ?? null,
         accessibilityScore: accessibilityScore ?? null,
         seoScore: seoScore ?? null,
@@ -295,7 +330,27 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, longDescription, longDescriptionEs, longDescriptionEn, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
+    const {
+      title,
+      longDescription,
+      longDescriptionEs,
+      longDescriptionEn,
+      category,
+      categories,
+      technologies,
+      technologiesData,
+      featured,
+      isFeatured,
+      status,
+      repoUrl,
+      demoUrl,
+      images,
+      isCodePublic,
+      publishedAt,
+      performanceScore,
+      accessibilityScore,
+      seoScore,
+    } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -321,6 +376,16 @@ router.put('/:slug', async (req: Request, res: Response) => {
     }
 
     // Actualizar proyecto
+    const resolvedStatus: ProjectStatus = isProjectStatus(status)
+      ? status
+      : (publishedAt ? 'PUBLISHED' : existingProject.status);
+
+    const resolvedPublishedAt = resolvedStatus === 'PUBLISHED'
+      ? (publishedAt !== undefined
+          ? (publishedAt ? new Date(publishedAt) : new Date())
+          : (existingProject.publishedAt || new Date()))
+      : null;
+
     const project = await prisma.project.update({
       where: { slug },
       data: {
@@ -334,12 +399,13 @@ router.put('/:slug', async (req: Request, res: Response) => {
         longDescriptionEn:
           longDescriptionEn !== undefined ? longDescriptionEn : existingProject.longDescriptionEn,
         categories: projectCategories !== undefined ? projectCategories : existingProject.categories,
-        featured: featured !== undefined ? featured : existingProject.featured,
+        status: resolvedStatus,
+        isFeatured: isFeatured !== undefined ? isFeatured : (featured !== undefined ? featured : existingProject.isFeatured),
         repoUrl: repoUrl !== undefined ? repoUrl : existingProject.repoUrl,
         demoUrl: demoUrl !== undefined ? demoUrl : existingProject.demoUrl,
         images: images !== undefined ? (Array.isArray(images) ? images : []) : existingProject.images,
         isCodePublic: isCodePublic !== undefined ? isCodePublic : existingProject.isCodePublic,
-        publishedAt: publishedAt !== undefined ? (publishedAt ? new Date(publishedAt) : null) : existingProject.publishedAt,
+        publishedAt: resolvedPublishedAt,
         performanceScore: performanceScore !== undefined ? performanceScore : existingProject.performanceScore,
         accessibilityScore: accessibilityScore !== undefined ? accessibilityScore : existingProject.accessibilityScore,
         seoScore: seoScore !== undefined ? seoScore : existingProject.seoScore,
