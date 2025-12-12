@@ -41,6 +41,11 @@ export interface BaseTranslations {
   'identity.paragraph1': string;
   'identity.paragraph2': string;
   'identity.available': string;
+  'identity.busy': string;
+  'identity.unavailable': string;
+  'identity.statusAvailableTag': string;
+  'identity.statusBusyTag': string;
+  'identity.statusUnavailableTag': string;
   'purpose.title': string;
   'purpose.paragraph1': string;
   'purpose.paragraph2': string;
@@ -224,6 +229,11 @@ export const translations: Record<Language, Translations> = {
     'identity.paragraph1': 'Como explorador en la intersección de tecnología e innovación, valoro la simplicidad en medio de la complejidad, priorizando soluciones intuitivas que respeten al usuario y generen resultados.',
     'identity.paragraph2': 'Mi esencia se define por una curiosidad incesante que me impulsa a desafiar límites. Siempre guiado por el deseo de inspirar a otros a materializar conceptos audaces que transformen sus necesidades.',
     'identity.available': 'Hagamos algo grande.',
+    'identity.busy': 'Estoy enfocado en colaboraciones activas. Escríbeme y agendamos la siguiente.',
+    'identity.unavailable': 'Agenda cerrada momentáneamente. Déjame un mensaje y te responderé apenas abra espacio.',
+    'identity.statusAvailableTag': 'Online',
+    'identity.statusBusyTag': 'En foco',
+    'identity.statusUnavailableTag': 'Standby',
     
     'purpose.title': 'Impulsar un futuro donde la tecnología eleve la humanidad.',
     'purpose.paragraph1': 'Creo en la tecnología como catalizador para ideas que generen impacto positivo a escala global. Mi enfoque radica en fusionar innovación técnica con diseño empático, creando soluciones que resuelvan problemas complejos de manera sostenible y accesible.',
@@ -403,6 +413,11 @@ export const translations: Record<Language, Translations> = {
     'identity.paragraph1': 'As an explorer at the intersection of technology and innovation, I value simplicity amid complexity, prioritizing intuitive solutions that respect the user and drive results.',
     'identity.paragraph2': 'My essence is defined by relentless curiosity that pushes me to challenge limits. Always guided by the desire to inspire others to bring bold concepts to life that transform their needs into reality.',
     'identity.available': 'Let\'s build something great.',
+    'identity.busy': 'Currently focused on active collaborations. Drop me a note and we\'ll sync soon.',
+    'identity.unavailable': 'Temporarily not taking new projects. Leave a message and I\'ll respond once bandwidth opens.',
+    'identity.statusAvailableTag': 'Online',
+    'identity.statusBusyTag': 'In Focus',
+    'identity.statusUnavailableTag': 'Standby',
     
     'purpose.title': 'Driving a future where technology elevates humanity.',
     'purpose.paragraph1': 'I believe in technology as a catalyst for ideas that create positive, global-scale impact. My focus is on blending technical innovation with empathetic design to build solutions that solve complex problems sustainably and accessibly.',

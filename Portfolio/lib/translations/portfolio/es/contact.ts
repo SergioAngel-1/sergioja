@@ -22,4 +22,8 @@ export const contactEs = {
   'contact.connect': 'CONECTA CONMIGO',
   'contact.available': 'ABIERTO A COLABORACIONES TECNOLÓGICAS',
   'contact.availableMsg': 'Mi visión de la web es estratégica y colaborativa. Si compartes mi enfoque en el diseño disruptivo, la innovación técnica y la creación de soluciones de impacto real, conectemos.',
+  'contact.busy': 'ENFOCADO EN COLABORACIONES ACTIVAS',
+  'contact.busyMsg': 'Actualmente estoy dedicado a alianzas en curso, pero me encantaría explorar nuevos desafíos apenas libere agenda.',
+  'contact.unavailable': 'SIN DISPONIBILIDAD TEMPORALMENTE',
+  'contact.unavailableMsg': 'Por ahora no estoy tomando nuevos proyectos. Déjame un mensaje y te escribiré cuando abra nuevamente mi agenda.',
 } as const;

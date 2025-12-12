@@ -195,6 +195,10 @@ export interface PortfolioTranslations {
   'contact.connect': string;
   'contact.available': string;
   'contact.availableMsg': string;
+  'contact.busy': string;
+  'contact.busyMsg': string;
+  'contact.unavailable': string;
+  'contact.unavailableMsg': string;
   
   // Not Found 404
   'notfound.title': string;

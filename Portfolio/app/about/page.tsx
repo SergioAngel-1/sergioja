@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSkills } from '@/lib/hooks/useSkills';
 import { useLogger } from '@/shared/hooks/useLogger';
@@ -18,15 +18,34 @@ import ExperienceCarousel from '@/components/molecules/ExperienceCarousel';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { trackDownload } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+import type { Profile } from '@/shared/types';
 
 export default function AboutPage() {
   const { skills, loading, error } = useSkills();
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>('all');
+  const [profile, setProfile] = useState<Profile | null>(null);
   const log = useLogger('AboutPage');
   const { t } = useLanguage();
   
   // Track scroll depth and time on page
   usePageAnalytics();
+
+  // Fetch profile data for CV download
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/portfolio/profile`);
+        const data = await response.json();
+        if (data.success && data.data) {
+          setProfile(data.data);
+        }
+      } catch (error) {
+        log.error('Error fetching profile', error);
+      }
+    };
+    fetchProfile();
+  }, [log]);
 
   // Memoizar agrupación de skills por categoría (solo recalcula cuando skills cambia)
   const skillsByCategory = useMemo(() => 
@@ -191,19 +210,31 @@ export default function AboutPage() {
                     variant="outline" 
                     size="lg" 
                     className="bg-white text-black border-white hover:bg-transparent hover:text-white"
-                    onClick={() => {
-                      // Track descarga en GA4
-                      trackDownload('HV Sergio Jáuregui.pdf', 'pdf');
+                    onClick={async () => {
+                      const cvFileName = profile?.cvFileName || 'CV.pdf';
                       
-                      // Descargar archivo directamente
-                      const link = document.createElement('a');
-                      link.href = '/docs/HV%20Sergio%20J%C3%A1uregui.pdf';
-                      link.download = 'HV Sergio Jáuregui.pdf';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      
-                      log.interaction('download_cv', 'cv_button');
+                      try {
+                        const response = await fetch('/api/portfolio/cv');
+                        
+                        if (!response.ok) {
+                          throw new Error('CV not available');
+                        }
+                        
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = cvFileName;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                        
+                        trackDownload(cvFileName, 'pdf');
+                        log.interaction('download_cv', 'cv_button');
+                      } catch (error) {
+                        log.error('Error downloading CV', error);
+                      }
                     }}
                   >
                     {t('about.downloadCV')}

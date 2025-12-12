@@ -22,4 +22,8 @@ export const contactEn = {
   'contact.connect': 'CONNECT WITH ME',
   'contact.available': 'OPEN TO TECH COLLABORATIONS',
   'contact.availableMsg': 'I seek to participate in projects where engineering and strategy combine to generate real impact.',
+  'contact.busy': 'FOCUSED ON ACTIVE COLLABORATIONS',
+  'contact.busyMsg': 'I\'m currently dedicated to ongoing partnerships, but I\'d love to explore what we could build together once I wrap them up.',
+  'contact.unavailable': 'NOT TAKING NEW PROJECTS',
+  'contact.unavailableMsg': 'I\'m temporarily unavailable for new engagements. Leave me a message and I\'ll reach out as soon as new availability opens up.',
 } as const;

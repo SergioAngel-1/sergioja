@@ -32,9 +32,12 @@ export interface Profile {
   availability: string; // available, busy, unavailable
   location: string;
   email: string;
+  phone?: string | null;
   githubUrl?: string | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
+  cvFileName: string | null;
+  cvMimeType?: string | null;
   createdAt: string;
   updatedAt: string;
 }
