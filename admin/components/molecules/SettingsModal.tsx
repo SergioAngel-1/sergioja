@@ -480,7 +480,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                               type="button"
                               onClick={async () => {
                                 try {
-                                  const response = await fetch('/api/portfolio/cv');
+                                  const fileName = profileData.cvFileName || 'CV.pdf';
+                                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                                  const response = await fetch(`${apiUrl}/api/admin/cv/${encodeURIComponent(fileName)}`, {
+                                    credentials: 'include',
+                                  });
                                   if (!response.ok) {
                                     throw new Error('CV not found');
                                   }
@@ -488,7 +492,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                   const url = window.URL.createObjectURL(blob);
                                   const link = document.createElement('a');
                                   link.href = url;
-                                  link.download = profileData.cvFileName || 'CV.pdf';
+                                  link.download = fileName;
                                   document.body.appendChild(link);
                                   link.click();
                                   document.body.removeChild(link);

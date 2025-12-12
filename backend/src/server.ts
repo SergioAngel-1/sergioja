@@ -17,6 +17,7 @@ import dashboardRoutes from './routes/admin/dashboard';
 import messagesRoutes from './routes/admin/messages';
 import categoriesRoutes from './routes/admin/categories';
 import adminProjectsRoutes from './routes/admin/projects';
+import adminCvRoutes from './routes/admin/cv';
 
 // Routes - Portfolio
 import profileRoutes from './routes/portfolio/profile';
@@ -157,6 +158,7 @@ app.use('/api/admin/newsletter', newsletterRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/admin/projects', adminProjectsRoutes);
 app.use('/api/admin/categories', categoriesRoutes);
+app.use('/api/admin/cv', adminCvRoutes);
 // Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
 app.use('/api/portfolio/cv', cvRoutes);

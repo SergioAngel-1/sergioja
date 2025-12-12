@@ -11,11 +11,11 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { trackOutboundLink } from '@/lib/analytics';
 import type { Profile } from '@/shared/types';
+import useProfile from '@/lib/hooks/useProfile';
 
 export default function Navbar() {
   const [time, setTime] = useState<Date | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const pathname = usePathname();
   const log = useLogger('Navbar');
   const controls = useAnimation();
@@ -47,23 +47,6 @@ export default function Navbar() {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  // Fetch profile data
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/portfolio/profile`);
-        const data = await response.json();
-        if (data.success && data.data) {
-          setProfile(data.data);
-        }
-      } catch (error) {
-        log.error('Error fetching profile', error);
-      }
-    };
-    fetchProfile();
-  }, [log]);
 
   // Measure mobile nav height (excluding safe-area padding) and expose as CSS var
   useEffect(() => {
@@ -113,6 +96,8 @@ export default function Navbar() {
       window.removeEventListener('orientationchange', updateGap);
     };
   }, []);
+
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
 
   return (
     <>

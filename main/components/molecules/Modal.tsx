@@ -77,30 +77,32 @@ export default function Modal({
   // Determinar posición del modal según el hexágono
   const getModalPositionStyles = () => {
     const baseOffset = fluidSizing.space.lg;
-    const modalOffset = 'clamp(1rem, 10vw, 10rem)';
     const hexButtonSize = fluidSizing.size.hexButton;
     const gap = fluidSizing.space.md;
     const extraSafe = fluidSizing.space.sm;
+
+    const desktopLeft = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-left))`;
+    const desktopRight = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-right))`;
 
     switch (position) {
       case 'top-left':
         return isMobile
           ? { top: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + ${extraSafe} + env(safe-area-inset-top))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
-          : { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
+          : { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: desktopLeft };
       case 'top-right':
         return isMobile
           ? { top: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + ${extraSafe} + env(safe-area-inset-top))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
-          : { top: `calc(${baseOffset} + env(safe-area-inset-top))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
+          : { top: `calc(${baseOffset} + env(safe-area-inset-top))`, right: desktopRight };
       case 'bottom-left':
         return isMobile
           ? { bottom: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + ${extraSafe} + env(safe-area-inset-bottom))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
-          : { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
+          : { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, left: desktopLeft };
       case 'bottom-right':
         return isMobile
           ? { bottom: `calc(${baseOffset} + ${hexButtonSize} + ${gap} + ${extraSafe} + env(safe-area-inset-bottom))`, left: 0, right: 0, marginLeft: 'auto', marginRight: 'auto' }
-          : { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, right: `calc(${modalOffset} + env(safe-area-inset-right))` };
+          : { bottom: `calc(${baseOffset} + env(safe-area-inset-bottom))`, right: desktopRight };
       default:
-        return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: `calc(${modalOffset} + env(safe-area-inset-left))` };
+        return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: desktopLeft };
     }
   };
 

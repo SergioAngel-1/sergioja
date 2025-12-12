@@ -1,14 +1,14 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../../lib/prisma';
 import { logger } from '../../lib/logger';
+import { authMiddleware, adminRoleMiddleware } from '../../middleware/auth';
 
 const router = Router();
 
-// GET /api/portfolio/cv - Download CV file
 const serveCv = async (_req: Request, res: Response) => {
   try {
     const profile = await prisma.profile.findFirst();
-    
+
     if (!profile || !profile.cvData) {
       return res.status(404).json({
         success: false,
@@ -26,10 +26,10 @@ const serveCv = async (_req: Request, res: Response) => {
     res.setHeader('Content-Type', mimeType);
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
     res.setHeader('Content-Length', buffer.length);
-    
+
     res.send(buffer);
   } catch (error) {
-    logger.error('Error serving CV', error);
+    logger.error('Error serving CV (admin)', error);
     res.status(500).json({
       success: false,
       error: {
@@ -40,7 +40,7 @@ const serveCv = async (_req: Request, res: Response) => {
   }
 };
 
-router.get('/', serveCv);
-router.get('/:fileName', serveCv);
+router.get('/', authMiddleware, adminRoleMiddleware, serveCv);
+router.get('/:fileName', authMiddleware, adminRoleMiddleware, serveCv);
 
 export default router;

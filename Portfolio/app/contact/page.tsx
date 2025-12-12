@@ -12,7 +12,7 @@ import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
 import { api } from '@/lib/api-client';
 import type { Profile } from '@/shared/types';
-
+import useProfile from '@/lib/hooks/useProfile';
 // Lazy load DevTipsModal (only needed when user clicks newsletter)
 const DevTipsModal = dynamic(() => import('@/components/molecules/DevTipsModal'), {
   ssr: false,
@@ -37,31 +37,16 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const [profile, setProfile] = useState<Profile | null>(null);
   const log = useLogger('ContactPage');
   const { t, language } = useLanguage();
   const formRef = useRef<HTMLFormElement>(null);
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
   
+  // Usar hook de perfil
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
+  
   // Track scroll depth and time on page
   usePageAnalytics();
-
-  // Fetch profile data
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/portfolio/profile`);
-        const data = await response.json();
-        if (data.success && data.data) {
-          setProfile(data.data);
-        }
-      } catch (error) {
-        log.error('Error fetching profile', error);
-      }
-    };
-    fetchProfile();
-  }, [log]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
@@ -69,7 +54,6 @@ export default function ContactPage() {
       loadRecaptchaEnterprise(key).catch(() => {});
     }
   }, []);
-
 
   const handleNewsletterSubmit = async (email: string) => {
     // Suscripción al newsletter con reCAPTCHA Enterprise (solo en producción)
