@@ -48,7 +48,8 @@ export interface Project {
   slug: string;
   title: string;
   description: string;
-  longDescription?: string;
+  longDescriptionEs?: string | null;
+  longDescriptionEn?: string | null;
   image?: string; // Primera imagen (para compatibilidad - calculada desde images[0])
   images?: string[]; // Array de imágenes del proyecto (campo real en DB)
   categories: string[]; // Array de categorías (web, mobile, ai, backend, fullstack)

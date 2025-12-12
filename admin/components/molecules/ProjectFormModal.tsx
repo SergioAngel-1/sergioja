@@ -160,10 +160,12 @@ export default function ProjectFormModal({
           <ProjectBasicFields
             title={formData.title}
             description={formData.description}
-            longDescription={formData.longDescription}
+            longDescriptionEs={formData.longDescriptionEs}
+            longDescriptionEn={formData.longDescriptionEn}
             onTitleChange={(title) => updateFormData({ title })}
             onDescriptionChange={(description) => updateFormData({ description })}
-            onLongDescriptionChange={(longDescription) => updateFormData({ longDescription })}
+            onLongDescriptionEsChange={(longDescriptionEs) => updateFormData({ longDescriptionEs })}
+            onLongDescriptionEnChange={(longDescriptionEn) => updateFormData({ longDescriptionEn })}
           />
 
           {/* Multi Image Upload */}

@@ -17,7 +17,8 @@ interface ProjectFormData {
   id?: string;
   title: string;
   description: string;
-  longDescription: string;
+  longDescriptionEs: string;
+  longDescriptionEn: string;
   category: string;
   categories?: string[];
   technologies: string[];
@@ -46,7 +47,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
     description: '',
-    longDescription: '',
+    longDescriptionEs: '',
+    longDescriptionEn: '',
     category: 'web',
     categories: [],
     technologies: [],
@@ -124,7 +126,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         id: project.id,
         title: project.title || '',
         description: project.description || '',
-        longDescription: project.longDescription || '',
+        longDescriptionEs: project.longDescriptionEs || project.longDescription || '',
+        longDescriptionEn: project.longDescriptionEn || '',
         category: projectCategories[0] || 'web',
         categories: projectCategories,
         technologies: project.technologies?.map((t: any) => 
@@ -145,7 +148,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       setFormData({
         title: '',
         description: '',
-        longDescription: '',
+        longDescriptionEs: '',
+        longDescriptionEn: '',
         category: 'web',
         categories: [],
         technologies: [],
@@ -197,7 +201,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       id: formData.id,
       title: formData.title,
       description: formData.description,
-      longDescription: formData.longDescription,
+      longDescriptionEs: formData.longDescriptionEs,
+      longDescriptionEn: formData.longDescriptionEn,
       category: formData.category,
       categories: formData.categories || [],
       technologies: formData.technologies,

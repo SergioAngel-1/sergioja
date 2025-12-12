@@ -36,7 +36,8 @@ model Project {
   slug            String    @unique
   title           String
   description     String
-  longDescription String    @db.Text
+  longDescriptionEs String?  @db.Text
+  longDescriptionEn String?  @db.Text
   images          String[]  @default([]) // Múltiples imágenes del proyecto
   categories      String[]  @default([]) // web, mobile, ai, backend, fullstack - múltiples categorías
   featured        Boolean   @default(false)

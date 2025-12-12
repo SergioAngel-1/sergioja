@@ -12,7 +12,12 @@ interface ProjectHeroProps {
 }
 
 export default function ProjectHero({ project }: ProjectHeroProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  const localizedLongDescription =
+    language === 'en'
+      ? project.longDescriptionEn || project.longDescriptionEs || project.description
+      : project.longDescriptionEs || project.longDescriptionEn || project.description;
   
   return (
     <motion.div
@@ -75,7 +80,7 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
           style={{ maxHeight: '200px', marginBottom: fluidSizing.space.md }}
         >
           <p className="text-text-secondary leading-relaxed" style={{ fontSize: fluidSizing.text.base }}>
-            {project.longDescription || project.description}
+            {localizedLongDescription}
           </p>
         </motion.div>
 

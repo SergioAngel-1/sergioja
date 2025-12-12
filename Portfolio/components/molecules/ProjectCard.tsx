@@ -20,10 +20,15 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { lowPerformanceMode } = usePerformance();
   const pathname = usePathname();
   const [imageError, setImageError] = useState(false);
+
+  const localizedDescription =
+    language === 'en'
+      ? project.longDescriptionEn || project.longDescriptionEs || project.description
+      : project.longDescriptionEs || project.longDescriptionEn || project.description;
 
   const handleClick = () => {
     const targetPath = `/projects/${project.slug}`;
@@ -98,7 +103,7 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
             
             {/* Description */}
             <p className="text-text-secondary text-xs sm:text-sm leading-relaxed flex-1 line-clamp-2" style={{ marginBottom: fluidSizing.space.sm }}>
-              {project.description}
+              {localizedDescription}
             </p>
 
             {/* Tech stack */}

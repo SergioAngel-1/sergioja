@@ -50,7 +50,8 @@ router.get('/', async (req: Request, res: Response) => {
       slug: p.slug,
       title: p.title,
       description: p.description,
-      longDescription: p.longDescription,
+      longDescriptionEs: p.longDescriptionEs ?? null,
+      longDescriptionEn: p.longDescriptionEn ?? null,
       images: p.images || [],
       categories: p.categories || [],
       featured: p.featured,
@@ -94,7 +95,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/admin/projects - Crear nuevo proyecto
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { title, description, longDescription, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
+    const { title, description, longDescription, longDescriptionEs, longDescriptionEn, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
 
     // Validaciones básicas
     if (!title || !description) {
@@ -140,7 +141,8 @@ router.post('/', async (req: Request, res: Response) => {
         title,
         slug,
         description,
-        longDescription: longDescription || description,
+        longDescriptionEs: (longDescriptionEs ?? longDescription) || description,
+        longDescriptionEn: longDescriptionEn ?? null,
         categories: projectCategories,
         featured: featured || false,
         repoUrl: repoUrl || null,
@@ -282,7 +284,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const { title, description, longDescription, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
+    const { title, description, longDescription, longDescriptionEs, longDescriptionEn, category, categories, technologies, technologiesData, featured, repoUrl, demoUrl, images, isCodePublic, publishedAt, performanceScore, accessibilityScore, seoScore } = req.body;
 
     // Verificar que el proyecto existe
     const existingProject = await prisma.project.findUnique({
@@ -313,7 +315,14 @@ router.put('/:slug', async (req: Request, res: Response) => {
       data: {
         title: title || existingProject.title,
         description: description || existingProject.description,
-        longDescription: longDescription !== undefined ? longDescription : existingProject.longDescription,
+        longDescriptionEs:
+          longDescriptionEs !== undefined
+            ? longDescriptionEs
+            : longDescription !== undefined
+              ? longDescription
+              : existingProject.longDescriptionEs,
+        longDescriptionEn:
+          longDescriptionEn !== undefined ? longDescriptionEn : existingProject.longDescriptionEn,
         categories: projectCategories !== undefined ? projectCategories : existingProject.categories,
         featured: featured !== undefined ? featured : existingProject.featured,
         repoUrl: repoUrl !== undefined ? repoUrl : existingProject.repoUrl,

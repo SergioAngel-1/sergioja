@@ -28,7 +28,7 @@ export default function ProjectDetailPage() {
   const { project, loading, error } = useProject(slug);
   const { projects } = useProjects({ limit: 4 });
   const log = useLogger('ProjectDetailPage');
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { lowPerformanceMode } = usePerformance();
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'demo' | 'image'>('demo');
@@ -67,6 +67,11 @@ export default function ProjectDetailPage() {
   if (error || !project) {
     notFound();
   }
+
+  const localizedLongDescription =
+    language === 'en'
+      ? project.longDescriptionEn || project.longDescriptionEs || project.description
+      : project.longDescriptionEs || project.longDescriptionEn || project.description;
 
   return (
     <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
@@ -169,6 +174,12 @@ export default function ProjectDetailPage() {
                     setSelectedImageIndex(null);
                   }}
                 />
+              </div>
+
+              <div style={{ marginTop: fluidSizing.space.lg }}>
+                <p className="text-text-secondary leading-relaxed" style={{ fontSize: fluidSizing.text.base }}>
+                  {localizedLongDescription}
+                </p>
               </div>
             </motion.div>
           </div>
