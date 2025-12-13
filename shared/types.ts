@@ -74,6 +74,8 @@ export interface Project {
     category: string;
     proficiency: number;
     yearsOfExperience: number;
+    icon?: string | null;
+    color?: string;
   }[];
 }
 

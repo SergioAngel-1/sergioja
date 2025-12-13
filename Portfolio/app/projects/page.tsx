@@ -83,6 +83,16 @@ export default function WorkPage() {
     return projects.slice(startIndex, startIndex + projectsPerPage);
   }, [projects, currentPage, projectsPerPage]);
 
+  useEffect(() => {
+    if (projects.length === 0) {
+      if (currentPage !== 1) setCurrentPage(1);
+      return;
+    }
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [projects.length, totalPages, currentPage]);
+
   if (!mounted) {
     return null;
   }

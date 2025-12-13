@@ -120,6 +120,14 @@ router.get('/:id/projects', async (req: Request, res: Response) => {
       publishedAt: pt.project.publishedAt ? pt.project.publishedAt.toISOString() : null,
       createdAt: pt.project.createdAt.toISOString(),
       updatedAt: pt.project.updatedAt.toISOString(),
+      technologies: pt.project.technologies?.map((ptech: any) => ({
+        name: ptech.technology?.name,
+        category: ptech.category,
+        proficiency: ptech.proficiency,
+        yearsOfExperience: ptech.yearsOfExperience,
+        icon: ptech.technology?.icon ?? undefined,
+        color: ptech.technology?.color ?? undefined,
+      })).filter((t: any) => !!t.name) || [],
     }));
 
     const response: ApiResponse<Project[]> = {

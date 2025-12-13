@@ -8,14 +8,18 @@ interface CacheEntry<T> {
   expiresAt: number;
 }
 
+const CACHE_STORAGE_VERSION = 2;
+
 class CacheManager {
   private cache: Map<string, CacheEntry<any>>;
+  private inFlight: Map<string, Promise<any>>;
   private defaultTTL: number; // Time To Live en milisegundos
-  private storageKey = 'portfolio_cache';
+  private storageKey = `portfolio_cache_v${CACHE_STORAGE_VERSION}`;
   private isHydrated = false;
 
   constructor(defaultTTL: number = 5 * 60 * 1000) { // 5 minutos por defecto
     this.cache = new Map();
+    this.inFlight = new Map();
     this.defaultTTL = defaultTTL;
     this.hydrate();
   }
@@ -44,6 +48,13 @@ class CacheManager {
     } catch (error) {
       // Si hay error al parsear, limpiar localStorage
       localStorage.removeItem(this.storageKey);
+    }
+
+    // Limpiar caché legacy si existe (cambios de esquema/keys anteriores)
+    try {
+      localStorage.removeItem('portfolio_cache');
+    } catch {
+      // ignore
     }
   }
 
@@ -100,6 +111,7 @@ class CacheManager {
     // Verificar si el caché ha expirado
     if (Date.now() > entry.expiresAt) {
       this.cache.delete(key);
+      this.persist();
       return null;
     }
 
@@ -181,13 +193,26 @@ class CacheManager {
       return cached;
     }
 
+    // Deduplicar requests concurrentes por key
+    const existingInFlight = this.inFlight.get(key) as Promise<T> | undefined;
+    if (existingInFlight) {
+      return existingInFlight;
+    }
+
     // Si no está en caché, hacer la petición
-    const data = await fetcher();
-    
-    // Guardar en caché
-    this.set(key, data, ttl);
-    
-    return data;
+    const inFlightPromise = (async () => {
+      const data = await fetcher();
+      this.set(key, data, ttl);
+      return data;
+    })();
+
+    this.inFlight.set(key, inFlightPromise);
+
+    try {
+      return await inFlightPromise;
+    } finally {
+      this.inFlight.delete(key);
+    }
   }
 }
 

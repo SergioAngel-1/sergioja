@@ -128,14 +128,28 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
                 >
                   {/* Mobile: Solo icono sin badge */}
                   <div className="sm:hidden text-white/80">
-                    <TechIcon tech={tech.name} className="w-4 h-4" />
+                    {tech.icon ? (
+                      <span
+                        className="inline-flex w-4 h-4 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
+                        dangerouslySetInnerHTML={{ __html: tech.icon }}
+                      />
+                    ) : (
+                      <TechIcon tech={tech.name} className="w-4 h-4" />
+                    )}
                   </div>
                   
                   {/* Desktop: Badge con icono + nombre */}
                   <div className="hidden sm:block">
                     <Badge variant="blue">
                       <span className="flex items-center gap-1">
-                        <TechIcon tech={tech.name} className="w-3.5 h-3.5" />
+                        {tech.icon ? (
+                          <span
+                            className="inline-flex w-3.5 h-3.5 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
+                            dangerouslySetInnerHTML={{ __html: tech.icon }}
+                          />
+                        ) : (
+                          <TechIcon tech={tech.name} className="w-3.5 h-3.5" />
+                        )}
                         <span>{tech.name}</span>
                       </span>
                     </Badge>

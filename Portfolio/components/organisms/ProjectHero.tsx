@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import Badge from '../atoms/Badge';
-import { TechIcon } from '@/lib/utils/techIcons';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import type { Project } from '@/shared/types';
@@ -84,33 +83,6 @@ export default function ProjectHero({ project }: ProjectHeroProps) {
               {localizedLongDescription}
             </p>
           )}
-        </motion.div>
-
-        {/* Tech Stack */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="flex flex-wrap"
-          style={{ gap: fluidSizing.space.sm }}
-        >
-          {project.technologies?.map((tech, index) => (
-            <motion.div
-              key={tech.name}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.7 + index * 0.05 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Badge variant="blue">
-                <span className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
-                  <TechIcon tech={tech.name} className="w-4 h-4" />
-                  <span>{tech.name}</span>
-                </span>
-              </Badge>
-            </motion.div>
-          ))}
         </motion.div>
 
         {/* Glow Effect */}

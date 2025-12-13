@@ -1,8 +1,10 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { TechIcon } from '@/lib/utils/techIcons';
 import type { Project } from '@/shared/types';
 
 interface ProjectInfoProps {
@@ -12,7 +14,7 @@ interface ProjectInfoProps {
 export default function ProjectInfo({ project }: ProjectInfoProps) {
   const { t } = useLanguage();
   
-  const infoItems = [
+  const infoItems: { label: string; value: ReactNode; icon: ReactNode }[] = [
     {
       label: t('projects.category'),
       value: project.categories?.join(', ').toUpperCase() || 'N/A',
@@ -38,14 +40,48 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
     },
   ];
 
-  // Agregar fecha de publicación si existe
-  if (project.status === 'PUBLISHED' && project.publishedAt) {
+  if (project.technologies?.length) {
+    const maxVisibleTechIcons = 9;
+    const visibleTechs = project.technologies.slice(0, maxVisibleTechIcons);
+    const extraTechCount = Math.max(0, project.technologies.length - maxVisibleTechIcons);
+
     infoItems.push({
-      label: t('projects.date'),
-      value: new Date(project.publishedAt).getFullYear().toString(),
+      label: 'TECH',
+      value: (
+        <div className="flex items-center justify-end flex-wrap" style={{ gap: fluidSizing.space.xs }}>
+          {visibleTechs.map((tech) => (
+            <span key={tech.name} className="relative text-white/80">
+              <span className="peer inline-flex">
+                {tech.icon ? (
+                  <span
+                    className="inline-flex w-4 h-4 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
+                    dangerouslySetInnerHTML={{ __html: tech.icon }}
+                  />
+                ) : (
+                  <TechIcon tech={tech.name} className="w-4 h-4" />
+                )}
+              </span>
+              <span className="hidden sm:block absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-black/90 text-white text-xs whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">
+                {tech.name}
+              </span>
+            </span>
+          ))}
+          {extraTechCount > 0 && (
+            <span className="relative text-white/80">
+              <span className="peer inline-flex items-center justify-center w-4 h-4 rounded-full border border-white/30 text-[10px] font-mono">
+                +
+              </span>
+              <span className="hidden sm:block absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-black/90 text-white text-xs whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">
+                +{extraTechCount}
+              </span>
+            </span>
+          )}
+        </div>
+      ),
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-1.042-2.495l1.35-2.025a2 2 0 00-.245-2.552l-1.414-1.414a2 2 0 00-2.552-.245l-2.025 1.35a6 6 0 00-2.495-1.042l-.477-2.387A2 2 0 006.572 3H5a2 2 0 00-2 2v1.572a2 2 0 001.547 1.956l2.387.477a6 6 0 001.042 2.495l-1.35 2.025a2 2 0 00.245 2.552l1.414 1.414a2 2 0 002.552.245l2.025-1.35a6 6 0 002.495 1.042l.477 2.387A2 2 0 0017.428 21H19a2 2 0 002-2v-1.572a2 2 0 00-1.572-1.956z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15a3 3 0 110-6 3 3 0 010 6z" />
         </svg>
       )
     });

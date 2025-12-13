@@ -31,7 +31,8 @@ export function useSkills(categoryOrOptions?: string | UseSkillsOptions) {
 
   // Generar clave de caché única
   const cacheKey = useMemo(() => {
-    return `skills:${category || 'all'}`;
+    const cacheVersion = 2;
+    return `skills:v${cacheVersion}:${category || 'all'}`;
   }, [category]);
 
   useEffect(() => {

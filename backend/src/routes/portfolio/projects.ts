@@ -95,6 +95,14 @@ router.get('/', async (req: Request, res: Response) => {
       publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
       createdAt: p.createdAt.toISOString(),
       updatedAt: p.updatedAt.toISOString(),
+      technologies: p.technologies?.map((pt: any) => ({
+        name: pt.technology?.name,
+        category: pt.category,
+        proficiency: pt.proficiency,
+        yearsOfExperience: pt.yearsOfExperience,
+        icon: pt.technology?.icon ?? undefined,
+        color: pt.technology?.color ?? undefined,
+      })).filter((t: any) => !!t.name) || [],
     }));
 
     const response: ApiResponse<PaginatedResponse<Project>> = {
@@ -183,6 +191,14 @@ router.get('/:slug', async (req: Request, res: Response) => {
       publishedAt: project.publishedAt ? project.publishedAt.toISOString() : null,
       createdAt: project.createdAt.toISOString(),
       updatedAt: project.updatedAt.toISOString(),
+      technologies: project.technologies?.map((pt: any) => ({
+        name: pt.technology?.name,
+        category: pt.category,
+        proficiency: pt.proficiency,
+        yearsOfExperience: pt.yearsOfExperience,
+        icon: pt.technology?.icon ?? undefined,
+        color: pt.technology?.color ?? undefined,
+      })).filter((t: any) => !!t.name) || [],
     };
 
     const response: ApiResponse<Project> = {

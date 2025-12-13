@@ -23,7 +23,7 @@ export function useProjectCategories(options?: UseProjectCategoriesOptions) {
   const [error, setError] = useState<string | null>(null);
 
   const shouldUseCache = options?.useCache !== false;
-  const cacheKey = 'project_categories';
+  const cacheKey = 'project_categories:v2';
 
   useEffect(() => {
     const fetchCategories = async () => {

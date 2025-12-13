@@ -33,6 +33,7 @@ export function useProjects(options?: UseProjectsOptions) {
 
   // Generar clave de caché única basada en las opciones
   const cacheKey = useMemo(() => {
+    const cacheVersion = 2;
     const params = {
       tech: stableOptions?.tech,
       category: stableOptions?.category,
@@ -40,7 +41,7 @@ export function useProjects(options?: UseProjectsOptions) {
       page: stableOptions?.page,
       limit: stableOptions?.limit,
     };
-    return `projects:${JSON.stringify(params)}`;
+    return `projects:v${cacheVersion}:${JSON.stringify(params)}`;
   }, [stableOptions?.tech, stableOptions?.category, stableOptions?.featured, stableOptions?.page, stableOptions?.limit]);
 
   useEffect(() => {
