@@ -85,15 +85,6 @@ const corsOptions: CorsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Accept-Language', 'Origin'],
   optionsSuccessStatus: 200,
 };
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const xfh = req.headers['x-forwarded-host'];
-  const host = (Array.isArray(xfh) ? xfh[0] : xfh) || req.headers.host || '';
-  if (typeof host === 'string' && host.startsWith('www.')) {
-    const destHost = host.replace(/^www\./, '');
-    return res.redirect(301, `https://${destHost}${req.url}`);
-  }
-  next();
-});
 app.use(helmet());
 app.use(compression());
 app.use(cors(corsOptions));
