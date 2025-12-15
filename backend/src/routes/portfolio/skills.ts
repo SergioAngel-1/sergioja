@@ -19,8 +19,14 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     where,
     include: {
       projects: {
-        include: {
-          project: true,
+        select: {
+          project: {
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+            },
+          },
         },
       },
     },
