@@ -209,6 +209,7 @@ model RefreshToken {
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
+  @@index([expiresAt, revokedAt])
   @@map("refresh_tokens")
 }
 
