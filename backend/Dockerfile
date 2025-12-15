@@ -49,7 +49,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/src ./src
-COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/package*.json ./
 
 # Crear directorio para logs
@@ -74,8 +73,16 @@ npx prisma -v
 echo "DATABASE_URL: $(printenv DATABASE_URL | sed -e 's#://[^:]*:[^@]*@#://****@#')"
 echo "Validating schema..."
 npx prisma validate
-echo "Applying schema (db push)..."
-npx prisma db push
+
+# Check migration status before deploying
+echo "Checking migration status..."
+if npx prisma migrate status 2>&1 | grep -q "Database schema is up to date"; then
+  echo "No pending migrations, skipping deploy."
+else
+  echo "Pending migrations detected, deploying..."
+  npx prisma migrate deploy
+fi
+
 exec npm start
 SH
 
