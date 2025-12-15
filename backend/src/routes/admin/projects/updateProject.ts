@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
+import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
 // PUT /api/admin/projects/:slug - Actualizar proyecto
-export const updateProject = async (req: Request, res: Response) => {
-  try {
+export const updateProject = asyncHandler(async (req: Request, res: Response) => {
     const { slug } = req.params;
     const {
       title,
@@ -265,22 +265,10 @@ export const updateProject = async (req: Request, res: Response) => {
       })) || [],
     };
 
-    logger.info('Project updated', { id: project.id, slug: project.slug });
+  logger.info('Project updated', { id: project.id, slug });
 
-    res.json({
-      success: true,
-      data: transformedProject,
-    });
-  } catch (error) {
-    logger.error('Error updating project', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Error al actualizar proyecto',
-        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
-        stack: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined,
-      },
-    });
-  }
-};
+  res.json({
+    success: true,
+    data: transformedProject,
+  });
+});

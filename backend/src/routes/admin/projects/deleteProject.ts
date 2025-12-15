@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
+import { asyncHandler } from '../../../middleware/errorHandler';
 
 // DELETE /api/admin/projects/:slug - Eliminar proyecto
-export const deleteProject = async (req: Request, res: Response) => {
-  try {
+export const deleteProject = asyncHandler(async (req: Request, res: Response) => {
     const { slug } = req.params;
 
     // Verificar que el proyecto existe
@@ -32,22 +32,10 @@ export const deleteProject = async (req: Request, res: Response) => {
       where: { slug },
     });
 
-    logger.info('Project deleted', { slug });
+  logger.info('Project deleted', { slug });
 
-    res.json({
-      success: true,
-      data: { slug },
-    });
-  } catch (error) {
-    logger.error('Error deleting project', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Error al eliminar proyecto',
-        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
-        stack: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined,
-      },
-    });
-  }
-};
+  res.json({
+    success: true,
+    data: { slug },
+  });
+});

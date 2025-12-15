@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
+import { asyncHandler } from '../../../middleware/errorHandler';
 
 // GET /api/admin/projects - Obtener todos los proyectos (incluyendo borradores)
-export const getAllProjects = async (req: Request, res: Response) => {
-  try {
-    const { category, featured, page = '1', limit = '100' } = req.query;
+export const getAllProjects = asyncHandler(async (req: Request, res: Response) => {
+  const { category, featured, page = '1', limit = '100' } = req.query;
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
 
@@ -94,20 +94,10 @@ export const getAllProjects = async (req: Request, res: Response) => {
       })),
     }));
 
-    logger.info('Admin projects retrieved', { count: transformedProjects.length, total });
+  logger.info('Admin projects retrieved', { count: transformedProjects.length, total });
 
-    res.json({
-      success: true,
-      data: transformedProjects,
-    });
-  } catch (error) {
-    logger.error('Error fetching admin projects', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Error al obtener proyectos',
-      },
-    });
-  }
-};
+  res.json({
+    success: true,
+    data: transformedProjects,
+  });
+});

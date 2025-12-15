@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
+import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
 // POST /api/admin/projects - Crear nuevo proyecto
-export const createProject = async (req: Request, res: Response) => {
-  try {
+export const createProject = asyncHandler(async (req: Request, res: Response) => {
     const {
       title,
       longDescription,
@@ -277,22 +277,10 @@ export const createProject = async (req: Request, res: Response) => {
       })) || [],
     };
 
-    logger.info('Project created', { id: project.id, title: project.title });
+  logger.info('Project created', { id: project.id, title: project.title });
 
-    res.status(201).json({
-      success: true,
-      data: transformedProject,
-    });
-  } catch (error) {
-    logger.error('Error creating project', error);
-    res.status(500).json({
-      success: false,
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Error al crear proyecto',
-        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
-        stack: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined,
-      },
-    });
-  }
-};
+  res.status(201).json({
+    success: true,
+    data: transformedProject,
+  });
+});

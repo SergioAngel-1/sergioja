@@ -69,9 +69,8 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // GET /api/skills/:id/projects - Get projects related to a skill
-router.get('/:id/projects', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
+router.get('/:id/projects', asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
     
     const technology = await prisma.technology.findUnique({
       where: { id },
@@ -120,7 +119,7 @@ router.get('/:id/projects', async (req: Request, res: Response) => {
           },
         },
       },
-    });
+  });
 
   if (!technology) {
     return res.status(404).json({
@@ -248,7 +247,6 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
-  // Eliminar la tecnología (las relaciones ProjectTechnology se eliminan automáticamente por onDelete: Cascade)
   await prisma.technology.delete({
     where: { id },
   });

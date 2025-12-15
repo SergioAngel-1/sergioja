@@ -151,9 +151,8 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // GET /api/projects/:slug - Get project by slug
-router.get('/:slug', async (req: Request, res: Response) => {
-  try {
-    const { slug } = req.params;
+router.get('/:slug', asyncHandler(async (req: Request, res: Response) => {
+  const { slug } = req.params;
 
     const project = await prisma.project.findUnique({
       where: { slug },
