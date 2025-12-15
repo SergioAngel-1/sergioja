@@ -26,10 +26,36 @@ export const getAllProjects = async (req: Request, res: Response) => {
     // Get projects with technologies
     const projects = await prisma.project.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        longDescriptionEs: true,
+        longDescriptionEn: true,
+        images: true,
+        categories: true,
+        status: true,
+        isFeatured: true,
+        demoUrl: true,
+        repoUrl: true,
+        githubUrl: true,
+        isCodePublic: true,
+        performanceScore: true,
+        accessibilityScore: true,
+        seoScore: true,
+        publishedAt: true,
+        createdAt: true,
+        updatedAt: true,
         technologies: {
-          include: {
-            technology: true,
+          select: {
+            category: true,
+            proficiency: true,
+            yearsOfExperience: true,
+            technology: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },

@@ -62,10 +62,38 @@ router.get('/', async (req: Request, res: Response) => {
     // Get paginated projects with technologies
     const projects = await prisma.project.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        longDescriptionEs: true,
+        longDescriptionEn: true,
+        images: true,
+        categories: true,
+        status: true,
+        isFeatured: true,
+        demoUrl: true,
+        repoUrl: true,
+        githubUrl: true,
+        isCodePublic: true,
+        performanceScore: true,
+        accessibilityScore: true,
+        seoScore: true,
+        publishedAt: true,
+        createdAt: true,
+        updatedAt: true,
         technologies: {
-          include: {
-            technology: true,
+          select: {
+            category: true,
+            proficiency: true,
+            yearsOfExperience: true,
+            technology: {
+              select: {
+                name: true,
+                icon: true,
+                color: true,
+              },
+            },
           },
         },
       },
@@ -143,17 +171,45 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/projects/:slug - Get single published project by slug
+// GET /api/projects/:slug - Get project by slug
 router.get('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    
+
     const project = await prisma.project.findUnique({
       where: { slug },
-      include: {
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        longDescriptionEs: true,
+        longDescriptionEn: true,
+        images: true,
+        categories: true,
+        status: true,
+        isFeatured: true,
+        demoUrl: true,
+        repoUrl: true,
+        githubUrl: true,
+        isCodePublic: true,
+        performanceScore: true,
+        accessibilityScore: true,
+        seoScore: true,
+        publishedAt: true,
+        createdAt: true,
+        updatedAt: true,
         technologies: {
-          include: {
-            technology: true,
+          select: {
+            category: true,
+            proficiency: true,
+            yearsOfExperience: true,
+            technology: {
+              select: {
+                name: true,
+                icon: true,
+                color: true,
+              },
+            },
           },
         },
       },

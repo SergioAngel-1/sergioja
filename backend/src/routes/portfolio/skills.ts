@@ -17,10 +17,25 @@ router.get('/', async (req: Request, res: Response) => {
 
     const technologies = await prisma.technology.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        proficiency: true,
+        yearsOfExperience: true,
+        icon: true,
+        color: true,
+        createdAt: true,
+        updatedAt: true,
         projects: {
-          include: {
-            project: true,
+          select: {
+            project: {
+              select: {
+                id: true,
+                slug: true,
+                title: true,
+              },
+            },
           },
         },
       },
@@ -70,14 +85,44 @@ router.get('/:id/projects', async (req: Request, res: Response) => {
     
     const technology = await prisma.technology.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        name: true,
         projects: {
-          include: {
+          select: {
             project: {
-              include: {
+              select: {
+                id: true,
+                slug: true,
+                title: true,
+                longDescriptionEs: true,
+                longDescriptionEn: true,
+                images: true,
+                categories: true,
+                status: true,
+                isFeatured: true,
+                demoUrl: true,
+                repoUrl: true,
+                githubUrl: true,
+                isCodePublic: true,
+                performanceScore: true,
+                accessibilityScore: true,
+                seoScore: true,
+                publishedAt: true,
+                createdAt: true,
+                updatedAt: true,
                 technologies: {
-                  include: {
-                    technology: true,
+                  select: {
+                    category: true,
+                    proficiency: true,
+                    yearsOfExperience: true,
+                    technology: {
+                      select: {
+                        name: true,
+                        icon: true,
+                        color: true,
+                      },
+                    },
                   },
                 },
               },
