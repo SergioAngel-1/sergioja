@@ -36,7 +36,6 @@ async function main() {
 
   logger.info('\n✅ Seed completado exitosamente!');
   logger.info('� Base de datos lista para producción');
-  logger.info('ℹ️  Usa: node scripts/create-admin.js para crear el usuario administrador');
 }
 
 main()
