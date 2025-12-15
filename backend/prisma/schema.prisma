@@ -122,6 +122,7 @@ model ContactSubmission {
 
   @@index([status])
   @@index([createdAt])
+  @@index([status, createdAt]) // Índice compuesto para dashboard queries
   @@map("contact_submissions")
 }
 
@@ -171,6 +172,7 @@ model NewsletterSubscription {
   @@index([createdAt])
   @@index([source])
   @@index([isRead])
+  @@index([status, isRead]) // Índice compuesto para filtros admin
   @@map("newsletter_subscriptions")
 }
 
@@ -209,6 +211,7 @@ model RefreshToken {
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
+  @@index([userId, expiresAt, revokedAt]) // Índice compuesto para cleanup y validación
   @@map("refresh_tokens")
 }
 
