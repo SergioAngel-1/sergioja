@@ -55,33 +55,18 @@ logger.info(`DATABASE_URL: ${mask(process.env.DATABASE_URL)}`);
 
 // Middleware
 logger.info('Setting up middleware...');
-// Early CORS preflight handler to guarantee headers on OPTIONS
+// Early redirect www to non-www (antes de CORS)
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const origin = req.headers.origin as string | undefined;
-  if (origin) {
-    try {
-      const host = new URL(origin).hostname;
-      const allowList = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001,http://localhost:3002')
-        .split(',')
-        .map((o) => o.trim())
-        .filter(Boolean);
-      const originAllowed = allowList.includes(origin) || /(^|\.)sergioja\.com$/.test(host);
-      if (originAllowed) {
-        const acrh = (req.headers['access-control-request-headers'] as string | undefined) || 'Content-Type, Authorization, X-Requested-With, Accept, Accept-Language, Origin';
-        res.header('Access-Control-Allow-Origin', origin);
-        res.header('Vary', 'Origin');
-        res.header('Access-Control-Allow-Credentials', 'true');
-        res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', acrh);
-        if (req.method === 'OPTIONS') {
-          return res.status(204).end();
-        }
-      }
-    } catch {}
+  const xfh = req.headers['x-forwarded-host'];
+  const host = (Array.isArray(xfh) ? xfh[0] : xfh) || req.headers.host || '';
+  if (typeof host === 'string' && host.startsWith('www.')) {
+    const destHost = host.replace(/^www\./, '');
+    return res.redirect(301, `https://${destHost}${req.url}`);
   }
   next();
 });
 const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001,http://localhost:3002')
+
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
@@ -92,7 +77,7 @@ const corsOptions: CorsOptions = {
     try {
       const u = new URL(origin);
       if (/(^|\.)sergioja\.com$/.test(u.hostname)) return callback(null, true);
-    } catch {}
+    } catch { }
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -100,15 +85,6 @@ const corsOptions: CorsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Accept-Language', 'Origin'],
   optionsSuccessStatus: 200,
 };
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const xfh = req.headers['x-forwarded-host'];
-  const host = (Array.isArray(xfh) ? xfh[0] : xfh) || req.headers.host || '';
-  if (typeof host === 'string' && host.startsWith('www.')) {
-    const destHost = host.replace(/^www\./, '');
-    return res.redirect(301, `https://${destHost}${req.url}`);
-  }
-  next();
-});
 app.use(helmet());
 app.use(compression());
 app.use(cors(corsOptions));
@@ -120,15 +96,13 @@ app.use(cookieParser());
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'), // 1 minute
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000'), // Aumentado para desarrollo
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 min default
+  max: process.env.NODE_ENV === 'development'
+    ? 1000 // Permissive en dev, no disabled
+    : parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => {
-    // Skip rate limiting en desarrollo
-    return process.env.NODE_ENV === 'development';
-  },
 });
 
 app.use('/api/', limiter);
@@ -170,9 +144,11 @@ app.use('/api/portfolio/analytics', analyticsRoutes);
 app.use('/api/categories', portfolioCategoriesRoutes); // Rutas públicas de categorías
 logger.info('Routes configured successfully');
 
+// Token cleanup con intervalo configurable
+const CLEANUP_INTERVAL_MS = parseInt(process.env.TOKEN_CLEANUP_INTERVAL_MS || '3600000'); // 1 hora default
 setInterval(() => {
   cleanupExpiredTokens().catch((err: any) => logger.error('Token cleanup error', err));
-}, 21600000);
+}, CLEANUP_INTERVAL_MS);
 
 // 404 handler
 app.use(notFoundHandler);
