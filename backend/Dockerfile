@@ -37,10 +37,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl libssl3
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Verbose Prisma logs
-ENV PRISMA_LOG_LEVEL=debug \
-    PRISMA_QUERY_ENGINE_LOG_LEVEL=debug \
-    RUST_LOG=info
+# Prisma logs optimizados para producción
+ENV PRISMA_LOG_LEVEL=warn \
+    PRISMA_QUERY_ENGINE_LOG_LEVEL=warn \
+    RUST_LOG=error
 
 # (No es necesario copiar shared en runtime)
 
@@ -74,8 +74,8 @@ npx prisma -v
 echo "DATABASE_URL: $(printenv DATABASE_URL | sed -e 's#://[^:]*:[^@]*@#://****@#')"
 echo "Validating schema..."
 npx prisma validate
-echo "Applying schema (db push)..."
-npx prisma db push
+echo "Applying migrations (migrate deploy)..."
+npx prisma migrate deploy
 exec npm start
 SH
 
