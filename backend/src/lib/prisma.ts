@@ -4,16 +4,29 @@ import { PrismaClient } from '@prisma/client';
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 // Connection pool configuration for production stability
-const connectionPoolConfig = process.env.NODE_ENV === 'production'
-  ? '?connection_limit=10&pool_timeout=20'
-  : '';
+function buildDatabaseUrl(): string {
+  const baseUrl = process.env.DATABASE_URL || '';
+  
+  if (process.env.NODE_ENV !== 'production') {
+    return baseUrl;
+  }
+
+  // Parse URL to check if it already has query parameters
+  const hasQueryParams = baseUrl.includes('?');
+  const separator = hasQueryParams ? '&' : '?';
+  
+  // Add connection pool parameters
+  const poolParams = 'connection_limit=10&pool_timeout=20';
+  
+  return `${baseUrl}${separator}${poolParams}`;
+}
 
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     datasources: {
       db: {
-        url: `${process.env.DATABASE_URL}${connectionPoolConfig}`,
+        url: buildDatabaseUrl(),
       },
     },
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
