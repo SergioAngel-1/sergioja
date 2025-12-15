@@ -9,6 +9,7 @@ COPY shared /shared
 # Copiar archivos de dependencias del backend
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma/
+COPY backend/prisma.config.ts ./
 
 # Instalar dependencias del sistema necesarias para Prisma
 RUN apt-get update && apt-get install -y --no-install-recommends openssl libssl3 ca-certificates \
@@ -22,7 +23,7 @@ RUN rm -rf node_modules package-lock.json && npm install
 COPY backend/. .
 
 # Generar cliente de Prisma
-RUN npx prisma generate
+RUN DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres?schema=public" npx prisma generate
 
 # Compilar TypeScript
 RUN npm run build
@@ -48,6 +49,7 @@ ENV PRISMA_LOG_LEVEL=debug \
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/package*.json ./
 
