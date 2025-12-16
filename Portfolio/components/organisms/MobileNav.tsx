@@ -1,10 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useAnimationControls } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { RefObject, useEffect } from 'react';
 import MobileNavItem from '../molecules/MobileNavItem';
 import NavBackground from '../molecules/NavBackground';
+import { useScrollDirection } from '@/lib/hooks/useScrollDirection';
 
 interface NavItem {
   href: string;
@@ -28,12 +29,53 @@ export default function MobileNav({
   t
 }: MobileNavProps) {
   const pathname = usePathname();
+  const scrollDirection = useScrollDirection({ threshold: 10, debounce: 50 });
+  const controls = useAnimationControls();
 
   const handleNavigate = (href: string) => {
     if (pathname !== href) {
       window.dispatchEvent(new Event('app:navigation-start'));
     }
   };
+
+  // Mostrar navbar al cambiar de página
+  useEffect(() => {
+    controls.start({
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.3, ease: 'easeInOut' }
+    });
+  }, [pathname, controls]);
+
+  // Auto-hide navbar on scroll down, show on scroll up
+  useEffect(() => {
+    // Verificar si la página tiene scroll disponible
+    const hasScroll = document.documentElement.scrollHeight > window.innerHeight;
+    
+    // Solo aplicar auto-hide si hay scroll disponible
+    if (!hasScroll) {
+      controls.start({
+        y: 0,
+        opacity: 1,
+        transition: { duration: 0.3, ease: 'easeInOut' }
+      });
+      return;
+    }
+
+    if (scrollDirection === 'down') {
+      controls.start({
+        y: 100,
+        opacity: 0,
+        transition: { duration: 0.3, ease: 'easeInOut' }
+      });
+    } else if (scrollDirection === 'up') {
+      controls.start({
+        y: 0,
+        opacity: 1,
+        transition: { duration: 0.3, ease: 'easeInOut' }
+      });
+    }
+  }, [scrollDirection, controls]);
 
   // iOS Safari: Force layout recalculation on orientation change
   useEffect(() => {
@@ -53,8 +95,8 @@ export default function MobileNav({
   return (
     <motion.nav
       ref={navRef}
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      initial={{ y: 0, opacity: 1 }}
+      animate={controls}
       transition={{ duration: 0.5 }}
       className="md:hidden fixed left-0 right-0 bg-background-surface/95 backdrop-blur-md border-t border-white/30 z-50 px-4 mobile-nav-safe-area"
       style={{
