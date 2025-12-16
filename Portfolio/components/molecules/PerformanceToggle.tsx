@@ -8,7 +8,11 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { logger } from '@/shared/logger';
 
-export default function PerformanceToggle() {
+interface PerformanceToggleProps {
+  isScrolled?: boolean;
+}
+
+export default function PerformanceToggle({ isScrolled = false }: PerformanceToggleProps) {
   const { lowPerformanceMode, toggleMode } = usePerformance();
   const { matrixMode, setMatrixMode } = useMatrix();
   const { t } = useLanguage();
@@ -68,7 +72,9 @@ export default function PerformanceToggle() {
             ? 'bg-background-elevated border-cyber-red text-cyber-red animate-pulse'
             : lowPerformanceMode
               ? 'bg-background-elevated border-white/50 text-white/50'
-              : 'bg-background-surface border-white text-white hover:bg-white hover:text-black'
+              : isScrolled
+                ? 'bg-background-surface border-text-muted text-text-muted hover:border-white hover:text-white hover:bg-white/10'
+                : 'bg-background-surface border-white text-white hover:bg-white hover:text-black'
         } flex items-center justify-center group shadow-lg`}
         style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}
         whileHover={{ scale: 1.05 }}

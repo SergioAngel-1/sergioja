@@ -7,6 +7,7 @@ import LanguageToggle from '@/components/molecules/LanguageToggle';
 import PerformanceToggle from '@/components/molecules/PerformanceToggle';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { useScrollDirection } from '@/lib/hooks/useScrollDirection';
 
 interface HeaderProps {
   showBreadcrumbs?: boolean;
@@ -19,6 +20,8 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
   const { t } = useLanguage();
   const inlineBadgeRef = useRef<HTMLDivElement>(null);
   const [badgeHeight, setBadgeHeight] = useState<number | null>(null);
+  const scrollDirection = useScrollDirection({ threshold: 10, debounce: 50 });
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Keep terminal button height exactly equal to inline home badge height on mobile
   useEffect(() => {
@@ -39,12 +42,24 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
     };
   }, [isHomePage, showHomeBadge]);
 
+  // Detectar si el usuario ha hecho scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    handleScroll(); // Check initial state
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <>
       {/* Mobile Terminal Button - Top Left */}
       {(onTerminalOpen || (showHomeBadge && isHomePage)) && (
         <div
-          className={`lg:hidden ${isHomePage ? 'absolute' : 'fixed'} top-0 left-0 z-50 flex items-center`}
+          className={`lg:hidden ${isHomePage ? 'absolute' : 'fixed'} top-0 left-0 z-[10001] flex items-center`}
           style={{ margin: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
         >
           {onTerminalOpen && (
@@ -89,7 +104,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
       {/* Breadcrumbs or Home Badge - Below terminal button on mobile */}
       {(showBreadcrumbs || showHomeBadge) && (
         <motion.div 
-          className={`absolute left-0 md:left-20 right-0 z-30 ${showHomeBadge && !showBreadcrumbs ? 'hidden md:block' : ''}`}
+          className={`absolute left-0 md:left-20 right-0 z-[10001] ${showHomeBadge && !showBreadcrumbs ? 'hidden md:block' : ''}`}
           style={{ top: onTerminalOpen ? `calc(env(safe-area-inset-top, 0px) + 2.5rem + ${fluidSizing.space.md})` : 'env(safe-area-inset-top, 0px)' }}
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -122,15 +137,15 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
 
       {/* Action buttons - Fixed top right */}
       <motion.div 
-        className="fixed top-0 right-0 z-50"
+        className="fixed top-0 right-0 z-[10001]"
         style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
-          <LanguageToggle />
-          <PerformanceToggle />
+          <LanguageToggle isScrolled={isScrolled} />
+          <PerformanceToggle isScrolled={isScrolled} />
         </div>
       </motion.div>
     </>

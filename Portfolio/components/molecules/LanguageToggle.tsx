@@ -5,7 +5,11 @@ import { useState } from 'react';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
-export default function LanguageToggle() {
+interface LanguageToggleProps {
+  isScrolled?: boolean;
+}
+
+export default function LanguageToggle({ isScrolled = false }: LanguageToggleProps) {
   const { language, toggleLanguage } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -34,7 +38,11 @@ export default function LanguageToggle() {
         onClick={toggleLanguage}
         onHoverStart={() => setIsExpanded(true)}
         onHoverEnd={() => setIsExpanded(false)}
-        className="relative rounded-full border-2 bg-background-surface border-white text-white hover:bg-white hover:text-black flex items-center justify-center group shadow-lg transition-all duration-300"
+        className={`relative rounded-full border-2 bg-background-surface flex items-center justify-center group shadow-lg transition-all duration-300 ${
+          isScrolled 
+            ? 'border-text-muted text-text-muted hover:border-white hover:text-white hover:bg-white/10' 
+            : 'border-white text-white hover:bg-white hover:text-black'
+        }`}
         style={{ width: fluidSizing.size.buttonMd, height: fluidSizing.size.buttonMd }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
