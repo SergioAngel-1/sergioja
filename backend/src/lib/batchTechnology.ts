@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Technology } from '@prisma/client';
 
 /**
  * Optimización N+1: Procesa tecnologías en batch en lugar de serial
@@ -22,9 +22,19 @@ export async function batchProcessTechnologies(
         where: { name: { in: techNames } },
     });
 
-    const techMap = new Map(existingTechs.map((t: any) => [t.name, t]));
-    const techsToCreate: any[] = [];
-    const techsToUpdate: any[] = [];
+    const techMap = new Map<string, Technology>(existingTechs.map((t: Technology) => [t.name, t]));
+    const techsToCreate: Array<{
+        name: string;
+        category: string;
+        proficiency: number;
+        yearsOfExperience: number;
+        color: string;
+    }> = [];
+    const techsToUpdate: Array<{
+        id: string;
+        proficiency: number;
+        yearsOfExperience: number;
+    }> = [];
 
     // Paso 2: Clasificar en memoria (0 queries)
     for (const techData of technologiesData) {
@@ -85,10 +95,16 @@ export async function batchProcessTechnologies(
         where: { name: { in: techNames } },
     });
 
-    const techIdMap = new Map(allTechs.map((t: any) => [t.name, t.id]));
+    const techIdMap = new Map<string, string>(allTechs.map((t: Technology) => [t.name, t.id]));
 
     // Crear relaciones en batch
-    const projectTechData: any[] = [];
+    const projectTechData: Array<{
+        projectId: string;
+        technologyId: string;
+        category: string;
+        proficiency: number;
+        yearsOfExperience: number;
+    }> = [];
     for (const techData of technologiesData) {
         const technologyId = techIdMap.get(techData.name);
         if (technologyId) {
