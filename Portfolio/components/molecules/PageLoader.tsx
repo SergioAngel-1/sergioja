@@ -111,7 +111,10 @@ export default function PageLoader({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-background-dark"
+          className="fixed top-0 right-0 z-[9999] flex items-center justify-center bg-background-dark md:left-[var(--nav-width)] md:bottom-0 left-0"
+          style={{
+            bottom: 'calc(var(--mobile-nav-height, 0px))'
+          }}
         >
           {/* Cyber grid background */}
           <div className="absolute inset-0 cyber-grid opacity-20" />
