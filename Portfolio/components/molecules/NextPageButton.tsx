@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { useScrollDirection } from '@/lib/hooks/useScrollDirection';
 
 interface PageRoute {
   path: string;
@@ -25,6 +26,7 @@ export default function NextPageButton() {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useLanguage();
+  const scrollDirection = useScrollDirection({ threshold: 10, debounce: 50 });
 
   // Detectar si estamos en una página de proyecto individual
   const isProjectDetailPage = pathname?.startsWith('/projects/') && pathname !== '/projects';
@@ -44,7 +46,7 @@ export default function NextPageButton() {
     setIsVisible(false);
     setIsHovered(false);
 
-    const handleScroll = () => {
+    const checkVisibility = () => {
       const scrollHeight = document.documentElement.scrollHeight;
       const scrollTop = window.scrollY;
       const clientHeight = window.innerHeight;
@@ -53,38 +55,32 @@ export default function NextPageButton() {
       const hasScroll = scrollHeight > clientHeight;
       
       if (!hasScroll) {
-        // Si no hay scroll, NO mostrar el botón automáticamente
+        // Si no hay scroll, mostrar el botón
         setIsVisible(true);
       } else {
-        // Si hay scroll, solo mostrar cuando esté cerca del final (90% scrolled)
+        // Si hay scroll, mostrar cuando esté cerca del final (90% scrolled)
         const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
-        const isNearBottom = scrollPercentage >= 0.9;
-        
-        // Ocultar si vuelve arriba (menos del 85%)
-        const isBackToTop = scrollPercentage < 0.85;
-        
-        if (isNearBottom) {
-          setIsVisible(true);
-        } else if (isBackToTop) {
-          setIsVisible(false);
-        }
+        setIsVisible(scrollPercentage >= 0.9);
       }
     };
 
-    // Esperar un momento antes de verificar el estado inicial
-    const timeoutId = setTimeout(() => {
-      handleScroll();
-    }, 100);
+    // Verificar estado inicial después de un breve delay
+    const timeoutId = setTimeout(checkVisibility, 100);
 
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll); // También verificar en resize
+    // Usar scroll pasivo para mejor performance
+    const handleScroll = () => {
+      requestAnimationFrame(checkVisibility);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', checkVisibility);
 
     return () => {
       clearTimeout(timeoutId);
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('resize', checkVisibility);
     };
-  }, [pathname]); // Re-evaluar cuando cambie la ruta
+  }, [pathname]);
 
   const handleClick = () => {
     if (nextRoute) {
@@ -98,20 +94,44 @@ export default function NextPageButton() {
   // Don't show if there's no next page
   if (!nextRoute) return null;
 
+  // Calcular posición bottom según estado de navbar mobile
+  // Incluye soporte completo para iOS Safari safe-area
+  const getBottomPosition = () => {
+    // En desktop, usar valores fijos
+    // En mobile, ajustar según si navbar está visible u oculta
+    const isNavbarHidden = scrollDirection === 'down';
+    
+    if (isNavbarHidden) {
+      // Navbar oculta: mover botón más abajo (solo safe-area + spacing)
+      // max() asegura que siempre haya al menos el spacing mínimo
+      return `max(${fluidSizing.space.xl}, calc(${fluidSizing.space.xl} + env(safe-area-inset-bottom, 0px)))`;
+    } else {
+      // Navbar visible: posición normal (sobre la navbar)
+      return `max(calc(var(--mobile-nav-height, 4rem) + ${fluidSizing.space.xl}), calc(var(--mobile-nav-height, 4rem) + ${fluidSizing.space.xl} + env(safe-area-inset-bottom, 0px)))`;
+    }
+  };
+
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.button
           onClick={handleClick}
           initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+          animate={{ 
+            opacity: 1, 
+            scale: 1
+          }}
           exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.3 }}
+          transition={{ 
+            opacity: { duration: 0.3 },
+            scale: { duration: 0.3 }
+          }}
           className="group fixed z-40 flex items-center md:bottom-8 lg:bottom-12"
           style={{ 
-            bottom: `calc(var(--mobile-nav-height, 4rem) + ${fluidSizing.space.xl} + env(safe-area-inset-bottom))`, 
-            right: fluidSizing.space.lg, 
-            gap: fluidSizing.space.md 
+            bottom: getBottomPosition(),
+            right: `max(${fluidSizing.space.lg}, calc(${fluidSizing.space.lg} + env(safe-area-inset-right, 0px)))`,
+            gap: fluidSizing.space.md,
+            transition: 'bottom 0.3s ease-in-out, right 0.3s ease-in-out'
           }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
