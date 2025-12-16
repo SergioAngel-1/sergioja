@@ -26,9 +26,54 @@
     -webkit-tap-highlight-color: transparent;
   }
   
-  /* Fix for iOS Safari bottom navigation bar */
+  /* Fix for iOS Safari bottom navigation bar - DEPRECATED, use mobile-nav-safe-area */
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+
+  /* Mobile Nav iOS Safari optimizations */
+  .mobile-nav-safe-area {
+    /* Ensure navbar stays at bottom even with dynamic viewport */
+    position: fixed;
+    bottom: 0;
+    
+    /* Support for notch devices (iPhone X+) */
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    
+    /* Prevent content from being hidden behind home indicator */
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    
+    /* Fix for iOS Safari address bar hide/show */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    
+    /* Prevent layout shift when scrolling */
+    will-change: transform;
+    
+    /* Ensure proper stacking */
+    z-index: 9999;
+  }
+
+  /* Fix for iOS Safari viewport height changes */
+  @supports (height: 100dvh) {
+    .mobile-nav-safe-area {
+      /* Use dynamic viewport height for better iOS compatibility */
+      bottom: calc(100dvh - 100vh);
+    }
+  }
+
+  /* Prevent iOS Safari from zooming on input focus */
+  .mobile-nav-safe-area input,
+  .mobile-nav-safe-area select,
+  .mobile-nav-safe-area textarea {
+    font-size: 16px !important;
+  }
+
+  /* Fix for iOS Safari momentum scrolling interference */
+  .mobile-nav-safe-area {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 }
 
