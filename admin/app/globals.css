@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide reCAPTCHA badge - Must be outside layers for proper specificity */
+/* Legal disclaimer is added to all forms with reCAPTCHA */
+.grecaptcha-badge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* iOS Safari compatibility fixes */
 @supports (-webkit-touch-callout: none) {
   body {
@@ -126,12 +134,6 @@
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.3);
-  }
-
-  /* Hide reCAPTCHA badge */
-  .grecaptcha-badge {
-    visibility: hidden !important;
-    opacity: 0 !important;
   }
 
   /* Cyberpunk glow effects */
