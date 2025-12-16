@@ -12,6 +12,15 @@ interface FloatingParticlesProps {
   className?: string;
 }
 
+/**
+ * Seeded random number generator para generar valores deterministas
+ * Evita hydration mismatch entre servidor y cliente
+ */
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
 export default function FloatingParticles({ 
   count = 30, 
   color = 'bg-white',
@@ -21,38 +30,34 @@ export default function FloatingParticles({
   const { lowPerformanceMode } = usePerformance();
   const { matrixMode } = useMatrix();
   const isMobile = useIsMobile();
-  const [particles, setParticles] = useState<Array<{
-    id: number;
-    left: number;
-    top: number;
-    duration: number;
-    delay: number;
-    xOffset: number;
-  }>>([]);
 
   // Reducir/aumentar partículas según el modo
   const effectiveCount = useMemo(() => {
     if (lowPerformanceMode) return Math.floor(count * 0.3); // 30% en modo bajo rendimiento
-    if (matrixMode) return Math.floor(count * 3); // 300% en modo Matrix
+    if (matrixMode) return Math.floor(count * 1.5); // 150% en modo Matrix (reducido de 300%)
     if (isMobile) return Math.floor(count * 0.5); // 50% en móvil
     return count;
   }, [count, isMobile, lowPerformanceMode, matrixMode]);
 
+  // Generar partículas con posiciones deterministas (evita hydration mismatch)
+  const particles = useMemo(() => {
+    return Array.from({ length: effectiveCount }, (_, i) => ({
+      id: i,
+      left: seededRandom(i * 1.1) * 100,
+      top: seededRandom(i * 2.3) * 100,
+      duration: matrixMode 
+        ? 0.5 + seededRandom(i * 3.7) * 0.5 
+        : 3 + seededRandom(i * 4.1) * 2,
+      delay: matrixMode 
+        ? seededRandom(i * 5.3) * 0.3 
+        : seededRandom(i * 6.7) * 2,
+      xOffset: seededRandom(i * 7.9) * 20 - 10,
+    }));
+  }, [effectiveCount, matrixMode]);
+
   useEffect(() => {
     setIsMounted(true);
-    
-    // Generate particle positions only on client side
-    setParticles(
-      Array.from({ length: effectiveCount }, (_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        top: Math.random() * 100,
-        duration: matrixMode ? 0.5 + Math.random() * 0.5 : 3 + Math.random() * 2,
-        delay: matrixMode ? Math.random() * 0.3 : Math.random() * 2,
-        xOffset: Math.random() * 20 - 10,
-      }))
-    );
-  }, [effectiveCount, matrixMode]);
+  }, []);
 
   // No renderizar hasta que esté montado en el cliente
   if (!isMounted || particles.length === 0) {
