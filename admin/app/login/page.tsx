@@ -34,10 +34,18 @@ export default function LoginPage() {
       const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
       if (siteKey) {
         loadRecaptchaEnterprise(siteKey).catch(() => {
-          // Silenciar er1ror; en desarrollo puede no cargar
+          // Silenciar error; en desarrollo puede no cargar
         });
       }
     }
+
+    // Cleanup: remover badge de reCAPTCHA al desmontar componente
+    return () => {
+      const badge = document.querySelector('.grecaptcha-badge');
+      if (badge) {
+        badge.remove();
+      }
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

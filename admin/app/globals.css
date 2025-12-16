@@ -5,6 +5,7 @@
 /* Hide reCAPTCHA badge - Must be outside layers for proper specificity */
 /* Legal disclaimer is added to all forms with reCAPTCHA */
 .grecaptcha-badge {
+  display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
