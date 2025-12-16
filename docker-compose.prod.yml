@@ -47,9 +47,9 @@ services:
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
       - "traefik.http.routers.traefik.service=api@internal"
-      # Middleware de autenticación básica (usuario: admin, password: cambiar)
+      # Middleware de autenticación básica
       - "traefik.http.routers.traefik.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
 
   docker-socket-proxy:
     image: tecnativa/docker-socket-proxy:latest
@@ -124,13 +124,6 @@ services:
       - sergioja-network
     volumes:
       - ./backend/logs:/app/logs
-    labels:
-      - "traefik.enable=true"
-      # Router para api.sergioja.com
-      - "traefik.http.routers.backend.rule=Host(`api.sergioja.com`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.backend.loadbalancer.server.port=5000"
 
   # Frontend Portfolio
   portfolio-frontend:
@@ -157,18 +150,6 @@ services:
       - backend
     networks:
       - sergioja-network
-    labels:
-      - "traefik.enable=true"
-      # Router para portfolio.sergioja.com y www.portfolio.sergioja.com
-      - "traefik.http.routers.portfolio.rule=Host(`portfolio.sergioja.com`) || Host(`www.portfolio.sergioja.com`)"
-      - "traefik.http.routers.portfolio.entrypoints=websecure"
-      - "traefik.http.routers.portfolio.tls.certresolver=letsencrypt"
-      - "traefik.http.services.portfolio.loadbalancer.server.port=3000"
-      # Redirect www to non-www
-      - "traefik.http.middlewares.portfolio-redirect.redirectregex.regex=^https://www\\.portfolio\\.sergioja\\.com/(.*)"
-      - "traefik.http.middlewares.portfolio-redirect.redirectregex.replacement=https://portfolio.sergioja.com/$${1}"
-      - "traefik.http.middlewares.portfolio-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.portfolio.middlewares=portfolio-redirect"
 
   # Frontend Main
   main-frontend:
@@ -196,18 +177,6 @@ services:
       - backend
     networks:
       - sergioja-network
-    labels:
-      - "traefik.enable=true"
-      # Router para sergioja.com y www.sergioja.com
-      - "traefik.http.routers.main.rule=Host(`sergioja.com`) || Host(`www.sergioja.com`)"
-      - "traefik.http.routers.main.entrypoints=websecure"
-      - "traefik.http.routers.main.tls.certresolver=letsencrypt"
-      - "traefik.http.services.main.loadbalancer.server.port=3000"
-      # Redirect www to non-www
-      - "traefik.http.middlewares.main-redirect.redirectregex.regex=^https://www\\.sergioja\\.com/(.*)"
-      - "traefik.http.middlewares.main-redirect.redirectregex.replacement=https://sergioja.com/$${1}"
-      - "traefik.http.middlewares.main-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.main.middlewares=main-redirect"
 
   # Frontend Admin
   admin-frontend:
@@ -233,13 +202,6 @@ services:
       - backend
     networks:
       - sergioja-network
-    labels:
-      - "traefik.enable=true"
-      # Router para admin.sergioja.com
-      - "traefik.http.routers.admin.rule=Host(`admin.sergioja.com`)"
-      - "traefik.http.routers.admin.entrypoints=websecure"
-      - "traefik.http.routers.admin.tls.certresolver=letsencrypt"
-      - "traefik.http.services.admin.loadbalancer.server.port=3000"
 
 networks:
   sergioja-network:

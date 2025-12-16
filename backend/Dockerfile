@@ -9,7 +9,6 @@ COPY shared /shared
 # Copiar archivos de dependencias del backend
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma/
-COPY backend/prisma.config.ts ./
 
 # Instalar dependencias del sistema necesarias para Prisma
 RUN apt-get update && apt-get install -y --no-install-recommends openssl libssl3 ca-certificates \
@@ -49,9 +48,12 @@ ENV PRISMA_LOG_LEVEL=warn \
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma.config.ts ./
 COPY --from=builder /app/src ./src
+COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/package*.json ./
+
+# Regenerar cliente de Prisma en producción (necesario para runtime)
+RUN DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres?schema=public" npx prisma generate
 
 # Crear directorio para logs
 RUN mkdir -p /app/logs
@@ -64,21 +66,27 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:5000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Script de arranque con diagnóstico
-RUN set -eux; \
-  cat > /usr/local/bin/start.sh <<'SH' && chmod +x /usr/local/bin/start.sh
-#!/bin/sh
-set -e
-echo "Node: $(node -v)"
-echo "OpenSSL: $(node -p 'process.versions.openssl')"
-echo "Prisma CLI:"
-npx prisma -v
-echo "DATABASE_URL: $(printenv DATABASE_URL | sed -e 's#://[^:]*:[^@]*@#://****@#')"
-echo "Validating schema..."
-npx prisma validate
-echo "Applying migrations (migrate deploy)..."
-npx prisma migrate deploy
-exec npm start
-SH
+RUN echo '#!/bin/sh' > /usr/local/bin/start.sh && \
+    echo 'set -e' >> /usr/local/bin/start.sh && \
+    echo 'echo "Node: $(node -v)"' >> /usr/local/bin/start.sh && \
+    echo 'echo "OpenSSL: $(node -p \"process.versions.openssl\")"' >> /usr/local/bin/start.sh && \
+    echo 'echo "Prisma CLI:"' >> /usr/local/bin/start.sh && \
+    echo 'npx prisma -v' >> /usr/local/bin/start.sh && \
+    echo 'echo "DATABASE_URL: $(printenv DATABASE_URL | sed -e \"s#://[^:]*:[^@]*@#://****@#\")"' >> /usr/local/bin/start.sh && \
+    echo 'echo "Validating schema..."' >> /usr/local/bin/start.sh && \
+    echo 'npx prisma validate' >> /usr/local/bin/start.sh && \
+    echo '' >> /usr/local/bin/start.sh && \
+    echo 'echo "Applying database changes..."' >> /usr/local/bin/start.sh && \
+    echo 'if npx prisma migrate deploy 2>/dev/null; then' >> /usr/local/bin/start.sh && \
+    echo '  echo "✓ Migrations applied successfully"' >> /usr/local/bin/start.sh && \
+    echo 'else' >> /usr/local/bin/start.sh && \
+    echo '  echo "⚠ migrate deploy failed, falling back to db push..."' >> /usr/local/bin/start.sh && \
+    echo '  npx prisma db push --skip-generate --accept-data-loss' >> /usr/local/bin/start.sh && \
+    echo '  echo "✓ Database schema synchronized with db push"' >> /usr/local/bin/start.sh && \
+    echo 'fi' >> /usr/local/bin/start.sh && \
+    echo '' >> /usr/local/bin/start.sh && \
+    echo 'exec npm start' >> /usr/local/bin/start.sh && \
+    chmod +x /usr/local/bin/start.sh
 
 # Comando de inicio
 CMD ["/usr/local/bin/start.sh"]
