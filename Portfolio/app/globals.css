@@ -89,6 +89,27 @@
     /* Prevent layout shift */
     will-change: transform;
   }
+
+  /* Header action buttons iOS Safari optimizations */
+  /* Target header buttons container by position and z-index */
+  .fixed.top-0.right-0[class*="z-[10001]"] {
+    /* Fix for iOS Safari viewport changes */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    
+    /* Prevent layout shift */
+    will-change: transform;
+    
+    /* Ensure proper rendering on iOS */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* Header action buttons - ensure safe-area respect */
+  .fixed.top-0.right-0[class*="z-[10001]"] button {
+    /* Additional safe-area support for button elements */
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 .with-bottom-nav-inset {

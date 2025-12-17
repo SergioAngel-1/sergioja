@@ -22,6 +22,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
   const [badgeHeight, setBadgeHeight] = useState<number | null>(null);
   const scrollDirection = useScrollDirection({ threshold: 10, debounce: 50 });
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Keep terminal button height exactly equal to inline home badge height on mobile
   useEffect(() => {
@@ -54,10 +55,24 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Detectar navegación en progreso
+  useEffect(() => {
+    const handleNavigationStart = () => setIsNavigating(true);
+    const handleNavigationEnd = () => setIsNavigating(false);
+
+    window.addEventListener('app:navigation-start', handleNavigationStart);
+    window.addEventListener('app:navigation-end', handleNavigationEnd);
+
+    return () => {
+      window.removeEventListener('app:navigation-start', handleNavigationStart);
+      window.removeEventListener('app:navigation-end', handleNavigationEnd);
+    };
+  }, []);
+
   return (
     <>
       {/* Mobile Terminal Button - Top Left */}
-      {(onTerminalOpen || (showHomeBadge && isHomePage)) && (
+      {(onTerminalOpen || (showHomeBadge && isHomePage)) && !isNavigating && (
         <div
           className={`lg:hidden ${isHomePage ? 'absolute' : 'fixed'} top-0 left-0 z-[10001] flex items-center`}
           style={{ margin: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
@@ -102,7 +117,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
       )}
 
       {/* Breadcrumbs or Home Badge - Below terminal button on mobile */}
-      {(showBreadcrumbs || showHomeBadge) && (
+      {(showBreadcrumbs || showHomeBadge) && !isNavigating && (
         <motion.div 
           className={`absolute left-0 md:left-20 right-0 z-[10001] ${showHomeBadge && !showBreadcrumbs ? 'hidden md:block' : ''}`}
           style={{ top: onTerminalOpen ? `calc(env(safe-area-inset-top, 0px) + 2.5rem + ${fluidSizing.space.md})` : 'env(safe-area-inset-top, 0px)' }}
@@ -138,10 +153,21 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
       {/* Action buttons - Fixed top right */}
       <motion.div 
         className="fixed top-0 right-0 z-[10001]"
-        style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
+        style={{ 
+          paddingTop: `max(${fluidSizing.space.md}, calc(${fluidSizing.space.md} + env(safe-area-inset-top, 0px)))`,
+          paddingRight: `max(${fluidSizing.space.lg}, calc(${fluidSizing.space.lg} + env(safe-area-inset-right, 0px)))`,
+          paddingBottom: fluidSizing.space.md,
+          paddingLeft: fluidSizing.space.lg
+        }}
         initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        animate={{ 
+          y: isNavigating ? -20 : 0, 
+          opacity: isNavigating ? 0 : 1 
+        }}
+        transition={{ 
+          duration: isNavigating ? 0.15 : 0.6,
+          ease: 'easeOut' 
+        }}
       >
         <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
           <LanguageToggle isScrolled={isScrolled} />
