@@ -51,18 +51,10 @@ export function useNavbarEffects(navRef: RefObject<HTMLDivElement>) {
     window.addEventListener('resize', debouncedUpdate);
     window.addEventListener('orientationchange', debouncedUpdate);
     
-    // iOS Safari: Listen to scroll events to detect address bar hide/show
-    if (isIOSSafari()) {
-      window.addEventListener('scroll', debouncedUpdate, { passive: true });
-    }
-    
     return () => {
       clearTimeout(initialTimeout);
       window.removeEventListener('resize', debouncedUpdate);
       window.removeEventListener('orientationchange', debouncedUpdate);
-      if (isIOSSafari()) {
-        window.removeEventListener('scroll', debouncedUpdate);
-      }
     };
   }, [navRef]);
 
