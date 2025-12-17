@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 
@@ -28,13 +28,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
-  // Verificar autenticación al cargar (usando cookies httpOnly del backend)
+  // Verificar autenticación al cargar y en cada cambio de ruta
   useEffect(() => {
+    let isMounted = true;
+
     const initAuth = async () => {
       // Skip auth check on login page to avoid unnecessary 401 errors
-      if (typeof window !== 'undefined' && window.location.pathname === '/login') {
-        setIsLoading(false);
+      if (pathname === '/login') {
+        if (isMounted) {
+          setIsLoading(false);
+        }
         return;
       }
       
@@ -42,25 +47,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Llamar al endpoint /me que valida la cookie httpOnly
         const response = await api.getMe();
         
+        if (!isMounted) return;
+        
         if (response.success && response.data && typeof response.data === 'object' && 'user' in response.data) {
           setUser(response.data.user as User);
         } else {
           setUser(null);
+          // Redirect to login if not authenticated and not already on login page
+          if (pathname !== '/login') {
+            router.push('/login');
+          }
         }
       } catch (error: unknown) {
+        if (!isMounted) return;
+        
         // Si es 401, es normal (no hay sesión)
         const axiosError = error as { response?: { status?: number } };
         if (axiosError?.response?.status !== 401) {
           logger.error('Auth: Error verificando sesión', error);
         }
         setUser(null);
+        // Redirect to login on auth error (except on login page)
+        if (pathname !== '/login') {
+          router.push('/login');
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     initAuth();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pathname, router]);
 
   const login = async (
     email: string,
