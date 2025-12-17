@@ -139,7 +139,7 @@ export default function Home() {
       setMatrixMessage('');
       setShowMatrixDialog(false);
     }
-  }, [currentView]);
+  }, [currentView, matrixMessage, t]);
 
   // Focus terminal input when clicking on terminal
   const handleTerminalClick = () => {
