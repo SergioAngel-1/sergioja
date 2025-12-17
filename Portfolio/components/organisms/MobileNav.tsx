@@ -141,10 +141,10 @@ export default function MobileNav({
       initial={{ y: 0, opacity: 1 }}
       animate={controls}
       transition={{ duration: 0.5 }}
-      className="md:hidden fixed left-0 right-0 bg-background-surface/95 backdrop-blur-md border-t border-white/30 z-50 px-4 mobile-nav-safe-area"
+      className="md:hidden fixed left-0 right-0 bg-background-surface/95 backdrop-blur-md border-t border-white/30 z-50 mobile-nav-safe-area"
       style={{
-        bottom: 'calc(var(--bottom-gap, 0px))',
-        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
+        bottom: 'var(--bottom-gap, 0px)',
+        paddingBottom: '0.75rem',
         paddingTop: '0.75rem',
       }}
     >

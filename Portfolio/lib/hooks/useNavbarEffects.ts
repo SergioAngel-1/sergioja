@@ -19,24 +19,32 @@ export function useNavbarEffects(navRef: RefObject<HTMLDivElement>) {
   useEffect(() => {
     const updateHeightVar = () => {
       if (!navRef.current) return;
+      
+      // Verificar que el elemento sea visible antes de medir (evita race condition con animaciones)
+      const isVisible = navRef.current.offsetHeight > 0;
+      if (!isVisible) return;
+      
       const cs = getComputedStyle(navRef.current);
       const pb = parseFloat(cs.paddingBottom || '0') || 0;
       const h = Math.max(0, navRef.current.offsetHeight - pb);
       const currentHeight = document.documentElement.style.getPropertyValue('--mobile-nav-height');
       const newHeight = `${h}px`;
       
-      if (currentHeight !== newHeight) {
+      // Solo actualizar si cambió significativamente (> 2px para evitar jitter)
+      const currentH = parseFloat(currentHeight) || 0;
+      if (Math.abs(currentH - h) > 2) {
         document.documentElement.style.setProperty('--mobile-nav-height', newHeight);
       }
     };
     
-    updateHeightVar();
+    // Delay inicial para asegurar que Framer Motion haya renderizado
+    const initialTimeout = setTimeout(updateHeightVar, 100);
     
     const debouncedUpdate = (() => {
       let timeoutId: NodeJS.Timeout;
       return () => {
         clearTimeout(timeoutId);
-        timeoutId = setTimeout(updateHeightVar, 150);
+        timeoutId = setTimeout(updateHeightVar, 200);
       };
     })();
     
@@ -49,6 +57,7 @@ export function useNavbarEffects(navRef: RefObject<HTMLDivElement>) {
     }
     
     return () => {
+      clearTimeout(initialTimeout);
       window.removeEventListener('resize', debouncedUpdate);
       window.removeEventListener('orientationchange', debouncedUpdate);
       if (isIOSSafari()) {
@@ -76,16 +85,13 @@ export function useNavbarEffects(navRef: RefObject<HTMLDivElement>) {
         // Establecer --bottom-gap globalmente para que NextPageButton y otros componentes puedan usarlo
         const currentGlobalGap = document.documentElement.style.getPropertyValue('--bottom-gap');
         
-        // Solo actualizar si cambió significativamente (> 1px para evitar jitter)
-        if (Math.abs(parseFloat(currentGlobalGap || '0') - gap) > 1) {
+        // Aumentar threshold a 3px para evitar loops y jitter en iOS Safari
+        if (Math.abs(parseFloat(currentGlobalGap || '0') - gap) > 3) {
           document.documentElement.style.setProperty('--bottom-gap', newGap);
           
           // También establecer en el navbar para compatibilidad
           if (navRef.current) {
             navRef.current.style.setProperty('--bottom-gap', newGap);
-            
-            // Forzar reflow para iOS Safari
-            void navRef.current.offsetHeight;
           }
         }
       } catch (error) {
@@ -96,7 +102,7 @@ export function useNavbarEffects(navRef: RefObject<HTMLDivElement>) {
     // Ejecutar inmediatamente
     updateGap();
     
-    // Debounce optimizado para scroll (más rápido para mejor UX)
+    // Debounce optimizado para scroll con threshold más alto para evitar loops
     const debouncedScroll = (() => {
       let timeoutId: NodeJS.Timeout;
       let rafId: number;
@@ -106,7 +112,7 @@ export function useNavbarEffects(navRef: RefObject<HTMLDivElement>) {
         
         // Usar requestAnimationFrame para mejor performance
         rafId = requestAnimationFrame(() => {
-          timeoutId = setTimeout(updateGap, 50); // Reducido de 100ms a 50ms
+          timeoutId = setTimeout(updateGap, 100); // Aumentado a 100ms para evitar loops
         });
       };
     })();
