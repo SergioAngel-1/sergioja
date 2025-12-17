@@ -6,7 +6,6 @@ import { useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { useProjectCategories } from '@/lib/hooks/useProjectCategories';
 import ProjectCard from '@/components/molecules/ProjectCard';
-import ProjectCardSkeleton from '@/components/molecules/ProjectCardSkeleton';
 import VirtualizedProjectGrid from '@/components/molecules/VirtualizedProjectGrid';
 import PageHeader from '@/components/organisms/PageHeader';
 import StatCard from '@/components/atoms/StatCard';
@@ -173,13 +172,7 @@ export default function WorkPage() {
         )}
 
         {/* Projects display */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <ProjectCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : error ? (
+        {error ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -192,7 +185,7 @@ export default function WorkPage() {
               <p className="text-cyber-red text-lg font-rajdhani">{error}</p>
             </div>
           </motion.div>
-        ) : projects.length === 0 ? (
+        ) : !loading && projects.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -213,7 +206,7 @@ export default function WorkPage() {
               )}
             </div>
           </motion.div>
-        ) : projects.length > 50 ? (
+        ) : !loading && projects.length > 50 ? (
           // Use virtualized grid for large lists (>50 projects)
           <motion.div
             initial={{ opacity: 0 }}
@@ -227,7 +220,7 @@ export default function WorkPage() {
               gap={24}
             />
           </motion.div>
-        ) : (
+        ) : !loading ? (
           // Use regular grid for smaller lists
           <motion.div
             initial={{ opacity: 0 }}
@@ -246,7 +239,7 @@ export default function WorkPage() {
               </motion.div>
             ))}
           </motion.div>
-        )}
+        ) : null}
 
         {/* Pagination */}
         {!loading && !error && projects.length > projectsPerPage && (

@@ -10,7 +10,6 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
-import ProjectDetailSkeleton from '@/components/molecules/ProjectDetailSkeleton';
 import ProjectHero from '@/components/organisms/ProjectHero';
 import ProjectMetrics from '@/components/molecules/ProjectMetrics';
 import ProjectInfo from '@/components/molecules/ProjectInfo';
@@ -58,14 +57,19 @@ export default function ProjectDetailPage() {
     }
   }, [lowPerformanceMode, project, initialLowModeSet]);
 
-  // Show skeleton while mounting or loading
-  if (!mounted || loading) {
-    return <ProjectDetailSkeleton />;
+  // Wait for mounting
+  if (!mounted) {
+    return null;
   }
 
   // Trigger 404 page if project not found
   if (error || !project) {
     notFound();
+  }
+
+  // Don't render while loading - PageLoader handles transition
+  if (loading) {
+    return null;
   }
 
   const localizedLongDescription =
