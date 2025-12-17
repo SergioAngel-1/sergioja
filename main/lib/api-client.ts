@@ -10,7 +10,7 @@ class ApiClient {
     this.baseURL = `${API_URL}/api/portfolio`;
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any>): Promise<ApiResponse<T>> {
+  async get<T>(endpoint: string, params?: Record<string, any>, signal?: AbortSignal): Promise<ApiResponse<T>> {
     const url = new URL(`${this.baseURL}${endpoint}`);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -27,6 +27,7 @@ class ApiClient {
         headers: {
           'Content-Type': 'application/json',
         },
+        signal,
       });
 
       if (!response.ok) {
@@ -36,6 +37,16 @@ class ApiClient {
       logger.apiResponse('GET', url.toString(), response.status);
       return await response.json();
     } catch (error) {
+      // Don't log aborted requests as errors
+      if (error instanceof Error && error.name === 'AbortError') {
+        return {
+          success: false,
+          error: {
+            message: 'Request aborted',
+            code: 'ABORTED',
+          },
+        };
+      }
       logger.apiError('GET', url.toString(), error);
       return {
         success: false,
@@ -83,7 +94,7 @@ const apiClient = new ApiClient();
 // Specific API methods for main landing
 export const api = {
   // Profile - for Identity modal
-  getProfile: () => apiClient.get<Profile>('/profile'),
+  getProfile: (signal?: AbortSignal) => apiClient.get<Profile>('/profile', undefined, signal),
 
   // Projects - for Projects modal (only featured)
   getFeaturedProjects: () => apiClient.get<Project[]>('/projects', { featured: true, limit: 6 }),

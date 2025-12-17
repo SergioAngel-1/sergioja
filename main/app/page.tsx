@@ -49,25 +49,31 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
+    const abortController = new AbortController();
+    
     const fetchProfile = async () => {
       try {
-        const response = await api.getProfile();
-        if (!isMounted) return;
+        const response = await api.getProfile(abortController.signal);
         if (response.success) {
           setProfile((response.data as Profile) || null);
         } else {
-          log.warn('Failed to load profile data', response.error);
+          // Don't log aborted requests
+          if (response.error?.code !== 'ABORTED') {
+            log.warn('Failed to load profile data', response.error);
+          }
         }
       } catch (error) {
-        if (isMounted) {
+        // Don't log aborted requests
+        if (error instanceof Error && error.name !== 'AbortError') {
           log.error('Error fetching profile', error);
         }
       }
     };
+    
     fetchProfile();
+    
     return () => {
-      isMounted = false;
+      abortController.abort();
     };
   }, [log]);
 
