@@ -11,7 +11,6 @@ const nextConfig = {
   },
   
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['framer-motion', 'three', '@react-three/fiber', '@react-three/drei'],
   },
   
