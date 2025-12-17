@@ -5,6 +5,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
+import { useModelTarget } from '@/lib/contexts/ModelTargetContext';
 
 interface ModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export default function Modal({
 
   const log = useLogger('Modal');
   const { lowPerformanceMode } = usePerformance();
+  const { setIsModalOpen } = useModelTarget();
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => {
@@ -43,10 +45,12 @@ export default function Modal({
   useEffect(() => {
     if (isOpen) {
       log.interaction('open_modal', title || position);
+      setIsModalOpen(true);
     } else {
       log.interaction('close_modal', title || position);
+      setIsModalOpen(false);
     }
-  }, [isOpen, title, position]);
+  }, [isOpen, title, position, setIsModalOpen]);
 
   useEffect(() => {
     if (!isOpen) return;

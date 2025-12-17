@@ -12,12 +12,17 @@ interface ModelTargetContextType {
   targetPosition: TargetPosition | null;
   setTargetPosition: (position: { x: number; y: number }) => void;
   clearTarget: () => void;
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
+  modalClosedTimestamp: number | null;
 }
 
 const ModelTargetContext = createContext<ModelTargetContextType | undefined>(undefined);
 
 export function ModelTargetProvider({ children }: { children: ReactNode }) {
   const [targetPosition, setTargetPositionState] = useState<TargetPosition | null>(null);
+  const [isModalOpen, setIsModalOpenState] = useState(false);
+  const [modalClosedTimestamp, setModalClosedTimestamp] = useState<number | null>(null);
 
   const setTargetPosition = (position: { x: number; y: number }) => {
     setTargetPositionState({
@@ -31,8 +36,16 @@ export function ModelTargetProvider({ children }: { children: ReactNode }) {
     setTargetPositionState(null);
   };
 
+  const setIsModalOpen = (isOpen: boolean) => {
+    setIsModalOpenState(isOpen);
+    if (!isOpen) {
+      // Cuando se cierra el modal, guardar timestamp para delay de giroscopio
+      setModalClosedTimestamp(Date.now());
+    }
+  };
+
   return (
-    <ModelTargetContext.Provider value={{ targetPosition, setTargetPosition, clearTarget }}>
+    <ModelTargetContext.Provider value={{ targetPosition, setTargetPosition, clearTarget, isModalOpen, setIsModalOpen, modalClosedTimestamp }}>
       {children}
     </ModelTargetContext.Provider>
   );

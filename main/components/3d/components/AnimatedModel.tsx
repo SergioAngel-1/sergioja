@@ -40,7 +40,7 @@ export function AnimatedModel({
     invalidate,
   });
   const { orientation, isMobile, isSupported, isActive } = useDeviceOrientation(gyroEnabled, schedule);
-  const { targetPosition } = useModelTarget();
+  const { targetPosition, isModalOpen, modalClosedTimestamp } = useModelTarget();
 
   // Cache quaternions and euler to avoid recreating them every frame
   const targetQuatRef = useRef(new Quaternion());
@@ -109,11 +109,17 @@ export function AnimatedModel({
         targetRotY = MathUtils.clamp(buttonTargetRef.current.x * 0.5, -0.5, 0.5);
         targetRotX = MathUtils.clamp(buttonTargetRef.current.y * 0.35, -0.35, 0.35);
       }
-      // Prioridad 2: Giroscopio en mobile
-      else if (isMobile && !lowPerformanceMode) {
-        const { beta, gamma } = orientation;
-        targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
-        targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
+      // Prioridad 2: Giroscopio en mobile (deshabilitado si modal está abierto o recién cerrado)
+      else if (isMobile && !lowPerformanceMode && !isModalOpen) {
+        // Esperar 500ms después de cerrar modal para que termine animación de reinserción
+        const gyroDelay = 500;
+        const canUseGyro = !modalClosedTimestamp || (Date.now() - modalClosedTimestamp > gyroDelay);
+        
+        if (canUseGyro) {
+          const { beta, gamma } = orientation;
+          targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
+          targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
+        }
       }
       // Prioridad 3: Mouse en desktop
       else if (!isMobile) {
