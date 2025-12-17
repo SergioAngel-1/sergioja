@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { logger } from '../logger';
 
@@ -18,8 +18,8 @@ export function useLogger(componentName: string) {
     previousPathname.current = pathname;
   }, [pathname]);
 
-  // Return logger methods with component context
-  return {
+  // Memoize logger methods to prevent re-renders in dependent useEffects
+  return useMemo(() => ({
     debug: (message: string, data?: any) => 
       logger.debug(message, data, componentName),
     
@@ -37,7 +37,7 @@ export function useLogger(componentName: string) {
     
     performance: (metric: string, value: number, unit?: string) => 
       logger.performance(metric, value, unit),
-  };
+  }), [componentName]);
 }
 
 /**
