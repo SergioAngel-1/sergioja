@@ -13,6 +13,7 @@ import MobileNav from './MobileNav';
 export default function Navbar() {
   const [time, setTime] = useState<string>('');
   const [mounted, setMounted] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const pathname = usePathname();
   const log = useLogger('Navbar');
   const { lowPerformanceMode } = usePerformance();
@@ -47,16 +48,36 @@ export default function Navbar() {
     log.info(`Navigated to ${pathname}`);
   }, [pathname, log]);
 
+  // Listen to modal open/close events
+  useEffect(() => {
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => setIsModalOpen(false);
+
+    window.addEventListener('devtips-modal-open', handleModalOpen);
+    window.addEventListener('devtips-modal-close', handleModalClose);
+    window.addEventListener('terminal-modal-open', handleModalOpen);
+    window.addEventListener('terminal-modal-close', handleModalClose);
+
+    return () => {
+      window.removeEventListener('devtips-modal-open', handleModalOpen);
+      window.removeEventListener('devtips-modal-close', handleModalClose);
+      window.removeEventListener('terminal-modal-open', handleModalOpen);
+      window.removeEventListener('terminal-modal-close', handleModalClose);
+    };
+  }, []);
+
   return (
     <>
-      <DesktopNav
-        navItems={navItems}
-        mounted={mounted}
-        lowPerformanceMode={lowPerformanceMode}
-        time={time}
-        profile={profile}
-        t={t}
-      />
+      {!isModalOpen && (
+        <DesktopNav
+          navItems={navItems}
+          mounted={mounted}
+          lowPerformanceMode={lowPerformanceMode}
+          time={time}
+          profile={profile}
+          t={t}
+        />
+      )}
 
       <MobileNav
         navItems={navItems}

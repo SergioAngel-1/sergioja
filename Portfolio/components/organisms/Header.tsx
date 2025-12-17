@@ -144,7 +144,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
       )}
 
       {/* Breadcrumbs or Home Badge - Below terminal button on mobile */}
-      {(showBreadcrumbs || showHomeBadge) && !isNavigating && (
+      {(showBreadcrumbs || showHomeBadge) && !isNavigating && !isModalOpen && (
         <motion.div 
           className={`absolute left-0 md:left-20 right-0 z-[10001] ${showHomeBadge && !showBreadcrumbs ? 'hidden md:block' : ''}`}
           style={{ 
