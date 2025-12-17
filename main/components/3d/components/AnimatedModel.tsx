@@ -43,6 +43,10 @@ export function AnimatedModel({
   // Cache quaternions and euler to avoid recreating them every frame
   const targetQuatRef = useRef(new Quaternion());
   const targetEulerRef = useRef(new Euler());
+  
+  // Smooth interpolation state
+  const currentRotRef = useRef({ x: BASE_ROT_X, y: BASE_ROT_Y });
+  const velocityRef = useRef({ x: 0, y: 0 });
 
   // Cargar modelo GLTF optimizado
   const { scene } = useGLTF(MODEL_PATH);
@@ -53,9 +57,10 @@ export function AnimatedModel({
   }, [mousePosition.x, mousePosition.y, schedule]);
 
   // Frame animation loop
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const now = state.clock.getElapsedTime();
-    const interval = lowPerformanceMode ? 1 / 20 : 1 / 30;
+    // Higher FPS for smoother animation: 30fps in low performance, 60fps normal
+    const interval = lowPerformanceMode ? 1 / 30 : 1 / 60;
     if (now - tickRef.current < interval) return;
     tickRef.current = now;
 
@@ -71,28 +76,43 @@ export function AnimatedModel({
       const ty = MathUtils.lerp(0, BASE_ROT_Y, animationProgress);
       targetEulerRef.current.set(tx, ty, 0, 'XYZ');
       targetQuatRef.current.setFromEuler(targetEulerRef.current);
-      group.quaternion.slerp(targetQuatRef.current, 0.12);
+      group.quaternion.slerp(targetQuatRef.current, 0.15);
     } else {
-      // Interactive animation
-      let inputRotY = 0,
-        inputRotX = 0;
+      // Interactive animation with smooth interpolation
+      let targetRotY = 0;
+      let targetRotX = 0;
 
       if (isMobile && !lowPerformanceMode) {
         const { beta, gamma } = orientation;
-        inputRotY = gamma * 0.00555555;
-        inputRotX = beta * 0.00166666;
+        targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
+        targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
       } else if (!isMobile) {
-        inputRotY = mousePosition.x * 0.5;
-        inputRotX = mousePosition.y * 0.3;
+        // Smoother mouse response with limits
+        targetRotY = MathUtils.clamp(mousePosition.x * 0.4, -0.4, 0.4);
+        targetRotX = MathUtils.clamp(mousePosition.y * 0.25, -0.25, 0.25);
       }
 
-      if (inputRotY !== 0 || inputRotX !== 0 || animationProgress === 1) {
-        targetEulerRef.current.set(BASE_ROT_X + inputRotX, BASE_ROT_Y + inputRotY, 0, 'XYZ');
-        targetQuatRef.current.setFromEuler(targetEulerRef.current);
+      // Exponential smoothing for ultra-smooth movement
+      const smoothFactor = lowPerformanceMode ? 0.08 : 0.12;
+      currentRotRef.current.x += (targetRotX - currentRotRef.current.x) * smoothFactor;
+      currentRotRef.current.y += (targetRotY - currentRotRef.current.y) * smoothFactor;
 
-        const dampingFactor = lowPerformanceMode ? 0.02 : 0.03;
-        group.quaternion.slerp(targetQuatRef.current, dampingFactor);
-      }
+      // Velocity-based damping for natural deceleration
+      const newVelX = currentRotRef.current.x - (velocityRef.current.x || 0);
+      const newVelY = currentRotRef.current.y - (velocityRef.current.y || 0);
+      velocityRef.current.x = currentRotRef.current.x;
+      velocityRef.current.y = currentRotRef.current.y;
+
+      // Apply smooth rotation with velocity consideration
+      const finalRotX = BASE_ROT_X + currentRotRef.current.x;
+      const finalRotY = BASE_ROT_Y + currentRotRef.current.y;
+      
+      targetEulerRef.current.set(finalRotX, finalRotY, 0, 'XYZ');
+      targetQuatRef.current.setFromEuler(targetEulerRef.current);
+
+      // Higher damping factor for smoother interpolation
+      const dampingFactor = lowPerformanceMode ? 0.06 : 0.1;
+      group.quaternion.slerp(targetQuatRef.current, dampingFactor);
     }
   });
 
