@@ -141,17 +141,17 @@ export default function Modal({
   // Eliminado rotateY y scale para evitar texto borroso causado por transformaciones 3D
   // En bajo rendimiento, simplificar aún más las animaciones
   const initialAnim = lowPerformanceMode
-    ? { opacity: 0 }
+    ? { opacity: 0, x: 0 }
     : isMobile
       ? { x: getInitialX() * 0.6, opacity: 0 }
       : { x: getInitialX(), opacity: 0 };
   const animateAnim = lowPerformanceMode
-    ? { opacity: 1 }
+    ? { opacity: 1, x: 0 }
     : isMobile
       ? { x: 0, opacity: 1 }
       : { x: 0, opacity: 1 };
   const exitAnim = lowPerformanceMode
-    ? { opacity: 0 }
+    ? { opacity: 0, x: 0 }
     : isMobile
       ? { x: getInitialX() * 0.5, opacity: 0 }
       : { x: getInitialX(), opacity: 0 };
