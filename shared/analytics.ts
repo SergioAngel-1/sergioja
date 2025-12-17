@@ -4,6 +4,8 @@
  * Usado por todos los frontends (main, portfolio, admin)
  */
 
+import { logger } from './logger';
+
 declare global {
   interface Window {
     dataLayer: any[];
@@ -29,7 +31,7 @@ export function trackEvent(event: GA4Event): void {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error tracking event:', error);
+    logger.error('Error tracking event', error, 'Analytics');
   }
 }
 

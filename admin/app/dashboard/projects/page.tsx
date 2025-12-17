@@ -53,8 +53,6 @@ function ProjectsPageContent() {
           projectsData = responseData.data;
         }
         
-        console.log('Raw response:', response);
-        console.log('Projects data:', projectsData);
         
         // NO transformar las tecnologías - mantener el formato completo de Prisma
         const transformedProjects = projectsData.map((project: any) => ({
@@ -63,7 +61,6 @@ function ProjectsPageContent() {
           // El formato de Prisma es: { category, proficiency, yearsOfExperience, technology: { name, color } }
         }));
         
-        console.log('Transformed projects:', transformedProjects);
         
         setProjects(transformedProjects as Project[]);
         logger.info('Projects loaded successfully', { count: transformedProjects.length });

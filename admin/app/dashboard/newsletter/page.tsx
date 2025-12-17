@@ -92,7 +92,7 @@ export default function NewsletterPage() {
             s.id === subscriberId ? { ...s, isRead: true } : s
           ));
         } catch (error) {
-          console.error('Error marking subscriber as read:', error);
+          logger.error('Error marking subscriber as read', error);
         }
       }
     }

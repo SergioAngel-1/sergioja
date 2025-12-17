@@ -9,6 +9,7 @@ import { clamp, fluidSizing } from '@/lib/fluidSizing';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/lib/recaptcha';
 import { trackLoginSuccess, trackLoginFailed, trackLoginError } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+import { logger } from '@/lib/logger';
 import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
 
@@ -79,7 +80,7 @@ export default function LoginPage() {
         trackLoginFailed('invalid_credentials', 'email');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      logger.error('Login error', error);
       alerts.error('Error', 'Ocurrió un error al iniciar sesión');
       trackLoginError('network_error', 'email');
     } finally {

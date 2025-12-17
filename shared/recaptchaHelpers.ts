@@ -5,6 +5,8 @@
 
 /// <reference lib="dom" />
 
+import { logger } from './logger';
+
 // Declarar tipo global para grecaptcha Enterprise
 declare global {
   interface Window {
@@ -67,7 +69,7 @@ export async function getReCaptchaToken(
   action: string = 'submit'
 ): Promise<string | null> {
   if (!siteKey) {
-    console.error('reCAPTCHA site key not provided');
+    logger.error('reCAPTCHA site key not provided', undefined, 'reCAPTCHA');
     return null;
   }
 
@@ -84,13 +86,13 @@ export async function getReCaptchaToken(
     const token = await window.grecaptcha.enterprise.execute(siteKey, { action });
     
     if (!token) {
-      console.error('reCAPTCHA Enterprise returned empty token');
+      logger.error('reCAPTCHA Enterprise returned empty token', undefined, 'reCAPTCHA');
       return null;
     }
 
     return token;
   } catch (error) {
-    console.error('Error obtaining reCAPTCHA token:', error);
+    logger.error('Error obtaining reCAPTCHA token', error, 'reCAPTCHA');
     return null;
   }
 }

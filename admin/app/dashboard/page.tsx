@@ -10,6 +10,7 @@ import { fluidSizing } from '@/lib/fluidSizing';
 import { api } from '@/lib/api-client';
 import { withAuth } from '@/lib/hoc';
 import { DashboardStats } from '@/lib/types';
+import { logger } from '@/lib/logger';
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -33,7 +34,7 @@ function DashboardPage() {
         setStats(response.data as DashboardStats);
       }
     } catch (error) {
-      console.error('Error loading dashboard stats:', error);
+      logger.error('Error loading dashboard stats', error);
     } finally {
       setIsLoadingStats(false);
     }

@@ -13,6 +13,7 @@ import MultiImageUploader from './MultiImageUploader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { useCategories, useProjectForm } from '@/lib/hooks';
+import { logger } from '@/lib/logger';
 
 interface ProjectFormData {
   id?: string;
@@ -97,7 +98,7 @@ export default function ProjectFormModal({
       await onSave(dataToSave);
       onClose();
     } catch (error) {
-      console.error('Error saving project:', error);
+      logger.error('Error saving project', error);
     } finally {
       setIsSubmitting(false);
     }

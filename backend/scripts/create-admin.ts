@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import readline from 'readline';
+import { logger } from '../src/lib/logger';
 
 const prisma = new PrismaClient();
 
@@ -20,7 +21,7 @@ async function getInput(prompt: string, fallback?: string): Promise<string> {
 }
 
 async function main() {
-  console.log('=== Create Admin User ===');
+  logger.info('=== Create Admin User ===');
   try {
     const name = process.env.ADMIN_NAME || (await getInput('Name', 'Admin'));
     const email = process.env.ADMIN_EMAIL || (await getInput('Email'));
@@ -28,15 +29,15 @@ async function main() {
     const password = process.env.ADMIN_PASSWORD || (await getInput('Password (visible input)'));
 
     if (!email || !email.includes('@')) {
-      console.error('Invalid email.');
+      logger.error('Invalid email');
       process.exit(1);
     }
     if (!password || password.length < 8) {
-      console.error('Password must be at least 8 characters.');
+      logger.error('Password must be at least 8 characters');
       process.exit(1);
     }
     if (!['admin', 'editor'].includes(role)) {
-      console.error("Role must be 'admin' or 'editor'.");
+      logger.error("Role must be 'admin' or 'editor'");
       process.exit(1);
     }
 
@@ -49,12 +50,10 @@ async function main() {
       select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true, updatedAt: true },
     });
 
-    console.log('\n✅ Admin user ready');
-    console.log(user);
+    logger.info('✅ Admin user ready', user);
     process.exit(0);
   } catch (err) {
-    console.error('❌ Failed to create admin user');
-    console.error(err);
+    logger.error('❌ Failed to create admin user', err);
     process.exit(1);
   } finally {
     await prisma.$disconnect();

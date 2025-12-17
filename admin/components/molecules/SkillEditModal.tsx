@@ -8,6 +8,7 @@ import SvgUpload from '../atoms/SvgUpload';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { Skill } from '@/lib/types';
 import { useCategories } from '@/lib/hooks';
+import { logger } from '@/lib/logger';
 
 interface SkillEditModalProps {
   isOpen: boolean;
@@ -60,7 +61,7 @@ export default function SkillEditModal({
       });
       onClose();
     } catch (error) {
-      console.error('Error saving skill:', error);
+      logger.error('Error saving skill', error);
     } finally {
       setIsSubmitting(false);
     }

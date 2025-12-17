@@ -46,8 +46,6 @@ async function sendToAnalytics(metric: WebVitalsMetric, logger?: any) {
     if (process.env.NODE_ENV !== 'production') {
       if (logger?.debug) {
         logger.debug('Web Vitals (dev)', metric);
-      } else {
-        console.log('[Web Vitals - dev]', metric);
       }
       return;
     }
@@ -92,8 +90,6 @@ function handleMetric(metric: Metric, logger?: any) {
       Math.round(metric.value),
       metric.name === 'CLS' ? '' : 'ms'
     );
-  } else {
-    console.log(`[Performance] ${emoji} ${metric.name}:`, Math.round(metric.value), metric.name === 'CLS' ? '' : 'ms');
   }
 
   // Enviar a analytics
@@ -120,14 +116,10 @@ export function initWebVitals(logger?: any) {
 
     if (logger?.info) {
       logger.info('Web Vitals tracking initialized', 'webVitals');
-    } else {
-      console.log('[Web Vitals] Tracking initialized');
     }
   } catch (error) {
     if (logger?.error) {
       logger.error('Failed to initialize Web Vitals', error, 'webVitals');
-    } else {
-      console.error('[Web Vitals] Failed to initialize:', error);
     }
   }
 }
