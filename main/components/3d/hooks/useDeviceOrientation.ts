@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { useIsMobile } from '@/shared/hooks/useIsMobile';
+import { 
+  setupAndroidGyro, 
+  cleanupAndroidGyro,
+  requestIOSGyroPermission,
+  iosNeedsPermission,
+  cleanupIOSGyro
+} from './gyro';
 
 interface DeviceOrientationData {
   beta: number;
@@ -31,43 +38,22 @@ export function useDeviceOrientation(
 
   // Configurar listener de orientación
   useEffect(() => {
-
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      // Validar que el sensor esté funcionando
-      if (event.beta === null || event.gamma === null) {
-        if (hasValidDataRef.current) {
-          log.warn('gyro_sensor_lost');
-          setIsActive(false);
-        }
-        return;
-      }
-
-      // Marcar como activo si recibimos datos válidos
-      if (!hasValidDataRef.current) {
-        hasValidDataRef.current = true;
-        setIsActive(true);
-        log.info('gyro_sensor_active');
-      }
-
-      orientationRef.current = {
-        beta: event.beta,
-        gamma: event.gamma,
-      };
-    };
-
     if (isMobile && typeof DeviceOrientationEvent !== 'undefined') {
       setIsSupported(true);
       
-      const permissionNeeded =
-        typeof (DeviceOrientationEvent as any).requestPermission === 'function';
+      const permissionNeeded = iosNeedsPermission();
       setNeedsPermission(permissionNeeded);
 
-      if (!permissionNeeded) {
-        // Android: Adjuntar listener inmediatamente
-        listenerRef.current = handleOrientation;
-        window.addEventListener('deviceorientation', handleOrientation, {
-          passive: true,
-        } as any);
+      if (!permissionNeeded && enabled) {
+        // Android: Adjuntar listener inmediatamente solo si está habilitado
+        setupAndroidGyro({
+          orientationRef,
+          hasValidDataRef,
+          listenerRef,
+          setIsActive,
+          onSensorActive: () => log.info('gyro_sensor_active'),
+          onSensorLost: () => log.warn('gyro_sensor_lost'),
+        });
       }
     } else {
       setIsSupported(false);
@@ -76,57 +62,22 @@ export function useDeviceOrientation(
 
     return () => {
       // Cleanup: remover listener si existe (Android o iOS después de permiso)
-      if (listenerRef.current) {
-        window.removeEventListener('deviceorientation', listenerRef.current);
-        listenerRef.current = null;
-      }
+      cleanupAndroidGyro(listenerRef);
     };
-  }, [enabled, onSchedule, log]);
+  }, [enabled, onSchedule, log, isMobile]);
 
   const requestPermission = async (): Promise<boolean> => {
-    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-      try {
-        const permissionState = await (DeviceOrientationEvent as any).requestPermission();
-        if (permissionState === 'granted') {
-          setNeedsPermission(false);
-          log.info('gyro_permission_granted');
-          
-          // iOS: Adjuntar listener DESPUÉS de obtener permiso
-          const handleOrientation = (event: DeviceOrientationEvent) => {
-            if (event.beta === null || event.gamma === null) {
-              if (hasValidDataRef.current) {
-                log.warn('gyro_sensor_lost');
-                setIsActive(false);
-              }
-              return;
-            }
-
-            if (!hasValidDataRef.current) {
-              hasValidDataRef.current = true;
-              setIsActive(true);
-              log.info('gyro_sensor_active');
-            }
-
-            orientationRef.current = {
-              beta: event.beta,
-              gamma: event.gamma,
-            };
-          };
-          
-          // Guardar referencia para cleanup
-          listenerRef.current = handleOrientation;
-          
-          window.addEventListener('deviceorientation', handleOrientation, {
-            passive: true,
-          } as any);
-          
-          return true;
-        }
-      } catch (error) {
-        log.error('gyro_permission_error', error as any);
-      }
-    }
-    return false;
+    return requestIOSGyroPermission({
+      orientationRef,
+      hasValidDataRef,
+      listenerRef,
+      setIsActive,
+      setNeedsPermission,
+      onSensorActive: () => log.info('gyro_sensor_active'),
+      onSensorLost: () => log.warn('gyro_sensor_lost'),
+      onPermissionGranted: () => log.info('gyro_permission_granted'),
+      onPermissionError: (error) => log.error('gyro_permission_error', error),
+    });
   };
 
   return {

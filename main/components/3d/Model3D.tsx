@@ -65,7 +65,7 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
     }, 1500);
     
     return () => clearTimeout(timer);
-  }, [lowPerformanceMode, log]);
+  }, [lowPerformanceMode, log, isMobile]);
 
   const handleGyroPermission = async () => {
     log.interaction('gyro_enable_click');
