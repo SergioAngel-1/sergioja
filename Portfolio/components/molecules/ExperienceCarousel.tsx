@@ -48,18 +48,45 @@ export default function ExperienceCarousel({ items }: ExperienceCarouselProps) {
   const [direction, setDirection] = useState(0);
   const { lowPerformanceMode } = usePerformance();
   const [isDragging, setIsDragging] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(8000);
+  const [startTime, setStartTime] = useState<number | null>(null);
   const AUTO_MS = 8000;
   const PROGRESS_SEC = AUTO_MS / 1000;
 
-  // Resettable autoplay to keep timing consistent after manual interactions
+  // Autoplay with true pause/resume support
   useEffect(() => {
-    if (isDragging) return;
+    // Si está pausado (dragging o hover), no hacer nada
+    if (isDragging || isHovered) {
+      return;
+    }
+    
+    // Guardar tiempo de inicio
+    const now = Date.now();
+    setStartTime(now);
+    
+    // Crear timer con el tiempo restante
     const timer = setTimeout(() => {
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % items.length);
-    }, AUTO_MS);
-    return () => clearTimeout(timer);
-  }, [currentIndex, items.length, isDragging]);
+      setRemainingTime(AUTO_MS); // Reset para siguiente slide
+    }, remainingTime);
+    
+    return () => {
+      clearTimeout(timer);
+      // Calcular tiempo transcurrido y actualizar remainingTime
+      if (startTime !== null) {
+        const elapsed = Date.now() - startTime;
+        setRemainingTime(prev => Math.max(0, prev - elapsed));
+      }
+    };
+  }, [currentIndex, items.length, isDragging, isHovered, remainingTime, startTime]);
+  
+  // Reset remaining time cuando cambia el slide
+  useEffect(() => {
+    setRemainingTime(AUTO_MS);
+    setStartTime(null);
+  }, [currentIndex]);
 
   const handleNext = () => {
     setDirection(1);
@@ -99,7 +126,12 @@ export default function ExperienceCarousel({ items }: ExperienceCarouselProps) {
   return (
     <div className="relative h-full w-full max-w-full flex flex-col overflow-hidden" style={{ minHeight: clamp('280px', '35vw', '360px') }}>
       {/* Main carousel card */}
-      <div className="relative w-full max-w-full bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg overflow-hidden flex-1 flex items-center justify-center hover:border-white/40 transition-all duration-500" style={{ padding: fluidSizing.space.xl }}>
+      <div 
+        className="relative w-full max-w-full bg-background-surface/50 backdrop-blur-sm border border-white/20 rounded-lg overflow-hidden flex-1 flex items-center justify-center hover:border-white/40 transition-all duration-500" 
+        style={{ padding: fluidSizing.space.xl }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         {/* Background glow effect */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-br from-white/3 via-transparent to-white/3"
@@ -198,13 +230,13 @@ export default function ExperienceCarousel({ items }: ExperienceCarouselProps) {
               {currentIndex === index && !lowPerformanceMode && !isDragging && (
                 <motion.div
                   className="absolute left-0 top-0 h-full rounded-full bg-white"
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
+                  initial={{ width: `${((AUTO_MS - remainingTime) / AUTO_MS) * 100}%` }}
+                  animate={{ width: isHovered ? `${((AUTO_MS - remainingTime) / AUTO_MS) * 100}%` : '100%' }}
                   transition={{
-                    duration: PROGRESS_SEC,
+                    duration: isHovered ? 0 : remainingTime / 1000,
                     ease: 'linear',
                   }}
-                  key={currentIndex}
+                  key={`${currentIndex}-${remainingTime}`}
                 />
               )}
             </motion.button>
