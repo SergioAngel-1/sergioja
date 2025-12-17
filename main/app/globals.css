@@ -275,4 +275,13 @@
   .hex-dash-animate {
     animation: hex-dash 4s linear infinite;
   }
+
+  /* Scanline animation - CRT effect */
+  @keyframes scanline {
+    from { background-position-y: 0px; }
+    to { background-position-y: 4px; }
+  }
+  .animate-scanline {
+    animation: scanline 0.1s linear infinite;
+  }
 }
