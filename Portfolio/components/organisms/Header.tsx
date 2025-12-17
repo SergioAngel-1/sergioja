@@ -23,6 +23,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
   const scrollDirection = useScrollDirection({ threshold: 10, debounce: 50 });
   const [isScrolled, setIsScrolled] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Keep terminal button height exactly equal to inline home badge height on mobile
   useEffect(() => {
@@ -69,10 +70,28 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
     };
   }, []);
 
+  // Detectar cuando se abre/cierra DevTipsModal o TerminalModal
+  useEffect(() => {
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => setIsModalOpen(false);
+
+    window.addEventListener('devtips-modal-open', handleModalOpen);
+    window.addEventListener('devtips-modal-close', handleModalClose);
+    window.addEventListener('terminal-modal-open', handleModalOpen);
+    window.addEventListener('terminal-modal-close', handleModalClose);
+
+    return () => {
+      window.removeEventListener('devtips-modal-open', handleModalOpen);
+      window.removeEventListener('devtips-modal-close', handleModalClose);
+      window.removeEventListener('terminal-modal-open', handleModalOpen);
+      window.removeEventListener('terminal-modal-close', handleModalClose);
+    };
+  }, []);
+
   return (
     <>
       {/* Mobile Terminal Button - Top Left */}
-      {(onTerminalOpen || (showHomeBadge && isHomePage)) && !isNavigating && (
+      {(onTerminalOpen || (showHomeBadge && isHomePage)) && !isNavigating && !isModalOpen && (
         <div
           className={`lg:hidden ${isHomePage ? 'absolute' : 'fixed'} top-0 left-0 z-[10001] flex items-center`}
           style={{ 
@@ -86,6 +105,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
               className={`relative rounded-sm border-2 border-white text-black bg-white flex items-center justify-center transition-all duration-300 hover:bg-white/90`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ delay: 0.6, duration: 0.6, ease: 'easeOut' }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
