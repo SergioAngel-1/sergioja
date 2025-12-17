@@ -151,18 +151,17 @@ export default function Home() {
     const word = words[currentWordIndex] || '';
     let currentIndex = 0;
     let isDeleting = false;
-    let pauseUntil = 0;
+    let timeoutId: NodeJS.Timeout;
 
-    const typeInterval = setInterval(() => {
-      const now = Date.now();
-      if (pauseUntil && now < pauseUntil) return;
-
+    const type = () => {
       if (!isDeleting) {
         setTypedText(word.substring(0, currentIndex + 1));
         currentIndex++;
         if (currentIndex === word.length) {
           isDeleting = true;
-          pauseUntil = Date.now() + 800;
+          timeoutId = setTimeout(type, 800); // Pause at end
+        } else {
+          timeoutId = setTimeout(type, 120);
         }
       } else {
         setTypedText(word.substring(0, Math.max(0, currentIndex - 1)));
@@ -170,11 +169,15 @@ export default function Home() {
         if (currentIndex <= 0) {
           isDeleting = false;
           setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        } else {
+          timeoutId = setTimeout(type, 120);
         }
       }
-    }, 120);
+    };
 
-    return () => clearInterval(typeInterval);
+    timeoutId = setTimeout(type, 120);
+
+    return () => clearTimeout(timeoutId);
   }, [currentWordIndex, words]);
 
   const handleDevTipsSubmit = async (email: string) => {
