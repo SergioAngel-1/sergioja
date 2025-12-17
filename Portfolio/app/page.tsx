@@ -71,6 +71,15 @@ export default function Home() {
     window.dispatchEvent(event);
   }, []);
 
+  // Emit events when mobile terminal modal opens/closes
+  useEffect(() => {
+    if (showMobileTerminal) {
+      window.dispatchEvent(new Event('terminal-modal-open'));
+    } else {
+      window.dispatchEvent(new Event('terminal-modal-close'));
+    }
+  }, [showMobileTerminal]);
+
   // reset typing when language changes
   useEffect(() => {
     setTypedText('');

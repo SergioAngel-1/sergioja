@@ -2,7 +2,7 @@
 
 import { motion, useAnimationControls } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import { RefObject, useEffect } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import MobileNavItem from '../molecules/MobileNavItem';
 import NavBackground from '../molecules/NavBackground';
 import { useScrollDirection } from '@/lib/hooks/useScrollDirection';
@@ -31,6 +31,7 @@ export default function MobileNav({
   const pathname = usePathname();
   const { direction: scrollDirection, isAtBottom } = useScrollDirection({ threshold: 10, debounce: 50 });
   const controls = useAnimationControls();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleNavigate = (href: string) => {
     if (pathname !== href) {
@@ -47,8 +48,40 @@ export default function MobileNav({
     });
   }, [pathname, controls]);
 
+  // Listen for terminal modal state changes
+  useEffect(() => {
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => {
+      setIsModalOpen(false);
+      // iOS fix: Force navbar to show immediately when modal closes
+      controls.start({
+        y: 0,
+        opacity: 1,
+        transition: { duration: 0.3, ease: 'easeInOut' }
+      });
+    };
+
+    window.addEventListener('terminal-modal-open', handleModalOpen);
+    window.addEventListener('terminal-modal-close', handleModalClose);
+
+    return () => {
+      window.removeEventListener('terminal-modal-open', handleModalOpen);
+      window.removeEventListener('terminal-modal-close', handleModalClose);
+    };
+  }, [controls]);
+
   // Auto-hide navbar on scroll down, show on scroll up, always show at bottom
   useEffect(() => {
+    // Ocultar navbar si el modal está abierto
+    if (isModalOpen) {
+      controls.start({
+        y: 100,
+        opacity: 0,
+        transition: { duration: 0.3, ease: 'easeInOut' }
+      });
+      return;
+    }
+
     // Verificar si la página tiene scroll disponible
     const hasScroll = document.documentElement.scrollHeight > window.innerHeight;
     
@@ -85,7 +118,7 @@ export default function MobileNav({
         transition: { duration: 0.3, ease: 'easeInOut' }
       });
     }
-  }, [scrollDirection, isAtBottom, controls]);
+  }, [scrollDirection, isAtBottom, isModalOpen, controls]);
 
   // iOS Safari: Force layout recalculation on orientation change
   useEffect(() => {
