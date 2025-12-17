@@ -2,7 +2,7 @@
 
 import { motion, useAnimationControls } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import { RefObject, useEffect, useState } from 'react';
+import { RefObject, useEffect, useState, useMemo } from 'react';
 import MobileNavItem from '../molecules/MobileNavItem';
 import NavBackground from '../molecules/NavBackground';
 import { useScrollDirection } from '@/lib/hooks/useScrollDirection';
@@ -45,9 +45,9 @@ export default function MobileNav({
     controls.start({
       y: 0,
       opacity: 1,
-      transition: { duration: 0.3, ease: 'easeInOut' }
+      transition: lowPerformanceMode ? { duration: 0 } : { duration: 0.3, ease: 'easeInOut' }
     });
-  }, [pathname, controls]);
+  }, [pathname, controls, lowPerformanceMode]);
 
   // Listen for terminal modal state changes
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function MobileNav({
       controls.start({
         y: 0,
         opacity: 1,
-        transition: { duration: 0.3, ease: 'easeInOut' }
+        transition: lowPerformanceMode ? { duration: 0 } : { duration: 0.3, ease: 'easeInOut' }
       });
     };
 
@@ -69,7 +69,7 @@ export default function MobileNav({
       window.removeEventListener('terminal-modal-open', handleModalOpen);
       window.removeEventListener('terminal-modal-close', handleModalClose);
     };
-  }, [controls]);
+  }, [controls, lowPerformanceMode]);
 
   // Track scroll distance for delayed hide
   useEffect(() => {
@@ -96,78 +96,51 @@ export default function MobileNav({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [scrollDirection]);
 
+  // Memoizar cálculo de hasScroll para evitar recalcular en cada render
+  const hasScroll = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return document.documentElement.scrollHeight > window.innerHeight;
+  }, [pathname]); // Recalcular solo cuando cambia la página
+
   // Auto-hide navbar on scroll down, show on scroll up, always show at bottom
   useEffect(() => {
+    // Transición basada en performance mode
+    const transition = lowPerformanceMode 
+      ? { duration: 0 } 
+      : { duration: 0.3, ease: 'easeInOut' };
+
     // Ocultar navbar si el modal está abierto
     if (isModalOpen) {
-      controls.start({
-        y: 100,
-        opacity: 0,
-        transition: { duration: 0.3, ease: 'easeInOut' }
-      });
+      controls.start({ y: 100, opacity: 0, transition });
       return;
     }
-
-    // Verificar si la página tiene scroll disponible
-    const hasScroll = document.documentElement.scrollHeight > window.innerHeight;
     
     // Solo aplicar auto-hide si hay scroll disponible
     if (!hasScroll) {
-      controls.start({
-        y: 0,
-        opacity: 1,
-        transition: { duration: 0.3, ease: 'easeInOut' }
-      });
+      controls.start({ y: 0, opacity: 1, transition });
       return;
     }
 
     // Siempre mostrar navbar si está al final de la página
     if (isAtBottom) {
-      controls.start({
-        y: 0,
-        opacity: 1,
-        transition: { duration: 0.3, ease: 'easeInOut' }
-      });
+      controls.start({ y: 0, opacity: 1, transition });
       return;
     }
 
     // Solo ocultar después de scrollear 100px hacia abajo
     if (scrollDirection === 'down' && scrollDistance > 100) {
-      controls.start({
-        y: 100,
-        opacity: 0,
-        transition: { duration: 0.3, ease: 'easeInOut' }
-      });
+      controls.start({ y: 100, opacity: 0, transition });
     } else if (scrollDirection === 'up') {
-      controls.start({
-        y: 0,
-        opacity: 1,
-        transition: { duration: 0.3, ease: 'easeInOut' }
-      });
+      controls.start({ y: 0, opacity: 1, transition });
     }
-  }, [scrollDirection, scrollDistance, isAtBottom, isModalOpen, controls]);
-
-  // iOS Safari: Force layout recalculation on orientation change
-  useEffect(() => {
-    const handleOrientationChange = () => {
-      // Force reflow to fix iOS Safari layout issues
-      if (navRef.current) {
-        navRef.current.style.display = 'none';
-        navRef.current.offsetHeight; // Trigger reflow
-        navRef.current.style.display = '';
-      }
-    };
-
-    window.addEventListener('orientationchange', handleOrientationChange);
-    return () => window.removeEventListener('orientationchange', handleOrientationChange);
-  }, [navRef]);
+  }, [scrollDirection, scrollDistance, isAtBottom, isModalOpen, controls, hasScroll, lowPerformanceMode]);
 
   return (
     <motion.nav
       ref={navRef}
       initial={{ y: 0, opacity: 1 }}
       animate={controls}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      transition={lowPerformanceMode ? { duration: 0 } : { duration: 0.3, ease: 'easeInOut' }}
       className="md:hidden fixed left-0 right-0 bg-background-surface/95 backdrop-blur-md border-t border-white/30 z-50 mobile-nav-safe-area"
       style={{
         bottom: 'var(--bottom-gap, 0px)',
