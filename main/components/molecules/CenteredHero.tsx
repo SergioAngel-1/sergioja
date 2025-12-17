@@ -9,7 +9,11 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 
 const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
   ssr: false,
-  loading: () => <Loader size="md" message="Loading 3D model..." />
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <Loader size="sm" />
+    </div>
+  )
 });
 
 export default function CenteredHero({ onModelIntroComplete }: { onModelIntroComplete?: () => void }) {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLogger } from '@/shared/hooks/useLogger';
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
 
 interface DeviceOrientationData {
   beta: number;
@@ -20,24 +21,16 @@ export function useDeviceOrientation(
   onSchedule?: (ms: number) => void
 ): UseDeviceOrientationReturn {
   const log = useLogger('useDeviceOrientation');
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   const [needsPermission, setNeedsPermission] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const orientationRef = useRef<DeviceOrientationData>({ beta: 0, gamma: 0 });
   const hasValidDataRef = useRef(false);
+  const listenerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
 
-  // Detectar si es mobile
+  // Configurar listener de orientación
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
-      setIsMobile(mobile);
-      return mobile;
-    };
-
-    const mobile = checkMobile();
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
       // Validar que el sensor esté funcionando
@@ -60,22 +53,18 @@ export function useDeviceOrientation(
         beta: event.beta,
         gamma: event.gamma,
       };
-      // Remover throttling - el giroscopio ya está limitado a ~60Hz
-      // y useFrame en AnimatedModel maneja el timing
     };
 
-    if (mobile && typeof DeviceOrientationEvent !== 'undefined') {
+    if (isMobile && typeof DeviceOrientationEvent !== 'undefined') {
       setIsSupported(true);
       
       const permissionNeeded =
         typeof (DeviceOrientationEvent as any).requestPermission === 'function';
       setNeedsPermission(permissionNeeded);
 
-      if (permissionNeeded) {
-        // iOS: NO adjuntar listener aquí - se adjuntará en requestPermission()
-        // después de obtener el permiso del usuario
-      } else {
+      if (!permissionNeeded) {
         // Android: Adjuntar listener inmediatamente
+        listenerRef.current = handleOrientation;
         window.addEventListener('deviceorientation', handleOrientation, {
           passive: true,
         } as any);
@@ -86,9 +75,13 @@ export function useDeviceOrientation(
     }
 
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
+      // Cleanup: remover listener si existe (Android o iOS después de permiso)
+      if (listenerRef.current) {
+        window.removeEventListener('deviceorientation', listenerRef.current);
+        listenerRef.current = null;
+      }
     };
-  }, [enabled, onSchedule]);
+  }, [enabled, onSchedule, log]);
 
   const requestPermission = async (): Promise<boolean> => {
     if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
@@ -119,6 +112,9 @@ export function useDeviceOrientation(
               gamma: event.gamma,
             };
           };
+          
+          // Guardar referencia para cleanup
+          listenerRef.current = handleOrientation;
           
           window.addEventListener('deviceorientation', handleOrientation, {
             passive: true,

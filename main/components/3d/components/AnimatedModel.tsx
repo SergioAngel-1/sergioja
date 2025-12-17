@@ -94,10 +94,7 @@ export function AnimatedModel({
     };
   }, [scene, log]);
 
-  // Trigger schedule on mouse movement
-  useEffect(() => {
-    schedule(120);
-  }, [mousePosition.x, mousePosition.y, schedule]);
+  // Mouse movement triggers re-render automatically via frameloop='always'
 
   // Handle button target position (mobile only)
   useEffect(() => {
@@ -132,7 +129,7 @@ export function AnimatedModel({
   // Frame animation loop
   useFrame((state, delta) => {
     const now = state.clock.getElapsedTime();
-    // Higher FPS for smoother animation: 30fps in low performance, 60fps normal
+    // Throttle to target FPS: 30fps in low performance, 60fps normal
     const interval = lowPerformanceMode ? 1 / 30 : 1 / 60;
     if (now - tickRef.current < interval) return;
     tickRef.current = now;
@@ -140,7 +137,6 @@ export function AnimatedModel({
     const group = groupRef.current;
     if (!group) return;
 
-    schedule(200);
     group.position.z = 0;
 
     if (animationProgress < 1) {

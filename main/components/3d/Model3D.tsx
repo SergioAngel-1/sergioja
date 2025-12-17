@@ -7,6 +7,7 @@ import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
 import Loader from '@/components/atoms/Loader';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLogger } from '@/shared/hooks/useLogger';
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { AnimatedModel } from './components/AnimatedModel';
 import { ModelBackground } from './components/ModelBackground';
@@ -23,24 +24,30 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
   const [showGyroButton, setShowGyroButton] = useState(false);
   const [showGyroHint, setShowGyroHint] = useState(false);
   const [gyroEnabled, setGyroEnabled] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   const { t } = useLanguage();
   const log = useLogger('Model3D');
   const { lowPerformanceMode, mode } = usePerformance();
+
+  // Desactivar gyro si se activa low performance mode
+  useEffect(() => {
+    if (lowPerformanceMode && gyroEnabled) {
+      setGyroEnabled(false);
+      setShowGyroButton(false);
+      setShowGyroHint(false);
+      log.info('gyro_disabled_low_performance');
+    }
+  }, [lowPerformanceMode, gyroEnabled, log]);
 
   useEffect(() => {
     setMounted(true);
     log.info('model_mount');
     
-    // Detectar mobile una sola vez
-    const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    setIsMobile(mobile);
-    
     const timer = setTimeout(() => {
       setIsLoading(false);
       log.info('model_ready');
       // Mostrar controles de giroscopio si NO está en bajo rendimiento
-      if (!lowPerformanceMode && mobile) {
+      if (!lowPerformanceMode && isMobile) {
         if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
           // iOS: Mostrar botón para solicitar permiso
           log.info('gyro_button_shown_ios');
@@ -109,14 +116,13 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
                 stencil: false,
                 depth: true,
               }}
-              frameloop={'demand'}
+              frameloop="always"
               flat
               style={{ background: 'transparent' }}
-              onCreated={({ gl, scene }) => {
+              onCreated={({ gl }) => {
                 gl.toneMapping = ACESFilmicToneMapping;
                 gl.outputColorSpace = SRGBColorSpace;
                 gl.toneMappingExposure = 1.3;
-                scene.matrixAutoUpdate = false;
               }}
             >
               <AnimatedModel
@@ -125,8 +131,7 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
                 lowPerformanceMode={lowPerformanceMode}
                 onIntroAnimationEnd={onAnimationComplete}
               />
-              <AdaptiveDpr />
-              <Preload all />
+              {!lowPerformanceMode && <AdaptiveDpr />}
             </Canvas>
           </div>
 
