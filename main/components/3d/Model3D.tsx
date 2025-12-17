@@ -98,7 +98,6 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
         <>
           <div className="absolute inset-0 z-10">
             <Canvas
-              key={mode}
               camera={{ position: [0, 0, 4], fov: 50 }}
               dpr={lowPerformanceMode ? 1 : [1, 1.25]}
               shadows={false}
