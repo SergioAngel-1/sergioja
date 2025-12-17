@@ -13,6 +13,7 @@ export default function HexagonGrid() {
   const [isMobile, setIsMobile] = useState(false);
   const rafIdRef = useRef<number | null>(null);
   const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
+  const smoothMousePosRef = useRef({ x: -1000, y: -1000 }); // Posición interpolada suave
   
   // En modo bajo rendimiento, deshabilitar efectos
   const lowPerformanceMode = mode === 'low';
@@ -72,9 +73,11 @@ export default function HexagonGrid() {
     return () => clearInterval(interval);
   }, [mounted, lowPerformanceMode]);
   
-  // Manejar seguimiento del mouse con RAF throttle
+  // Manejar seguimiento del mouse con RAF throttle e interpolación suave
   useEffect(() => {
     if (!mounted || lowPerformanceMode) return;
+    
+    let animationFrameId: number | null = null;
     
     const handleMouseMove = (e: MouseEvent) => {
       // Store pending position
@@ -82,13 +85,35 @@ export default function HexagonGrid() {
       
       // Schedule update on next animation frame if not already scheduled
       if (rafIdRef.current === null) {
-        rafIdRef.current = requestAnimationFrame(() => {
+        const smoothUpdate = () => {
           if (pendingPositionRef.current) {
-            setMousePos(pendingPositionRef.current);
-            pendingPositionRef.current = null;
+            // Interpolación suave para eliminar jitter
+            const smoothFactor = 0.15; // Factor de suavizado
+            const targetX = pendingPositionRef.current.x;
+            const targetY = pendingPositionRef.current.y;
+            
+            smoothMousePosRef.current.x += (targetX - smoothMousePosRef.current.x) * smoothFactor;
+            smoothMousePosRef.current.y += (targetY - smoothMousePosRef.current.y) * smoothFactor;
+            
+            setMousePos({
+              x: smoothMousePosRef.current.x,
+              y: smoothMousePosRef.current.y
+            });
+            
+            // Continuar interpolando si aún hay diferencia significativa
+            const diffX = Math.abs(targetX - smoothMousePosRef.current.x);
+            const diffY = Math.abs(targetY - smoothMousePosRef.current.y);
+            
+            if (diffX > 0.5 || diffY > 0.5) {
+              rafIdRef.current = requestAnimationFrame(smoothUpdate);
+            } else {
+              pendingPositionRef.current = null;
+              rafIdRef.current = null;
+            }
           }
-          rafIdRef.current = null;
-        });
+        };
+        
+        rafIdRef.current = requestAnimationFrame(smoothUpdate);
       }
     };
     
@@ -167,7 +192,7 @@ export default function HexagonGrid() {
       
       // Distancia desde el mouse (usando distancia al cuadrado para evitar sqrt)
       const distanceSquaredFromMouse = Math.pow(mousePos.x - hexX, 2) + Math.pow(mousePos.y - hexY, 2);
-      const maxDistanceSquared = 200 * 200;
+      const maxDistanceSquared = 250 * 250; // Radio aumentado para efecto más amplio
       const opacityFromMouse = Math.max(0, 1 - distanceSquaredFromMouse / maxDistanceSquared);
       
       // Distancia desde el centro de la pantalla (luz fija)
@@ -225,7 +250,7 @@ export default function HexagonGrid() {
             strokeWidth="2"
             opacity={hex.opacity * 1.2}
             filter={lowPerformanceMode || isMobile ? undefined : "url(#softGlow)"}
-            style={{ transition: lowPerformanceMode ? 'none' : 'opacity 0.2s ease-out' }}
+            style={{ transition: lowPerformanceMode ? 'none' : 'opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1)' }}
           />
         ))}
       </svg>
