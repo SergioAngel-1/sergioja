@@ -55,6 +55,45 @@ export function AnimatedModel({
   // Cargar modelo GLTF optimizado
   const { scene } = useGLTF(MODEL_PATH);
 
+  // Cleanup: Dispose of Three.js resources to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (scene) {
+        scene.traverse((child: any) => {
+          // Dispose geometries
+          if (child.geometry) {
+            child.geometry.dispose();
+          }
+          
+          // Dispose materials
+          if (child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach((material: any) => {
+                if (material.map) material.map.dispose();
+                if (material.lightMap) material.lightMap.dispose();
+                if (material.bumpMap) material.bumpMap.dispose();
+                if (material.normalMap) material.normalMap.dispose();
+                if (material.specularMap) material.specularMap.dispose();
+                if (material.envMap) material.envMap.dispose();
+                material.dispose();
+              });
+            } else {
+              if (child.material.map) child.material.map.dispose();
+              if (child.material.lightMap) child.material.lightMap.dispose();
+              if (child.material.bumpMap) child.material.bumpMap.dispose();
+              if (child.material.normalMap) child.material.normalMap.dispose();
+              if (child.material.specularMap) child.material.specularMap.dispose();
+              if (child.material.envMap) child.material.envMap.dispose();
+              child.material.dispose();
+            }
+          }
+        });
+        
+        log.debug('Three.js resources disposed', { modelPath: MODEL_PATH });
+      }
+    };
+  }, [scene, log]);
+
   // Trigger schedule on mouse movement
   useEffect(() => {
     schedule(120);
