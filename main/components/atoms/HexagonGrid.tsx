@@ -74,8 +74,9 @@ export default function HexagonGrid() {
   }, [mounted, lowPerformanceMode]);
   
   // Manejar seguimiento del mouse con RAF throttle e interpolación suave
+  // Deshabilitado en mobile ya que no tienen cursor
   useEffect(() => {
-    if (!mounted || lowPerformanceMode) return;
+    if (!mounted || lowPerformanceMode || isMobile) return;
     
     let animationFrameId: number | null = null;
     
@@ -126,7 +127,7 @@ export default function HexagonGrid() {
         rafIdRef.current = null;
       }
     };
-  }, [mounted, lowPerformanceMode]);
+  }, [mounted, lowPerformanceMode, isMobile]);
   
   // Memoize hexagon grid generation to prevent recalculation on every render
   // MUST be before conditional return to comply with Rules of Hooks
