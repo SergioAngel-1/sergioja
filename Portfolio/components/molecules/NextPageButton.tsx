@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
-import { useScrollDirection } from '@/lib/hooks/useScrollDirection';
 
 interface PageRoute {
   path: string;
@@ -26,7 +25,6 @@ export default function NextPageButton() {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useLanguage();
-  const { direction: scrollDirection, isAtBottom } = useScrollDirection({ threshold: 30, debounce: 50 });
 
   // Detectar si estamos en una página de proyecto individual
   const isProjectDetailPage = pathname?.startsWith('/projects/') && pathname !== '/projects';
@@ -94,22 +92,6 @@ export default function NextPageButton() {
   // Don't show if there's no next page
   if (!nextRoute) return null;
 
-  // Calcular posición bottom según estado de navbar mobile
-  // --bottom-gap ya incluye safe-area-inset-bottom en iOS Safari
-  const getBottomPosition = () => {
-    // Navbar está visible si: scroll arriba, al final de página, o sin scroll
-    const isNavbarVisible = scrollDirection === 'up' || isAtBottom || scrollDirection === null;
-    
-    if (isNavbarVisible) {
-      // Navbar visible: posición sobre la navbar
-      // --mobile-nav-height (altura real) + --bottom-gap (gap de Safari) + spacing
-      return `calc(var(--mobile-nav-height, 4rem) + var(--bottom-gap, 0px) + ${fluidSizing.space.xl})`;
-    } else {
-      // Navbar oculta: solo --bottom-gap (ya incluye safe-area) + spacing
-      return `calc(var(--bottom-gap, 0px) + ${fluidSizing.space.xl})`;
-    }
-  };
-
   return (
     <AnimatePresence>
       {isVisible && (
@@ -125,12 +107,11 @@ export default function NextPageButton() {
             opacity: { duration: 0.3 },
             scale: { duration: 0.3 }
           }}
-          className="group fixed z-40 flex items-center"
+          className="group fixed z-40 hidden md:flex items-center"
           style={{ 
-            bottom: getBottomPosition(),
-            right: `max(${fluidSizing.space.lg}, calc(${fluidSizing.space.lg} + env(safe-area-inset-right, 0px)))`,
-            gap: fluidSizing.space.md,
-            transition: 'bottom 0.3s ease-in-out'
+            bottom: fluidSizing.space.xl,
+            right: fluidSizing.space.lg,
+            gap: fluidSizing.space.md
           }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
