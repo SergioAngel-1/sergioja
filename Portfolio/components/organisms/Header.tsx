@@ -75,21 +75,28 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
       {(onTerminalOpen || (showHomeBadge && isHomePage)) && !isNavigating && (
         <div
           className={`lg:hidden ${isHomePage ? 'absolute' : 'fixed'} top-0 left-0 z-[10001] flex items-center`}
-          style={{ margin: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}
+          style={{ 
+            paddingTop: `max(${fluidSizing.space.md}, calc(${fluidSizing.space.md} + env(safe-area-inset-top, 0px)))`,
+            paddingLeft: fluidSizing.space.lg
+          }}
         >
           {onTerminalOpen && (
             <motion.button
               onClick={onTerminalOpen}
-              className={`relative rounded-sm border-2 border-white text-white bg-transparent flex items-center justify-center transition-all duration-300`}
+              className={`relative rounded-sm border-2 border-white text-black bg-white flex items-center justify-center transition-all duration-300 hover:bg-white/90`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.6, ease: 'easeOut' }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               aria-label="Open terminal"
-              style={{ padding: `0 ${fluidSizing.space.xs}`, height: badgeHeight ? `${badgeHeight}px` : undefined, boxSizing: 'border-box' }}
+              style={{ 
+                padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, 
+                height: badgeHeight ? `${badgeHeight}px` : undefined, 
+                boxSizing: 'border-box' 
+              }}
             >
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 {/* Chevron ">" */}
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 8l4 4-4 4" />
                 {/* Underscore */}
@@ -120,7 +127,11 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
       {(showBreadcrumbs || showHomeBadge) && !isNavigating && (
         <motion.div 
           className={`absolute left-0 md:left-20 right-0 z-[10001] ${showHomeBadge && !showBreadcrumbs ? 'hidden md:block' : ''}`}
-          style={{ top: onTerminalOpen ? `calc(env(safe-area-inset-top, 0px) + 2.5rem + ${fluidSizing.space.md})` : 'env(safe-area-inset-top, 0px)' }}
+          style={{ 
+            paddingTop: onTerminalOpen 
+              ? `calc(max(${fluidSizing.space.md}, calc(${fluidSizing.space.md} + env(safe-area-inset-top, 0px))) + 2.5rem)` 
+              : `max(${fluidSizing.space.md}, calc(${fluidSizing.space.md} + env(safe-area-inset-top, 0px)))`
+          }}
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -129,7 +140,8 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
             className="mx-auto w-full"
             style={{ 
               maxWidth: '1600px', 
-              padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` 
+              paddingLeft: fluidSizing.space.lg,
+              paddingRight: fluidSizing.space.lg
             }}
           >
           {showBreadcrumbs && <Breadcrumbs />}

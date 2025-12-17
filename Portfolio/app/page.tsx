@@ -63,10 +63,10 @@ export default function Home() {
     [language]
   );
 
-  // Register terminal handler with Header
+  // Register terminal handler with Header (toggle open/close)
   useEffect(() => {
     const event = new CustomEvent('register-terminal-handler', {
-      detail: { handler: () => setShowMobileTerminal(true) }
+      detail: { handler: () => setShowMobileTerminal(prev => !prev) }
     });
     window.dispatchEvent(event);
   }, []);
