@@ -4,6 +4,7 @@ import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import AlertContainer from '@/components/molecules/AlertContainer';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
+import { ModelTargetProvider } from '@/lib/contexts/ModelTargetContext';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
 import WebVitalsTracker from '@/components/WebVitalsTracker';
@@ -100,8 +101,10 @@ export default function RootLayout({
           }))}
         </Script>
         <LanguageProvider>
-          <main className="h-viewport overflow-hidden">{children}</main>
-          <AlertContainer />
+          <ModelTargetProvider>
+            <main className="h-viewport overflow-hidden">{children}</main>
+            <AlertContainer />
+          </ModelTargetProvider>
         </LanguageProvider>
         <WebVitalsTracker />
       </body>

@@ -1,9 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
+import { ReactNode, useRef, useEffect, useState } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
+import { useModelTarget } from '@/lib/contexts/ModelTargetContext';
 
 interface HexButtonProps {
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -39,6 +40,19 @@ export default function HexButton({
   anyModalOpen = false
 }: HexButtonProps) {
   const { lowPerformanceMode } = usePerformance();
+  const { setTargetPosition } = useModelTarget();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const positionStyles = {
     'top-left': { 
       top: `calc(${fluidSizing.space.lg} + env(safe-area-inset-top))`, 
@@ -73,7 +87,28 @@ export default function HexButton({
       }}
     >
       <motion.button
-        onClick={onClick}
+        ref={buttonRef}
+        onClick={() => {
+          // En mobile, hacer que el modelo mire hacia este botón
+          if (isMobile && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Normalizar a rango -1 a 1
+            const normalizedX = (centerX / window.innerWidth) * 2 - 1;
+            const normalizedY = (centerY / window.innerHeight) * 2 - 1;
+            
+            setTargetPosition({ x: normalizedX, y: normalizedY });
+            
+            // Limpiar target después de 2 segundos
+            setTimeout(() => {
+              setTargetPosition({ x: 0, y: 0 });
+            }, 2000);
+          }
+          
+          onClick();
+        }}
         className="relative flex items-center justify-center cursor-pointer group"
         style={{
           width: fluidSizing.size.hexButton,

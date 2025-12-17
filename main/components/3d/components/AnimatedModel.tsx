@@ -8,6 +8,7 @@ import { useModelAnimation } from '../hooks/useModelAnimation';
 import { useRenderScheduler } from '../hooks/useRenderScheduler';
 import { ModelLighting } from './ModelLighting';
 import { ModelFallback } from './ModelFallback';
+import { useModelTarget } from '@/lib/contexts/ModelTargetContext';
 
 interface AnimatedModelProps {
   mousePosition: { x: number; y: number };
@@ -39,6 +40,7 @@ export function AnimatedModel({
     invalidate,
   });
   const { orientation, isMobile, isSupported, isActive } = useDeviceOrientation(gyroEnabled, schedule);
+  const { targetPosition } = useModelTarget();
 
   // Cache quaternions and euler to avoid recreating them every frame
   const targetQuatRef = useRef(new Quaternion());
@@ -47,6 +49,7 @@ export function AnimatedModel({
   // Smooth interpolation state
   const currentRotRef = useRef({ x: BASE_ROT_X, y: BASE_ROT_Y });
   const velocityRef = useRef({ x: 0, y: 0 });
+  const buttonTargetRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
 
   // Cargar modelo GLTF optimizado
   const { scene } = useGLTF(MODEL_PATH);
@@ -55,6 +58,25 @@ export function AnimatedModel({
   useEffect(() => {
     schedule(120);
   }, [mousePosition.x, mousePosition.y, schedule]);
+
+  // Handle button target position (mobile only)
+  useEffect(() => {
+    if (targetPosition && isMobile) {
+      buttonTargetRef.current = {
+        x: targetPosition.x,
+        y: targetPosition.y,
+        active: true,
+      };
+      schedule(200);
+      
+      // Desactivar después de 2 segundos
+      const timeout = setTimeout(() => {
+        buttonTargetRef.current.active = false;
+      }, 2000);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [targetPosition, isMobile, schedule]);
 
   // Frame animation loop
   useFrame((state, delta) => {
@@ -82,12 +104,19 @@ export function AnimatedModel({
       let targetRotY = 0;
       let targetRotX = 0;
 
-      if (isMobile && !lowPerformanceMode) {
+      // Prioridad 1: Botón clickeado en mobile
+      if (isMobile && buttonTargetRef.current.active) {
+        targetRotY = MathUtils.clamp(buttonTargetRef.current.x * 0.5, -0.5, 0.5);
+        targetRotX = MathUtils.clamp(buttonTargetRef.current.y * 0.35, -0.35, 0.35);
+      }
+      // Prioridad 2: Giroscopio en mobile
+      else if (isMobile && !lowPerformanceMode) {
         const { beta, gamma } = orientation;
         targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
         targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
-      } else if (!isMobile) {
-        // Smoother mouse response with limits
+      }
+      // Prioridad 3: Mouse en desktop
+      else if (!isMobile) {
         targetRotY = MathUtils.clamp(mousePosition.x * 0.4, -0.4, 0.4);
         targetRotX = MathUtils.clamp(mousePosition.y * 0.25, -0.25, 0.25);
       }
