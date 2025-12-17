@@ -2,7 +2,7 @@
 
 import { motion, useAnimationControls } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import { RefObject, useEffect, useState, useMemo } from 'react';
+import { RefObject, useEffect, useState, useMemo, useRef } from 'react';
 import MobileNavItem from '../molecules/MobileNavItem';
 import NavBackground from '../molecules/NavBackground';
 import { useScrollDirection } from '@/lib/hooks/useScrollDirection';
@@ -33,6 +33,8 @@ export default function MobileNav({
   const controls = useAnimationControls();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scrollDistance, setScrollDistance] = useState(0);
+  const lastScrollYRef = useRef(0);
+  const accumulatedDistanceRef = useRef(0);
 
   const handleNavigate = (href: string) => {
     if (pathname !== href) {
@@ -42,6 +44,10 @@ export default function MobileNav({
 
   // Mostrar navbar al cambiar de página
   useEffect(() => {
+    // Reset scroll distance al cambiar de página
+    accumulatedDistanceRef.current = 0;
+    setScrollDistance(0);
+    
     controls.start({
       y: 0,
       opacity: 1,
@@ -73,23 +79,20 @@ export default function MobileNav({
 
   // Track scroll distance for delayed hide
   useEffect(() => {
-    let lastScrollY = window.scrollY;
-    let accumulatedDistance = 0;
-
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      const delta = currentScrollY - lastScrollY;
+      const delta = currentScrollY - lastScrollYRef.current;
 
       if (scrollDirection === 'down') {
         // Acumular distancia solo en scroll down
-        accumulatedDistance += Math.abs(delta);
+        accumulatedDistanceRef.current += Math.abs(delta);
       } else {
-        // Reset en scroll up
-        accumulatedDistance = 0;
+        // Reset en scroll up o null
+        accumulatedDistanceRef.current = 0;
       }
 
-      setScrollDistance(accumulatedDistance);
-      lastScrollY = currentScrollY;
+      setScrollDistance(accumulatedDistanceRef.current);
+      lastScrollYRef.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -127,8 +130,8 @@ export default function MobileNav({
       return;
     }
 
-    // Solo ocultar después de scrollear 100px hacia abajo
-    if (scrollDirection === 'down' && scrollDistance > 100) {
+    // Solo ocultar después de scrollear 50px hacia abajo
+    if (scrollDirection === 'down' && scrollDistance > 50) {
       controls.start({ y: 100, opacity: 0, transition });
     } else if (scrollDirection === 'up') {
       controls.start({ y: 0, opacity: 1, transition });
