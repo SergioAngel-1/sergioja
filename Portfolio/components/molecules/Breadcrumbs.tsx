@@ -33,6 +33,12 @@ export default function Breadcrumbs({ items, maxLength = 25, maxLengthMobile = 1
     setMounted(true);
   }, []);
 
+  const handleNavigate = (href: string) => {
+    if (pathname !== href) {
+      window.dispatchEvent(new Event('app:navigation-start'));
+    }
+  };
+
   // Auto-generate breadcrumbs from pathname if not provided
   const breadcrumbItems = items || generateBreadcrumbs(pathname, t);
   
@@ -65,6 +71,7 @@ export default function Breadcrumbs({ items, maxLength = 25, maxLengthMobile = 1
                 href={item.href}
                 className="font-mono text-text-muted hover:text-white transition-colors text-fluid-xs"
                 title={item.label}
+                onClick={() => handleNavigate(item.href!)}
               >
                 {truncateText(item.label, maxLengthMobile)}
               </Link>
@@ -94,6 +101,7 @@ export default function Breadcrumbs({ items, maxLength = 25, maxLengthMobile = 1
                 href={item.href}
                 className="font-mono text-text-muted hover:text-white transition-colors text-fluid-xs"
                 title={item.label}
+                onClick={() => handleNavigate(item.href!)}
               >
                 {truncateText(item.label, maxLength)}
               </Link>
