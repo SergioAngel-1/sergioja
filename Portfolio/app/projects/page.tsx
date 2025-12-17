@@ -172,20 +172,7 @@ export default function WorkPage() {
         )}
 
         {/* Projects display */}
-        {error ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-8 md:py-20"
-          >
-            <div className="inline-block p-6 bg-cyber-red/10 border border-cyber-red/30 rounded-lg">
-              <svg className="w-12 h-12 text-cyber-red mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-cyber-red text-lg font-rajdhani">{error}</p>
-            </div>
-          </motion.div>
-        ) : !loading && projects.length === 0 ? (
+        {(error || (!loading && projects.length === 0)) ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
