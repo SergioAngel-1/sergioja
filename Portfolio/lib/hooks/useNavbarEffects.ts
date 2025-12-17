@@ -71,13 +71,17 @@ export function useNavbarEffects(navRef: RefObject<HTMLDivElement>) {
       try {
         // Calcular gap considerando la barra de direcciones de Safari
         const gap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        const newGap = `${gap}px`;
         
-        if (navRef.current) {
-          const currentGap = navRef.current.style.getPropertyValue('--bottom-gap');
-          const newGap = `${gap}px`;
+        // Establecer --bottom-gap globalmente para que NextPageButton y otros componentes puedan usarlo
+        const currentGlobalGap = document.documentElement.style.getPropertyValue('--bottom-gap');
+        
+        // Solo actualizar si cambió significativamente (> 1px para evitar jitter)
+        if (Math.abs(parseFloat(currentGlobalGap || '0') - gap) > 1) {
+          document.documentElement.style.setProperty('--bottom-gap', newGap);
           
-          // Solo actualizar si cambió significativamente (> 1px para evitar jitter)
-          if (Math.abs(parseFloat(currentGap || '0') - gap) > 1) {
+          // También establecer en el navbar para compatibilidad
+          if (navRef.current) {
             navRef.current.style.setProperty('--bottom-gap', newGap);
             
             // Forzar reflow para iOS Safari

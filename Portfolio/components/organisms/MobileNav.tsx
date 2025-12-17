@@ -29,7 +29,7 @@ export default function MobileNav({
   t
 }: MobileNavProps) {
   const pathname = usePathname();
-  const scrollDirection = useScrollDirection({ threshold: 10, debounce: 50 });
+  const { direction: scrollDirection, isAtBottom } = useScrollDirection({ threshold: 10, debounce: 50 });
   const controls = useAnimationControls();
 
   const handleNavigate = (href: string) => {
@@ -47,13 +47,23 @@ export default function MobileNav({
     });
   }, [pathname, controls]);
 
-  // Auto-hide navbar on scroll down, show on scroll up
+  // Auto-hide navbar on scroll down, show on scroll up, always show at bottom
   useEffect(() => {
     // Verificar si la página tiene scroll disponible
     const hasScroll = document.documentElement.scrollHeight > window.innerHeight;
     
     // Solo aplicar auto-hide si hay scroll disponible
     if (!hasScroll) {
+      controls.start({
+        y: 0,
+        opacity: 1,
+        transition: { duration: 0.3, ease: 'easeInOut' }
+      });
+      return;
+    }
+
+    // Siempre mostrar navbar si está al final de la página
+    if (isAtBottom) {
       controls.start({
         y: 0,
         opacity: 1,
@@ -75,7 +85,7 @@ export default function MobileNav({
         transition: { duration: 0.3, ease: 'easeInOut' }
       });
     }
-  }, [scrollDirection, controls]);
+  }, [scrollDirection, isAtBottom, controls]);
 
   // iOS Safari: Force layout recalculation on orientation change
   useEffect(() => {

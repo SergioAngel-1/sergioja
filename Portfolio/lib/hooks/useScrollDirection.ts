@@ -7,15 +7,23 @@ interface UseScrollDirectionOptions {
   debounce?: number;
 }
 
+interface ScrollState {
+  direction: ScrollDirection;
+  isAtBottom: boolean;
+}
+
 /**
- * Hook para detectar la dirección del scroll
+ * Hook para detectar la dirección del scroll y si está al final de la página
  * Útil para ocultar/mostrar navbar en mobile
  */
 export function useScrollDirection({
   threshold = 10,
   debounce = 50,
-}: UseScrollDirectionOptions = {}): ScrollDirection {
-  const [scrollDirection, setScrollDirection] = useState<ScrollDirection>(null);
+}: UseScrollDirectionOptions = {}): ScrollState {
+  const [scrollState, setScrollState] = useState<ScrollState>({
+    direction: null,
+    isAtBottom: false,
+  });
 
   useEffect(() => {
     let lastScrollY = window.pageYOffset;
@@ -24,9 +32,18 @@ export function useScrollDirection({
 
     const updateScrollDirection = () => {
       const scrollY = window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Detectar si está al final de la página (con margen de 50px)
+      const isAtBottom = scrollY + windowHeight >= documentHeight - 50;
 
       // Solo actualizar si el scroll superó el threshold
       if (Math.abs(scrollY - lastScrollY) < threshold) {
+        // Actualizar solo isAtBottom si cambió
+        if (isAtBottom !== scrollState.isAtBottom) {
+          setScrollState(prev => ({ ...prev, isAtBottom }));
+        }
         ticking = false;
         return;
       }
@@ -34,9 +51,9 @@ export function useScrollDirection({
       // Determinar dirección
       const direction = scrollY > lastScrollY ? 'down' : 'up';
       
-      // Solo actualizar si cambió la dirección
-      if (direction !== scrollDirection) {
-        setScrollDirection(direction);
+      // Actualizar si cambió la dirección o isAtBottom
+      if (direction !== scrollState.direction || isAtBottom !== scrollState.isAtBottom) {
+        setScrollState({ direction, isAtBottom });
       }
 
       lastScrollY = scrollY > 0 ? scrollY : 0;
@@ -60,7 +77,7 @@ export function useScrollDirection({
       window.removeEventListener('scroll', onScroll);
       clearTimeout(timeoutId);
     };
-  }, [scrollDirection, threshold, debounce]);
+  }, [scrollState.direction, scrollState.isAtBottom, threshold, debounce]);
 
-  return scrollDirection;
+  return scrollState;
 }
