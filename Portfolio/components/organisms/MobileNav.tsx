@@ -29,9 +29,10 @@ export default function MobileNav({
   t
 }: MobileNavProps) {
   const pathname = usePathname();
-  const { direction: scrollDirection, isAtBottom } = useScrollDirection({ threshold: 10, debounce: 50 });
+  const { direction: scrollDirection, isAtBottom } = useScrollDirection({ threshold: 50, debounce: 50 });
   const controls = useAnimationControls();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [scrollDistance, setScrollDistance] = useState(0);
 
   const handleNavigate = (href: string) => {
     if (pathname !== href) {
@@ -70,6 +71,31 @@ export default function MobileNav({
     };
   }, [controls]);
 
+  // Track scroll distance for delayed hide
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let accumulatedDistance = 0;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollY;
+
+      if (scrollDirection === 'down') {
+        // Acumular distancia solo en scroll down
+        accumulatedDistance += Math.abs(delta);
+      } else {
+        // Reset en scroll up
+        accumulatedDistance = 0;
+      }
+
+      setScrollDistance(accumulatedDistance);
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [scrollDirection]);
+
   // Auto-hide navbar on scroll down, show on scroll up, always show at bottom
   useEffect(() => {
     // Ocultar navbar si el modal está abierto
@@ -105,7 +131,8 @@ export default function MobileNav({
       return;
     }
 
-    if (scrollDirection === 'down') {
+    // Solo ocultar después de scrollear 100px hacia abajo
+    if (scrollDirection === 'down' && scrollDistance > 100) {
       controls.start({
         y: 100,
         opacity: 0,
@@ -118,7 +145,7 @@ export default function MobileNav({
         transition: { duration: 0.3, ease: 'easeInOut' }
       });
     }
-  }, [scrollDirection, isAtBottom, isModalOpen, controls]);
+  }, [scrollDirection, scrollDistance, isAtBottom, isModalOpen, controls]);
 
   // iOS Safari: Force layout recalculation on orientation change
   useEffect(() => {

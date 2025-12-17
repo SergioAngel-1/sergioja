@@ -17,7 +17,7 @@ interface ScrollState {
  * Útil para ocultar/mostrar navbar en mobile
  */
 export function useScrollDirection({
-  threshold = 10,
+  threshold = 50,
   debounce = 50,
 }: UseScrollDirectionOptions = {}): ScrollState {
   const [scrollState, setScrollState] = useState<ScrollState>({
