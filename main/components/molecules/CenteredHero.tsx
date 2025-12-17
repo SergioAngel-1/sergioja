@@ -51,6 +51,7 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
       window.removeEventListener('mousemove', handleMouseMove);
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
       }
     };
   }, []);

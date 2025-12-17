@@ -50,6 +50,7 @@ export function AnimatedModel({
   const currentRotRef = useRef({ x: BASE_ROT_X, y: BASE_ROT_Y });
   const velocityRef = useRef({ x: 0, y: 0 });
   const buttonTargetRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
+  const canUseGyroRef = useRef(true); // Cache para evitar Date.now() en cada frame
 
   // Cargar modelo GLTF optimizado
   const { scene } = useGLTF(MODEL_PATH);
@@ -77,6 +78,17 @@ export function AnimatedModel({
       return () => clearTimeout(timeout);
     }
   }, [targetPosition, isMobile, schedule]);
+
+  // Handle gyro delay after modal closes (optimized with ref)
+  useEffect(() => {
+    if (modalClosedTimestamp) {
+      canUseGyroRef.current = false;
+      const timeout = setTimeout(() => {
+        canUseGyroRef.current = true;
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [modalClosedTimestamp]);
 
   // Frame animation loop
   useFrame((state, delta) => {
@@ -110,16 +122,10 @@ export function AnimatedModel({
         targetRotX = MathUtils.clamp(buttonTargetRef.current.y * 0.35, -0.35, 0.35);
       }
       // Prioridad 2: Giroscopio en mobile (deshabilitado si modal está abierto o recién cerrado)
-      else if (isMobile && !lowPerformanceMode && !isModalOpen) {
-        // Esperar 500ms después de cerrar modal para que termine animación de reinserción
-        const gyroDelay = 500;
-        const canUseGyro = !modalClosedTimestamp || (Date.now() - modalClosedTimestamp > gyroDelay);
-        
-        if (canUseGyro) {
-          const { beta, gamma } = orientation;
-          targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
-          targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
-        }
+      else if (isMobile && !lowPerformanceMode && !isModalOpen && canUseGyroRef.current) {
+        const { beta, gamma } = orientation;
+        targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
+        targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
       }
       // Prioridad 3: Mouse en desktop
       else if (!isMobile) {
@@ -132,13 +138,7 @@ export function AnimatedModel({
       currentRotRef.current.x += (targetRotX - currentRotRef.current.x) * smoothFactor;
       currentRotRef.current.y += (targetRotY - currentRotRef.current.y) * smoothFactor;
 
-      // Velocity-based damping for natural deceleration
-      const newVelX = currentRotRef.current.x - (velocityRef.current.x || 0);
-      const newVelY = currentRotRef.current.y - (velocityRef.current.y || 0);
-      velocityRef.current.x = currentRotRef.current.x;
-      velocityRef.current.y = currentRotRef.current.y;
-
-      // Apply smooth rotation with velocity consideration
+      // Apply smooth rotation
       const finalRotX = BASE_ROT_X + currentRotRef.current.x;
       const finalRotY = BASE_ROT_Y + currentRotRef.current.y;
       

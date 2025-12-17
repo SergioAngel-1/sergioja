@@ -23,6 +23,7 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
   const [showGyroButton, setShowGyroButton] = useState(false);
   const [showGyroHint, setShowGyroHint] = useState(false);
   const [gyroEnabled, setGyroEnabled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { t } = useLanguage();
   const log = useLogger('Model3D');
   const { lowPerformanceMode, mode } = usePerformance();
@@ -30,31 +31,33 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
   useEffect(() => {
     setMounted(true);
     log.info('model_mount');
+    
+    // Detectar mobile una sola vez
+    const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsMobile(mobile);
+    
     const timer = setTimeout(() => {
       setIsLoading(false);
       log.info('model_ready');
       // Mostrar controles de giroscopio si NO está en bajo rendimiento
-      if (!lowPerformanceMode) {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        if (isMobile) {
-          if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-            // iOS: Mostrar botón para solicitar permiso
-            log.info('gyro_button_shown_ios');
-            setShowGyroButton(true);
-          } else {
-            // Android: Mostrar hint informativo (giroscopio ya activo)
-            log.info('gyro_hint_shown_android');
-            setShowGyroHint(true);
-            setGyroEnabled(true); // Activar inmediatamente en Android
-            // Ocultar hint después de 5 segundos
-            setTimeout(() => setShowGyroHint(false), 5000);
-          }
+      if (!lowPerformanceMode && mobile) {
+        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+          // iOS: Mostrar botón para solicitar permiso
+          log.info('gyro_button_shown_ios');
+          setShowGyroButton(true);
+        } else {
+          // Android: Mostrar hint informativo (giroscopio ya activo)
+          log.info('gyro_hint_shown_android');
+          setShowGyroHint(true);
+          setGyroEnabled(true); // Activar inmediatamente en Android
+          // Ocultar hint después de 5 segundos
+          setTimeout(() => setShowGyroHint(false), 5000);
         }
       }
     }, 1500);
     
     return () => clearTimeout(timer);
-  }, [lowPerformanceMode]);
+  }, [lowPerformanceMode, log]);
 
   const handleGyroPermission = async () => {
     log.interaction('gyro_enable_click');
@@ -90,16 +93,6 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
             enableLabel={t('gyro.enable')}
             movePhoneLabel={t('gyro.movePhone')}
           />
-          {showGyroHint && (
-            <div
-              className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/60 border border-white/30 rounded-full backdrop-blur-sm whitespace-nowrap px-4 py-2 animate-fade-in"
-              style={{
-                bottom: 'calc(2rem + env(safe-area-inset-bottom))',
-              }}
-            >
-              {t('gyro.movePhone')}
-            </div>
-          )}
         </>
       ) : (
         <>
@@ -146,16 +139,6 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
             enableLabel={t('gyro.enable')}
             movePhoneLabel={t('gyro.movePhone')}
           />
-          {showGyroHint && (
-            <div
-              className="fixed left-1/2 -translate-x-1/2 z-10 pointer-events-none font-mono text-fluid-xs text-white/80 bg-black/60 border border-white/30 rounded-full backdrop-blur-sm whitespace-nowrap px-4 py-2 animate-fade-in"
-              style={{
-                bottom: 'calc(2rem + env(safe-area-inset-bottom))',
-              }}
-            >
-              {t('gyro.movePhone')}
-            </div>
-          )}
         </>
       )}
     </div>
