@@ -232,24 +232,39 @@ export default function Modal({
                     )}
                     
                     {/* Título */}
-                    <div>
-                      <h2 className="font-orbitron font-black text-white tracking-wider uppercase text-fluid-lg">
+                    <div style={{ contentVisibility: 'auto' }}>
+                      <h2 
+                        className="font-orbitron font-black text-white uppercase"
+                        style={{
+                          fontSize: fluidSizing.text.lg,
+                          letterSpacing: '0.05em',
+                          willChange: 'auto',
+                          contain: 'layout style paint'
+                        }}
+                      >
                         {title}
                       </h2>
                       <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginTop: fluidSizing.space.xs }}>
-                        <motion.div
-                          className="rounded-full bg-white"
-                          style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }}
-                          animate={lowPerformanceMode ? {} : {
-                            scale: [1, 1.4, 1],
-                            opacity: [1, 0.4, 1],
+                        <div
+                          style={{ 
+                            width: fluidSizing.space.sm, 
+                            height: fluidSizing.space.sm,
+                            overflow: 'hidden',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                           }}
-                          transition={lowPerformanceMode ? {} : {
-                            duration: 2,
-                            repeat: Infinity,
-                          }}
-                        />
-                        <span className="font-mono text-white/60 tracking-widest uppercase text-fluid-xs">
+                        >
+                          <div
+                            className="rounded-full bg-white"
+                            style={{ 
+                              width: '100%', 
+                              height: '100%',
+                              animation: lowPerformanceMode ? 'none' : 'pulse 2s ease-in-out infinite'
+                            }}
+                          />
+                        </div>
+                        <span className="font-mono text-white/60 uppercase" style={{ fontSize: fluidSizing.text.xs, letterSpacing: '0.1em' }}>
                           {statusLabel}
                         </span>
                       </div>
