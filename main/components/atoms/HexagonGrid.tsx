@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { logger } from '@/lib/logger';
 
@@ -11,6 +11,8 @@ export default function HexagonGrid() {
   const [centerLightIntensity, setCenterLightIntensity] = useState(0); // Animación de luz central
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const rafIdRef = useRef<number | null>(null);
+  const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
   
   // En modo bajo rendimiento, deshabilitar efectos
   const lowPerformanceMode = mode === 'low';
@@ -70,18 +72,34 @@ export default function HexagonGrid() {
     return () => clearInterval(interval);
   }, [mounted, lowPerformanceMode]);
   
-  // Manejar seguimiento del mouse
+  // Manejar seguimiento del mouse con RAF throttle
   useEffect(() => {
     if (!mounted || lowPerformanceMode) return;
     
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+      // Store pending position
+      pendingPositionRef.current = { x: e.clientX, y: e.clientY };
+      
+      // Schedule update on next animation frame if not already scheduled
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(() => {
+          if (pendingPositionRef.current) {
+            setMousePos(pendingPositionRef.current);
+            pendingPositionRef.current = null;
+          }
+          rafIdRef.current = null;
+        });
+      }
     };
     
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
     };
   }, [mounted, lowPerformanceMode]);
   
@@ -123,11 +141,9 @@ export default function HexagonGrid() {
       if (lowPerformanceMode) {
         const centerX = dimensions.width / 2;
         const centerY = dimensions.height / 2;
-        const distanceFromCenter = Math.sqrt(
-          Math.pow(centerX - hexX, 2) + Math.pow(centerY - hexY, 2)
-        );
-        const centerMaxDistance = 400;
-        const opacityFromCenter = Math.max(0, 1 - distanceFromCenter / centerMaxDistance);
+        const distanceSquared = Math.pow(centerX - hexX, 2) + Math.pow(centerY - hexY, 2);
+        const centerMaxDistanceSquared = 400 * 400;
+        const opacityFromCenter = Math.max(0, 1 - Math.sqrt(distanceSquared / centerMaxDistanceSquared));
         return opacityFromCenter * 0.3; // Opacidad reducida y fija
       }
       
@@ -149,21 +165,17 @@ export default function HexagonGrid() {
       const edgeInfluenceRadius = 400;
       const edgeFade = Math.min(1, minEdgeDistance / edgeInfluenceRadius);
       
-      // Distancia desde el mouse
-      const distanceFromMouse = Math.sqrt(
-        Math.pow(mousePos.x - hexX, 2) + Math.pow(mousePos.y - hexY, 2)
-      );
-      const maxDistance = 200;
-      const opacityFromMouse = Math.max(0, 1 - distanceFromMouse / maxDistance);
+      // Distancia desde el mouse (usando distancia al cuadrado para evitar sqrt)
+      const distanceSquaredFromMouse = Math.pow(mousePos.x - hexX, 2) + Math.pow(mousePos.y - hexY, 2);
+      const maxDistanceSquared = 200 * 200;
+      const opacityFromMouse = Math.max(0, 1 - distanceSquaredFromMouse / maxDistanceSquared);
       
       // Distancia desde el centro de la pantalla (luz fija)
       const centerX = dimensions.width / 2;
       const centerY = dimensions.height / 2;
-      const distanceFromCenter = Math.sqrt(
-        Math.pow(centerX - hexX, 2) + Math.pow(centerY - hexY, 2)
-      );
-      const centerMaxDistance = 400; // Radio de luz central más grande
-      const opacityFromCenter = Math.max(0, 1 - distanceFromCenter / centerMaxDistance);
+      const distanceSquaredFromCenter = Math.pow(centerX - hexX, 2) + Math.pow(centerY - hexY, 2);
+      const centerMaxDistanceSquared = 400 * 400;
+      const opacityFromCenter = Math.max(0, 1 - distanceSquaredFromCenter / centerMaxDistanceSquared);
       
       // Combinar ambas luces (tomar la mayor) con animación de entrada
       const combinedOpacity = Math.max(opacityFromMouse, opacityFromCenter * 0.7 * centerLightIntensity);

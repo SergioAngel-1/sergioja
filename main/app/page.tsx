@@ -309,14 +309,12 @@ export default function Home() {
       </main>
 
       {/* Scanline effect - CRT style */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none z-30"
+      <div
+        className="absolute inset-0 pointer-events-none z-30 animate-scanline"
         style={{
           background: 'linear-gradient(transparent 50%, rgba(255, 255, 255, 0.02) 50%)',
           backgroundSize: '100% 4px',
         }}
-        animate={{ backgroundPositionY: ['0px', '4px'] }}
-        transition={{ duration: 0.1, repeat: Infinity, ease: 'linear' }}
       />
 
       {/* Vignette effect - darker edges */}

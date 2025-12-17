@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, AdaptiveDpr, Preload } from '@react-three/drei';
-import * as THREE from 'three';
+import { Group, Quaternion, Euler, MathUtils, ACESFilmicToneMapping, SRGBColorSpace } from 'three';
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
@@ -23,7 +23,7 @@ interface AnimatedModelProps {
 }
 
 function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntroAnimationEnd }: AnimatedModelProps) {
-  const groupRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<Group>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
   const deviceOrientationRef = useRef<{ beta: number; gamma: number }>({ beta: 0, gamma: 0 });
   const [isMobile, setIsMobile] = useState(false);
@@ -50,6 +50,10 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
             }
             rafRef.current = requestAnimationFrame(pump);
           } else {
+            // Cleanup RAF when animation completes
+            if (rafRef.current != null) {
+              cancelAnimationFrame(rafRef.current);
+            }
             rafRef.current = null;
           }
         };
@@ -65,6 +69,8 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
+      // Clear smooth animation timer
+      smoothUntilRef.current = 0;
     };
   }, []);
   // Pose base (esquina arriba-izquierda)
@@ -73,9 +79,6 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
   
   // Cargar modelo GLTF de Blender
   const { scene } = useGLTF('/models/SergioJAModel.glb');
-  
-  // Clonar la escena para evitar problemas de reutilización
-  const clonedScene = useMemo(() => scene.clone(true), [scene]);
 
   // Detectar si es mobile y configurar giroscopio
   useEffect(() => {
@@ -187,9 +190,9 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
       groupRef.current.position.z = 0;
       if (animationProgress < 1) {
         // Durante la intro: interpolar de 0 a la pose base (arriba-izquierda)
-        const tx = THREE.MathUtils.lerp(0, BASE_ROT_X, animationProgress);
-        const ty = THREE.MathUtils.lerp(0, BASE_ROT_Y, animationProgress);
-        const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(tx, ty, 0, 'XYZ'));
+        const tx = MathUtils.lerp(0, BASE_ROT_X, animationProgress);
+        const ty = MathUtils.lerp(0, BASE_ROT_Y, animationProgress);
+        const targetQuat = new Quaternion().setFromEuler(new Euler(tx, ty, 0, 'XYZ'));
         groupRef.current.quaternion.slerp(targetQuat, 0.12);
       } else {
         // Después de la animación
@@ -212,7 +215,7 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
         // Mantener la pose base como neutra después de la intro
         const targetRotationY = BASE_ROT_Y + inputRotY;
         const targetRotationX = BASE_ROT_X + inputRotX;
-        const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(targetRotationX, targetRotationY, 0, 'XYZ'));
+        const targetQuat = new Quaternion().setFromEuler(new Euler(targetRotationX, targetRotationY, 0, 'XYZ'));
         
         // Smooth damping: very low slerp factor for gradual deceleration
         // Lower values = more inertia and smoother stopping (like physics)
@@ -232,7 +235,7 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
   return (
     <group ref={groupRef}>
       {hasContent ? (
-        <primitive object={clonedScene} scale={scale} />
+        <primitive object={scene} scale={scale} />
       ) : (
         // Fallback: Esfera temporal si el modelo está vacío
         <>
@@ -387,8 +390,8 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
               frameloop={'demand'}
               style={{ background: 'transparent' }}
               onCreated={({ gl }) => { 
-                gl.toneMapping = THREE.ACESFilmicToneMapping; 
-                gl.outputColorSpace = THREE.SRGBColorSpace; 
+                gl.toneMapping = ACESFilmicToneMapping; 
+                gl.outputColorSpace = SRGBColorSpace; 
                 gl.toneMappingExposure = 1.4; 
               }}
             >
