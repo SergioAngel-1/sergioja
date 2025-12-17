@@ -10,6 +10,8 @@ interface UseDeviceOrientationReturn {
   orientation: DeviceOrientationData;
   isMobile: boolean;
   needsPermission: boolean;
+  isSupported: boolean;
+  isActive: boolean;
   requestPermission: () => Promise<boolean>;
 }
 
@@ -20,7 +22,10 @@ export function useDeviceOrientation(
   const log = useLogger('useDeviceOrientation');
   const [isMobile, setIsMobile] = useState(false);
   const [needsPermission, setNeedsPermission] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const orientationRef = useRef<DeviceOrientationData>({ beta: 0, gamma: 0 });
+  const hasValidDataRef = useRef(false);
 
   // Detectar si es mobile
   useEffect(() => {
@@ -35,29 +40,53 @@ export function useDeviceOrientation(
     const mobile = checkMobile();
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
+      // Validar que el sensor esté funcionando
+      if (event.beta === null || event.gamma === null) {
+        if (hasValidDataRef.current) {
+          log.warn('gyro_sensor_lost');
+          setIsActive(false);
+        }
+        return;
+      }
+
+      // Marcar como activo si recibimos datos válidos
+      if (!hasValidDataRef.current) {
+        hasValidDataRef.current = true;
+        setIsActive(true);
+        log.info('gyro_sensor_active');
+      }
+
       orientationRef.current = {
-        beta: event.beta || 0,
-        gamma: event.gamma || 0,
+        beta: event.beta,
+        gamma: event.gamma,
       };
-      onSchedule?.(150);
+      // Remover throttling - el giroscopio ya está limitado a ~60Hz
+      // y useFrame en AnimatedModel maneja el timing
     };
 
     if (mobile && typeof DeviceOrientationEvent !== 'undefined') {
+      setIsSupported(true);
+      
       const permissionNeeded =
         typeof (DeviceOrientationEvent as any).requestPermission === 'function';
       setNeedsPermission(permissionNeeded);
 
       if (permissionNeeded) {
+        // iOS: Solo adjuntar listener cuando enabled=true (después del permiso)
         if (enabled) {
           window.addEventListener('deviceorientation', handleOrientation, {
             passive: true,
           } as any);
         }
       } else {
+        // Android: Adjuntar listener inmediatamente
         window.addEventListener('deviceorientation', handleOrientation, {
           passive: true,
         } as any);
       }
+    } else {
+      setIsSupported(false);
+      log.warn('gyro_not_supported');
     }
 
     return () => {
@@ -85,6 +114,8 @@ export function useDeviceOrientation(
     orientation: orientationRef.current,
     isMobile,
     needsPermission,
+    isSupported,
+    isActive,
     requestPermission,
   };
 }

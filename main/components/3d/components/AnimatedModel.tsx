@@ -38,7 +38,7 @@ export function AnimatedModel({
     onComplete: onIntroAnimationEnd,
     invalidate,
   });
-  const { orientation, isMobile } = useDeviceOrientation(gyroEnabled, schedule);
+  const { orientation, isMobile, isSupported, isActive } = useDeviceOrientation(gyroEnabled, schedule);
 
   // Cache quaternions and euler to avoid recreating them every frame
   const targetQuatRef = useRef(new Quaternion());
