@@ -77,13 +77,18 @@ export default function HexButton({
       className="fixed z-[60] flex flex-col items-center"
       style={positionStyles[position]}
       initial={{ opacity: 0, scale: 0, rotate: -180 }}
-      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+      animate={{ 
+        opacity: anyModalOpen && !isActive ? 0.4 : 1, 
+        scale: 1, 
+        rotate: 0 
+      }}
       transition={{ 
         duration: 1, 
         delay,
         type: 'spring',
         stiffness: 200,
-        damping: 20
+        damping: 20,
+        opacity: { duration: 0.3 }
       }}
     >
       <motion.button

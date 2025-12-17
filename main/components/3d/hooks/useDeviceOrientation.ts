@@ -72,12 +72,8 @@ export function useDeviceOrientation(
       setNeedsPermission(permissionNeeded);
 
       if (permissionNeeded) {
-        // iOS: Solo adjuntar listener cuando enabled=true (después del permiso)
-        if (enabled) {
-          window.addEventListener('deviceorientation', handleOrientation, {
-            passive: true,
-          } as any);
-        }
+        // iOS: NO adjuntar listener aquí - se adjuntará en requestPermission()
+        // después de obtener el permiso del usuario
       } else {
         // Android: Adjuntar listener inmediatamente
         window.addEventListener('deviceorientation', handleOrientation, {
@@ -101,6 +97,33 @@ export function useDeviceOrientation(
         if (permissionState === 'granted') {
           setNeedsPermission(false);
           log.info('gyro_permission_granted');
+          
+          // iOS: Adjuntar listener DESPUÉS de obtener permiso
+          const handleOrientation = (event: DeviceOrientationEvent) => {
+            if (event.beta === null || event.gamma === null) {
+              if (hasValidDataRef.current) {
+                log.warn('gyro_sensor_lost');
+                setIsActive(false);
+              }
+              return;
+            }
+
+            if (!hasValidDataRef.current) {
+              hasValidDataRef.current = true;
+              setIsActive(true);
+              log.info('gyro_sensor_active');
+            }
+
+            orientationRef.current = {
+              beta: event.beta,
+              gamma: event.gamma,
+            };
+          };
+          
+          window.addEventListener('deviceorientation', handleOrientation, {
+            passive: true,
+          } as any);
+          
           return true;
         }
       } catch (error) {
