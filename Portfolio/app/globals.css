@@ -58,20 +58,6 @@
     overscroll-behavior: contain;
   }
 
-  /* NextPageButton iOS Safari optimizations */
-  button[class*="fixed"][class*="z-40"] {
-    /* Ensure button respects safe-area in all orientations */
-    padding-right: env(safe-area-inset-right, 0);
-    padding-bottom: env(safe-area-inset-bottom, 0);
-    
-    /* Fix for iOS Safari viewport changes */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    
-    /* Prevent layout shift */
-    will-change: transform;
-  }
-
   /* Header action buttons iOS Safari optimizations */
   /* Target header buttons container by position and z-index */
   .fixed.top-0.right-0[class*="z-[10001]"] {
