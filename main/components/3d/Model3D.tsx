@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { AdaptiveDpr, Preload } from '@react-three/drei';
 import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
@@ -24,6 +24,7 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
   const [showGyroButton, setShowGyroButton] = useState(false);
   const [showGyroHint, setShowGyroHint] = useState(false);
   const [gyroEnabled, setGyroEnabled] = useState(false);
+  const gyroRequestPermissionRef = useRef<(() => Promise<boolean>) | null>(null);
   const isMobile = useIsMobile();
   const { t } = useLanguage();
   const log = useLogger('Model3D');
@@ -68,16 +69,12 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
 
   const handleGyroPermission = async () => {
     log.interaction('gyro_enable_click');
-    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-      try {
-        const permissionState = await (DeviceOrientationEvent as any).requestPermission();
-        if (permissionState === 'granted') {
-          setShowGyroButton(false);
-          setGyroEnabled(true);
-          log.info('gyro_permission_granted');
-        }
-      } catch (error) {
-        log.error('gyro_permission_error', error as any);
+    if (gyroRequestPermissionRef.current) {
+      const granted = await gyroRequestPermissionRef.current();
+      if (granted) {
+        setShowGyroButton(false);
+        setGyroEnabled(true);
+        log.info('gyro_permission_granted');
       }
     }
   };
@@ -130,6 +127,9 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
                 gyroEnabled={gyroEnabled}
                 lowPerformanceMode={lowPerformanceMode}
                 onIntroAnimationEnd={onAnimationComplete}
+                onGyroRequestPermissionReady={(requestFn) => {
+                  gyroRequestPermissionRef.current = requestFn;
+                }}
               />
               {!lowPerformanceMode && <AdaptiveDpr />}
             </Canvas>

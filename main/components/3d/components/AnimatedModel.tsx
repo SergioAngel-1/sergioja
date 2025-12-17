@@ -15,6 +15,7 @@ interface AnimatedModelProps {
   gyroEnabled: boolean;
   lowPerformanceMode: boolean;
   onIntroAnimationEnd?: () => void;
+  onGyroRequestPermissionReady?: (requestFn: () => Promise<boolean>) => void;
 }
 
 const BASE_ROT_X = -0.2;
@@ -26,6 +27,7 @@ export function AnimatedModel({
   gyroEnabled,
   lowPerformanceMode,
   onIntroAnimationEnd,
+  onGyroRequestPermissionReady,
 }: AnimatedModelProps) {
   const groupRef = useRef<Group>(null);
   const tickRef = useRef(0);
@@ -39,7 +41,14 @@ export function AnimatedModel({
     onComplete: onIntroAnimationEnd,
     invalidate,
   });
-  const { orientation, isMobile, isSupported, isActive } = useDeviceOrientation(gyroEnabled, schedule);
+  const { orientation, isMobile, isSupported, isActive, requestPermission } = useDeviceOrientation(gyroEnabled, schedule);
+  
+  // Exponer requestPermission a Model3D
+  useEffect(() => {
+    if (onGyroRequestPermissionReady && requestPermission) {
+      onGyroRequestPermissionReady(requestPermission);
+    }
+  }, [requestPermission, onGyroRequestPermissionReady]);
   const { targetPosition, isModalOpen, modalClosedTimestamp } = useModelTarget();
 
   // Cache quaternions and euler to avoid recreating them every frame
