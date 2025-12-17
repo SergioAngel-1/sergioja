@@ -22,7 +22,7 @@ interface DesktopNavProps {
   navItems: NavItem[];
   mounted: boolean;
   lowPerformanceMode: boolean;
-  time: Date | null;
+  time: string;
   profile: Profile | null;
   t: (key: string) => string;
 }

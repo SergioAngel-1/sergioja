@@ -11,7 +11,7 @@ import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
 
 export default function Navbar() {
-  const [time, setTime] = useState<Date | null>(null);
+  const [time, setTime] = useState<string>('');
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const log = useLogger('Navbar');
@@ -33,8 +33,12 @@ export default function Navbar() {
   // Initialize on client to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
-    setTime(new Date());
-    const timer = setInterval(() => setTime(new Date()), 1000);
+    const updateTime = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
   }, []);
 

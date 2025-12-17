@@ -3,10 +3,13 @@
 import { motion } from 'framer-motion';
 
 interface TimeDisplayProps {
-  time: Date | null;
+  time: string;
 }
 
 export default function TimeDisplay({ time }: TimeDisplayProps) {
+  // Parse date from time string for date display
+  const date = time ? new Date() : null;
+  
   return (
     <motion.div
       className="relative z-10 group cursor-default hidden 2xl:block mb-fluid-lg"
@@ -20,12 +23,12 @@ export default function TimeDisplay({ time }: TimeDisplayProps) {
         <div 
           className="font-mono text-white group-hover:text-cyber-red transition-colors text-fluid-xs mb-fluid-xs"
         >
-          {time ? time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }) : '--:--'}
+          {time || '--:--'}
         </div>
         <div 
           className="font-mono text-text-muted group-hover:text-white transition-colors text-fluid-xs"
         >
-          {time ? time.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }) : '--- --'}
+          {date ? date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }) : '--- --'}
         </div>
       </div>
     </motion.div>
