@@ -219,11 +219,20 @@ class CacheManager {
 // Instancia global del caché
 export const cache = new CacheManager();
 
-// Limpiar caché expirado cada 10 minutos
+// Limpiar caché expirado cada 10 minutos (solo en cliente, con cleanup)
+let cleanupIntervalId: ReturnType<typeof setInterval> | null = null;
 if (typeof window !== 'undefined') {
-  setInterval(() => {
+  cleanupIntervalId = setInterval(() => {
     cache.cleanup();
   }, 10 * 60 * 1000);
+  
+  // Cleanup cuando se cierra la ventana/tab
+  window.addEventListener('beforeunload', () => {
+    if (cleanupIntervalId) {
+      clearInterval(cleanupIntervalId);
+      cleanupIntervalId = null;
+    }
+  });
 }
 
 /**
