@@ -35,6 +35,11 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
   const rafRef = useRef<number | null>(null);
   const lastInvalidateRef = useRef(0);
   const invalidate = useThree((state) => state.invalidate);
+  
+  // Cache quaternions and euler to avoid recreating them every frame
+  const targetQuatRef = useRef(new Quaternion());
+  const targetEulerRef = useRef(new Euler());
+  const tempQuatRef = useRef(new Quaternion());
   const schedule = useMemo(() => {
     return (ms: number) => {
       const now = performance.now();
@@ -77,8 +82,8 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
   const BASE_ROT_X = -0.2; // mirada ligeramente hacia arriba
   const BASE_ROT_Y = -0.1; // giro hacia la izquierda (aún menos sesgo)
   
-  // Cargar modelo GLTF de Blender
-  const { scene } = useGLTF('/models/SergioJAModel.glb');
+  // Cargar modelo GLTF optimizado con Draco compression (-86.6% tamaño: 3.98MB → 0.53MB)
+  const { scene } = useGLTF('/models/SergioJAModel-optimized.glb');
 
   // Detectar si es mobile y configurar giroscopio
   useEffect(() => {
@@ -181,48 +186,51 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
     if (now - tickRef.current < interval) return;
     tickRef.current = now;
     
+    const group = groupRef.current;
+    if (!group) return;
+    
     // Keep rendering while model is interpolating (for smooth deceleration)
-    // Schedule next frame to continue animation even when mouse stops
     schedule(200);
     
-    if (groupRef.current) {
-      // Mantener z estable
-      groupRef.current.position.z = 0;
-      if (animationProgress < 1) {
-        // Durante la intro: interpolar de 0 a la pose base (arriba-izquierda)
-        const tx = MathUtils.lerp(0, BASE_ROT_X, animationProgress);
-        const ty = MathUtils.lerp(0, BASE_ROT_Y, animationProgress);
-        const targetQuat = new Quaternion().setFromEuler(new Euler(tx, ty, 0, 'XYZ'));
-        groupRef.current.quaternion.slerp(targetQuat, 0.12);
-      } else {
-        // Después de la animación
-        // En bajo rendimiento: sólo PC sigue el mouse; Mobile (gyro) deshabilitado
-        let inputRotY = 0, inputRotX = 0;
+    // Mantener z estable (solo una vez)
+    group.position.z = 0;
+    
+    if (animationProgress < 1) {
+      // Durante la intro: interpolar de 0 a la pose base
+      const tx = MathUtils.lerp(0, BASE_ROT_X, animationProgress);
+      const ty = MathUtils.lerp(0, BASE_ROT_Y, animationProgress);
+      targetEulerRef.current.set(tx, ty, 0, 'XYZ');
+      targetQuatRef.current.setFromEuler(targetEulerRef.current);
+      group.quaternion.slerp(targetQuatRef.current, 0.12);
+    } else {
+      // Después de la animación: calcular input de mouse/gyro
+      let inputRotY = 0, inputRotX = 0;
 
-        if (isMobile) {
-          if (!lowPerformanceMode) {
-            // Mobile: usar giroscopio sólo si NO es bajo rendimiento
-            const { beta, gamma } = deviceOrientationRef.current;
-            inputRotY = (gamma / 90) * 0.5;  // -0.5..0.5
-            inputRotX = (beta / 180) * 0.3;  // -0.3..0.3
-          }
-        } else {
-          // Desktop: siempre seguir mouse incluso en bajo rendimiento
-          inputRotY = mousePosition.x * 0.5;
-          inputRotX = mousePosition.y * 0.3;
-        }
-
-        // Mantener la pose base como neutra después de la intro
-        const targetRotationY = BASE_ROT_Y + inputRotY;
-        const targetRotationX = BASE_ROT_X + inputRotX;
-        const targetQuat = new Quaternion().setFromEuler(new Euler(targetRotationX, targetRotationY, 0, 'XYZ'));
-        
-        // Smooth damping: very low slerp factor for gradual deceleration
-        // Lower values = more inertia and smoother stopping (like physics)
-        const dampingFactor = lowPerformanceMode ? 0.02 : 0.03;
-        groupRef.current.quaternion.slerp(targetQuat, dampingFactor);
+      if (isMobile && !lowPerformanceMode) {
+        // Mobile: usar giroscopio solo si NO es bajo rendimiento
+        const { beta, gamma } = deviceOrientationRef.current;
+        inputRotY = gamma * 0.00555555;  // Pre-calculado: (1/90) * 0.5
+        inputRotX = beta * 0.00166666;   // Pre-calculado: (1/180) * 0.3
+      } else if (!isMobile) {
+        // Desktop: siempre seguir mouse
+        inputRotY = mousePosition.x * 0.5;
+        inputRotX = mousePosition.y * 0.3;
       }
-      // En bajo rendimiento, el modelo queda estático después de la animación inicial
+
+      // Solo calcular si hay input (evitar cálculos innecesarios)
+      if (inputRotY !== 0 || inputRotX !== 0 || animationProgress === 1) {
+        targetEulerRef.current.set(
+          BASE_ROT_X + inputRotX,
+          BASE_ROT_Y + inputRotY,
+          0,
+          'XYZ'
+        );
+        targetQuatRef.current.setFromEuler(targetEulerRef.current);
+        
+        // Smooth damping optimizado
+        const dampingFactor = lowPerformanceMode ? 0.02 : 0.03;
+        group.quaternion.slerp(targetQuatRef.current, dampingFactor);
+      }
     }
   });
 
@@ -267,12 +275,9 @@ function AnimatedModel({ mousePosition, gyroEnabled, lowPerformanceMode, onIntro
       )}
       
       {/* Iluminación optimizada para modelo monocromático */}
-      <ambientLight intensity={1.4} />
-      <hemisphereLight args={["#ffffff", "#222222", 0.9]} />
-      <directionalLight position={[0, 1, 2]} intensity={1.1} />
-      {!lowPerformanceMode && (
-        <pointLight position={[0, 1.2, 2.2]} intensity={2.2} color="#FFFFFF" />
-      )}
+      <ambientLight intensity={1.2} />
+      <hemisphereLight args={["#ffffff", "#222222", 0.8]} />
+      <directionalLight position={[0, 1, 2]} intensity={1.0} castShadow={false} />
     </group>
   );
 }
@@ -381,18 +386,23 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
               key={mode}
               camera={{ position: [0, 0, 4], fov: 50 }}
               dpr={lowPerformanceMode ? 1 : [1, 1.25]}
+              shadows={false}
               gl={{ 
                 antialias: !lowPerformanceMode, 
                 alpha: true,
                 preserveDrawingBuffer: false,
-                powerPreference: lowPerformanceMode ? 'low-power' : 'high-performance'
+                powerPreference: lowPerformanceMode ? 'low-power' : 'high-performance',
+                stencil: false,
+                depth: true
               }}
               frameloop={'demand'}
+              flat
               style={{ background: 'transparent' }}
-              onCreated={({ gl }) => { 
+              onCreated={({ gl, scene }) => { 
                 gl.toneMapping = ACESFilmicToneMapping; 
                 gl.outputColorSpace = SRGBColorSpace; 
-                gl.toneMappingExposure = 1.4; 
+                gl.toneMappingExposure = 1.3;
+                scene.matrixAutoUpdate = false;
               }}
             >
               <AnimatedModel mousePosition={mousePosition} gyroEnabled={gyroEnabled} lowPerformanceMode={lowPerformanceMode} onIntroAnimationEnd={onAnimationComplete} />
@@ -432,5 +442,5 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
   );
 }
 
-// Precargar el modelo para mejor rendimiento
-useGLTF.preload('/models/SergioJAModel.glb');
+// Precargar el modelo optimizado para mejor rendimiento
+useGLTF.preload('/models/SergioJAModel-optimized.glb');
