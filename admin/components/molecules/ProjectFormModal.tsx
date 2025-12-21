@@ -169,6 +169,7 @@ export default function ProjectFormModal({
             title={formData.title}
             longDescriptionEs={formData.longDescriptionEs}
             longDescriptionEn={formData.longDescriptionEn}
+            existingSlug={project?.slug}
             onTitleChange={(title) => updateFormData({ title })}
             onLongDescriptionEsChange={(longDescriptionEs) => updateFormData({ longDescriptionEs })}
             onLongDescriptionEnChange={(longDescriptionEn) => updateFormData({ longDescriptionEn })}

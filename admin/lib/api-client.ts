@@ -259,6 +259,7 @@ export const api = {
   createProject: (data: Record<string, unknown>) => apiClient.post('/admin/projects', data),
   updateProject: (slug: string, data: Record<string, unknown>) => apiClient.put(`/admin/projects/${slug}`, data),
   deleteProject: (slug: string) => apiClient.delete(`/admin/projects/${slug}`),
+  regenerateProjectSlug: (slug: string) => apiClient.post(`/admin/projects/${slug}/regenerate-slug`, {}),
 
   // Skills
   getSkills: (category?: string) => apiClient.get('/portfolio/skills', category ? { category } : undefined),

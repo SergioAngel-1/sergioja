@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
+import { slugify } from '../../../lib/slugify';
 import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
@@ -52,11 +53,8 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
       });
     }
 
-    // Crear slug desde el título
-    let slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
+    // Crear slug desde el título (normalizar acentos y caracteres especiales)
+    let slug = slugify(title);
 
     // Verificar si el slug ya existe y agregar sufijo si es necesario
     let slugExists = await prisma.project.findUnique({ where: { slug } });
