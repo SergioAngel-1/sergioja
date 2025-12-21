@@ -47,14 +47,30 @@ export default function MultiImageUploader({
     const remainingSlots = maxImages - images.length;
     const filesToProcess = Array.from(files).slice(0, remainingSlots);
 
+    // Acumular todas las imágenes antes de actualizar el estado
+    const newImages: string[] = [];
+    let processedCount = 0;
+
     filesToProcess.forEach((file) => {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onloadend = () => {
           const result = reader.result as string;
-          onChange([...images, result]);
+          newImages.push(result);
+          processedCount++;
+
+          // Cuando todas las imágenes estén procesadas, actualizar el estado una sola vez
+          if (processedCount === filesToProcess.length) {
+            onChange([...images, ...newImages]);
+          }
         };
         reader.readAsDataURL(file);
+      } else {
+        // Si el archivo no es imagen, incrementar el contador igual
+        processedCount++;
+        if (processedCount === filesToProcess.length) {
+          onChange([...images, ...newImages]);
+        }
       }
     });
 
@@ -72,14 +88,30 @@ export default function MultiImageUploader({
     const remainingSlots = maxImages - images.length;
     const filesToProcess = Array.from(files).slice(0, remainingSlots);
 
+    // Acumular todas las imágenes antes de actualizar el estado
+    const newImages: string[] = [];
+    let processedCount = 0;
+
     filesToProcess.forEach((file) => {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onloadend = () => {
           const result = reader.result as string;
-          onChange([...images, result]);
+          newImages.push(result);
+          processedCount++;
+
+          // Cuando todas las imágenes estén procesadas, actualizar el estado una sola vez
+          if (processedCount === filesToProcess.length) {
+            onChange([...images, ...newImages]);
+          }
         };
         reader.readAsDataURL(file);
+      } else {
+        // Si el archivo no es imagen, incrementar el contador igual
+        processedCount++;
+        if (processedCount === filesToProcess.length) {
+          onChange([...images, ...newImages]);
+        }
       }
     });
   };
