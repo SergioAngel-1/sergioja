@@ -596,13 +596,23 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               )}
             </form>
           ) : activeTab === 'password' ? (
-            <form onSubmit={handlePasswordSubmit} className="space-y-6">
-              <div>
-                <label className="text-sm font-medium text-text-primary mb-2 block">Contraseña actual</label>
+            <form
+              onSubmit={handlePasswordSubmit}
+              className="flex flex-col"
+              style={{ gap: fluidSizing.space.lg }}
+            >
+              <div className="flex flex-col" style={{ gap: fluidSizing.space.md }}>
+                <label
+                  className="font-medium text-text-primary"
+                  style={{ fontSize: fluidSizing.text.sm }}
+                >
+                  Contraseña actual
+                </label>
                 <Input
                   type="password"
                   name="username"
                   autoComplete="username"
+
                   style={{ display: 'none' }}
                   aria-hidden="true"
                   tabIndex={-1}
@@ -611,6 +621,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   id="current-password"
                   type="password"
                   label="Contraseña Actual"
+
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Ingresa tu contraseña actual"
@@ -619,50 +630,54 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   autoComplete="current-password"
                 />
 
-                {/* Nueva contraseña */}
-                <Input
-                  id="new-password"
-                  type="password"
-                  label="Nueva Contraseña"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Mínimo 8 caracteres"
-                  required
-                  disabled={isLoading}
-                  autoComplete="new-password"
-                />
+                <div className="flex flex-col" style={{ gap: fluidSizing.space.md }}>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    label="Nueva Contraseña"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Mínimo 8 caracteres"
+                    required
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                  />
 
-                {/* Confirmar contraseña */}
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  label="Repetir Nueva Contraseña"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repite la nueva contraseña"
-                  required
-                  disabled={isLoading}
-                  autoComplete="new-password"
-                />
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    label="Repetir Nueva Contraseña"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repite la nueva contraseña"
+                    required
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                  />
+                </div>
 
-                {/* Información de seguridad */}
-                <div 
+                <div
                   className="bg-admin-primary/10 border border-admin-primary/30 rounded-lg"
                   style={{ padding: fluidSizing.space.md }}
                 >
-                  <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm, lineHeight: '1.6' }}>
+                  <p
+                    className="text-text-muted"
+                    style={{ fontSize: fluidSizing.text.sm, lineHeight: '1.6' }}
+                  >
                     <strong className="text-admin-primary">Requisitos de seguridad:</strong>
                     <br />
                     • Mínimo 8 caracteres
                     <br />
                     • Debe ser diferente a tu contraseña actual
+                    <br />
+                    • Debe contener al menos una letra mayúscula
+                    <br />
+                    • Debe contener al menos un número
                   </p>
                 </div>
               </div>
-              <Button type="submit" variant="primary" isLoading={isLoading} disabled={isLoading} className="w-full">
-                Cambiar Contraseña
-              </Button>
             </form>
+
           ) : (
             <RedirectCreationTab />
           )}
