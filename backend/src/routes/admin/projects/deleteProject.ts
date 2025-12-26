@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
 import { asyncHandler } from '../../../middleware/errorHandler';
+import { bumpProjectCacheVersion } from '../../../lib/cacheVersion';
 
 // DELETE /api/admin/projects/:slug - Eliminar proyecto
 export const deleteProject = asyncHandler(async (req: Request, res: Response) => {
@@ -34,8 +35,11 @@ export const deleteProject = asyncHandler(async (req: Request, res: Response) =>
 
   logger.info('Project deleted', { slug });
 
+  const cacheVersion = bumpProjectCacheVersion('project_deleted');
+
   res.json({
     success: true,
     data: { slug },
+    cacheVersion,
   });
 });

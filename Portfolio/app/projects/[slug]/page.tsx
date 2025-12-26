@@ -62,14 +62,14 @@ export default function ProjectDetailPage() {
     return null;
   }
 
-  // Trigger 404 page if project not found
-  if (error || !project) {
-    notFound();
-  }
-
   // Don't render while loading - PageLoader handles transition
   if (loading) {
     return null;
+  }
+
+  // Trigger 404 page if project not found (solo cuando ya terminó la carga)
+  if (error || !project) {
+    notFound();
   }
 
   const localizedLongDescription =

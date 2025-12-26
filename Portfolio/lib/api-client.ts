@@ -115,6 +115,7 @@ export const api = {
   getProjects: (params?: { tech?: string; category?: string; featured?: boolean; page?: number; limit?: number }) =>
     apiClient.get('/projects', params),
   getProjectBySlug: (slug: string) => apiClient.get(`/projects/${slug}`),
+  getProjectCacheVersion: () => apiClient.get('/projects/cache/version'),
 
   // Skills
   getSkills: (category?: string) => apiClient.get('/skills', category ? { category } : undefined),

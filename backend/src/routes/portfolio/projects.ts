@@ -3,8 +3,20 @@ import { ApiResponse, Project, PaginatedResponse } from '../../../../shared/type
 import { prisma } from '../../lib/prisma';
 import { logger } from '../../lib/logger';
 import { asyncHandler } from '../../middleware/errorHandler';
+import { getProjectCacheVersion } from '../../lib/cacheVersion';
 
 const router = Router();
+
+// GET /api/projects/cache/version - Obtener versión de caché de proyectos
+router.get('/cache/version', asyncHandler(async (_req: Request, res: Response) => {
+  const version = getProjectCacheVersion();
+  const response: ApiResponse<{ version: number }> = {
+    success: true,
+    data: { version },
+    timestamp: new Date().toISOString(),
+  };
+  res.json(response);
+}));
 
 // GET /api/projects - Get all published projects with filtering and pagination
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
@@ -145,6 +157,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
       },
     },
     timestamp: new Date().toISOString(),
+    cacheVersion: getProjectCacheVersion(),
   };
 
   res.json(response);
@@ -239,6 +252,7 @@ router.get('/:slug', asyncHandler(async (req: Request, res: Response) => {
     success: true,
     data: transformedProject,
     timestamp: new Date().toISOString(),
+    cacheVersion: getProjectCacheVersion(),
   };
 
   res.json(response);

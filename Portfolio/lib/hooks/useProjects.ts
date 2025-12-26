@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { api } from '../api-client';
 import { logger } from '../logger';
-import { cache, CacheTTL } from '../cache';
+import { cache, CacheTTL, buildVersionedKey } from '../cache';
 import type { Project, PaginatedResponse } from '@/shared/types';
 
 interface UseProjectsOptions {
@@ -32,17 +32,13 @@ export function useProjects(options?: UseProjectsOptions) {
   ]);
 
   // Generar clave de caché única basada en las opciones
-  const cacheKey = useMemo(() => {
-    const cacheVersion = 2;
-    const params = {
-      tech: stableOptions?.tech,
-      category: stableOptions?.category,
-      featured: stableOptions?.featured,
-      page: stableOptions?.page,
-      limit: stableOptions?.limit,
-    };
-    return `projects:v${cacheVersion}:${JSON.stringify(params)}`;
-  }, [stableOptions?.tech, stableOptions?.category, stableOptions?.featured, stableOptions?.page, stableOptions?.limit]);
+  const requestParams = useMemo(() => ({
+    tech: stableOptions?.tech,
+    category: stableOptions?.category,
+    featured: stableOptions?.featured,
+    page: stableOptions?.page,
+    limit: stableOptions?.limit,
+  }), [stableOptions?.tech, stableOptions?.category, stableOptions?.featured, stableOptions?.page, stableOptions?.limit]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -53,8 +49,20 @@ export function useProjects(options?: UseProjectsOptions) {
         logger.debug('Fetching projects', stableOptions, 'useProjects');
         const startTime = performance.now();
         
-        // Usar caché si está habilitado (por defecto true)
+        // Obtener versión de caché del backend
+        let cacheVersionNumber: number;
+        try {
+          const versionResponse = await api.getProjectCacheVersion();
+          cacheVersionNumber = versionResponse.success && versionResponse.data
+            ? (versionResponse.data as any).version
+            : Date.now();
+        } catch (versionError) {
+          logger.warn('Failed to get project cache version', versionError, 'useProjects');
+          cacheVersionNumber = Date.now();
+        }
+
         const shouldUseCache = stableOptions?.useCache !== false;
+        const cacheKey = buildVersionedKey('projects', requestParams, cacheVersionNumber);
         
         let response;
         if (shouldUseCache) {
@@ -90,7 +98,7 @@ export function useProjects(options?: UseProjectsOptions) {
     };
 
     fetchProjects();
-  }, [cacheKey, stableOptions]);
+  }, [requestParams, stableOptions]);
 
   return { projects, pagination, loading, error };
 }
@@ -102,11 +110,30 @@ export function useProject(slug: string) {
 
   useEffect(() => {
     const fetchProject = async () => {
+      if (!slug) return;
+
       try {
         setLoading(true);
         setError(null);
         logger.debug(`Fetching project: ${slug}`, 'useProject');
-        const response = await api.getProjectBySlug(slug);
+
+        let cacheVersionNumber: number;
+        try {
+          const versionResponse = await api.getProjectCacheVersion();
+          cacheVersionNumber = versionResponse.success && versionResponse.data
+            ? (versionResponse.data as any).version
+            : Date.now();
+        } catch (versionError) {
+          logger.warn('Failed to get project cache version', versionError, 'useProject');
+          cacheVersionNumber = Date.now();
+        }
+
+        const cacheKey = buildVersionedKey(`project:${slug}`, undefined, cacheVersionNumber);
+        const response = await cache.fetchWithCache(
+          cacheKey,
+          () => api.getProjectBySlug(slug),
+          CacheTTL.FIVE_MINUTES
+        );
         
         if (response.success && response.data) {
           setProject(response.data as Project);
@@ -114,20 +141,20 @@ export function useProject(slug: string) {
         } else {
           const errorMsg = response.error?.message || 'Project not found';
           setError(errorMsg);
+          setProject(null);
           logger.warn(`Project not found: ${slug}`, response.error, 'useProject');
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'An error occurred';
         setError(errorMsg);
+        setProject(null);
         logger.error(`Error fetching project: ${slug}`, err, 'useProject');
       } finally {
         setLoading(false);
       }
     };
 
-    if (slug) {
-      fetchProject();
-    }
+    fetchProject();
   }, [slug]);
 
   return { project, loading, error };

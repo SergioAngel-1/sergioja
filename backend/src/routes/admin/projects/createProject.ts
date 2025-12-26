@@ -3,6 +3,7 @@ import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
 import { slugify } from '../../../lib/slugify';
 import { findAvailableSlug, validateSlug } from '../../../lib/slugHelpers';
+import { bumpProjectCacheVersion } from '../../../lib/cacheVersion';
 import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
@@ -299,8 +300,11 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
 
   logger.info('Project created', { id: project.id, title: project.title });
 
+  const cacheVersion = bumpProjectCacheVersion('project_created');
+
   res.status(201).json({
     success: true,
     data: transformedProject,
+    cacheVersion,
   });
 });

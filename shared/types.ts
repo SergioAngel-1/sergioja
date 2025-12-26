@@ -13,6 +13,7 @@ export interface ApiResponse<T = any> {
   };
   message?: string;
   timestamp?: string;
+  cacheVersion?: number;
 }
 
 export interface PaginatedResponse<T> {

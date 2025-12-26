@@ -244,6 +244,18 @@ export function useCacheKey(baseKey: string, params?: Record<string, any>): stri
 }
 
 /**
+ * Construye una cache key con versión externa (por ejemplo, versión entregada por backend).
+ */
+export function buildVersionedKey(
+  baseKey: string,
+  params: Record<string, any> | undefined,
+  version: number | string | undefined
+): string {
+  const suffix = version ? `:v${version}` : '';
+  return `${useCacheKey(baseKey, params)}${suffix}`;
+}
+
+/**
  * Constantes de tiempo de expiración
  */
 export const CacheTTL = {

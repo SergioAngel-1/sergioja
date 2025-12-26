@@ -4,6 +4,7 @@ import { logger } from '../../../lib/logger';
 import { slugify } from '../../../lib/slugify';
 import { findAvailableSlug, validateSlug } from '../../../lib/slugHelpers';
 import { updateRedirectChain } from '../../../lib/redirectHelpers';
+import { bumpProjectCacheVersion } from '../../../lib/cacheVersion';
 import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
@@ -319,8 +320,11 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
 
   logger.info('Project updated', { id: project.id, previousSlug: currentSlug, newSlug: updatedSlug });
 
+  const cacheVersion = bumpProjectCacheVersion('project_updated');
+
   res.json({
     success: true,
     data: transformedProject,
+    cacheVersion,
   });
 });
