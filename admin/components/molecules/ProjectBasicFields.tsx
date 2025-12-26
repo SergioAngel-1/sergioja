@@ -54,7 +54,8 @@ export default function ProjectBasicFields({
     if (existingSlug) {
       try {
         setIsRegenerating(true);
-        const response = await api.regenerateProjectSlug(existingSlug);
+        // Enviar el título actual para que el backend genere el slug desde él
+        const response = await api.regenerateProjectSlug(existingSlug, title);
         
         if (response.success && response.data) {
           const { newSlug, changed, oldSlug } = response.data as any;

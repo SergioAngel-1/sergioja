@@ -7,6 +7,7 @@ import { asyncHandler } from '../../../middleware/errorHandler';
 // POST /api/admin/projects/:slug/regenerate-slug - Regenerar slug desde el título
 export const regenerateSlug = asyncHandler(async (req: Request, res: Response) => {
   const { slug: currentSlug } = req.params;
+  const { title: newTitle } = req.body;
 
   // Buscar el proyecto actual
   const existingProject = await prisma.project.findUnique({
@@ -23,8 +24,11 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
     });
   }
 
+  // Si se proporciona un nuevo título, usarlo; si no, usar el título actual
+  const titleToSlugify = newTitle || existingProject.title;
+
   // Generar nuevo slug desde el título
-  let newSlug = slugify(existingProject.title);
+  let newSlug = slugify(titleToSlugify);
 
   // Si el nuevo slug es igual al actual, no hacer nada
   if (newSlug === currentSlug) {
