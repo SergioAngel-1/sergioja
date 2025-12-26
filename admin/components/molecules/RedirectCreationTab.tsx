@@ -88,10 +88,18 @@ export default function RedirectCreationTab({
   }, [customRedirects]);
 
   return (
-    <div className="space-y-6">
-      <form id={formId} onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
+    <div className="flex flex-col" style={{ gap: fluidSizing.space.lg }}>
+      <form
+        id={formId}
+        onSubmit={handleSubmit}
+        className="flex flex-col"
+        style={{ gap: fluidSizing.space.lg }}
+      >
+        <div
+          className="grid grid-cols-1 md:grid-cols-2"
+          style={{ gap: fluidSizing.space.lg }}
+        >
+          <div className="flex flex-col" style={{ gap: fluidSizing.space.xs }}>
             <Input
               id="redirect-oldSlug"
               label="URL de entrada"
@@ -102,12 +110,15 @@ export default function RedirectCreationTab({
               disabled={submitting}
               required
             />
-            <p className="text-xs text-text-muted">
+            <p
+              className="text-text-muted"
+              style={{ fontSize: fluidSizing.text.xs }}
+            >
               Puedes introducir una ruta absoluta (/blog/post) o un slug relativo (projects/mi-slug).
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col" style={{ gap: fluidSizing.space.xs }}>
             <Input
               id="redirect-newSlug"
               label="Redirigir hacia"
@@ -118,14 +129,21 @@ export default function RedirectCreationTab({
               disabled={submitting}
               required
             />
-            <p className="text-xs text-text-muted">
+            <p
+              className="text-text-muted"
+              style={{ fontSize: fluidSizing.text.xs }}
+            >
               Acepta rutas internas o URLs completas (https://...).
             </p>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text-primary" htmlFor="redirect-notes">
+        <div className="flex flex-col" style={{ gap: fluidSizing.space.xs }}>
+          <label
+            className="font-medium text-text-primary"
+            htmlFor="redirect-notes"
+            style={{ fontSize: fluidSizing.text.sm }}
+          >
             Notas (opcional)
           </label>
           <textarea
@@ -134,13 +152,20 @@ export default function RedirectCreationTab({
             onChange={(event) => setNotes(event.target.value)}
             placeholder="Contexto, motivo o ticket asociado a esta redirección."
             rows={3}
-            className="w-full rounded-lg border border-admin-primary/20 bg-admin-dark-surface text-white px-4 py-3 focus:outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary/40 transition-colors"
+            className="w-full rounded-lg border border-admin-primary/20 bg-admin-dark-surface text-white focus:outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary/40 transition-colors"
+            style={{
+              padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+              fontSize: fluidSizing.text.base,
+            }}
             disabled={submitting}
           />
         </div>
 
         {errorMessage && (
-          <div className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
+          <div
+            className="text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg"
+            style={{ fontSize: fluidSizing.text.sm, padding: fluidSizing.space.md }}
+          >
             {errorMessage}
           </div>
         )}
@@ -150,13 +175,25 @@ export default function RedirectCreationTab({
         <button
           type="button"
           onClick={() => setShowCustomRedirects((prev) => !prev)}
-          className="w-full flex items-center justify-between bg-admin-dark-surface hover:bg-admin-dark-elevated transition-colors px-4 py-3 text-left"
+          className="w-full flex items-center justify-between bg-admin-dark-surface hover:bg-admin-dark-elevated transition-colors text-left"
+          style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}` }}
         >
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center"
+            style={{ gap: fluidSizing.space.sm }}
+          >
             <Icon name="link" size={18} className="text-admin-primary" />
             <div>
-              <p className="font-semibold text-text-primary">Mostrar redirecciones personalizadas</p>
-              <p className="text-xs text-text-muted">
+              <p
+                className="font-semibold text-text-primary"
+                style={{ fontSize: fluidSizing.text.sm }}
+              >
+                Mostrar redirecciones personalizadas
+              </p>
+              <p
+                className="text-text-muted"
+                style={{ fontSize: fluidSizing.text.xs }}
+              >
                 {(customRedirects?.length ?? 0) > 0
                   ? `${customRedirects.length} definidas manualmente`
                   : 'Aún no tienes redirecciones manuales registradas'}
@@ -174,35 +211,86 @@ export default function RedirectCreationTab({
           <div className="bg-admin-dark-surface/60 border-t border-admin-primary/10 divide-y divide-admin-primary/10">
             {formattedCustomRedirects.length > 0 ? (
               formattedCustomRedirects.map((redirect) => (
-                <div key={redirect.id} className="p-4 flex flex-col gap-3">
-                  <div className="flex flex-wrap gap-6">
+                <div
+                  key={redirect.id}
+                  className="flex flex-col"
+                  style={{
+                    padding: fluidSizing.space.md,
+                    gap: fluidSizing.space.sm,
+                  }}
+                >
+                  <div
+                    className="flex flex-wrap"
+                    style={{ gap: fluidSizing.space.lg }}
+                  >
                     <div>
-                      <p className="text-xs text-text-muted mb-1">Desde</p>
-                      <code className="text-red-300 bg-red-500/10 px-2 py-1 rounded text-xs font-mono break-all">
+                      <p
+                        className="text-text-muted"
+                        style={{
+                          fontSize: fluidSizing.text.xs,
+                          marginBottom: fluidSizing.space.xs,
+                        }}
+                      >
+                        Desde
+                      </p>
+                      <code
+                        className="text-red-300 bg-red-500/10 rounded text-xs font-mono break-all"
+                        style={{
+                          padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+                        }}
+                      >
                         /{redirect.oldSlug.replace(/^\/+/, '')}
                       </code>
                     </div>
                     <div>
-                      <p className="text-xs text-text-muted mb-1">Hacia</p>
-                      <code className="text-green-300 bg-green-500/10 px-2 py-1 rounded text-xs font-mono break-all">
+                      <p
+                        className="text-text-muted"
+                        style={{
+                          fontSize: fluidSizing.text.xs,
+                          marginBottom: fluidSizing.space.xs,
+                        }}
+                      >
+                        Hacia
+                      </p>
+                      <code
+                        className="text-green-300 bg-green-500/10 rounded text-xs font-mono break-all"
+                        style={{
+                          padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+                        }}
+                      >
                         {redirect.newSlug}
                       </code>
                     </div>
                   </div>
                   {redirect.notes && (
-                    <p className="text-xs text-text-muted bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                    <p
+                      className="text-text-muted bg-white/5 border border-white/10 rounded-lg"
+                      style={{
+                        fontSize: fluidSizing.text.xs,
+                        padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+                      }}
+                    >
                       {redirect.notes}
                     </p>
                   )}
                   {redirect.createdAtLabel && (
-                    <p className="text-[0.65rem] uppercase tracking-wide text-text-muted">
+                    <p
+                      className="uppercase tracking-wide text-text-muted"
+                      style={{ fontSize: fluidSizing.text.xs }}
+                    >
                       Creada el {redirect.createdAtLabel}
                     </p>
                   )}
                 </div>
               ))
             ) : (
-              <p className="text-sm text-text-muted px-4 py-6 text-center">
+              <p
+                className="text-text-muted text-center"
+                style={{
+                  fontSize: fluidSizing.text.base,
+                  padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}`,
+                }}
+              >
                 No hay redirecciones personalizadas registradas todavía.
               </p>
             )}
