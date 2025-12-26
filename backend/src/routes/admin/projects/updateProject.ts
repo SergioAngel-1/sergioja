@@ -87,6 +87,23 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
       updatedSlug = await findAvailableSlug(newSlug, existingProject.id);
       
       logger.info('Slug regenerated', { oldSlug: slug, newSlug: updatedSlug });
+      
+      // Crear redirección SEO si el slug cambió
+      if (updatedSlug !== slug) {
+        await prisma.slugRedirect.create({
+          data: {
+            projectId: existingProject.id,
+            oldSlug: slug,
+            newSlug: updatedSlug,
+          },
+        });
+        
+        logger.info('SEO redirect created', { 
+          projectId: existingProject.id,
+          oldSlug: slug, 
+          newSlug: updatedSlug 
+        });
+      }
     }
 
     // Actualizar proyecto

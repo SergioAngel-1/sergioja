@@ -18,6 +18,7 @@ import messagesRoutes from './routes/admin/messages';
 import categoriesRoutes from './routes/admin/categories';
 import adminProjectsRoutes from './routes/admin/projects';
 import adminCvRoutes from './routes/admin/cv';
+import adminRedirectsRoutes from './routes/admin/redirects';
 
 // Routes - Portfolio
 import profileRoutes from './routes/portfolio/profile';
@@ -26,6 +27,7 @@ import skillsRoutes from './routes/portfolio/skills';
 import contactRoutes from './routes/portfolio/contact';
 import portfolioProjectsRoutes from './routes/portfolio/projects';
 import portfolioCategoriesRoutes from './routes/portfolio/categories';
+import portfolioRedirectsRoutes from './routes/portfolio/redirects';
 
 // Routes - Shared
 import analyticsRoutes from './routes/shared/analytics';
@@ -133,6 +135,7 @@ app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/admin/projects', adminProjectsRoutes);
 app.use('/api/admin/categories', categoriesRoutes);
 app.use('/api/admin/cv', adminCvRoutes);
+app.use('/api/admin/redirects', adminRedirectsRoutes);
 // Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
 app.use('/api/portfolio/cv', cvRoutes);
@@ -141,6 +144,7 @@ app.use('/api/portfolio/skills', skillsRoutes);
 app.use('/api/portfolio/contact', contactRoutes);
 app.use('/api/portfolio/newsletter', newsletterRoutes);
 app.use('/api/portfolio/analytics', analyticsRoutes);
+app.use('/api/portfolio/redirects', portfolioRedirectsRoutes);
 app.use('/api/categories', portfolioCategoriesRoutes); // Rutas públicas de categorías
 logger.info('Routes configured successfully');
 

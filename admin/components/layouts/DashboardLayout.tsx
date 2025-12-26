@@ -86,6 +86,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       items: [
         { name: 'Proyectos', href: '/dashboard/projects', icon: 'projects' },
         { name: 'Skills', href: '/dashboard/skills', icon: 'skills' },
+        { name: 'Redirecciones', href: '/dashboard/redirects', icon: 'link' },
       ],
     },
     {

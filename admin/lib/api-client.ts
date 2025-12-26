@@ -259,7 +259,8 @@ export const api = {
   createProject: (data: Record<string, unknown>) => apiClient.post('/admin/projects', data),
   updateProject: (slug: string, data: Record<string, unknown>) => apiClient.put(`/admin/projects/${slug}`, data),
   deleteProject: (slug: string) => apiClient.delete(`/admin/projects/${slug}`),
-  regenerateProjectSlug: (slug: string, title?: string) => apiClient.post(`/admin/projects/${slug}/regenerate-slug`, { title }),
+  regenerateProjectSlug: (slug: string, title?: string, manualSlug?: string) => 
+    apiClient.post(`/admin/projects/${slug}/regenerate-slug`, { title, manualSlug }),
 
   // Skills
   getSkills: (category?: string) => apiClient.get('/portfolio/skills', category ? { category } : undefined),
@@ -294,4 +295,8 @@ export const api = {
     apiClient.put(`/admin/categories/${type}/${id}`, data),
   deleteCategory: (type: 'projects' | 'technologies', id: string) =>
     apiClient.delete(`/admin/categories/${type}/${id}`),
+
+  // Redirects
+  getRedirects: () => apiClient.get('/admin/redirects'),
+  deleteRedirect: (id: string) => apiClient.delete(`/admin/redirects/${id}`),
 };

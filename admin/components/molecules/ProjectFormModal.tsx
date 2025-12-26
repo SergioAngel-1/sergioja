@@ -56,6 +56,7 @@ export default function ProjectFormModal({
   existingSkills = [],
 }: ProjectFormModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isManualSlugMode, setIsManualSlugMode] = useState(false);
 
   // Cargar categorías usando hook personalizado
   const { categories: backendCategories, isLoading: loadingProjectCats } = useCategories(
@@ -144,11 +145,12 @@ export default function ProjectFormModal({
           <Button
             type="submit"
             form="project-form"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isManualSlugMode}
             isLoading={isSubmitting}
             variant="primary"
             size="md"
             fullWidth
+            title={isManualSlugMode ? 'Guarda la URL manual primero' : undefined}
           >
             {project ? 'Actualizar' : 'Crear Proyecto'}
           </Button>
@@ -173,6 +175,7 @@ export default function ProjectFormModal({
             onTitleChange={(title) => updateFormData({ title })}
             onLongDescriptionEsChange={(longDescriptionEs) => updateFormData({ longDescriptionEs })}
             onLongDescriptionEnChange={(longDescriptionEn) => updateFormData({ longDescriptionEn })}
+            onManualModeChange={setIsManualSlugMode}
           />
 
           {/* Multi Image Upload */}

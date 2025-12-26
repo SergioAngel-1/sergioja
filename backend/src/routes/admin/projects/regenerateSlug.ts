@@ -5,10 +5,10 @@ import { slugify } from '../../../lib/slugify';
 import { findAvailableSlug } from '../../../lib/slugHelpers';
 import { asyncHandler } from '../../../middleware/errorHandler';
 
-// POST /api/admin/projects/:slug/regenerate-slug - Regenerar slug desde el título
+// POST /api/admin/projects/:slug/regenerate-slug - Regenerar slug desde el título o manual
 export const regenerateSlug = asyncHandler(async (req: Request, res: Response) => {
   const { slug: currentSlug } = req.params;
-  const { title: newTitle } = req.body;
+  const { title: newTitle, manualSlug } = req.body;
 
   // Buscar el proyecto actual
   const existingProject = await prisma.project.findUnique({
@@ -25,18 +25,56 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
     });
   }
 
-  // Si se proporciona un nuevo título, usarlo; si no, usar el título actual
-  const titleToSlugify = newTitle || existingProject.title;
+  let newSlug: string;
 
-  // Generar nuevo slug desde el título
-  let newSlug = slugify(titleToSlugify);
+  // Si se proporciona un slug manual, usarlo directamente
+  if (manualSlug) {
+    newSlug = manualSlug.trim();
+    
+    // Validar que el slug manual sea válido
+    if (!newSlug || newSlug.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_SLUG',
+          message: 'El slug manual no puede estar vacío',
+        },
+      });
+    }
+    
+    if (!/^[a-z0-9-]+$/.test(newSlug)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_SLUG',
+          message: 'El slug solo puede contener letras minúsculas, números y guiones',
+        },
+      });
+    }
+    
+    if (/^-|-$/.test(newSlug)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_SLUG',
+          message: 'El slug no puede empezar o terminar con guión',
+        },
+      });
+    }
+  } else {
+    // Si se proporciona un nuevo título, usarlo; si no, usar el título actual
+    const titleToSlugify = newTitle || existingProject.title;
+    
+    // Generar nuevo slug desde el título
+    newSlug = slugify(titleToSlugify);
+  }
 
   // Si el nuevo slug es igual al actual, no hacer nada
-  if (newSlug === currentSlug) {
+  if (newSlug === existingProject.slug) {
     return res.json({
       success: true,
       data: {
-        oldSlug: currentSlug,
+        oldSlug: existingProject.slug,
         newSlug: newSlug,
         changed: false,
         message: 'El slug ya está actualizado',
@@ -45,7 +83,42 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
   }
 
   // Encontrar slug disponible (optimizado para evitar N+1 queries)
-  newSlug = await findAvailableSlug(newSlug, existingProject.id);
+  // Solo si NO es un slug manual (los slugs manuales se usan tal cual)
+  if (!manualSlug) {
+    newSlug = await findAvailableSlug(newSlug, existingProject.id);
+  } else {
+    // Para slugs manuales, verificar que no exista otro proyecto con ese slug
+    const existingWithSlug = await prisma.project.findUnique({
+      where: { slug: newSlug },
+    });
+    
+    if (existingWithSlug && existingWithSlug.id !== existingProject.id) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'SLUG_EXISTS',
+          message: `Ya existe otro proyecto con la URL "${newSlug}"`,
+        },
+      });
+    }
+  }
+
+  // Crear redirección SEO si el slug cambió
+  if (newSlug !== currentSlug) {
+    await prisma.slugRedirect.create({
+      data: {
+        projectId: existingProject.id,
+        oldSlug: currentSlug,
+        newSlug: newSlug,
+      },
+    });
+    
+    logger.info('SEO redirect created', { 
+      projectId: existingProject.id,
+      oldSlug: currentSlug, 
+      newSlug: newSlug 
+    });
+  }
 
   // Actualizar el proyecto con el nuevo slug
   const updatedProject = await prisma.project.update({
@@ -84,7 +157,7 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
     data: {
       oldSlug: currentSlug,
       newSlug: newSlug,
-      changed: true,
+      changed: newSlug !== currentSlug,
       project: transformedProject,
     },
   });

@@ -1,0 +1,42 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Solo interceptar rutas de proyectos
+  if (pathname.startsWith('/projects/')) {
+    const slug = pathname.split('/projects/')[1];
+    
+    if (slug && slug.length > 0) {
+      try {
+        // Verificar si existe redirección para este slug
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${apiUrl}/api/portfolio/redirects/${encodeURIComponent(slug)}`, {
+          next: { revalidate: 3600 }, // Cache 1 hora
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data?.redirectTo) {
+            // Redirección 301 permanente para SEO
+            const redirectUrl = new URL(`/projects/${data.data.redirectTo}`, request.url);
+            
+            console.log('[SEO Redirect] 301:', pathname, '->', redirectUrl.pathname);
+            
+            return NextResponse.redirect(redirectUrl, { status: 301 });
+          }
+        }
+      } catch (error) {
+        // Si falla la verificación de redirect, continuar normalmente
+        console.error('[Redirect Check Error]:', error);
+      }
+    }
+  }
+  
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: '/projects/:slug*',
+};

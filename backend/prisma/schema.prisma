@@ -61,6 +61,7 @@ model Project {
   // Relations
   technologies ProjectTechnology[]
   views        ProjectView[]
+  slugRedirects SlugRedirect[]
 
   @@index([status])
   @@index([isFeatured])
@@ -245,4 +246,21 @@ model TechnologyCategory {
   updatedAt   DateTime @updatedAt
 
   @@map("technology_categories")
+}
+
+// Slug Redirects - Gestión de redirecciones SEO cuando cambian los slugs
+model SlugRedirect {
+  id          String   @id @default(cuid())
+  projectId   String
+  oldSlug     String   @unique
+  newSlug     String
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@index([oldSlug])
+  @@index([projectId])
+  @@index([newSlug])
+  @@map("slug_redirects")
 }

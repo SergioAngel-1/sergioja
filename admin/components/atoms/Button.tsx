@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, ReactNode } from 'react';
+import { ButtonHTMLAttributes, ReactNode, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { fluidSizing } from '@/lib/fluidSizing';
@@ -17,7 +17,7 @@ interface ButtonProps extends Omit<
   fullWidth?: boolean;
 }
 
-export default function Button({
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   children,
   variant = 'primary',
   size = 'md',
@@ -28,7 +28,7 @@ export default function Button({
   className,
   disabled,
   ...props
-}: ButtonProps) {
+}, ref) => {
   const baseStyles = 'font-medium rounded-lg transition-all duration-200 flex items-center justify-center';
   
   const variants = {
@@ -56,6 +56,7 @@ export default function Button({
 
   return (
     <motion.button
+      ref={ref}
       whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
       whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
       className={cn(
@@ -95,4 +96,8 @@ export default function Button({
       )}
     </motion.button>
   );
-}
+});
+
+Button.displayName = 'Button';
+
+export default Button;

@@ -44,7 +44,7 @@ function AlertGroup({ position, alerts }: { position: AlertPosition; alerts: Ale
 
   return (
     <div className={`fixed z-[9999] flex flex-col gap-3 ${positionClasses[position]}`}>
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="sync">
         {alerts.map((alert) => (
           <AlertItem key={alert.id} alert={alert} />
         ))}
