@@ -10,6 +10,8 @@
  * slugify('Proyecto con ñ y acentos') // 'proyecto-con-n-y-acentos'
  */
 export function slugify(text: string): string {
+  if (!text) return '';
+  
   return text
     .toLowerCase()
     .normalize('NFD') // Descomponer caracteres Unicode (á -> a + ´)
