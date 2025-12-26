@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
 import { slugify } from '../../../lib/slugify';
-import { findAvailableSlug } from '../../../lib/slugHelpers';
+import { findAvailableSlug, validateSlug } from '../../../lib/slugHelpers';
 import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
@@ -72,6 +72,18 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
     if (slug.length > 100) {
       slug = slug.substring(0, 100);
       logger.warn('Slug truncated to 100 characters', { originalLength: slug.length, title });
+    }
+
+    try {
+      validateSlug(slug);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: error instanceof Error ? error.message : 'El slug generado no es válido',
+        },
+      });
     }
 
     // Encontrar slug disponible (optimizado para evitar N+1 queries)

@@ -2,13 +2,14 @@ import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
 import { slugify } from '../../../lib/slugify';
-import { findAvailableSlug } from '../../../lib/slugHelpers';
+import { findAvailableSlug, validateSlug } from '../../../lib/slugHelpers';
+import { updateRedirectChain } from '../../../lib/redirectHelpers';
 import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
-// PUT /api/admin/projects/:slug - Actualizar proyecto
+// PUT /api/admin/projects/:identifier - Actualizar proyecto (por slug o id)
 export const updateProject = asyncHandler(async (req: Request, res: Response) => {
-    const { slug } = req.params;
+    const { slug: identifier } = req.params;
     const {
       title,
       longDescription,
@@ -31,9 +32,14 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
       seoScore,
     } = req.body;
 
-    // Verificar que el proyecto existe
-    const existingProject = await prisma.project.findUnique({
-      where: { slug },
+    // Verificar que el proyecto existe (buscar por slug o id)
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        OR: [
+          { slug: identifier },
+          { id: identifier },
+        ],
+      },
     });
 
     if (!existingProject) {
@@ -55,24 +61,27 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
     }
 
     // Regenerar slug si el título cambió
-    let updatedSlug = slug;
+    let updatedSlug = existingProject.slug;
+    const currentSlug = existingProject.slug;
+
     if (title && title !== existingProject.title) {
       logger.info('Title changed, regenerating slug', { 
         oldTitle: existingProject.title, 
         newTitle: title,
-        oldSlug: slug 
+        oldSlug: currentSlug 
       });
       
       // Generar nuevo slug desde el título
       let newSlug = slugify(title);
       
-      // Validar que el slug no esté vacío
-      if (!newSlug || newSlug.length === 0) {
+      try {
+        validateSlug(newSlug);
+      } catch (error) {
         return res.status(400).json({
           success: false,
           error: {
             code: 'VALIDATION_ERROR',
-            message: 'El título debe contener al menos un carácter alfanumérico válido',
+            message: error instanceof Error ? error.message : 'El slug generado no es válido',
           },
         });
       }
@@ -86,23 +95,11 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
       // Encontrar slug disponible (excluir el proyecto actual)
       updatedSlug = await findAvailableSlug(newSlug, existingProject.id);
       
-      logger.info('Slug regenerated', { oldSlug: slug, newSlug: updatedSlug });
+      logger.info('Slug regenerated', { oldSlug: currentSlug, newSlug: updatedSlug });
       
       // Crear redirección SEO si el slug cambió
-      if (updatedSlug !== slug) {
-        await prisma.slugRedirect.create({
-          data: {
-            projectId: existingProject.id,
-            oldSlug: slug,
-            newSlug: updatedSlug,
-          },
-        });
-        
-        logger.info('SEO redirect created', { 
-          projectId: existingProject.id,
-          oldSlug: slug, 
-          newSlug: updatedSlug 
-        });
+      if (updatedSlug !== currentSlug) {
+        await updateRedirectChain(existingProject.id, currentSlug, updatedSlug);
       }
     }
 
@@ -118,7 +115,7 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
       : null;
 
     const project = await prisma.project.update({
-      where: { slug },
+      where: { id: existingProject.id },
       data: {
         slug: updatedSlug,
         title: title || existingProject.title,
@@ -320,7 +317,7 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
       })) || [],
     };
 
-  logger.info('Project updated', { id: project.id, slug });
+  logger.info('Project updated', { id: project.id, previousSlug: currentSlug, newSlug: updatedSlug });
 
   res.json({
     success: true,

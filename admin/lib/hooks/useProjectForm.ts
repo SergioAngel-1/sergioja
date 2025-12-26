@@ -15,6 +15,7 @@ interface TechnologyFormData {
 
 interface ProjectFormData {
   id?: string;
+  slug?: string;
   title: string;
   longDescriptionEs: string;
   longDescriptionEn: string;
@@ -46,6 +47,7 @@ interface UseProjectFormOptions {
 export function useProjectForm({ project, backendCategories, isOpen }: UseProjectFormOptions) {
   const [formData, setFormData] = useState<ProjectFormData>({
     title: '',
+    slug: '',
     longDescriptionEs: '',
     longDescriptionEn: '',
     category: 'web',
@@ -124,6 +126,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       // Inicializar formData con todos los campos correctamente
       setFormData({
         id: project.id,
+        slug: project.slug || '',
         title: project.title || '',
         longDescriptionEs: project.longDescriptionEs || project.longDescription || '',
         longDescriptionEn: project.longDescriptionEn || '',
@@ -147,6 +150,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       // Nuevo proyecto
       setFormData({
         title: '',
+        slug: '',
         longDescriptionEs: '',
         longDescriptionEn: '',
         category: 'web',
@@ -201,6 +205,13 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     });
   };
 
+  const handleSlugUpdate = useCallback((nextSlug: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      slug: nextSlug,
+    }));
+  }, []);
+
   const normalizeLongDescription = (value: string) => {
     // Preserve line breaks but avoid multiple blank lines.
     // - Normalize Windows newlines
@@ -226,6 +237,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     return {
       id: formData.id,
       title: formData.title,
+      slug: formData.slug,
       longDescriptionEs: normalizeLongDescription(formData.longDescriptionEs),
       longDescriptionEn: normalizeLongDescription(formData.longDescriptionEn),
       category: formData.category,
@@ -261,5 +273,6 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     handleStatusChange,
     getSubmitData,
     isValid,
+    handleSlugUpdate,
   };
 }

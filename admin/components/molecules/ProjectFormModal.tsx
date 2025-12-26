@@ -79,6 +79,7 @@ export default function ProjectFormModal({
     handleStatusChange,
     getSubmitData,
     isValid,
+    handleSlugUpdate,
   } = useProjectForm({ project, backendCategories, isOpen });
 
   // Categorías se cargan automáticamente con los hooks useCategories
@@ -172,6 +173,7 @@ export default function ProjectFormModal({
             longDescriptionEs={formData.longDescriptionEs}
             longDescriptionEn={formData.longDescriptionEn}
             existingSlug={project?.slug}
+            onSlugUpdated={handleSlugUpdate}
             onTitleChange={(title) => updateFormData({ title })}
             onLongDescriptionEsChange={(longDescriptionEs) => updateFormData({ longDescriptionEs })}
             onLongDescriptionEnChange={(longDescriptionEn) => updateFormData({ longDescriptionEn })}

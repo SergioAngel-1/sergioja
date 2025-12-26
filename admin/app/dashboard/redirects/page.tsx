@@ -85,50 +85,51 @@ function RedirectsPageContent() {
     loadRedirects();
   }, []);
 
-  const handleDelete = async (id: string, oldSlug: string, projectId: string) => {
-    if (
-      !confirm(
-        `¿Eliminar redirección de "${oldSlug}"?\n\nEsto puede causar errores 404 si hay enlaces externos apuntando a esta URL.`
-      )
-    ) {
-      return;
-    }
+  const handleDelete = (id: string, oldSlug: string, projectId: string) => {
+    alerts.confirm(
+      'Eliminar redirección',
+      `¿Eliminar la redirección de "${oldSlug}"? Esto puede causar errores 404 si hay enlaces apuntando a esta URL.`,
+      async () => {
+        try {
+          setDeletingId(id);
+          const response = await api.deleteRedirect(id);
+          
+          if (response.success) {
+            alerts.success('Eliminada', 'Redirección eliminada correctamente');
+            
+            // Actualizar el estado eliminando el redirect del grupo
+            setGroupedRedirects((prev) => {
+              return prev
+                .map((group) => {
+                  if (group.project.id === projectId) {
+                    const updatedRedirects = group.redirects.filter((r) => r.id !== id);
+                    return {
+                      ...group,
+                      redirects: updatedRedirects,
+                      count: updatedRedirects.length,
+                    };
+                  }
+                  return group;
+                })
+                .filter((group) => group.count > 0); // Eliminar grupos vacíos
+            });
 
-    try {
-      setDeletingId(id);
-      const response = await api.deleteRedirect(id);
-
-      if (response.success) {
-        alerts.success('Eliminada', 'Redirección eliminada correctamente');
-
-        // Actualizar el estado eliminando el redirect del grupo
-        setGroupedRedirects((prev) => {
-          return prev
-            .map((group) => {
-              if (group.project.id === projectId) {
-                const updatedRedirects = group.redirects.filter((r) => r.id !== id);
-                return {
-                  ...group,
-                  redirects: updatedRedirects,
-                  count: updatedRedirects.length,
-                };
-              }
-              return group;
-            })
-            .filter((group) => group.count > 0); // Eliminar grupos vacíos
-        });
-
-        setTotalRedirects((prev) => prev - 1);
-        logger.info('Redirect deleted', { id, oldSlug });
-      } else {
-        alerts.error('Error', response.error?.message || 'No se pudo eliminar la redirección');
-      }
-    } catch (error) {
-      logger.error('Error deleting redirect', error);
-      alerts.error('Error', 'Error al eliminar la redirección');
-    } finally {
-      setDeletingId(null);
-    }
+            setTotalRedirects((prev) => prev - 1);
+            logger.info('Redirect deleted', { id, oldSlug });
+          } else {
+            alerts.error('Error', response.error?.message || 'No se pudo eliminar la redirección');
+          }
+        } catch (error) {
+          logger.error('Error deleting redirect', error);
+          alerts.error('Error', 'Error al eliminar la redirección');
+        } finally {
+          setDeletingId(null);
+        }
+      },
+      undefined,
+      'Eliminar',
+      'Cancelar'
+    );
   };
 
   const toggleProject = (projectId: string) => {

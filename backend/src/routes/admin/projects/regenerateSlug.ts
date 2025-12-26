@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
 import { slugify } from '../../../lib/slugify';
-import { findAvailableSlug } from '../../../lib/slugHelpers';
+import { findAvailableSlug, validateSlug } from '../../../lib/slugHelpers';
+import { updateRedirectChain } from '../../../lib/redirectHelpers';
 import { asyncHandler } from '../../../middleware/errorHandler';
 
 // POST /api/admin/projects/:slug/regenerate-slug - Regenerar slug desde el título o manual
@@ -29,35 +30,30 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
 
   // Si se proporciona un slug manual, usarlo directamente
   if (manualSlug) {
-    newSlug = manualSlug.trim();
-    
-    // Validar que el slug manual sea válido
-    if (!newSlug || newSlug.length === 0) {
+    newSlug = slugify(manualSlug.trim());
+
+    if (!newSlug) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'INVALID_SLUG',
-          message: 'El slug manual no puede estar vacío',
+          message: 'La URL personalizada no contiene caracteres válidos',
         },
       });
     }
-    
-    if (!/^[a-z0-9-]+$/.test(newSlug)) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'INVALID_SLUG',
-          message: 'El slug solo puede contener letras minúsculas, números y guiones',
-        },
-      });
+
+    if (newSlug.length > 100) {
+      newSlug = newSlug.substring(0, 100);
     }
-    
-    if (/^-|-$/.test(newSlug)) {
+
+    try {
+      validateSlug(newSlug);
+    } catch (error) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'INVALID_SLUG',
-          message: 'El slug no puede empezar o terminar con guión',
+          message: error instanceof Error ? error.message : 'El slug no es válido',
         },
       });
     }
@@ -105,19 +101,7 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
 
   // Crear redirección SEO si el slug cambió
   if (newSlug !== currentSlug) {
-    await prisma.slugRedirect.create({
-      data: {
-        projectId: existingProject.id,
-        oldSlug: currentSlug,
-        newSlug: newSlug,
-      },
-    });
-    
-    logger.info('SEO redirect created', { 
-      projectId: existingProject.id,
-      oldSlug: currentSlug, 
-      newSlug: newSlug 
-    });
+    await updateRedirectChain(existingProject.id, currentSlug, newSlug);
   }
 
   // Actualizar el proyecto con el nuevo slug

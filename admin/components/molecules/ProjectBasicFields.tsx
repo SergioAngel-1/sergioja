@@ -8,11 +8,11 @@ interface ProjectBasicFieldsProps {
   longDescriptionEs: string;
   longDescriptionEn: string;
   existingSlug?: string; // Slug actual del proyecto (solo en edición)
+  onSlugUpdated?: (newSlug: string) => void;
   onTitleChange: (title: string) => void;
   onLongDescriptionEsChange: (longDescription: string) => void;
   onLongDescriptionEnChange: (longDescription: string) => void;
   onManualModeChange?: (isManualMode: boolean) => void; // Notificar al padre sobre modo manual
-  onSlugUpdated?: (newSlug: string) => void; // Notificar cuando se actualiza el slug manualmente
 }
 
 export default function ProjectBasicFields({
@@ -20,11 +20,11 @@ export default function ProjectBasicFields({
   longDescriptionEs,
   longDescriptionEn,
   existingSlug,
+  onSlugUpdated,
   onTitleChange,
   onLongDescriptionEsChange,
   onLongDescriptionEnChange,
   onManualModeChange,
-  onSlugUpdated,
 }: ProjectBasicFieldsProps) {
 
   return (

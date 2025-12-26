@@ -257,10 +257,17 @@ export const api = {
   getProjects: (params?: Record<string, unknown>) => apiClient.get('/admin/projects', params),
   getProjectBySlug: (slug: string) => apiClient.get(`/admin/projects/${slug}`),
   createProject: (data: Record<string, unknown>) => apiClient.post('/admin/projects', data),
-  updateProject: (slug: string, data: Record<string, unknown>) => apiClient.put(`/admin/projects/${slug}`, data),
+  updateProject: (identifier: string, data: Record<string, unknown>) =>
+    apiClient.put(`/admin/projects/${identifier}`, data),
   deleteProject: (slug: string) => apiClient.delete(`/admin/projects/${slug}`),
   regenerateProjectSlug: (slug: string, title?: string, manualSlug?: string) => 
     apiClient.post(`/admin/projects/${slug}/regenerate-slug`, { title, manualSlug }),
+
+  checkProjectSlug: (slug: string, excludeSlug?: string) =>
+    apiClient.get('/admin/projects/slug/check', {
+      slug,
+      ...(excludeSlug ? { excludeSlug } : {}),
+    }),
 
   // Skills
   getSkills: (category?: string) => apiClient.get('/portfolio/skills', category ? { category } : undefined),

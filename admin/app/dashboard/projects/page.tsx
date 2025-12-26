@@ -181,8 +181,8 @@ function ProjectsPageContent() {
   const handleSaveProject = async (projectData: Record<string, unknown>) => {
     try {
       if (selectedProject) {
-        // Update existing project - usar slug
-        const response = await api.updateProject(selectedProject.slug, projectData);
+        // Update existing project - usar ID estable
+        const response = await api.updateProject(selectedProject.id, projectData);
         if (response.success) {
           await loadProjects();
           setIsModalOpen(false);
