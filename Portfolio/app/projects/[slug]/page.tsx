@@ -230,7 +230,8 @@ export default function ProjectDetailPage() {
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                    loading="lazy"
+                    loading={index === 0 ? undefined : "lazy"}
+                    priority={index === 0}
                   />
                   <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors" />
                   <div 
