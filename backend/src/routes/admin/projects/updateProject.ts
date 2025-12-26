@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
+import { slugify } from '../../../lib/slugify';
+import { findAvailableSlug } from '../../../lib/slugHelpers';
 import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
@@ -52,6 +54,41 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
       projectCategories = [category];
     }
 
+    // Regenerar slug si el título cambió
+    let updatedSlug = slug;
+    if (title && title !== existingProject.title) {
+      logger.info('Title changed, regenerating slug', { 
+        oldTitle: existingProject.title, 
+        newTitle: title,
+        oldSlug: slug 
+      });
+      
+      // Generar nuevo slug desde el título
+      let newSlug = slugify(title);
+      
+      // Validar que el slug no esté vacío
+      if (!newSlug || newSlug.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'El título debe contener al menos un carácter alfanumérico válido',
+          },
+        });
+      }
+      
+      // Truncar si es muy largo
+      if (newSlug.length > 100) {
+        newSlug = newSlug.substring(0, 100);
+        logger.warn('Slug truncated to 100 characters', { originalLength: newSlug.length, title });
+      }
+      
+      // Encontrar slug disponible (excluir el proyecto actual)
+      updatedSlug = await findAvailableSlug(newSlug, existingProject.id);
+      
+      logger.info('Slug regenerated', { oldSlug: slug, newSlug: updatedSlug });
+    }
+
     // Actualizar proyecto
     const resolvedStatus: ProjectStatus = isProjectStatus(status)
       ? status
@@ -66,6 +103,7 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
     const project = await prisma.project.update({
       where: { slug },
       data: {
+        slug: updatedSlug,
         title: title || existingProject.title,
         longDescriptionEs:
           longDescriptionEs !== undefined
