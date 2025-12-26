@@ -251,13 +251,13 @@ model TechnologyCategory {
 // Slug Redirects - Gestión de redirecciones SEO cuando cambian los slugs
 model SlugRedirect {
   id          String   @id @default(cuid())
-  projectId   String
+  projectId   String?
   oldSlug     String   @unique
   newSlug     String
   createdAt   DateTime @default(now())
   
   // Relations
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
   
   @@index([oldSlug])
   @@index([projectId])

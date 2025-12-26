@@ -17,6 +17,20 @@ interface SlugRedirect {
   oldSlug: string;
   newSlug: string;
   createdAt: string;
+  redirectType?: 'STANDARD' | 'DELETED_PROJECT';
+}
+
+interface DeletedRedirect {
+  id: string;
+  oldSlug: string;
+  newSlug: string;
+  createdAt: string;
+  project?: {
+    id: string;
+    title: string;
+    slug: string;
+  };
+  redirectType: 'DELETED_PROJECT';
 }
 
 interface ProjectGroup {
@@ -31,14 +45,18 @@ interface ProjectGroup {
 
 interface RedirectsResponse {
   grouped: ProjectGroup[];
+  deleted: DeletedRedirect[];
   total: number;
   projectsAffected: number;
+  deletedCount?: number;
 }
 
 function RedirectsPageContent() {
   const [groupedRedirects, setGroupedRedirects] = useState<ProjectGroup[]>([]);
   const [totalRedirects, setTotalRedirects] = useState(0);
   const [projectsAffected, setProjectsAffected] = useState(0);
+  const [deletedRedirects, setDeletedRedirects] = useState<DeletedRedirect[]>([]);
+  const [deletedCount, setDeletedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
@@ -54,24 +72,36 @@ function RedirectsPageContent() {
         // Validar que los datos tengan la estructura esperada
         if (data.grouped && Array.isArray(data.grouped)) {
           setGroupedRedirects(data.grouped);
+          setDeletedRedirects(data.deleted || []);
+          setDeletedCount(data.deletedCount ?? (data.deleted?.length ?? 0));
           setTotalRedirects(data.total || 0);
           setProjectsAffected(data.projectsAffected || 0);
-          logger.info('Redirects loaded', { total: data.total, projects: data.projectsAffected });
+          logger.info('Redirects loaded', { 
+            total: data.total,
+            projects: data.projectsAffected,
+            deleted: data.deletedCount,
+          });
         } else {
           // Si no tiene la estructura esperada, inicializar con valores vacíos
           setGroupedRedirects([]);
+          setDeletedRedirects([]);
+          setDeletedCount(0);
           setTotalRedirects(0);
           setProjectsAffected(0);
           logger.warn('Redirects data has unexpected structure', data);
         }
       } else {
         setGroupedRedirects([]);
+        setDeletedRedirects([]);
+        setDeletedCount(0);
         setTotalRedirects(0);
         setProjectsAffected(0);
         alerts.error('Error', 'No se pudieron cargar las redirecciones');
       }
     } catch (error) {
       setGroupedRedirects([]);
+      setDeletedRedirects([]);
+      setDeletedCount(0);
       setTotalRedirects(0);
       setProjectsAffected(0);
       logger.error('Error loading redirects', error);
@@ -85,7 +115,7 @@ function RedirectsPageContent() {
     loadRedirects();
   }, []);
 
-  const handleDelete = (id: string, oldSlug: string, projectId: string) => {
+  const handleDelete = (id: string, oldSlug: string, projectId?: string) => {
     alerts.confirm(
       'Eliminar redirección',
       `¿Eliminar la redirección de "${oldSlug}"? Esto puede causar errores 404 si hay enlaces apuntando a esta URL.`,
@@ -98,23 +128,28 @@ function RedirectsPageContent() {
             alerts.success('Eliminada', 'Redirección eliminada correctamente');
             
             // Actualizar el estado eliminando el redirect del grupo
-            setGroupedRedirects((prev) => {
-              return prev
-                .map((group) => {
-                  if (group.project.id === projectId) {
-                    const updatedRedirects = group.redirects.filter((r) => r.id !== id);
-                    return {
-                      ...group,
-                      redirects: updatedRedirects,
-                      count: updatedRedirects.length,
-                    };
-                  }
-                  return group;
-                })
-                .filter((group) => group.count > 0); // Eliminar grupos vacíos
-            });
+            if (projectId) {
+              setGroupedRedirects((prev) => {
+                return prev
+                  .map((group) => {
+                    if (group.project.id === projectId) {
+                      const updatedRedirects = group.redirects.filter((r) => r.id !== id);
+                      return {
+                        ...group,
+                        redirects: updatedRedirects,
+                        count: updatedRedirects.length,
+                      };
+                    }
+                    return group;
+                  })
+                  .filter((group) => group.count > 0); // Eliminar grupos vacíos
+              });
+            } else {
+              setDeletedRedirects((prev) => prev.filter((redirect) => redirect.id !== id));
+              setDeletedCount((prev) => Math.max(0, prev - 1));
+            }
 
-            setTotalRedirects((prev) => prev - 1);
+            setTotalRedirects((prev) => Math.max(0, prev - 1));
             logger.info('Redirect deleted', { id, oldSlug });
           } else {
             alerts.error('Error', response.error?.message || 'No se pudo eliminar la redirección');
@@ -235,7 +270,7 @@ function RedirectsPageContent() {
           <div className="flex items-center justify-center py-20">
             <Loader size="lg" />
           </div>
-        ) : groupedRedirects.length === 0 ? (
+        ) : groupedRedirects.length === 0 && deletedRedirects.length === 0 ? (
           <div
             className="bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-center"
             style={{ padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}
@@ -256,8 +291,70 @@ function RedirectsPageContent() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {groupedRedirects.map((group, groupIndex) => {
+          <>
+            {deletedRedirects.length > 0 && (
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-text-primary font-semibold flex items-center gap-2">
+                    <Icon name="trash" size={18} className="text-white" />
+                    Redirecciones de proyectos eliminados ({deletedCount})
+                  </h2>
+                  <p className="text-text-muted text-xs">
+                    Estas URLs apuntaban a proyectos eliminados y ahora redirigen al listado /projects.
+                  </p>
+                </div>
+                <div className="grid gap-3">
+                  {deletedRedirects.map((redirect) => (
+                    <div
+                      key={redirect.id}
+                      className="bg-admin-dark-surface border border-white/10 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                    >
+                      <div className="space-y-2 flex-1">
+                        <div>
+                          <p className="text-text-muted text-xs mb-1">URL eliminada</p>
+                          <code className="text-red-300 bg-red-500/10 px-2 py-1 rounded text-xs font-mono break-all">
+                            /projects/{redirect.oldSlug}
+                          </code>
+                        </div>
+                        <div>
+                          <p className="text-text-muted text-xs mb-1">Redirige a</p>
+                          <code className="text-green-300 bg-green-500/10 px-2 py-1 rounded text-xs font-mono">
+                            /projects
+                          </code>
+                        </div>
+                        <p className="text-text-muted text-xs">
+                          Registrada el {formatDate(redirect.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => window.open(`/projects/${redirect.oldSlug}`, '_blank')}
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-white/20 text-white text-sm hover:bg-white/10 transition-colors"
+                        >
+                          <Icon name="external-link" size={16} className="text-white" />
+                          Ver URL vieja
+                        </button>
+                        <button
+                          onClick={() => handleDelete(redirect.id, redirect.oldSlug)}
+                          disabled={deletingId === redirect.id}
+                          className="text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          title="Eliminar redirección"
+                        >
+                          {deletingId === redirect.id ? (
+                            <Loader size="sm" />
+                          ) : (
+                            <Icon name="delete" size={fluidSizing.size.iconSm} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="space-y-4">
+              {groupedRedirects.map((group, groupIndex) => {
               const isExpanded = expandedProjects.has(group.project.id);
 
               return (
@@ -343,9 +440,16 @@ function RedirectsPageContent() {
                               {/* New Slug */}
                               <div className="col-span-5">
                                 <p className="text-text-muted text-xs mb-1">URL Nueva</p>
-                                <code className="text-green-400 bg-green-500/10 px-2 py-1 rounded text-xs font-mono break-all">
-                                  /projects/{redirect.newSlug}
-                                </code>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <code className="text-green-400 bg-green-500/10 px-2 py-1 rounded text-xs font-mono break-all">
+                                    /projects/{redirect.newSlug}
+                                  </code>
+                                  {redirect.redirectType === 'DELETED_PROJECT' && (
+                                    <span className="text-[0.65rem] uppercase tracking-wide bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 px-2 py-0.5 rounded-full">
+                                      Eliminado · redirige al listado
+                                    </span>
+                                  )}
+                                </div>
                               </div>
 
                               {/* Date & Actions */}
@@ -376,8 +480,9 @@ function RedirectsPageContent() {
                   </AnimatePresence>
                 </motion.div>
               );
-            })}
-          </div>
+              })}
+            </div>
+          </>
         )}
       </div>
     </DashboardLayout>

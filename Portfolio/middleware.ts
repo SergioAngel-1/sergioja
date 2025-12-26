@@ -20,7 +20,14 @@ export async function middleware(request: NextRequest) {
           const data = await res.json();
           if (data.success && data.data?.redirectTo) {
             // Redirección 301 permanente para SEO
-            const redirectUrl = new URL(`/projects/${data.data.redirectTo}`, request.url);
+            const redirectTarget = data.data.redirectTo;
+            const targetPath =
+              redirectTarget === 'projects'
+                ? '/projects'
+                : redirectTarget.startsWith('/')
+                  ? redirectTarget
+                  : `/projects/${redirectTarget}`;
+            const redirectUrl = new URL(targetPath, request.url);
             
             console.log('[SEO Redirect] 301:', pathname, '->', redirectUrl.pathname);
             

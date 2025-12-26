@@ -22,8 +22,22 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
     },
   });
 
-  // Agrupar redirects por proyecto
+  const deletedRedirects: any[] = [];
   const groupedByProject = redirects.reduce((acc: any, redirect: any) => {
+    const isDeletedRedirect = redirect.newSlug === 'projects';
+
+    if (isDeletedRedirect) {
+      deletedRedirects.push({
+        id: redirect.id,
+        oldSlug: redirect.oldSlug,
+        newSlug: redirect.newSlug,
+        createdAt: redirect.createdAt,
+        project: redirect.project,
+        redirectType: 'DELETED_PROJECT',
+      });
+      return acc;
+    }
+
     const projectId = redirect.project.id;
     
     if (!acc[projectId]) {
@@ -39,26 +53,29 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
       oldSlug: redirect.oldSlug,
       newSlug: redirect.newSlug,
       createdAt: redirect.createdAt,
+      redirectType: 'STANDARD',
     });
     acc[projectId].count++;
     
     return acc;
   }, {});
 
-  // Convertir a array y ordenar por cantidad de redirects
   const groupedArray = Object.values(groupedByProject).sort((a: any, b: any) => b.count - a.count);
 
   logger.info('Redirects fetched', { 
     totalRedirects: redirects.length,
-    projectsAffected: groupedArray.length 
+    projectsAffected: groupedArray.length,
+    deletedRedirects: deletedRedirects.length,
   });
 
   return res.json({
     success: true,
     data: {
       grouped: groupedArray,
+      deleted: deletedRedirects,
       total: redirects.length,
       projectsAffected: groupedArray.length,
+      deletedCount: deletedRedirects.length,
     },
   });
 }));

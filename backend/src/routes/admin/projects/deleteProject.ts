@@ -28,6 +28,28 @@ export const deleteProject = asyncHandler(async (req: Request, res: Response) =>
       where: { projectId: existingProject.id },
     });
 
+    // Convertir todas las redirecciones existentes del proyecto para que apunten a /projects
+    await prisma.slugRedirect.updateMany({
+      where: { projectId: existingProject.id },
+      data: { newSlug: 'projects' },
+    });
+
+    // Crear redirección hacia /projects para el slug actual
+    try {
+      await prisma.slugRedirect.create({
+        data: {
+          projectId: existingProject.id,
+          oldSlug: existingProject.slug,
+          newSlug: 'projects',
+        },
+      });
+    } catch (redirectError) {
+      logger.warn('Failed to create redirect for deleted project', {
+        slug: existingProject.slug,
+        error: redirectError instanceof Error ? redirectError.message : redirectError,
+      });
+    }
+
     // Eliminar proyecto
     await prisma.project.delete({
       where: { slug },
