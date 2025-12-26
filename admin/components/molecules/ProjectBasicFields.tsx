@@ -31,6 +31,7 @@ export default function ProjectBasicFields({
   const [originalSlug, setOriginalSlug] = useState<string>('');
   const [previewSlug, setPreviewSlug] = useState<string>('');
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [slugValidation, setSlugValidation] = useState<{ valid: boolean; warning?: string }>({ valid: true });
 
   // Inicializar con el slug existente en modo edición
   useEffect(() => {
@@ -40,12 +41,50 @@ export default function ProjectBasicFields({
     }
   }, [existingSlug, originalSlug]);
 
+  // Validar slug
+  const validateSlugPreview = (slug: string): { valid: boolean; warning?: string } => {
+    if (!slug || slug.length === 0) {
+      return {
+        valid: false,
+        warning: 'El título debe contener al menos un carácter alfanumérico',
+      };
+    }
+
+    if (slug.length > 100) {
+      return {
+        valid: false,
+        warning: `El slug es muy largo (${slug.length}/100 caracteres)`,
+      };
+    }
+
+    // Validar que solo contenga caracteres permitidos
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      return {
+        valid: false,
+        warning: 'El slug contiene caracteres no permitidos',
+      };
+    }
+
+    // Validar que no empiece o termine con guión
+    if (/^-|-$/.test(slug)) {
+      return {
+        valid: false,
+        warning: 'El slug no puede empezar o terminar con guión',
+      };
+    }
+
+    return { valid: true };
+  };
+
   // Generar preview del slug cuando cambia el título
   useEffect(() => {
     if (title) {
-      setPreviewSlug(slugify(title));
+      const newSlug = slugify(title);
+      setPreviewSlug(newSlug);
+      setSlugValidation(validateSlugPreview(newSlug));
     } else {
       setPreviewSlug('');
+      setSlugValidation({ valid: true });
     }
   }, [title]);
 
@@ -126,13 +165,27 @@ export default function ProjectBasicFields({
         
         {/* Slug Preview */}
         {previewSlug && (
-          <div className="mt-2 p-3 bg-admin-dark-elevated/50 border border-admin-primary/10 rounded-lg">
+          <div className={`mt-2 p-3 rounded-lg ${
+            !slugValidation.valid 
+              ? 'bg-red-500/10 border border-red-500/30' 
+              : 'bg-admin-dark-elevated/50 border border-admin-primary/10'
+          }`}>
             <div className="flex items-center gap-2 text-xs">
               <span className="text-text-muted font-mono">URL:</span>
-              <code className="text-admin-primary font-mono flex-1">
+              <code className={`font-mono flex-1 ${
+                !slugValidation.valid ? 'text-red-400' : 'text-admin-primary'
+              }`}>
                 /projects/{previewSlug}
               </code>
-              {originalSlug && originalSlug !== previewSlug && (
+              {!slugValidation.valid && slugValidation.warning && (
+                <span className="text-red-400 text-xs flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  {slugValidation.warning}
+                </span>
+              )}
+              {slugValidation.valid && originalSlug && originalSlug !== previewSlug && (
                 <span className="text-yellow-400 text-xs">
                   ⚠ Cambió desde: {originalSlug}
                 </span>
