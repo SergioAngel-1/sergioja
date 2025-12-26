@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
 import { slugify } from '../../../lib/slugify';
+import { findAvailableSlug } from '../../../lib/slugHelpers';
 import { asyncHandler } from '../../../middleware/errorHandler';
 
 // POST /api/admin/projects/:slug/regenerate-slug - Regenerar slug desde el título
@@ -43,19 +44,8 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
     });
   }
 
-  // Verificar si el nuevo slug ya existe en otro proyecto
-  let slugExists = await prisma.project.findUnique({ 
-    where: { slug: newSlug },
-  });
-  
-  let counter = 1;
-  const baseSlug = newSlug;
-  
-  while (slugExists && slugExists.id !== existingProject.id) {
-    newSlug = `${baseSlug}-${counter}`;
-    slugExists = await prisma.project.findUnique({ where: { slug: newSlug } });
-    counter++;
-  }
+  // Encontrar slug disponible (optimizado para evitar N+1 queries)
+  newSlug = await findAvailableSlug(newSlug, existingProject.id);
 
   // Actualizar el proyecto con el nuevo slug
   const updatedProject = await prisma.project.update({

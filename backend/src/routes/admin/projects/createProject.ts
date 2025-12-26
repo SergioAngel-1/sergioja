@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { logger } from '../../../lib/logger';
 import { slugify } from '../../../lib/slugify';
+import { findAvailableSlug } from '../../../lib/slugHelpers';
 import { asyncHandler } from '../../../middleware/errorHandler';
 import { ProjectStatus, isProjectStatus } from './types';
 
@@ -73,16 +74,8 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
       logger.warn('Slug truncated to 100 characters', { originalLength: slug.length, title });
     }
 
-    // Verificar si el slug ya existe y agregar sufijo si es necesario
-    let slugExists = await prisma.project.findUnique({ where: { slug } });
-    let counter = 1;
-    const baseSlug = slug;
-    
-    while (slugExists) {
-      slug = `${baseSlug}-${counter}`;
-      slugExists = await prisma.project.findUnique({ where: { slug } });
-      counter++;
-    }
+    // Encontrar slug disponible (optimizado para evitar N+1 queries)
+    slug = await findAvailableSlug(slug);
 
     // Determinar categorías (soportar ambos formatos)
     let projectCategories: string[] = [];
