@@ -306,4 +306,6 @@ export const api = {
   // Redirects
   getRedirects: () => apiClient.get('/admin/redirects'),
   deleteRedirect: (id: string) => apiClient.delete(`/admin/redirects/${id}`),
+  createRedirect: (payload: { oldSlug: string; newSlug: string }) =>
+    apiClient.post('/admin/redirects', payload),
 };

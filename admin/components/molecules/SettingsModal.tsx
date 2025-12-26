@@ -9,6 +9,7 @@ import Input from '@/components/atoms/Input';
 import Select from '@/components/molecules/Select';
 import Icon from '@/components/atoms/Icon';
 import Button from '@/components/atoms/Button';
+import RedirectCreationTab from '@/components/molecules/RedirectCreationTab';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { api } from '@/lib/api-client';
 import { alerts } from '@/lib/alerts';
@@ -33,7 +34,7 @@ interface ProfileData {
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'redirects'>('profile');
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingProfile, setIsFetchingProfile] = useState(false);
 
@@ -250,13 +251,23 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             Cancelar
           </Button>
           <Button
-            onClick={activeTab === 'profile' ? handleProfileSubmit : handlePasswordSubmit}
+            onClick={
+              activeTab === 'profile'
+                ? handleProfileSubmit
+                : activeTab === 'password'
+                  ? handlePasswordSubmit
+                  : undefined
+            }
             variant="primary"
             isLoading={isLoading}
             disabled={isLoading || isFetchingProfile}
             className="flex-1"
           >
-            {activeTab === 'profile' ? 'Guardar Cambios' : 'Cambiar Contraseña'}
+            {activeTab === 'profile'
+              ? 'Guardar Cambios'
+              : activeTab === 'password'
+                ? 'Cambiar Contraseña'
+                : 'Crear redirección'}
           </Button>
         </>
       }
@@ -307,6 +318,29 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <Icon name="lock" size={16} />
             <span>CONTRASEÑA</span>
             {activeTab === 'password' && (
+              <div 
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-admin-primary"
+                style={{ boxShadow: '0 0 8px rgba(0, 191, 255, 0.6)' }}
+              />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('redirects')}
+            className={`flex items-center font-orbitron font-medium transition-all duration-200 relative group ${
+              activeTab === 'redirects'
+                ? 'text-admin-primary'
+                : 'text-text-muted hover:text-text-primary'
+            }`}
+            style={{ 
+              gap: fluidSizing.space.xs, 
+              fontSize: fluidSizing.text.sm,
+              padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+              paddingBottom: fluidSizing.space.md,
+            }}
+          >
+            <Icon name="link" size={16} />
+            <span>REDIRECCIONES</span>
+            {activeTab === 'redirects' && (
               <div 
                 className="absolute bottom-0 left-0 right-0 h-0.5 bg-admin-primary"
                 style={{ boxShadow: '0 0 8px rgba(0, 191, 255, 0.6)' }}
@@ -561,20 +595,18 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
               )}
             </form>
-          ) : (
-            <form onSubmit={handlePasswordSubmit}>
-              {/* Campo de username oculto para accesibilidad */}
-              <input
-                type="text"
-                name="username"
-                autoComplete="username"
-                style={{ display: 'none' }}
-                aria-hidden="true"
-                tabIndex={-1}
-              />
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
-                {/* Contraseña actual */}
+          ) : activeTab === 'password' ? (
+            <form onSubmit={handlePasswordSubmit} className="space-y-6">
+              <div>
+                <label className="text-sm font-medium text-text-primary mb-2 block">Contraseña actual</label>
+                <Input
+                  type="password"
+                  name="username"
+                  autoComplete="username"
+                  style={{ display: 'none' }}
+                  aria-hidden="true"
+                  tabIndex={-1}
+                />
                 <Input
                   id="current-password"
                   type="password"
@@ -627,7 +659,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   </p>
                 </div>
               </div>
+              <Button type="submit" variant="primary" isLoading={isLoading} disabled={isLoading} className="w-full">
+                Cambiar Contraseña
+              </Button>
             </form>
+          ) : (
+            <RedirectCreationTab />
           )}
         </div>
       </div>
