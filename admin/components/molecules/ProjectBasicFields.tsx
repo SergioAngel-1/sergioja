@@ -28,15 +28,17 @@ export default function ProjectBasicFields({
   onLongDescriptionEnChange,
   onSlugRegenerated,
 }: ProjectBasicFieldsProps) {
+  const [originalSlug, setOriginalSlug] = useState<string>('');
   const [previewSlug, setPreviewSlug] = useState<string>('');
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Inicializar con el slug existente en modo edición
   useEffect(() => {
-    if (existingSlug && !previewSlug) {
+    if (existingSlug && !originalSlug) {
+      setOriginalSlug(existingSlug);
       setPreviewSlug(existingSlug);
     }
-  }, [existingSlug, previewSlug]);
+  }, [existingSlug, originalSlug]);
 
   // Generar preview del slug cuando cambia el título
   useEffect(() => {
@@ -50,17 +52,18 @@ export default function ProjectBasicFields({
   const handleRegenerateSlug = async () => {
     if (!title) return;
 
-    // Si estamos en modo edición (existingSlug existe), llamar al backend
-    if (existingSlug) {
+    // Si estamos en modo edición (originalSlug existe), llamar al backend
+    if (originalSlug) {
       try {
         setIsRegenerating(true);
-        // Enviar el título actual para que el backend genere el slug desde él
-        const response = await api.regenerateProjectSlug(existingSlug, title);
+        // Usar originalSlug (no existingSlug) para evitar race condition
+        const response = await api.regenerateProjectSlug(originalSlug, title);
         
         if (response.success && response.data) {
           const { newSlug, changed, oldSlug } = response.data as any;
           
           if (changed) {
+            setOriginalSlug(newSlug);
             setPreviewSlug(newSlug);
             alerts.success(
               'URL Actualizada',
@@ -129,9 +132,9 @@ export default function ProjectBasicFields({
               <code className="text-admin-primary font-mono flex-1">
                 /projects/{previewSlug}
               </code>
-              {existingSlug && existingSlug !== previewSlug && (
+              {originalSlug && originalSlug !== previewSlug && (
                 <span className="text-yellow-400 text-xs">
-                  ⚠ Cambió desde: {existingSlug}
+                  ⚠ Cambió desde: {originalSlug}
                 </span>
               )}
             </div>
