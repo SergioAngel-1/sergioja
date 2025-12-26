@@ -56,6 +56,23 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
     // Crear slug desde el título (normalizar acentos y caracteres especiales)
     let slug = slugify(title);
 
+    // Validar que el slug no esté vacío (puede ocurrir si el título solo tiene caracteres especiales)
+    if (!slug || slug.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'El título debe contener al menos un carácter alfanumérico válido',
+        },
+      });
+    }
+
+    // Validar longitud máxima del slug
+    if (slug.length > 100) {
+      slug = slug.substring(0, 100);
+      logger.warn('Slug truncated to 100 characters', { originalLength: slug.length, title });
+    }
+
     // Verificar si el slug ya existe y agregar sufijo si es necesario
     let slugExists = await prisma.project.findUnique({ where: { slug } });
     let counter = 1;
