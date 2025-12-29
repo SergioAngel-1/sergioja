@@ -40,8 +40,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const previousPathname = useRef(pathname);
+  const navigationTimeout = useRef<NodeJS.Timeout>();
 
   const showNavIcons = !isMobile && !sidebarOpen;
+
+  const handleNavigation = (href: string) => {
+    // Si ya estamos en esa ruta, no hacer nada
+    if (pathname === href) return;
+    
+    // Mostrar loader inmediatamente
+    setIsNavigating(true);
+    
+    // Cerrar sidebar en mobile
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
 
   const navIconSize = isMobile
     ? fluidSizing.size.iconSm
@@ -51,18 +65,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const categoryLabelTextSize = isMobile ? fluidSizing.text.base : fluidSizing.text.sm;
   const navItemGap = showNavIcons ? fluidSizing.space.sm : 0;
 
-  // Detectar cambios de ruta para mostrar loader
+  // Detectar cambios de ruta para ocultar loader
   useEffect(() => {
     if (pathname !== previousPathname.current) {
-      setIsNavigating(true);
       previousPathname.current = pathname;
       
+      // Limpiar timeout anterior si existe
+      if (navigationTimeout.current) {
+        clearTimeout(navigationTimeout.current);
+      }
+      
       // Ocultar loader después de un breve delay para transición suave
-      const timer = setTimeout(() => {
+      navigationTimeout.current = setTimeout(() => {
         setIsNavigating(false);
       }, 300);
       
-      return () => clearTimeout(timer);
+      return () => {
+        if (navigationTimeout.current) {
+          clearTimeout(navigationTimeout.current);
+        }
+      };
     }
   }, [pathname]);
 
@@ -210,6 +232,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Link
                   key={section.name}
                   href={section.href!}
+                  onClick={() => handleNavigation(section.href!)}
                   className={`flex items-center rounded-lg transition-all duration-200 relative group ${
                     isActive
                       ? 'bg-admin-primary/20 text-admin-primary border border-admin-primary/50'
@@ -324,6 +347,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         <Link
                           key={item.name}
                           href={item.href}
+                          onClick={() => handleNavigation(item.href)}
                           className={`flex items-center rounded-lg transition-all duration-200 relative group ${
                             isActive
                               ? 'bg-admin-primary/20 text-admin-primary border border-admin-primary/50'
