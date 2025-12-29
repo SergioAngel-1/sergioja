@@ -7,14 +7,45 @@ const BATCH_SIZE = 100; // Procesar redirects en lotes de 100
  * Detecta si crear un redirect causaría un ciclo infinito
  * Recorre la cadena de redirects para verificar que no forme un loop
  * 
+ * IMPORTANTE: Permite revertir a un slug anterior eliminando el redirect existente
+ * 
+ * @param projectId - ID del proyecto (para permitir reversión)
  * @param oldSlug - Slug de origen
  * @param newSlug - Slug de destino
  * @returns true si se detecta un ciclo
  */
 async function detectRedirectCycle(
+  projectId: string,
   oldSlug: string,
   newSlug: string
 ): Promise<boolean> {
+  // CASO ESPECIAL: Revertir a slug anterior
+  // Si existe un redirect oldSlug → newSlug para este proyecto,
+  // significa que estamos revirtiendo el cambio, lo cual es válido
+  const existingRedirect = await prisma.slugRedirect.findFirst({
+    where: {
+      projectId,
+      oldSlug: newSlug,
+      newSlug: oldSlug,
+    },
+  });
+
+  if (existingRedirect) {
+    logger.info('Reverting to previous slug - deleting old redirect', {
+      projectId,
+      oldSlug,
+      newSlug,
+      redirectId: existingRedirect.id,
+    });
+    
+    // Eliminar el redirect anterior para permitir la reversión
+    await prisma.slugRedirect.delete({
+      where: { id: existingRedirect.id },
+    });
+    
+    return false; // No es un ciclo, es una reversión válida
+  }
+
   const visited = new Set<string>();
   let current = newSlug;
   const maxDepth = 50; // Límite de seguridad para evitar loops infinitos
@@ -101,7 +132,7 @@ export async function updateRedirectChain(
   newSlug: string
 ): Promise<void> {
   // BUG #4: Detectar ciclos antes de crear el redirect
-  const wouldCreateCycle = await detectRedirectCycle(oldSlug, newSlug);
+  const wouldCreateCycle = await detectRedirectCycle(projectId, oldSlug, newSlug);
   
   if (wouldCreateCycle) {
     const error = new Error(
