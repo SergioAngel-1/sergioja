@@ -4,40 +4,35 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Solo interceptar rutas de proyectos
-  if (pathname.startsWith('/projects/')) {
-    const slug = pathname.split('/projects/')[1];
-    
-    if (slug && slug.length > 0) {
-      try {
-        // Verificar si existe redirección para este slug
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const res = await fetch(`${apiUrl}/api/portfolio/redirects/${encodeURIComponent(slug)}`, {
-          next: { revalidate: 3600 }, // Cache 1 hora
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.data?.redirectTo) {
-            // Redirección 301 permanente para SEO
-            const redirectTarget = data.data.redirectTo;
-            const targetPath =
-              redirectTarget === 'projects'
-                ? '/projects'
-                : redirectTarget.startsWith('/')
-                  ? redirectTarget
-                  : `/projects/${redirectTarget}`;
-            const redirectUrl = new URL(targetPath, request.url);
-            
-            console.log('[SEO Redirect] 301:', pathname, '->', redirectUrl.pathname);
-            
-            return NextResponse.redirect(redirectUrl, { status: 301 });
-          }
+  // Extraer slug de la ruta (remover / inicial)
+  const slug = pathname.replace(/^\/+/, '');
+  
+  if (slug && slug.length > 0) {
+    try {
+      // Verificar si existe redirección para este slug
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${apiUrl}/api/portfolio/redirects/${encodeURIComponent(slug)}`, {
+        next: { revalidate: 3600 }, // Cache 1 hora
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.data?.redirectTo) {
+          // Redirección 301 permanente para SEO
+          const redirectTarget = data.data.redirectTo;
+          const targetPath = redirectTarget.startsWith('/')
+            ? redirectTarget
+            : `/${redirectTarget}`;
+          const redirectUrl = new URL(targetPath, request.url);
+          
+          console.log('[SEO Redirect] 301:', pathname, '->', redirectUrl.pathname);
+          
+          return NextResponse.redirect(redirectUrl, { status: 301 });
         }
-      } catch (error) {
-        // Si falla la verificación de redirect, continuar normalmente
-        console.error('[Redirect Check Error]:', error);
       }
+    } catch (error) {
+      // Si falla la verificación de redirect, continuar normalmente
+      console.error('[Redirect Check Error]:', error);
     }
   }
   
@@ -45,5 +40,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/projects/:slug*',
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };
