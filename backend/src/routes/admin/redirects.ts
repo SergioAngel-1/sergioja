@@ -51,6 +51,7 @@ router.get('/', authMiddleware, asyncHandler(async (req: Request, res: Response)
   ]);
 
   const deletedRedirects: any[] = [];
+  const customRedirects: any[] = [];
   const groupedByProject = redirects.reduce((acc: any, redirect: any) => {
     const isDeletedRedirect = redirect.newSlug === 'projects';
 
@@ -69,25 +70,36 @@ router.get('/', authMiddleware, asyncHandler(async (req: Request, res: Response)
 
     const projectIdKey = redirect.project?.id;
     
-    if (projectIdKey) {
-      if (!acc[projectIdKey]) {
-        acc[projectIdKey] = {
-          project: redirect.project,
-          redirects: [],
-          count: 0,
-        };
-      }
-      
-      acc[projectIdKey].redirects.push({
+    // Custom redirects (without projectId)
+    if (!projectIdKey) {
+      customRedirects.push({
         id: redirect.id,
         oldSlug: redirect.oldSlug,
         newSlug: redirect.newSlug,
         notes: redirect.notes,
         createdAt: redirect.createdAt,
-        redirectType: 'STANDARD',
+        redirectType: 'CUSTOM',
       });
-      acc[projectIdKey].count++;
+      return acc;
     }
+    
+    if (!acc[projectIdKey]) {
+      acc[projectIdKey] = {
+        project: redirect.project,
+        redirects: [],
+        count: 0,
+      };
+    }
+    
+    acc[projectIdKey].redirects.push({
+      id: redirect.id,
+      oldSlug: redirect.oldSlug,
+      newSlug: redirect.newSlug,
+      notes: redirect.notes,
+      createdAt: redirect.createdAt,
+      redirectType: 'STANDARD',
+    });
+    acc[projectIdKey].count++;
     
     return acc;
   }, {});
@@ -107,10 +119,12 @@ router.get('/', authMiddleware, asyncHandler(async (req: Request, res: Response)
     success: true,
     data: {
       grouped: groupedArray,
+      custom: customRedirects,
+      customCount: customRedirects.length,
       deleted: deletedRedirects,
+      deletedCount: deletedRedirects.length,
       total,
       projectsAffected: groupedArray.length,
-      deletedCount: deletedRedirects.length,
     },
     pagination: {
       page: pageNum,
