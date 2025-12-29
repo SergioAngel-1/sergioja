@@ -441,10 +441,10 @@ function RedirectsPageContent() {
           footer={
             <>
               <Button
-                variant="secondary"
-                size="md"
+                variant="outline"
                 onClick={() => setShowCreateModal(false)}
                 disabled={isCreating}
+                className="flex-1"
               >
                 Cancelar
               </Button>
@@ -452,10 +452,10 @@ function RedirectsPageContent() {
                 type="submit"
                 form="redirect-creation-form"
                 variant="primary"
-                size="md"
                 disabled={isCreating}
+                className="flex-1"
               >
-                {isCreating ? 'Creando...' : 'Crear Redirección'}
+                {isCreating ? 'Creando...' : 'Crear redirección'}
               </Button>
             </>
           }
