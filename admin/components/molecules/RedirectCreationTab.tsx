@@ -104,7 +104,7 @@ export default function RedirectCreationTab({
               id="redirect-oldSlug"
               label="URL de entrada"
               type="text"
-              placeholder="projects/mi-proyecto-anterior"
+              placeholder="promo, blog/articulo-viejo, landing-page"
               value={oldSlug}
               onChange={(event) => setOldSlug(event.target.value)}
               disabled={submitting}
@@ -114,7 +114,7 @@ export default function RedirectCreationTab({
               className="text-text-muted"
               style={{ fontSize: fluidSizing.text.xs }}
             >
-              Puedes introducir una ruta absoluta (/blog/post) o un slug relativo (projects/mi-slug).
+              La URL antigua que quieres redirigir. Ejemplos: promo, blog/post-viejo, campaña-2024
             </p>
           </div>
 
@@ -123,7 +123,7 @@ export default function RedirectCreationTab({
               id="redirect-newSlug"
               label="Redirigir hacia"
               type="text"
-              placeholder="/projects/nuevo-slug o /blog/nueva-ruta"
+              placeholder="projects/nuevo-proyecto, blog/articulo-nuevo, /about"
               value={newSlug}
               onChange={(event) => setNewSlug(event.target.value)}
               disabled={submitting}
