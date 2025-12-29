@@ -4,8 +4,9 @@ import { ReactNode, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Icon from '../atoms/Icon';
+import Loader from '../atoms/Loader';
 import { alerts } from '@/lib/alerts';
 import { fluidSizing } from '@/lib/fluidSizing';
 import SettingsModal from '../molecules/SettingsModal';
@@ -33,9 +34,12 @@ interface NavigationSection {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const previousPathname = useRef(pathname);
 
   const showNavIcons = !isMobile && !sidebarOpen;
 
@@ -46,6 +50,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navItemMinHeight = isMobile ? fluidSizing.size.buttonLg : fluidSizing.size.buttonMd;
   const categoryLabelTextSize = isMobile ? fluidSizing.text.base : fluidSizing.text.sm;
   const navItemGap = showNavIcons ? fluidSizing.space.sm : 0;
+
+  // Detectar cambios de ruta para mostrar loader
+  useEffect(() => {
+    if (pathname !== previousPathname.current) {
+      setIsNavigating(true);
+      previousPathname.current = pathname;
+      
+      // Ocultar loader después de un breve delay para transición suave
+      const timer = setTimeout(() => {
+        setIsNavigating(false);
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [pathname]);
 
   // Detectar si es mobile
   useEffect(() => {
@@ -477,7 +496,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </header>
         )}
         
-        <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin relative">
+          {/* Loader de transición entre pestañas */}
+          <AnimatePresence>
+            {isNavigating && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0 bg-admin-dark/60 backdrop-blur-sm flex items-center justify-center z-40"
+              >
+                <Loader size="lg" variant="spinner" text="Cargando..." />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="max-w-7xl mx-auto" style={{ padding: isMobile ? fluidSizing.space.lg : fluidSizing.space['2xl'] }}>
             {children}
           </div>
