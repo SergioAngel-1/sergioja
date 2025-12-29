@@ -9,6 +9,7 @@ http:
         certResolver: letsencrypt
       middlewares:
         - main-redirect
+        - projects-to-portfolio
 
     portfolio:
       rule: Host(`portfolio.sergioja.com`) || Host(`www.portfolio.sergioja.com`)
@@ -29,12 +30,14 @@ http:
         certResolver: letsencrypt
 
     admin:
-      rule: Host(`admin.sergioja.com`)
+      rule: Host(`admin.sergioja.com`) || Host(`www.admin.sergioja.com`)
       entryPoints:
         - websecure
       service: admin
       tls:
         certResolver: letsencrypt
+      middlewares:
+        - admin-redirect
 
     traefik:
       rule: Host(`traefik.sergioja.com`)
@@ -74,4 +77,14 @@ http:
       redirectRegex:
         regex: "^https://www\\.portfolio\\.sergioja\\.com/(.*)"
         replacement: "https://portfolio.sergioja.com/$1"
+        permanent: true
+    projects-to-portfolio:
+      redirectRegex:
+        regex: "^https://sergioja\\.com/projects(.*)"
+        replacement: "https://portfolio.sergioja.com/projects$1"
+        permanent: true
+    admin-redirect:
+      redirectRegex:
+        regex: "^https://www\\.admin\\.sergioja\\.com/(.*)"
+        replacement: "https://admin.sergioja.com/$1"
         permanent: true
