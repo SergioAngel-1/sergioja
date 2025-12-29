@@ -156,7 +156,7 @@ export default function RedirectGroupCard({
                             redirect.oldSlugs.map((oldSlug, idx) => {
                               const redirectItem = redirect.redirects?.[idx];
                               return (
-                                <div key={idx} className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+                                <div key={redirectItem?.id || `${oldSlug}-${idx}`} className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
                                   <code className="text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-xs font-mono break-all flex-1">
                                     /projects/{oldSlug}
                                   </code>

@@ -216,6 +216,7 @@ function RedirectsPageContent() {
     
     // Convert to array and flatten for display
     return Array.from(grouped.entries()).map(([newSlug, oldRedirects]) => ({
+      id: `grouped-${newSlug}`, // Add unique id for React key
       newSlug,
       oldSlugs: oldRedirects.map(r => r.oldSlug),
       redirects: oldRedirects,
