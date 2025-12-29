@@ -85,3 +85,6 @@ backups/
 
 # Turbo
 .turbo
+
+# Images
+*.png
