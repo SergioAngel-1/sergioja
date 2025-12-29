@@ -367,51 +367,6 @@ function RedirectsPageContent() {
           />
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div
-            className="bg-admin-dark-surface border border-admin-primary/20 rounded-lg flex items-center justify-center"
-            style={{ padding: fluidSizing.space.md }}
-          >
-            <div className="text-center">
-              <p className="text-white mb-2" style={{ fontSize: fluidSizing.text.xs }}>
-                Total Redirecciones
-              </p>
-              <p className="font-bold text-white" style={{ fontSize: fluidSizing.text['2xl'] }}>
-                {totalRedirects}
-              </p>
-            </div>
-          </div>
-
-          <div
-            className="bg-admin-dark-surface border border-admin-primary/20 rounded-lg flex items-center justify-center"
-            style={{ padding: fluidSizing.space.md }}
-          >
-            <div className="text-center">
-              <p className="text-white mb-2" style={{ fontSize: fluidSizing.text.xs }}>
-                Proyectos Afectados
-              </p>
-              <p className="font-bold text-white" style={{ fontSize: fluidSizing.text['2xl'] }}>
-                {projectsAffected}
-              </p>
-            </div>
-          </div>
-
-          <div
-            className="bg-admin-dark-surface border border-admin-primary/20 rounded-lg flex items-center justify-center"
-            style={{ padding: fluidSizing.space.md }}
-          >
-            <div className="text-center">
-              <p className="text-white mb-2" style={{ fontSize: fluidSizing.text.xs }}>
-                Estado
-              </p>
-              <p className="font-bold text-white" style={{ fontSize: fluidSizing.text.lg }}>
-                Activas
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Content */}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
