@@ -78,13 +78,13 @@ http:
         regex: "^https://www\\.portfolio\\.sergioja\\.com/(.*)"
         replacement: "https://portfolio.sergioja.com/$1"
         permanent: true
-    projects-to-portfolio:
-      redirectRegex:
-        regex: "^https://sergioja\\.com/projects(.*)"
-        replacement: "https://portfolio.sergioja.com/projects$1"
-        permanent: true
     admin-redirect:
       redirectRegex:
         regex: "^https://www\\.admin\\.sergioja\\.com/(.*)"
         replacement: "https://admin.sergioja.com/$1"
+        permanent: true
+    projects-to-portfolio:
+      redirectRegex:
+        regex: "^https://sergioja\\.com/projects(.*)"
+        replacement: "https://portfolio.sergioja.com/projects$1"
         permanent: true
