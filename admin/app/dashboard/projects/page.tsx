@@ -18,6 +18,7 @@ import { fluidSizing } from '@/lib/fluidSizing';
 import { useCategories } from '@/lib/hooks';
 import { withAuth } from '@/lib/hoc';
 import { Project } from '@/lib/types';
+import { alerts } from '@/shared/alertSystem';
 
 function ProjectsPageContent() {
   const router = useRouter();
@@ -187,6 +188,11 @@ function ProjectsPageContent() {
           await loadProjects();
           setIsModalOpen(false);
           logger.info('Project updated successfully');
+        } else {
+          // Show backend error to user
+          const errorMessage = response.error?.message || 'Error al actualizar el proyecto';
+          alerts.error('Error', errorMessage);
+          logger.error('Failed to update project', response.error);
         }
       } else {
         // Create new project
@@ -195,10 +201,16 @@ function ProjectsPageContent() {
           await loadProjects();
           setIsModalOpen(false);
           logger.info('Project created successfully');
+        } else {
+          // Show backend error to user
+          const errorMessage = response.error?.message || 'Error al crear el proyecto';
+          alerts.error('Error', errorMessage);
+          logger.error('Failed to create project', response.error);
         }
       }
     } catch (error) {
       logger.error('Error saving project', error);
+      alerts.error('Error', 'Error inesperado al guardar el proyecto');
       throw error;
     }
   };
