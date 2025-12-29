@@ -8,7 +8,7 @@ import { validateSlug } from '../../lib/slugHelpers';
 const router = Router();
 
 // GET /api/admin/redirects - Listar todas las redirecciones agrupadas por proyecto
-router.get('/', asyncHandler(async (req: Request, res: Response) => {
+router.get('/', authMiddleware, asyncHandler(async (req: Request, res: Response) => {
   const { page = '1', limit = '100', projectId } = req.query;
   const pageNum = parseInt(page as string, 10);
   const limitNum = parseInt(limit as string, 10);
@@ -124,7 +124,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // DELETE /api/admin/redirects/:id - Eliminar redirección
-router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.delete('/:id', authMiddleware, asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const redirect = await prisma.slugRedirect.findUnique({
