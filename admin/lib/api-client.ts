@@ -76,7 +76,7 @@ class ApiClient {
           originalRequest._retry = true;
           
           try {
-            // Intentar refrescar el token
+            // Intentar refrescar el token usando axios directamente para evitar interceptor
             const refreshPayload: Record<string, string> = {};
             if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
               const refreshToken = localStorage.getItem('refreshToken');
@@ -84,25 +84,44 @@ class ApiClient {
                 refreshPayload.refreshToken = refreshToken;
               }
             }
-            const refreshResponse = await this.post('/admin/auth/refresh', refreshPayload);
+            
+            const refreshResponse = await axios.post(
+              `${API_URL}/api/admin/auth/refresh`,
+              refreshPayload,
+              {
+                withCredentials: true,
+                headers: { 'Content-Type': 'application/json' }
+              }
+            );
             
             // En desarrollo, actualizar tokens en localStorage
-            if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && refreshResponse.data) {
-              const data = refreshResponse.data as { accessToken?: string; refreshToken?: string };
+            if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && refreshResponse.data?.data) {
+              const data = refreshResponse.data.data as { accessToken?: string; refreshToken?: string };
               if (data.accessToken) {
                 localStorage.setItem('accessToken', data.accessToken);
               }
               if (data.refreshToken) {
                 localStorage.setItem('refreshToken', data.refreshToken);
               }
+              
+              // Actualizar header de la petición original con el nuevo token
+              if (originalRequest.headers && data.accessToken) {
+                originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+              }
             }
             
             // Reintentar la petición original
             return this.client(originalRequest);
           } catch (refreshError) {
-            // Si el refresh falla, redirigir al login solo si no estamos ya en login
-            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-              window.location.href = '/login';
+            // Si el refresh falla, limpiar tokens y redirigir al login
+            if (typeof window !== 'undefined') {
+              if (process.env.NODE_ENV === 'development') {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+              }
+              if (!window.location.pathname.includes('/login')) {
+                window.location.href = '/login';
+              }
             }
             return Promise.reject(refreshError);
           }
