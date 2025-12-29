@@ -147,7 +147,7 @@ export default function SimpleRedirectCard({
                     {/* Old Slug */}
                     <div className="flex-1">
                       <code className="text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-xs font-mono break-all inline-block">
-                        /projects/{redirect.oldSlug}
+                        /{redirect.oldSlug}
                       </code>
                     </div>
 
@@ -157,7 +157,7 @@ export default function SimpleRedirectCard({
                     {/* New Slug */}
                     <div className="flex-1">
                       <code className="text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded text-xs font-mono break-all inline-block">
-                        /projects{redirect.newSlug !== 'projects' ? `/${redirect.newSlug}` : ''}
+                        /{redirect.newSlug}
                       </code>
                     </div>
 
