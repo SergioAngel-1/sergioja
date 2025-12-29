@@ -4,6 +4,7 @@ import { logger } from '../../../lib/logger';
 import { slugify } from '../../../lib/slugify';
 import { findAvailableSlug, validateSlug } from '../../../lib/slugHelpers';
 import { updateRedirectChain } from '../../../lib/redirectHelpers';
+import { bumpProjectCacheVersion } from '../../../lib/cacheVersion';
 import { asyncHandler } from '../../../middleware/errorHandler';
 
 // POST /api/admin/projects/:slug/regenerate-slug - Regenerar slug desde el título o manual
@@ -136,6 +137,8 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
     newSlug: newSlug 
   });
 
+  const cacheVersion = bumpProjectCacheVersion('slug_regenerated');
+
   res.json({
     success: true,
     data: {
@@ -144,5 +147,6 @@ export const regenerateSlug = asyncHandler(async (req: Request, res: Response) =
       changed: newSlug !== currentSlug,
       project: transformedProject,
     },
+    cacheVersion,
   });
 });

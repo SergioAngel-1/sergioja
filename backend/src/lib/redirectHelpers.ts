@@ -54,7 +54,10 @@ async function detectRedirectCycle(
 
 /**
  * Limpia redirects redundantes para un proyecto
- * BUG #5 FIX: Ahora elimina tanto auto-referencias como redirects que apuntan al slug actual
+ * BUG #5 FIX: Solo elimina auto-referencias (oldSlug === newSlug)
+ * 
+ * Los redirects que apuntan al slug actual (oldSlug → currentSlug) son VÁLIDOS
+ * y necesarios para que las URLs antiguas sigan funcionando.
  * 
  * @param projectId - ID del proyecto
  * @param currentSlug - Slug actual del proyecto
@@ -63,9 +66,8 @@ export async function cleanupRedundantRedirects(
   projectId: string,
   currentSlug: string
 ): Promise<number> {
-  let totalDeleted = 0;
-
-  // 1. Eliminar auto-referencias (oldSlug === newSlug)
+  // Solo eliminar auto-referencias donde oldSlug === newSlug
+  // Esto puede ocurrir si alguien revierte un slug al valor original
   const deletedSelfReferencing = await prisma.slugRedirect.deleteMany({
     where: {
       projectId,
@@ -74,8 +76,6 @@ export async function cleanupRedundantRedirects(
     },
   });
 
-  totalDeleted += deletedSelfReferencing.count;
-
   if (deletedSelfReferencing.count > 0) {
     logger.info('Cleaned up self-referencing redirects', {
       projectId,
@@ -83,27 +83,7 @@ export async function cleanupRedundantRedirects(
     });
   }
 
-  // 2. Eliminar redirects que apuntan al slug actual (ya no necesarios)
-  // Estos redirects eran útiles antes pero ahora el proyecto ya tiene ese slug
-  const deletedPointingToCurrent = await prisma.slugRedirect.deleteMany({
-    where: {
-      projectId,
-      newSlug: currentSlug,
-      oldSlug: { not: currentSlug }, // Excluir auto-referencias ya eliminadas
-    },
-  });
-
-  totalDeleted += deletedPointingToCurrent.count;
-
-  if (deletedPointingToCurrent.count > 0) {
-    logger.info('Cleaned up redirects pointing to current slug', {
-      projectId,
-      currentSlug,
-      count: deletedPointingToCurrent.count,
-    });
-  }
-
-  return totalDeleted;
+  return deletedSelfReferencing.count;
 }
 
 /**
