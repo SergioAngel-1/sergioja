@@ -304,7 +304,8 @@ export const api = {
     apiClient.delete(`/admin/categories/${type}/${id}`),
 
   // Redirects
-  getRedirects: () => apiClient.get('/admin/redirects'),
+  getRedirects: (options?: { skipCache?: boolean }) => 
+    apiClient.get('/admin/redirects', options?.skipCache ? { cache: 'no-store' } : undefined),
   deleteRedirect: (id: string) => apiClient.delete(`/admin/redirects/${id}`),
   createRedirect: (payload: { oldSlug: string; newSlug: string }) =>
     apiClient.post('/admin/redirects', payload),
