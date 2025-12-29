@@ -602,12 +602,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               style={{ gap: fluidSizing.space.lg }}
             >
               <div className="flex flex-col" style={{ gap: fluidSizing.space.md }}>
-                <label
-                  className="font-medium text-text-primary"
-                  style={{ fontSize: fluidSizing.text.sm }}
-                >
-                  Contraseña actual
-                </label>
                 <Input
                   type="password"
                   name="username"

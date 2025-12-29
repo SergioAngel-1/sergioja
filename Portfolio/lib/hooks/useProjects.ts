@@ -107,6 +107,7 @@ export function useProject(slug: string) {
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -115,6 +116,7 @@ export function useProject(slug: string) {
       try {
         setLoading(true);
         setError(null);
+        setRedirectTo(null);
         logger.debug(`Fetching project: ${slug}`, 'useProject');
 
         let cacheVersionNumber: number;
@@ -139,6 +141,26 @@ export function useProject(slug: string) {
           setProject(response.data as Project);
           logger.info(`Loaded project: ${slug}`, 'useProject');
         } else {
+          // Si el proyecto no existe, consultar si hay redirect
+          logger.debug(`Project not found, checking for redirect: ${slug}`, 'useProject');
+          
+          try {
+            const redirectResponse = await api.getRedirect(slug);
+            
+            if (redirectResponse.success && redirectResponse.data) {
+              const data = redirectResponse.data as any;
+              if (data.redirectTo) {
+                const targetSlug = data.redirectTo;
+                logger.info(`Redirect found: ${slug} → ${targetSlug}`, 'useProject');
+                setRedirectTo(targetSlug);
+                return;
+              }
+            }
+          } catch (redirectError) {
+            logger.debug('No redirect found for slug', redirectError, 'useProject');
+          }
+          
+          // No hay proyecto ni redirect, es un 404 real
           const errorMsg = response.error?.message || 'Project not found';
           setError(errorMsg);
           setProject(null);
@@ -157,5 +179,5 @@ export function useProject(slug: string) {
     fetchProject();
   }, [slug]);
 
-  return { project, loading, error };
+  return { project, loading, error, redirectTo };
 }

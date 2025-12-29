@@ -134,4 +134,7 @@ export const api = {
 
   // Analytics
   getAnalytics: () => apiClient.get('/analytics/summary'),
+
+  // Redirects
+  getRedirect: (slug: string) => apiClient.getPublic(`/portfolio/redirects/${slug}`),
 };

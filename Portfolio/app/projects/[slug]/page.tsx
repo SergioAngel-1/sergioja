@@ -24,7 +24,7 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
-  const { project, loading, error } = useProject(slug);
+  const { project, loading, error, redirectTo } = useProject(slug);
   const { projects } = useProjects({ limit: 4 });
   const log = useLogger('ProjectDetailPage');
   const { t, language } = useLanguage();
@@ -48,6 +48,14 @@ export default function ProjectDetailPage() {
     }
   }, [project, log]);
 
+  // Handle redirect if found
+  useEffect(() => {
+    if (redirectTo) {
+      log.info('Redirecting to new slug', { from: slug, to: redirectTo });
+      router.replace(`/projects/${redirectTo}`);
+    }
+  }, [redirectTo, slug, router, log]);
+
   // Auto-select first image in low performance mode if images are available
   useEffect(() => {
     if (lowPerformanceMode && project?.images && project.images.length > 0 && !initialLowModeSet) {
@@ -67,7 +75,12 @@ export default function ProjectDetailPage() {
     return null;
   }
 
-  // Trigger 404 page if project not found (solo cuando ya terminó la carga)
+  // If redirecting, show nothing (router.replace will handle navigation)
+  if (redirectTo) {
+    return null;
+  }
+
+  // Trigger 404 page if project not found and no redirect exists
   if (error || !project) {
     notFound();
   }

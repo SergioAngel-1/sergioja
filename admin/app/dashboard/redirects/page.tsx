@@ -6,6 +6,8 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import Icon from '@/components/atoms/Icon';
 import Loader from '@/components/atoms/Loader';
 import Button from '@/components/atoms/Button';
+import Modal from '@/components/molecules/Modal';
+import RedirectCreationTab from '@/components/molecules/RedirectCreationTab';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { fluidSizing } from '@/shared/fluidSizing';
@@ -60,6 +62,8 @@ function RedirectsPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const loadRedirects = async () => {
     try {
@@ -179,6 +183,27 @@ function RedirectsPageContent() {
     });
   };
 
+  const handleCreateRedirect = async (payload: { oldSlug: string; newSlug: string; notes?: string }) => {
+    try {
+      setIsCreating(true);
+      const response = await api.createRedirect(payload);
+      
+      if (response.success) {
+        alerts.success('Creada', 'Redirección manual creada correctamente');
+        logger.info('Manual redirect created', payload);
+        setShowCreateModal(false);
+        await loadRedirects();
+      } else {
+        alerts.error('Error', response.error?.message || 'No se pudo crear la redirección');
+      }
+    } catch (error) {
+      logger.error('Error creating redirect', error);
+      alerts.error('Error', 'Error al crear la redirección');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('es-ES', {
@@ -206,18 +231,29 @@ function RedirectsPageContent() {
               Redirecciones SEO
             </h1>
             <p className="text-text-muted" style={{ fontSize: fluidSizing.text.base }}>
-              Gestiona las redirecciones 301 automáticas cuando cambias los slugs de proyectos
+              Gestiona las redirecciones 301 automáticas y manuales para campañas y Google Ads
             </p>
           </div>
-          <Button
-            onClick={loadRedirects}
-            variant="secondary"
-            size="md"
-            icon="refresh"
-            disabled={isLoading}
-          >
-            Recargar
-          </Button>
+          <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              variant="primary"
+              size="md"
+              icon="plus"
+              disabled={isLoading}
+            >
+              Crear Manual
+            </Button>
+            <Button
+              onClick={loadRedirects}
+              variant="secondary"
+              size="md"
+              icon="refresh"
+              disabled={isLoading}
+            >
+              Recargar
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -484,6 +520,43 @@ function RedirectsPageContent() {
             </div>
           </>
         )}
+
+        {/* Modal para crear redirección manual */}
+        <Modal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          title="Crear Redirección Manual"
+          maxWidth="2xl"
+          footer={
+            <>
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setShowCreateModal(false)}
+                disabled={isCreating}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                form="redirect-creation-form"
+                variant="primary"
+                size="md"
+                disabled={isCreating}
+              >
+                {isCreating ? 'Creando...' : 'Crear Redirección'}
+              </Button>
+            </>
+          }
+        >
+          <div style={{ padding: fluidSizing.space.lg }}>
+            <RedirectCreationTab
+              onSubmit={handleCreateRedirect}
+              isSubmitting={isCreating}
+              formId="redirect-creation-form"
+            />
+          </div>
+        </Modal>
       </div>
     </DashboardLayout>
   );

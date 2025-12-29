@@ -28,26 +28,48 @@ export const deleteProject = asyncHandler(async (req: Request, res: Response) =>
       where: { projectId: existingProject.id },
     });
 
-    // Convertir todas las redirecciones existentes del proyecto para que apunten a /projects
+    // BUG #6 FIX: Convertir redirects a /projects y limpiar projectId
     await prisma.slugRedirect.updateMany({
       where: { projectId: existingProject.id },
-      data: { newSlug: 'projects' },
+      data: { 
+        newSlug: 'projects',
+        projectId: null, // Limpiar referencia al proyecto eliminado
+      },
     });
 
-    // Crear redirección hacia /projects para el slug actual
+    // Crear redirección hacia /projects para el slug actual (sin projectId)
     try {
       await prisma.slugRedirect.create({
         data: {
-          projectId: existingProject.id,
+          projectId: null, // No mantener referencia a proyecto eliminado
           oldSlug: existingProject.slug,
           newSlug: 'projects',
         },
       });
-    } catch (redirectError) {
-      logger.warn('Failed to create redirect for deleted project', {
+      
+      logger.info('Created redirect for deleted project', {
         slug: existingProject.slug,
-        error: redirectError instanceof Error ? redirectError.message : redirectError,
+        projectId: existingProject.id,
       });
+    } catch (redirectError) {
+      // Si ya existe el redirect (duplicate key), solo actualizar
+      if ((redirectError as any).code === 'P2002') {
+        await prisma.slugRedirect.update({
+          where: { oldSlug: existingProject.slug },
+          data: { 
+            newSlug: 'projects',
+            projectId: null,
+          },
+        });
+        logger.info('Updated existing redirect for deleted project', {
+          slug: existingProject.slug,
+        });
+      } else {
+        logger.warn('Failed to create redirect for deleted project', {
+          slug: existingProject.slug,
+          error: redirectError instanceof Error ? redirectError.message : redirectError,
+        });
+      }
     }
 
     // Eliminar proyecto

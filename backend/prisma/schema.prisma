@@ -254,6 +254,7 @@ model SlugRedirect {
   projectId   String?
   oldSlug     String   @unique
   newSlug     String
+  notes       String?  @db.Text
   createdAt   DateTime @default(now())
   
   // Relations
