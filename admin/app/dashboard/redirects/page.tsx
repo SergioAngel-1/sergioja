@@ -8,7 +8,9 @@ import Loader from '@/components/atoms/Loader';
 import Modal from '@/components/molecules/Modal';
 import RedirectCreationTab from '@/components/molecules/RedirectCreationTab';
 import RedirectGroupCard from '@/components/molecules/RedirectGroupCard';
+import SimpleRedirectCard from '@/components/molecules/SimpleRedirectCard';
 import SearchBar from '@/components/molecules/SearchBar';
+import CategoryFilter, { CategoryOption } from '@/components/molecules/CategoryFilter';
 import { withAuth } from '@/lib/hoc/withAuth';
 import { api } from '@/lib/api-client';
 import { fluidSizing } from '@/lib/fluidSizing';
@@ -52,19 +54,24 @@ interface RedirectsResponse {
   total: number;
   projectsAffected: number;
   deletedCount?: number;
+  custom?: SlugRedirect[];
+  customCount?: number;
 }
 
 function RedirectsPageContent() {
   const [groupedRedirects, setGroupedRedirects] = useState<ProjectGroup[]>([]);
+  const [customRedirects, setCustomRedirects] = useState<SlugRedirect[]>([]);
+  const [deletedRedirects, setDeletedRedirects] = useState<DeletedRedirect[]>([]);
   const [totalRedirects, setTotalRedirects] = useState(0);
   const [projectsAffected, setProjectsAffected] = useState(0);
-  const [deletedRedirects, setDeletedRedirects] = useState<DeletedRedirect[]>([]);
+  const [customCount, setCustomCount] = useState(0);
   const [deletedCount, setDeletedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const loadRedirects = async (skipCache = false) => {
     try {
@@ -77,7 +84,9 @@ function RedirectsPageContent() {
         // Validar que los datos tengan la estructura esperada
         if (data.grouped && Array.isArray(data.grouped)) {
           setGroupedRedirects(data.grouped);
+          setCustomRedirects(data.custom || []);
           setDeletedRedirects(data.deleted || []);
+          setCustomCount(data.customCount ?? (data.custom?.length ?? 0));
           setDeletedCount(data.deletedCount ?? (data.deleted?.length ?? 0));
           setTotalRedirects(data.total || 0);
           setProjectsAffected(data.projectsAffected || 0);
@@ -89,7 +98,9 @@ function RedirectsPageContent() {
         } else {
           // Si no tiene la estructura esperada, inicializar con valores vacíos
           setGroupedRedirects([]);
+          setCustomRedirects([]);
           setDeletedRedirects([]);
+          setCustomCount(0);
           setDeletedCount(0);
           setTotalRedirects(0);
           setProjectsAffected(0);
@@ -97,7 +108,9 @@ function RedirectsPageContent() {
         }
       } else {
         setGroupedRedirects([]);
+        setCustomRedirects([]);
         setDeletedRedirects([]);
+        setCustomCount(0);
         setDeletedCount(0);
         setTotalRedirects(0);
         setProjectsAffected(0);
@@ -105,7 +118,9 @@ function RedirectsPageContent() {
       }
     } catch (error) {
       setGroupedRedirects([]);
+      setCustomRedirects([]);
       setDeletedRedirects([]);
+      setCustomCount(0);
       setDeletedCount(0);
       setTotalRedirects(0);
       setProjectsAffected(0);
@@ -150,8 +165,15 @@ function RedirectsPageContent() {
                   .filter((group) => group.count > 0); // Eliminar grupos vacíos
               });
             } else {
-              setDeletedRedirects((prev) => prev.filter((redirect) => redirect.id !== id));
-              setDeletedCount((prev) => Math.max(0, prev - 1));
+              // Check if it's a custom redirect or deleted redirect
+              const isCustom = customRedirects.some((r) => r.id === id);
+              if (isCustom) {
+                setCustomRedirects((prev) => prev.filter((redirect) => redirect.id !== id));
+                setCustomCount((prev) => Math.max(0, prev - 1));
+              } else {
+                setDeletedRedirects((prev) => prev.filter((redirect) => redirect.id !== id));
+                setDeletedCount((prev) => Math.max(0, prev - 1));
+              }
             }
 
             setTotalRedirects((prev) => Math.max(0, prev - 1));
@@ -250,6 +272,16 @@ function RedirectsPageContent() {
     groupedRedirects: groupRedirectsByDestination(group.redirects),
   }));
 
+  const filteredCustomRedirects = customRedirects.filter((redirect) => {
+    if (!searchQuery) return true;
+    
+    const query = searchQuery.toLowerCase();
+    return (
+      redirect.oldSlug.toLowerCase().includes(query) ||
+      redirect.newSlug.toLowerCase().includes(query)
+    );
+  });
+
   const filteredDeletedRedirects = deletedRedirects.filter((redirect) => {
     if (!searchQuery) return true;
     
@@ -259,6 +291,19 @@ function RedirectsPageContent() {
       redirect.newSlug.toLowerCase().includes(query)
     );
   });
+
+  // Category options for filter
+  const categoryOptions: CategoryOption[] = [
+    { value: 'all', label: 'Todas', count: totalRedirects },
+    { value: 'projects', label: 'Proyectos', count: projectsAffected },
+    { value: 'custom', label: 'Personalizadas', count: customCount },
+    { value: 'deleted', label: 'Eliminados', count: deletedCount },
+  ];
+
+  // Filter sections based on selected category
+  const showProjects = selectedCategory === 'all' || selectedCategory === 'projects';
+  const showCustom = selectedCategory === 'all' || selectedCategory === 'custom';
+  const showDeleted = selectedCategory === 'all' || selectedCategory === 'deleted';
 
   return (
     <DashboardLayout>
@@ -300,6 +345,18 @@ function RedirectsPageContent() {
                 Recargar
               </Button>
             </div>
+          </div>
+
+          {/* Category Filter */}
+          <div style={{ marginBottom: fluidSizing.space.md }}>
+            <CategoryFilter
+              categories={categoryOptions}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              label="Tipo de Redirección"
+              showCount={true}
+              maxVisible={4}
+            />
           </div>
 
           {/* Search Bar */}
@@ -380,7 +437,7 @@ function RedirectsPageContent() {
               Las redirecciones se crean automáticamente cuando cambias el título de un proyecto
             </p>
           </div>
-        ) : filteredGroupedRedirects.length === 0 && filteredDeletedRedirects.length === 0 ? (
+        ) : filteredGroupedRedirects.length === 0 && filteredCustomRedirects.length === 0 && filteredDeletedRedirects.length === 0 ? (
           <div
             className="bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-center"
             style={{ padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}` }}
@@ -403,7 +460,7 @@ function RedirectsPageContent() {
         ) : (
           <div className="space-y-4">
             {/* Active Project Redirects */}
-            {filteredGroupedRedirects.map((group) => (
+            {showProjects && filteredGroupedRedirects.map((group) => (
               <RedirectGroupCard
                 key={group.project.id}
                 title={group.project.title}
@@ -417,9 +474,23 @@ function RedirectsPageContent() {
               />
             ))}
 
+            {/* Custom Redirects */}
+            {showCustom && filteredCustomRedirects.length > 0 && (
+              <SimpleRedirectCard
+                title="Redirecciones Personalizadas"
+                subtitle="Creadas manualmente desde el admin"
+                icon="link"
+                redirectCount={filteredCustomRedirects.length}
+                redirects={filteredCustomRedirects}
+                onDelete={(redirectId, oldSlug) => handleDelete(redirectId, oldSlug)}
+                deletingId={deletingId}
+                variant="custom"
+              />
+            )}
+
             {/* Deleted Projects Redirects */}
-            {filteredDeletedRedirects.length > 0 && (
-              <RedirectGroupCard
+            {showDeleted && filteredDeletedRedirects.length > 0 && (
+              <SimpleRedirectCard
                 title="Proyectos Eliminados"
                 subtitle="Redirigen al listado /projects"
                 icon="trash"

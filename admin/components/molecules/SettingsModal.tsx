@@ -9,7 +9,9 @@ import Input from '@/components/atoms/Input';
 import Select from '@/components/molecules/Select';
 import Icon from '@/components/atoms/Icon';
 import Button from '@/components/atoms/Button';
-import RedirectCreationTab from '@/components/molecules/RedirectCreationTab';
+import ProfileTab from '@/components/molecules/tabs/ProfileTab';
+import PasswordTab from '@/components/molecules/tabs/PasswordTab';
+import RedirectsTab from '@/components/molecules/tabs/RedirectsTab';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { api } from '@/lib/api-client';
 import { alerts } from '@/lib/alerts';
@@ -59,12 +61,34 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Custom redirects state
+  const [customRedirects, setCustomRedirects] = useState<any[]>([]);
+
   // Fetch profile data when modal opens
   useEffect(() => {
     if (isOpen) {
       fetchProfile();
     }
   }, [isOpen]);
+
+  // Fetch custom redirects when redirects tab is active
+  useEffect(() => {
+    if (isOpen && activeTab === 'redirects') {
+      fetchCustomRedirects();
+    }
+  }, [isOpen, activeTab]);
+
+  const fetchCustomRedirects = async () => {
+    try {
+      const response = await api.getRedirects();
+      if (response.success && response.data) {
+        const data = response.data as any;
+        setCustomRedirects(data.custom || []);
+      }
+    } catch (error) {
+      logger.error('Error fetching custom redirects', error);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -352,328 +376,34 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         {/* Content */}
         <div style={{ padding: fluidSizing.space.lg }}>
           {activeTab === 'profile' ? (
-            <form onSubmit={handleProfileSubmit}>
-              {isFetchingProfile ? (
-                <div className="flex items-center justify-center" style={{ padding: fluidSizing.space['2xl'] }}>
-                  <div className="animate-spin rounded-full border-4 border-admin-primary/20 border-t-admin-primary" style={{ width: '40px', height: '40px' }} />
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }}>
-                  {/* Información básica */}
-                  <div>
-                    <h3 className="font-orbitron font-bold text-admin-primary mb-4" style={{ fontSize: fluidSizing.text.lg }}>
-                      Información Básica
-                    </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
-                      <Input
-                        id="profile-name"
-                        type="text"
-                        label="Nombre"
-                        value={profileData.name}
-                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                        placeholder="Tu nombre completo"
-                        required
-                        disabled={isLoading}
-                      />
-
-                      <Input
-                        id="profile-email"
-                        type="email"
-                        label="Email"
-                        value={profileData.email}
-                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                        placeholder="tu@email.com"
-                        disabled={isLoading}
-                        required
-                      />
-
-                      <Input
-                        id="profile-phone"
-                        type="tel"
-                        label="Teléfono"
-                        value={profileData.phone}
-                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                        placeholder="+57 300 123 4567"
-                        disabled={isLoading}
-                      />
-
-                      <Input
-                        id="profile-location"
-                        type="text"
-                        label="Ubicación"
-                        value={profileData.location}
-                        onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
-                        placeholder="Ciudad, País"
-                        required
-                        disabled={isLoading}
-                      />
-
-                      <Select
-                        label="Estado de Disponibilidad"
-                        value={profileData.availability}
-                        onChange={(value) => setProfileData({ ...profileData, availability: value })}
-                        options={[
-                          { value: 'available', label: 'Disponible' },
-                          { value: 'busy', label: 'Ocupado' },
-                          { value: 'unavailable', label: 'No disponible' },
-                        ]}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Redes sociales */}
-                  <div>
-                    <h3 className="font-orbitron font-bold text-admin-primary mb-4" style={{ fontSize: fluidSizing.text.lg }}>
-                      Redes Sociales
-                    </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
-                      <Input
-                        id="profile-github"
-                        type="url"
-                        label="GitHub URL"
-                        value={profileData.githubUrl}
-                        onChange={(e) => setProfileData({ ...profileData, githubUrl: e.target.value })}
-                        placeholder="https://github.com/usuario"
-                        disabled={isLoading}
-                      />
-
-                      <Input
-                        id="profile-linkedin"
-                        type="url"
-                        label="LinkedIn URL"
-                        value={profileData.linkedinUrl}
-                        onChange={(e) => setProfileData({ ...profileData, linkedinUrl: e.target.value })}
-                        placeholder="https://linkedin.com/in/usuario"
-                        disabled={isLoading}
-                      />
-
-                      <Input
-                        id="profile-twitter"
-                        type="url"
-                        label="Twitter/X URL"
-                        value={profileData.twitterUrl}
-                        onChange={(e) => setProfileData({ ...profileData, twitterUrl: e.target.value })}
-                        placeholder="https://twitter.com/usuario"
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Hoja de Vida / CV */}
-                  <div>
-                    <h3 className="font-orbitron font-bold text-admin-primary mb-4" style={{ fontSize: fluidSizing.text.lg }}>
-                      Hoja de Vida / CV
-                    </h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
-                      {/* Show file input only when no CV exists */}
-                      {!profileData.cvFileName && (
-                        <div>
-                          <label htmlFor="profile-cv-file" className="block font-medium text-admin-gray-light mb-2" style={{ fontSize: fluidSizing.text.sm }}>
-                            Archivo PDF
-                          </label>
-                          <input
-                            id="profile-cv-file"
-                            type="file"
-                            accept=".pdf,application/pdf"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                if (file.type !== 'application/pdf') {
-                                  alerts.error('Error', 'Solo se permiten archivos PDF');
-                                  e.target.value = '';
-                                  return;
-                                }
-                                if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                                  alerts.error('Error', 'El archivo no debe superar 5MB');
-                                  e.target.value = '';
-                                  return;
-                                }
-                                setCvFile(file);
-                                setProfileData({ ...profileData, cvFileName: file.name });
-                              }
-                            }}
-                            disabled={isLoading}
-                            className="w-full bg-admin-dark-elevated border border-admin-gray-dark rounded-lg text-admin-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-admin-primary file:text-black hover:file:bg-admin-primary/80 focus:outline-none focus:ring-2 focus:ring-admin-primary/50 transition-all duration-200"
-                            style={{ padding: fluidSizing.space.sm }}
-                          />
-                          <p className="text-text-muted mt-2" style={{ fontSize: fluidSizing.text.xs }}>
-                            Selecciona un archivo PDF (máx. 5MB)
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Show current CV info with action icons when CV exists */}
-                      {profileData.cvFileName && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: fluidSizing.space.md }}>
-                          <p className="text-text-muted flex-1" style={{ fontSize: fluidSizing.text.sm }}>
-                            Archivo actual: <span className="text-admin-primary font-semibold">{profileData.cvFileName}</span>
-                          </p>
-                          <div style={{ display: 'flex', gap: fluidSizing.space.sm, alignItems: 'center' }}>
-                            {/* Download icon */}
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                try {
-                                  const fileName = profileData.cvFileName || 'CV.pdf';
-                                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-                                  const response = await fetch(`${apiUrl}/api/admin/cv/${encodeURIComponent(fileName)}`, {
-                                    credentials: 'include',
-                                  });
-                                  if (!response.ok) {
-                                    throw new Error('CV not found');
-                                  }
-                                  const blob = await response.blob();
-                                  const url = window.URL.createObjectURL(blob);
-                                  const link = document.createElement('a');
-                                  link.href = url;
-                                  link.download = fileName;
-                                  document.body.appendChild(link);
-                                  link.click();
-                                  document.body.removeChild(link);
-                                  window.URL.revokeObjectURL(url);
-                                  alerts.success('Descarga iniciada', 'El CV se está descargando');
-                                } catch (error) {
-                                  logger.error('Error downloading CV', error);
-                                  alerts.error('Error', 'No se pudo descargar el CV');
-                                }
-                              }}
-                              disabled={isLoading}
-                              className="text-admin-primary hover:text-admin-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Descargar CV"
-                            >
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                              </svg>
-                            </button>
-                            {/* Delete icon */}
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                if (!confirm('¿Estás seguro de que deseas eliminar el CV?')) {
-                                  return;
-                                }
-                                try {
-                                  setIsLoading(true);
-                                  const response = await api.updateProfile({
-                                    ...profileData,
-                                    cvData: null,
-                                    cvFileName: null,
-                                    cvMimeType: null,
-                                  });
-                                  if (response.success) {
-                                    setProfileData({ ...profileData, cvFileName: '' });
-                                    setCvFile(null);
-                                    alerts.success('CV eliminado', 'El CV se eliminó correctamente');
-                                  } else {
-                                    throw new Error('Failed to delete CV');
-                                  }
-                                } catch (error) {
-                                  logger.error('Error deleting CV', error);
-                                  alerts.error('Error', 'No se pudo eliminar el CV');
-                                } finally {
-                                  setIsLoading(false);
-                                }
-                              }}
-                              disabled={isLoading}
-                              className="text-red-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Eliminar CV"
-                            >
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-                                <polyline points="3 6 5 6 21 6"/>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                <line x1="10" y1="11" x2="10" y2="17"/>
-                                <line x1="14" y1="11" x2="14" y2="17"/>
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </form>
+            <ProfileTab
+              profileData={profileData}
+              setProfileData={setProfileData}
+              isLoading={isLoading}
+              isFetchingProfile={isFetchingProfile}
+              cvFile={cvFile}
+              setCvFile={setCvFile}
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleProfileSubmit(e);
+              }}
+            />
           ) : activeTab === 'password' ? (
-            <form
-              onSubmit={handlePasswordSubmit}
-              className="flex flex-col"
-              style={{ gap: fluidSizing.space.lg }}
-            >
-              <div className="flex flex-col" style={{ gap: fluidSizing.space.md }}>
-                <Input
-                  type="password"
-                  name="username"
-                  autoComplete="username"
-
-                  style={{ display: 'none' }}
-                  aria-hidden="true"
-                  tabIndex={-1}
-                />
-                <Input
-                  id="current-password"
-                  type="password"
-                  label="Contraseña Actual"
-
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Ingresa tu contraseña actual"
-                  required
-                  disabled={isLoading}
-                  autoComplete="current-password"
-                />
-
-                <div className="flex flex-col" style={{ gap: fluidSizing.space.md }}>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    label="Nueva Contraseña"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Mínimo 8 caracteres"
-                    required
-                    disabled={isLoading}
-                    autoComplete="new-password"
-                  />
-
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    label="Repetir Nueva Contraseña"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Repite la nueva contraseña"
-                    required
-                    disabled={isLoading}
-                    autoComplete="new-password"
-                  />
-                </div>
-
-                <div
-                  className="bg-admin-primary/10 border border-admin-primary/30 rounded-lg"
-                  style={{ padding: fluidSizing.space.md }}
-                >
-                  <p
-                    className="text-text-muted"
-                    style={{ fontSize: fluidSizing.text.sm, lineHeight: '1.6' }}
-                  >
-                    <strong className="text-admin-primary">Requisitos de seguridad:</strong>
-                    <br />
-                    • Mínimo 8 caracteres
-                    <br />
-                    • Debe ser diferente a tu contraseña actual
-                    <br />
-                    • Debe contener al menos una letra mayúscula
-                    <br />
-                    • Debe contener al menos un número
-                  </p>
-                </div>
-              </div>
-            </form>
-
+            <PasswordTab
+              currentPassword={currentPassword}
+              setCurrentPassword={setCurrentPassword}
+              newPassword={newPassword}
+              setNewPassword={setNewPassword}
+              confirmPassword={confirmPassword}
+              setConfirmPassword={setConfirmPassword}
+              isLoading={isLoading}
+              onSubmit={(e) => {
+                e.preventDefault();
+                handlePasswordSubmit(e);
+              }}
+            />
           ) : (
-            <RedirectCreationTab />
+            <RedirectsTab customRedirects={customRedirects} />
           )}
         </div>
       </div>
