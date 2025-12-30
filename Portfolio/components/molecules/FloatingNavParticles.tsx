@@ -29,7 +29,7 @@ export default function FloatingNavParticles({
         <motion.div
           key={particle.id}
           className="absolute w-1 h-1 bg-cyber-red rounded-full z-0"
-          style={{ left: '50%', top: '75%' }}
+          style={{ left: '50%', top: '65%' }}
           animate={{
             y: [0, '-60vh'],
             opacity: [0, 1, 0],

@@ -12,22 +12,16 @@ export default function TimeDisplay({ time }: TimeDisplayProps) {
   
   return (
     <motion.div
-      className="relative z-10 group cursor-default hidden 2xl:block mb-fluid-lg"
+      className="relative z-10 cursor-default hidden 2xl:block mb-fluid-lg"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.8 }}
     >
-      <div 
-        className="text-center rounded-lg bg-background-elevated/0 group-hover:bg-background-elevated/50 transition-all duration-300 p-fluid-sm"
-      >
-        <div 
-          className="font-mono text-white group-hover:text-cyber-red transition-colors text-fluid-xs mb-fluid-xs"
-        >
+      <div className="text-center p-fluid-sm">
+        <div className="font-mono text-white text-fluid-xs mb-fluid-xs">
           {time || '--:--'}
         </div>
-        <div 
-          className="font-mono text-text-muted group-hover:text-white transition-colors text-fluid-xs"
-        >
+        <div className="font-mono text-text-muted text-fluid-xs">
           {date ? date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }) : '--- --'}
         </div>
       </div>
