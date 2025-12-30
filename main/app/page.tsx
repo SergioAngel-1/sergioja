@@ -28,6 +28,7 @@ export default function Home() {
   const { lowPerformanceMode } = usePerformance();
   const [isMobile, setIsMobile] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const isInIframe = () => {
     if (typeof window === 'undefined') return false;
@@ -42,6 +43,7 @@ export default function Home() {
   usePageAnalytics();
 
   useEffect(() => {
+    setMounted(true);
     const checkMobile = () => {
       setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     };
@@ -145,12 +147,12 @@ export default function Home() {
       {/* Hex Buttons - Botones esquineros */}
       <HexButton
         position="top-left"
-        label={t('nav.navigation')}
+        label={mounted ? t('nav.navigation') : ''}
         delay={0.2}
         onClick={() => setActiveModal(activeModal === 'navigation' ? null : 'navigation')}
         isActive={activeModal === 'navigation'}
-        showMenuLabel={true}
-        menuLabel={t('nav.menu')}
+        showMenuLabel={mounted}
+        menuLabel={mounted ? t('nav.menu') : ''}
         anyModalOpen={activeModal !== null}
         icon={
           <svg className="size-icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +185,7 @@ export default function Home() {
 
       <HexButton
         position="top-right"
-        label={t('nav.identity')}
+        label={mounted ? t('nav.identity') : ''}
         delay={0.3}
         onClick={() => setActiveModal(activeModal === 'identity' ? null : 'identity')}
         isActive={activeModal === 'identity'}
@@ -197,7 +199,7 @@ export default function Home() {
 
       <HexButton
         position="bottom-left"
-        label={t('nav.purpose')}
+        label={mounted ? t('nav.purpose') : ''}
         delay={0.4}
         onClick={() => setActiveModal(activeModal === 'projects' ? null : 'projects')}
         isActive={activeModal === 'projects'}
@@ -214,7 +216,7 @@ export default function Home() {
 
       <HexButton
         position="bottom-right"
-        label={t('nav.connection')}
+        label={mounted ? t('nav.connection') : ''}
         delay={0.5}
         onClick={() => setActiveModal(activeModal === 'connection' ? null : 'connection')}
         isActive={activeModal === 'connection'}
