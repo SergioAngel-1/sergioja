@@ -6,6 +6,7 @@ interface AndroidGyroSetupParams {
   hasValidDataRef: MutableRefObject<boolean>;
   listenerRef: MutableRefObject<((event: DeviceOrientationEvent) => void) | null>;
   setIsActive: (active: boolean) => void;
+  setOrientation: (data: { beta: number; gamma: number }) => void;
   onSensorActive?: () => void;
   onSensorLost?: () => void;
 }
@@ -19,6 +20,7 @@ export function setupAndroidGyro({
   hasValidDataRef,
   listenerRef,
   setIsActive,
+  setOrientation,
   onSensorActive,
   onSensorLost,
 }: AndroidGyroSetupParams): void {
@@ -26,6 +28,7 @@ export function setupAndroidGyro({
     orientationRef,
     hasValidDataRef,
     setIsActive,
+    setOrientation,
     onSensorActive,
     onSensorLost,
   });

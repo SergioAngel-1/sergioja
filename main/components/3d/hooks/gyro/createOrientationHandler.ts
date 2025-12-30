@@ -9,6 +9,7 @@ interface OrientationHandlerDeps {
   orientationRef: MutableRefObject<OrientationData>;
   hasValidDataRef: MutableRefObject<boolean>;
   setIsActive: (active: boolean) => void;
+  setOrientation: (data: OrientationData) => void;
   onSensorActive?: () => void;
   onSensorLost?: () => void;
 }
@@ -21,6 +22,7 @@ export function createOrientationHandler({
   orientationRef,
   hasValidDataRef,
   setIsActive,
+  setOrientation,
   onSensorActive,
   onSensorLost,
 }: OrientationHandlerDeps) {
@@ -41,9 +43,15 @@ export function createOrientationHandler({
       onSensorActive?.();
     }
 
-    orientationRef.current = {
+    const newData = {
       beta: event.beta,
       gamma: event.gamma,
     };
+
+    // Actualizar ref (para acceso síncrono)
+    orientationRef.current = newData;
+    
+    // Actualizar estado (para reactividad en React)
+    setOrientation(newData);
   };
 }

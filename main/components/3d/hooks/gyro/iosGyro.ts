@@ -6,6 +6,7 @@ interface IOSGyroPermissionParams {
   hasValidDataRef: MutableRefObject<boolean>;
   listenerRef: MutableRefObject<((event: DeviceOrientationEvent) => void) | null>;
   setIsActive: (active: boolean) => void;
+  setOrientation: (data: { beta: number; gamma: number }) => void;
   setNeedsPermission: (needs: boolean) => void;
   onSensorActive?: () => void;
   onSensorLost?: () => void;
@@ -22,6 +23,7 @@ export async function requestIOSGyroPermission({
   hasValidDataRef,
   listenerRef,
   setIsActive,
+  setOrientation,
   setNeedsPermission,
   onSensorActive,
   onSensorLost,
@@ -44,6 +46,7 @@ export async function requestIOSGyroPermission({
         orientationRef,
         hasValidDataRef,
         setIsActive,
+        setOrientation,
         onSensorActive,
         onSensorLost,
       });

@@ -32,6 +32,7 @@ export function useDeviceOrientation(
   const [needsPermission, setNeedsPermission] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isActive, setIsActive] = useState(false);
+  const [orientation, setOrientation] = useState<DeviceOrientationData>({ beta: 0, gamma: 0 });
   const orientationRef = useRef<DeviceOrientationData>({ beta: 0, gamma: 0 });
   const hasValidDataRef = useRef(false);
   const listenerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
@@ -58,6 +59,7 @@ export function useDeviceOrientation(
         hasValidDataRef,
         listenerRef,
         setIsActive,
+        setOrientation,
         onSensorActive: () => log.info('gyro_sensor_active'),
         onSensorLost: () => log.warn('gyro_sensor_lost'),
       });
@@ -82,6 +84,7 @@ export function useDeviceOrientation(
       hasValidDataRef,
       listenerRef,
       setIsActive,
+      setOrientation,
       setNeedsPermission,
       onSensorActive: () => log.info('gyro_sensor_active'),
       onSensorLost: () => log.warn('gyro_sensor_lost'),
@@ -91,7 +94,7 @@ export function useDeviceOrientation(
   };
 
   return {
-    orientation: orientationRef.current,
+    orientation,
     isMobile,
     needsPermission,
     isSupported,
