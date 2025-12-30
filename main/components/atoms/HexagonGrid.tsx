@@ -109,6 +109,10 @@ export default function HexagonGrid() {
               rafIdRef.current = requestAnimationFrame(smoothUpdate);
             } else {
               pendingPositionRef.current = null;
+              // Cancelar RAF antes de limpiar la referencia para evitar memory leak
+              if (rafIdRef.current !== null) {
+                cancelAnimationFrame(rafIdRef.current);
+              }
               rafIdRef.current = null;
             }
           }
