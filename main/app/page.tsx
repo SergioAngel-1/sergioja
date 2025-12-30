@@ -1,11 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, memo } from 'react';
 import { useRouter } from 'next/navigation';
-import HexButton from '@/components/atoms/HexButton';
+import HexButtonBase from '@/components/atoms/HexButton';
 import Modal from '@/components/molecules/Modal';
-import HexagonGrid from '@/components/atoms/HexagonGrid';
+import HexagonGridBase from '@/components/atoms/HexagonGrid';
+
+// Memoizar componentes pesados para prevenir re-renders innecesarios
+const HexButton = memo(HexButtonBase);
+const HexagonGrid = memo(HexagonGridBase);
 import CenteredHero from '@/components/molecules/CenteredHero';
 import NavigationContent from '@/components/organisms/NavigationContent';
 import IdentityContent from '@/components/organisms/IdentityContent';
