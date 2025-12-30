@@ -313,19 +313,12 @@ export default function Modal({
                   </span>
                   <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
                     {[...Array(5)].map((_, i) => (
-                      <motion.div
+                      <div
                         key={i}
-                        className="w-1 bg-white/40"
-                        style={{ height: `${(i + 1) * 3}px` }}
-                        animate={lowPerformanceMode ? {} : { 
-                          opacity: [0.4, 1, 0.4],
-                          scaleY: [1, 1.2, 1]
-                        }}
-                        transition={lowPerformanceMode ? {} : { 
-                          duration: 1.8,
-                          repeat: Infinity,
-                          delay: i * 0.15,
-                          ease: 'easeInOut'
+                        className={`w-1 bg-white/40 ${!lowPerformanceMode ? 'modal-bar-animate' : ''}`}
+                        style={{ 
+                          height: `${(i + 1) * 3}px`,
+                          animationDelay: !lowPerformanceMode ? `${i * 0.15}s` : undefined
                         }}
                       />
                     ))}
@@ -340,15 +333,11 @@ export default function Modal({
               <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white/40" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
               
               {/* Líneas decorativas */}
-              <motion.div 
-                className="absolute top-0 left-1/4 w-1/2 h-px bg-white/30"
-                animate={lowPerformanceMode ? {} : { opacity: [0.3, 0.7, 0.3] }}
-                transition={lowPerformanceMode ? {} : { duration: 3, repeat: Infinity }}
+              <div 
+                className={`absolute top-0 left-1/4 w-1/2 h-px bg-white/30 ${!lowPerformanceMode ? 'modal-line-pulse' : ''}`}
               />
-              <motion.div 
-                className="absolute bottom-0 right-1/4 w-1/2 h-px bg-white/30"
-                animate={lowPerformanceMode ? {} : { opacity: [0.3, 0.7, 0.3] }}
-                transition={lowPerformanceMode ? {} : { duration: 3, repeat: Infinity, delay: 1.5 }}
+              <div 
+                className={`absolute bottom-0 right-1/4 w-1/2 h-px bg-white/30 ${!lowPerformanceMode ? 'modal-line-pulse-delayed' : ''}`}
               />
             </div>
           </motion.div>

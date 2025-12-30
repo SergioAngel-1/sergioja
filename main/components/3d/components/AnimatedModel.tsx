@@ -55,9 +55,7 @@ export function AnimatedModel({
   const targetQuatRef = useRef(new Quaternion());
   const targetEulerRef = useRef(new Euler());
   
-  // Smooth interpolation state
-  const currentRotRef = useRef({ x: BASE_ROT_X, y: BASE_ROT_Y });
-  const velocityRef = useRef({ x: 0, y: 0 });
+  // State refs para interacciones
   const buttonTargetRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
   const canUseGyroRef = useRef(true); // Cache para evitar Date.now() en cada frame
 
@@ -177,20 +175,16 @@ export function AnimatedModel({
         targetRotX = MathUtils.clamp(mousePosition.y * 0.25, -0.25, 0.25);
       }
 
-      // Exponential smoothing for ultra-smooth movement
-      const smoothFactor = lowPerformanceMode ? 0.08 : 0.12;
-      currentRotRef.current.x += (targetRotX - currentRotRef.current.x) * smoothFactor;
-      currentRotRef.current.y += (targetRotY - currentRotRef.current.y) * smoothFactor;
-
-      // Apply smooth rotation
-      const finalRotX = BASE_ROT_X + currentRotRef.current.x;
-      const finalRotY = BASE_ROT_Y + currentRotRef.current.y;
+      // Aplicar rotación directamente con quaternion slerp (eliminada doble interpolación)
+      // Slerp es suficiente para movimiento suave, exponential smoothing era redundante
+      const finalRotX = BASE_ROT_X + targetRotX;
+      const finalRotY = BASE_ROT_Y + targetRotY;
       
       targetEulerRef.current.set(finalRotX, finalRotY, 0, 'XYZ');
       targetQuatRef.current.setFromEuler(targetEulerRef.current);
 
-      // Higher damping factor for smoother interpolation
-      const dampingFactor = lowPerformanceMode ? 0.06 : 0.1;
+      // Damping factor ajustado para compensar eliminación de exponential smoothing
+      const dampingFactor = lowPerformanceMode ? 0.08 : 0.15;
       group.quaternion.slerp(targetQuatRef.current, dampingFactor);
     }
   });

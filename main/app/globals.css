@@ -238,6 +238,39 @@
     }
   }
 
+  /* Modal decorations - Optimized CSS animations */
+  .modal-line-pulse {
+    animation: modal-line-pulse 3s ease-in-out infinite;
+  }
+
+  .modal-line-pulse-delayed {
+    animation: modal-line-pulse 3s ease-in-out infinite 1.5s;
+  }
+
+  @keyframes modal-line-pulse {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .modal-bar-animate {
+    animation: modal-bar-animate 1.8s ease-in-out infinite;
+  }
+
+  @keyframes modal-bar-animate {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scaleY(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scaleY(1.2);
+    }
+  }
+
   /* ========================================
    * FLUID SIZING UTILITIES
    * Sistema de sizing fluido con clamp()
