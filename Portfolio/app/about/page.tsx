@@ -233,7 +233,7 @@ export default function AboutPage() {
                     }}
                     disabled={cvDownloaded}
                   >
-                    {cvDownloaded ? 'CV descargada ✓' : t('about.downloadCV')}
+                    {cvDownloaded ? t('about.cvDownloaded') : t('about.downloadCV')}
                   </Button>
                 </motion.div>
 

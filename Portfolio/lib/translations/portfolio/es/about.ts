@@ -36,6 +36,7 @@ export const aboutEs = {
   'about.languages': 'Idiomas',
   'about.interests': 'Intereses',
   'about.downloadCV': 'Descargar CV',
+  'about.cvDownloaded': 'CV descargada ✓',
   'about.viewLinkedIn': 'Ver LinkedIn',
   'about.viewGitHub': 'Ver GitHub',
   'about.locationValue': 'Colombia / Remoto',

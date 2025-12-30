@@ -167,6 +167,7 @@ export interface PortfolioTranslations {
   'about.languages': string;
   'about.interests': string;
   'about.downloadCV': string;
+  'about.cvDownloaded': string;
   'about.viewLinkedIn': string;
   'about.viewGitHub': string;
   'about.locationValue': string;
