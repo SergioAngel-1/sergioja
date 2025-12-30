@@ -48,6 +48,7 @@ export const metadata: Metadata = {
     default: siteConfig.name,
   },
   metadataBase: new URL(SITE_URL),
+  manifest: '/manifest.json',
   icons: {
     icon: [
       { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -59,6 +60,17 @@ export const metadata: Metadata = {
     apple: '/favicon/apple-touch-icon.png',
     shortcut: ['/favicon/favicon.ico'],
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Portfolio SergioJA',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 };
 
 export default function RootLayout({
@@ -68,6 +80,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="dark" suppressHydrationWarning data-tag-assistant-prod-present={(isProd && GTM_ID) ? '' : undefined}>
+      <head>
+        {/* Preconnect to external CDNs */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://api.sergioja.com" />
+        
+        {/* DNS prefetch fallback */}
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://api.sergioja.com" />
+        
+        {/* Theme Color */}
+        <meta name="theme-color" content="#00D9FF" />
+      </head>
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-dark text-text-primary antialiased`}
       >

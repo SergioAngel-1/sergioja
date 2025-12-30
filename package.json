@@ -44,6 +44,7 @@
     "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "concurrently": "^8.2.2"
   },
   "engines": {

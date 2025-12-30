@@ -86,5 +86,15 @@ backups/
 # Turbo
 .turbo
 
+# PWA - Service Worker generado automáticamente
+**/public/sw.js
+**/public/sw.js.map
+**/public/workbox-*.js
+**/public/workbox-*.js.map
+**/public/worker-*.js
+**/public/worker-*.js.map
+**/public/fallback-*.js
+**/public/swe-worker-*.js
+
 # Images
 *.png
