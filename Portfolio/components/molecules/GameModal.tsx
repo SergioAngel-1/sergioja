@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
@@ -45,6 +45,7 @@ export default function GameModal({
   controlsStacked = false
 }: GameModalProps) {
   const { t } = useLanguage();
+  const [controlsExpanded, setControlsExpanded] = useState(false);
 
   // Emitir eventos para ocultar navbar, breadcrumb, terminal y bloquear scroll
   useEffect(() => {
@@ -109,10 +110,10 @@ export default function GameModal({
 
             {/* Content */}
             <div style={{ padding: fluidSizing.space.lg, display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
-              {/* Game controls and scores */}
+              {/* Game controls and scores - aligned horizontally */}
               {(onPause || onReset || scores.length > 0) && (
-                <div className="flex items-center w-full" style={{ gap: fluidSizing.space.md }}>
-                  <div className={controlsStacked ? 'flex items-start justify-start flex-col' : 'flex items-center justify-center lg:justify-start'} style={{ gap: fluidSizing.space.sm }}>
+                <div className="flex flex-row items-center justify-between w-full" style={{ gap: fluidSizing.space.md }}>
+                  <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
                     {onPause && (
                       <button
                         onClick={onPause}
@@ -147,9 +148,9 @@ export default function GameModal({
                     )}
                   </div>
                   
-                  {/* Scores */}
+                  {/* Scores - aligned to the right */}
                   {scores.length > 0 && (
-                    <div className="grid grid-cols-2 lg:flex lg:items-center ml-auto" style={{ gap: fluidSizing.space.sm }}>
+                    <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
                       {scores.map((score, index) => (
                         <div key={index} className="flex items-center bg-background-dark/50 rounded border border-white/10" style={{ gap: fluidSizing.space.sm, padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}` }}>
                           <span className="text-text-muted font-mono uppercase text-fluid-xs">{score.label}</span>
@@ -170,38 +171,69 @@ export default function GameModal({
                   {children}
                 </div>
 
-                {/* Controls guide - vertical */}
+                {/* Controls guide - vertical with collapsible on mobile */}
                 {controls.length > 0 && (
                   <div className="w-full lg:w-48 flex-shrink-0 bg-background-elevated border border-white/20 rounded-lg" style={{ padding: fluidSizing.space.md }}>
-                    <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.md }}>
-                      <svg className="size-icon-sm text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <h3 className="font-orbitron font-bold text-white text-fluid-xs">{t('snake.controlsTitle')}</h3>
+                    <div 
+                      className="mb-0 lg:mb-3"
+                      style={{ marginBottom: controlsExpanded ? fluidSizing.space.md : undefined }}
+                    >
+                      <button
+                        onClick={() => setControlsExpanded(!controlsExpanded)}
+                        className="flex items-center justify-between w-full lg:cursor-default"
+                        style={{ gap: fluidSizing.space.sm }}
+                      >
+                      <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+                        <svg className="size-icon-sm text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 className="font-orbitron font-bold text-white text-fluid-xs">{t('snake.controlsTitle')}</h3>
+                      </div>
+                      <motion.svg
+                        className="size-icon-sm text-white lg:hidden"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        animate={{ rotate: controlsExpanded ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </motion.svg>
+                      </button>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1" style={{ gap: fluidSizing.space.sm }}>
-                      {controls.map((control, index) => (
-                        <div 
-                          key={index}
-                          className={`flex items-start bg-background-dark/50 rounded border ${
-                            control.color === 'cyan' ? 'border-white/10' :
-                            control.color === 'purple' ? 'border-text-secondary/10' :
-                            'border-cyber-red/10'
-                          }`}
-                          style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
-                        >
-                          <div className={`flex-shrink-0 ${
-                            control.color === 'cyan' ? 'text-white' :
-                            control.color === 'purple' ? 'text-text-secondary' :
-                            'text-cyber-red'
-                          }`}>
-                            {control.icon}
+                    <motion.div
+                      initial={false}
+                      animate={{
+                        height: controlsExpanded ? 'auto' : 0,
+                        opacity: controlsExpanded ? 1 : 0
+                      }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      className="overflow-hidden lg:!h-auto lg:!opacity-100"
+                    >
+                      <div className="grid grid-cols-3 lg:grid-cols-1" style={{ gap: fluidSizing.space.sm }}>
+                        {controls.map((control, index) => (
+                          <div 
+                            key={index}
+                            className={`flex flex-col sm:flex-col lg:flex-row items-center sm:items-center lg:items-start bg-background-dark/50 rounded border ${
+                              control.color === 'cyan' ? 'border-white/10' :
+                              control.color === 'purple' ? 'border-text-secondary/10' :
+                              'border-cyber-red/10'
+                            }`}
+                            style={{ gap: fluidSizing.space.xs, padding: fluidSizing.space.sm }}
+                          >
+                            <div className={`flex-shrink-0 ${
+                              control.color === 'cyan' ? 'text-white' :
+                              control.color === 'purple' ? 'text-text-secondary' :
+                              'text-cyber-red'
+                            }`}>
+                              {control.icon}
+                            </div>
+                            <span className="text-text-secondary leading-relaxed text-fluid-xs text-center sm:text-center lg:text-left">{control.label}</span>
                           </div>
-                          <span className="text-text-secondary leading-relaxed text-fluid-xs">{control.label}</span>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    </motion.div>
                   </div>
                 )}
               </div>

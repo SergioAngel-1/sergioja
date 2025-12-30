@@ -18,9 +18,23 @@ export default function PerformanceToggle({ isScrolled = false }: PerformanceTog
   const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleModalOpen = () => setIsHidden(true);
+    const handleModalClose = () => setIsHidden(false);
+
+    window.addEventListener('game-modal-open', handleModalOpen);
+    window.addEventListener('game-modal-close', handleModalClose);
+
+    return () => {
+      window.removeEventListener('game-modal-open', handleModalOpen);
+      window.removeEventListener('game-modal-close', handleModalClose);
+    };
   }, []);
 
   // Si Matrix está activo, el botón solo desactiva Matrix
@@ -33,6 +47,8 @@ export default function PerformanceToggle({ isScrolled = false }: PerformanceTog
       toggleMode();
     }
   };
+
+  if (isHidden) return null;
 
   return (
     <div className="relative">

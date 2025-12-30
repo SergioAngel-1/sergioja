@@ -8,7 +8,7 @@ export const gamesEs = {
   'snake.moveKeys': 'Flechas ← → ↑ ↓ para mover',
   'snake.moveKeysMobile': 'Desliza para mover',
   'snake.pauseKey': 'P para pausar / reanudar',
-  'snake.pauseKeyMobile': 'Toca el ícono para pausar / reanudar',
+  'snake.pauseKeyMobile': 'Pausar / reanudar',
   'snake.escKey': 'Esc para salir',
   'snake.escKeyMobile': 'Cierra para salir',
   'snake.requiresPerformance': 'Requiere modo de alto rendimiento',

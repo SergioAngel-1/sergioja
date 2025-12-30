@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
@@ -12,6 +12,22 @@ interface LanguageToggleProps {
 export default function LanguageToggle({ isScrolled = false }: LanguageToggleProps) {
   const { language, toggleLanguage } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    const handleModalOpen = () => setIsHidden(true);
+    const handleModalClose = () => setIsHidden(false);
+
+    window.addEventListener('game-modal-open', handleModalOpen);
+    window.addEventListener('game-modal-close', handleModalClose);
+
+    return () => {
+      window.removeEventListener('game-modal-open', handleModalOpen);
+      window.removeEventListener('game-modal-close', handleModalClose);
+    };
+  }, []);
+
+  if (isHidden) return null;
 
   return (
     <div className="relative">
