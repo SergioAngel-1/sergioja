@@ -278,7 +278,7 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
       <div className="flex gap-3 items-center justify-center">
         {/* Game board */}
         <div
-          className="relative bg-background-dark border-2 border-cyber-blue-cyan/30 rounded-lg"
+          className="relative bg-background-dark border-2 border-cyber-blue-cyan/30 rounded-lg overflow-hidden"
           style={{
             width: gridWidth * cellSize,
             height: gridHeight * cellSize,
@@ -302,8 +302,8 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
                       index === 0 ? 'bg-cyber-blue-cyan' : 'bg-cyber-blue-cyan/70'
                     }`}
                     style={{
-                      left: segment.x * cellSize,
-                      top: segment.y * cellSize,
+                      left: segment.x * cellSize + 1,
+                      top: segment.y * cellSize + 1,
                       width: cellSize - 2,
                       height: cellSize - 2,
                     }}
@@ -316,8 +316,8 @@ export default function SnakeGame({ isActive, onClose, onScoreUpdate, onGameStat
                 <motion.div
                   className="absolute bg-cyber-red rounded-sm"
                   style={{
-                    left: food.x * cellSize,
-                    top: food.y * cellSize,
+                    left: food.x * cellSize + 1,
+                    top: food.y * cellSize + 1,
                     width: cellSize - 2,
                     height: cellSize - 2,
                   }}
