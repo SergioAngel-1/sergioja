@@ -21,7 +21,7 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
 
   const secondaryLinks = [
     { label: t('nav.identity'), modal: 'identity' },
-    { label: t('nav.purpose'), modal: 'projects' },
+    { label: t('nav.purpose'), modal: 'purpose' },
     { label: t('nav.connection'), modal: 'connection' },
   ];
 
