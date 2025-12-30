@@ -24,6 +24,7 @@ import { validateContactForm, sanitizeContactForm } from '@/shared/formValidatio
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { trackContactSubmit, trackNewsletterSubscribe, trackOutboundLink } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+import { usePWAInstall } from '@/shared/hooks/usePWAInstall';
 
 
 type AvailabilityStatus = 'available' | 'busy' | 'unavailable';
@@ -44,6 +45,9 @@ export default function ContactPage() {
   
   // Usar hook de perfil
   const { profile, loading: profileLoading, error: profileError } = useProfile();
+  
+  // PWA Install
+  const { isInstallable, isInstalled, install } = usePWAInstall();
   
   // Track scroll depth and time on page
   usePageAnalytics();
@@ -240,6 +244,23 @@ export default function ContactPage() {
     },
   ];
 
+  const handleInstallPWA = async () => {
+    const result = await install();
+    if (result.success) {
+      alerts.success(
+        t('contact.appInstalled'),
+        t('contact.appInstalledDesc'),
+        5000
+      );
+    } else if (result.reason === 'not-available') {
+      alerts.info(
+        'Instalación no disponible',
+        'Tu navegador no soporta la instalación de PWA o ya está instalada.',
+        5000
+      );
+    }
+  };
+
   const socialLinks = [
     ...(profile?.githubUrl ? [{ 
       name: 'GitHub', 
@@ -262,6 +283,13 @@ export default function ContactPage() {
       url: '#newsletter', 
       icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' 
     },
+    // PWA Install button - solo mostrar si es instalable y no está instalado
+    ...((isInstallable && !isInstalled) ? [{
+      name: t('contact.installApp'),
+      url: '#install-pwa',
+      icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4',
+      isPWA: true,
+    }] : []),
   ];
 
   return (
@@ -571,6 +599,28 @@ export default function ContactPage() {
                     key={social.name}
                     type="button"
                     onClick={() => setShowNewsletterModal(true)}
+                    className="flex items-center w-full bg-background-elevated/50 rounded-lg hover:bg-background-elevated transition-all duration-300 group text-left"
+                    style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1 + index * 0.1 }}
+                    whileHover={{ x: 5 }}
+                  >
+                    <svg className="size-icon-md text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={social.icon} />
+                    </svg>
+                    <span className="text-text-secondary group-hover:text-text-primary font-rajdhani font-medium transition-colors text-fluid-base">
+                      {social.name}
+                    </span>
+                    <svg className="size-icon-sm ml-auto text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </motion.button>
+                ) : social.isPWA ? (
+                  <motion.button
+                    key={social.name}
+                    type="button"
+                    onClick={handleInstallPWA}
                     className="flex items-center w-full bg-background-elevated/50 rounded-lg hover:bg-background-elevated transition-all duration-300 group text-left"
                     style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
                     initial={{ opacity: 0, x: -20 }}

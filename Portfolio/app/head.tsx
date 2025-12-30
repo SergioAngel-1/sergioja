@@ -32,10 +32,18 @@ export default function Head() {
       <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       <link rel="dns-prefetch" href="https://api.sergioja.com" />
       
+      {/* PWA Manifest */}
+      <link rel="manifest" href="/manifest.json" />
+      
+      {/* Mobile Web App */}
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      <meta name="apple-mobile-web-app-title" content="Portfolio SergioJA" />
       <meta name="format-detection" content="telephone=no" />
+      
+      {/* Theme Color */}
+      <meta name="theme-color" content="#00D9FF" />
     </>
   );
 }

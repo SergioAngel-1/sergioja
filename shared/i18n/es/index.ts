@@ -73,6 +73,10 @@ export const es = {
   'contact.success': '¡Mensaje enviado!',
   'contact.error': 'Error al enviar',
   'contact.recaptchaRequired': 'Por favor completa el reCAPTCHA',
+  'contact.installApp': 'Instalar como Aplicación',
+  'contact.installAppDesc': 'Acceso rápido desde tu dispositivo',
+  'contact.appInstalled': 'Aplicación Instalada',
+  'contact.appInstalledDesc': 'Ya está instalada en tu dispositivo',
 
   // Connection modal
   'connection.title': 'Busco aprender de otros creadores, ingenieros y diseñadores',
