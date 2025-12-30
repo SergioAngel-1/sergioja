@@ -76,6 +76,9 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning data-tag-assistant-prod-present={(isProd && GTM_ID) ? '' : undefined}>
       <head>
+        {/* Canonical URL - Todas las rutas de modales apuntan a la homepage */}
+        <link rel="canonical" href={SITE_URL} />
+        
         {/* Preconnect to external CDNs */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

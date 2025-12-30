@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import HexButton from '@/components/atoms/HexButton';
 import Modal from '@/components/molecules/Modal';
 import HexagonGrid from '@/components/atoms/HexagonGrid';
@@ -21,6 +22,8 @@ import type { Profile } from '@/lib/types';
 import type { AvailabilityStatus } from '@/components/organisms/IdentityContent';
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const heroCenterRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
@@ -48,6 +51,35 @@ export default function Home() {
       setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     };
     checkMobile();
+  }, []);
+
+  // Sincronizar estado del modal con la ruta actual
+  useEffect(() => {
+    const path = window.location.pathname;
+    const section = path.substring(1); // Remover el '/'
+    
+    if (section && ['navigation', 'identity', 'purpose', 'connection'].includes(section)) {
+      setActiveModal(section);
+    } else if (path === '/') {
+      setActiveModal(null);
+    }
+  }, []);
+
+  // Manejar navegación del navegador (back/forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const section = path.substring(1);
+      
+      if (section && ['navigation', 'identity', 'purpose', 'connection'].includes(section)) {
+        setActiveModal(section);
+      } else {
+        setActiveModal(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   useEffect(() => {
@@ -132,7 +164,21 @@ export default function Home() {
     return map[availabilityStatus] || fallback;
   }, [availabilityStatus, t]);
 
-  const closeModal = () => setActiveModal(null);
+  // Función para abrir modal y actualizar URL
+  const openModal = (modalName: string | null) => {
+    setActiveModal(modalName);
+    
+    if (modalName) {
+      // Navegar a la ruta del modal (shallow routing)
+      router.push(`/${modalName}`, { scroll: false });
+      log.interaction('modal_opened', modalName);
+    } else {
+      // Volver a la raíz al cerrar
+      router.push('/', { scroll: false });
+    }
+  };
+
+  const closeModal = () => openModal(null);
 
   return (
     <div className="relative w-full h-full bg-black overflow-hidden">
@@ -149,7 +195,7 @@ export default function Home() {
         position="top-left"
         label={mounted ? t('nav.navigation') : ''}
         delay={0.2}
-        onClick={() => setActiveModal(activeModal === 'navigation' ? null : 'navigation')}
+        onClick={() => openModal(activeModal === 'navigation' ? null : 'navigation')}
         isActive={activeModal === 'navigation'}
         showMenuLabel={mounted}
         menuLabel={mounted ? t('nav.menu') : ''}
@@ -187,7 +233,7 @@ export default function Home() {
         position="top-right"
         label={mounted ? t('nav.identity') : ''}
         delay={0.3}
-        onClick={() => setActiveModal(activeModal === 'identity' ? null : 'identity')}
+        onClick={() => openModal(activeModal === 'identity' ? null : 'identity')}
         isActive={activeModal === 'identity'}
         anyModalOpen={activeModal !== null}
         icon={
@@ -201,8 +247,8 @@ export default function Home() {
         position="bottom-left"
         label={mounted ? t('nav.purpose') : ''}
         delay={0.4}
-        onClick={() => setActiveModal(activeModal === 'projects' ? null : 'projects')}
-        isActive={activeModal === 'projects'}
+        onClick={() => openModal(activeModal === 'purpose' ? null : 'purpose')}
+        isActive={activeModal === 'purpose'}
         anyModalOpen={activeModal !== null}
         icon={
           <svg className="size-icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,7 +264,7 @@ export default function Home() {
         position="bottom-right"
         label={mounted ? t('nav.connection') : ''}
         delay={0.5}
-        onClick={() => setActiveModal(activeModal === 'connection' ? null : 'connection')}
+        onClick={() => openModal(activeModal === 'connection' ? null : 'connection')}
         isActive={activeModal === 'connection'}
         anyModalOpen={activeModal !== null}
         icon={
@@ -263,7 +309,7 @@ export default function Home() {
         </Modal>
       )}
 
-      {activeModal === 'projects' && (
+      {activeModal === 'purpose' && (
         <Modal
           isOpen={true}
           onClose={closeModal}
@@ -307,12 +353,7 @@ export default function Home() {
           className="fixed left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
           style={{ top: 'var(--vv-center-y, 50%)' }}
         >
-          <CenteredHero
-            onModelIntroComplete={() => {
-              if (isInIframe() || isMobile) return;
-              setActiveModal((prev) => prev ?? 'navigation');
-            }}
-          />
+          <CenteredHero onModelIntroComplete={() => {}} />
         </div>
       </main>
 
