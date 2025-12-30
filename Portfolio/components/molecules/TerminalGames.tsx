@@ -260,12 +260,9 @@ export default function TerminalGames({ onBack, onGameOpen }: TerminalGamesProps
           }}
           modalConfig={{
             content: tetrisGameContent,
-            onPause: () =>
-              setTetrisPaused(prev => {
-                const next = !prev;
-                updateGameModal({ isPaused: next });
-                return next;
-              }),
+            onPause: () => {
+              setTetrisPaused(prev => !prev);
+            },
             onReset: () => {
               setTetrisScore(0);
               setTetrisGameOver(false);
