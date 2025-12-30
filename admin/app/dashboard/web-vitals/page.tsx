@@ -13,6 +13,7 @@ import WebVitalsTable from '@/components/molecules/WebVitalsTable';
 import WebVitalsFilters from '@/components/molecules/WebVitalsFilters';
 import WebVitalsEmptyState from '@/components/molecules/WebVitalsEmptyState';
 import WebVitalsMaintenanceButtons from '@/components/molecules/WebVitalsMaintenanceButtons';
+import Pagination from '@/components/atoms/Pagination';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { clamp, fluidSizing } from '@/lib/fluidSizing';
@@ -95,6 +96,8 @@ export default function WebVitalsPage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('30d');
   const [selectedMetric, setSelectedMetric] = useState<string | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -153,6 +156,19 @@ export default function WebVitalsPage() {
     if (!selectedMetric) return data.metrics;
     return data.metrics.filter((metric) => metric.name === selectedMetric);
   }, [data, selectedMetric]);
+
+  // Paginación
+  const totalPages = Math.ceil(filteredMetrics.length / itemsPerPage);
+  const paginatedMetrics = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredMetrics.slice(startIndex, endIndex);
+  }, [filteredMetrics, currentPage, itemsPerPage]);
+
+  // Reset página cuando cambia el filtro
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedMetric, timeRange]);
 
 
   if (isLoading || !isAuthenticated) {
@@ -238,9 +254,20 @@ export default function WebVitalsPage() {
 
             {/* Tabla de métricas recientes */}
             <WebVitalsTable
-              metrics={filteredMetrics}
+              metrics={paginatedMetrics}
               metricInfo={METRIC_INFO}
             />
+
+            {/* Paginación */}
+            {filteredMetrics.length > 0 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredMetrics.length}
+              />
+            )}
 
             {/* Botones de mantenimiento */}
             <WebVitalsMaintenanceButtons
