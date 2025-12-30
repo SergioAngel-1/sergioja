@@ -42,12 +42,12 @@ async function sendToAnalytics(metric: WebVitalsMetric, logger?: any) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return;
 
-    // Solo enviar en producción
+    // Log en desarrollo, enviar en desarrollo y producción
     if (process.env.NODE_ENV !== 'production') {
       if (logger?.debug) {
         logger.debug('Web Vitals (dev)', metric);
       }
-      return;
+      // Continuar y enviar también en desarrollo para testing
     }
 
     await fetch(`${apiUrl}/api/portfolio/analytics/web-vitals`, {
@@ -55,7 +55,7 @@ async function sendToAnalytics(metric: WebVitalsMetric, logger?: any) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...metric,
-        url: window.location.pathname,
+        url: window.location.href,
         userAgent: navigator.userAgent,
         timestamp: Date.now(),
       }),
