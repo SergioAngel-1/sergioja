@@ -42,11 +42,19 @@ async function sendToAnalytics(metric: WebVitalsMetric, logger?: any) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return;
 
-    // Sampling: Solo enviar 10% de las métricas en producción (100% en dev)
+    // Sampling: 10% por cada tipo de métrica en producción (100% en dev)
+    // Usar hash del metricId para sampling determinístico por sesión
     const sampleRate = process.env.NODE_ENV === 'production' ? 0.1 : 1.0;
-    if (Math.random() > sampleRate) {
+    
+    // Generar número pseudo-aleatorio basado en metricId para sampling consistente
+    const hash = metric.id.split('').reduce((acc, char) => {
+      return ((acc << 5) - acc) + char.charCodeAt(0);
+    }, 0);
+    const normalizedHash = Math.abs(hash % 100) / 100;
+    
+    if (normalizedHash > sampleRate) {
       if (logger?.debug) {
-        logger.debug('Web Vitals sampled out', metric.name);
+        logger.debug(`Web Vitals ${metric.name} sampled out (${Math.round(normalizedHash * 100)}% > ${sampleRate * 100}%)`);
       }
       return;
     }
