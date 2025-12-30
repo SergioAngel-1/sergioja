@@ -86,9 +86,9 @@ export default function TerminalInit({ profileName }: TerminalInitProps) {
           );
 
           return item.isLink ? (
-            <Link key={index} href="https://sergioja.com" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+            <a key={index} href="https://sergioja.com" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
               {content}
-            </Link>
+            </a>
           ) : content;
         })}
       </div>
