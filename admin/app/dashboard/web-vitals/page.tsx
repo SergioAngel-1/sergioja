@@ -107,7 +107,7 @@ export default function WebVitalsPage() {
       setIsLoadingData(true);
       const response = await api.getWebVitals({
         timeRange,
-        metric: selectedMetric,
+        // No enviamos selectedMetric - traemos todas las métricas
       });
 
       if (response.success && response.data) {
@@ -120,7 +120,7 @@ export default function WebVitalsPage() {
     } finally {
       setIsLoadingData(false);
     }
-  }, [timeRange, selectedMetric]);
+  }, [timeRange]); // Solo depende de timeRange
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -146,6 +146,13 @@ export default function WebVitalsPage() {
       poor: data.stats.byRating['poor'] || 0,
     };
   }, [data]);
+
+  // Filtrar métricas localmente por selectedMetric
+  const filteredMetrics = useMemo(() => {
+    if (!data) return [];
+    if (!selectedMetric) return data.metrics;
+    return data.metrics.filter((metric) => metric.name === selectedMetric);
+  }, [data, selectedMetric]);
 
 
   if (isLoading || !isAuthenticated) {
@@ -201,20 +208,6 @@ export default function WebVitalsPage() {
               poor={ratingDistribution.poor}
             />
 
-            {/* Filtro por métrica */}
-            <WebVitalsFilters
-              selectedMetric={selectedMetric || 'all'}
-              onMetricChange={(metric) => setSelectedMetric(metric === 'all' ? undefined : metric)}
-              metricOptions={[
-                { value: 'all', label: 'Todas', count: 0 },
-                ...Object.keys(METRIC_INFO).map((metric) => ({
-                  value: metric,
-                  label: metric,
-                  count: 0,
-                })),
-              ]}
-            />
-
             {/* Métricas por tipo */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3" style={{ gap: fluidSizing.space.lg }}>
               {metricsList.map((metric, index) => (
@@ -229,9 +222,23 @@ export default function WebVitalsPage() {
               ))}
             </div>
 
+            {/* Filtro por métrica */}
+            <WebVitalsFilters
+              selectedMetric={selectedMetric || 'all'}
+              onMetricChange={(metric) => setSelectedMetric(metric === 'all' ? undefined : metric)}
+              metricOptions={[
+                { value: 'all', label: 'Todas', count: 0 },
+                ...Object.keys(METRIC_INFO).map((metric) => ({
+                  value: metric,
+                  label: metric,
+                  count: 0,
+                })),
+              ]}
+            />
+
             {/* Tabla de métricas recientes */}
             <WebVitalsTable
-              metrics={data.metrics}
+              metrics={filteredMetrics}
               metricInfo={METRIC_INFO}
             />
 
