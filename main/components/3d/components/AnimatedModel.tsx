@@ -15,6 +15,7 @@ interface AnimatedModelProps {
   gyroEnabled: boolean;
   lowPerformanceMode: boolean;
   onIntroAnimationEnd?: () => void;
+  onModelLoaded?: () => void;
   onGyroRequestPermissionReady?: (requestFn: () => Promise<boolean>) => void;
 }
 
@@ -27,6 +28,7 @@ export function AnimatedModel({
   gyroEnabled,
   lowPerformanceMode,
   onIntroAnimationEnd,
+  onModelLoaded,
   onGyroRequestPermissionReady,
 }: AnimatedModelProps) {
   const groupRef = useRef<Group>(null);
@@ -63,6 +65,13 @@ export function AnimatedModel({
 
   // Cargar modelo GLTF optimizado
   const { scene } = useGLTF(MODEL_PATH);
+
+  // Notificar cuando el modelo termine de cargar
+  useEffect(() => {
+    if (scene && onModelLoaded) {
+      onModelLoaded();
+    }
+  }, [scene, onModelLoaded]);
 
   // Cleanup: Dispose of Three.js resources to prevent memory leaks
   useEffect(() => {

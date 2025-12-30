@@ -107,11 +107,14 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
             damping: 20
           }}
         >
-          <Suspense fallback={
-            <div className="w-full h-full flex items-center justify-center">
-              <Loader size="sm" />
-            </div>
-          }>
+          <Suspense 
+            fallback={
+              <div className="w-full h-full flex items-center justify-center">
+                <Loader size="sm" />
+              </div>
+            }
+          >
+            {/* Renderizar modelo solo después de que el contenedor sea visible */}
             <Model3D mousePosition={mousePosition} onAnimationComplete={onModelIntroComplete} />
           </Suspense>
         </motion.div>
