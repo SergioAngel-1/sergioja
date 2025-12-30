@@ -123,11 +123,95 @@ export function generateTitle(title: string, siteName: string, separator: string
 }
 
 /**
- * Trunca descripción a longitud máxima para SEO
+ * Constantes para longitud óptima de meta descriptions
  */
-export function truncateDescription(description: string, maxLength: number = 160): string {
+export const META_DESCRIPTION_LIMITS = {
+  MIN: 120,
+  OPTIMAL_MIN: 150,
+  OPTIMAL_MAX: 160,
+  MAX: 160,
+} as const;
+
+/**
+ * Valida longitud de meta description y retorna información útil
+ */
+export function validateDescription(description: string): {
+  isValid: boolean;
+  length: number;
+  status: 'too-short' | 'optimal' | 'too-long';
+  message: string;
+} {
+  const length = description.length;
+  
+  if (length < META_DESCRIPTION_LIMITS.MIN) {
+    return {
+      isValid: false,
+      length,
+      status: 'too-short',
+      message: `Description too short (${length} chars). Minimum recommended: ${META_DESCRIPTION_LIMITS.MIN} chars.`,
+    };
+  }
+  
+  if (length > META_DESCRIPTION_LIMITS.MAX) {
+    return {
+      isValid: false,
+      length,
+      status: 'too-long',
+      message: `Description too long (${length} chars). Maximum: ${META_DESCRIPTION_LIMITS.MAX} chars. Will be truncated by search engines.`,
+    };
+  }
+  
+  return {
+    isValid: true,
+    length,
+    status: 'optimal',
+    message: `Description length is optimal (${length} chars).`,
+  };
+}
+
+/**
+ * Trunca descripción a longitud máxima para SEO
+ * Intenta cortar en el último espacio para no romper palabras
+ */
+export function truncateDescription(description: string, maxLength: number = META_DESCRIPTION_LIMITS.MAX): string {
   if (description.length <= maxLength) return description;
-  return description.substring(0, maxLength - 3) + '...';
+  
+  // Intentar cortar en el último espacio antes del límite
+  const truncated = description.substring(0, maxLength - 3);
+  const lastSpace = truncated.lastIndexOf(' ');
+  
+  if (lastSpace > maxLength * 0.8) {
+    // Si encontramos un espacio cerca del final, cortar ahí
+    return truncated.substring(0, lastSpace) + '...';
+  }
+  
+  // Si no, cortar en el límite exacto
+  return truncated + '...';
+}
+
+/**
+ * Optimiza descripción automáticamente: trunca si es muy larga, advierte si es muy corta
+ */
+export function optimizeDescription(description: string): {
+  optimized: string;
+  validation: ReturnType<typeof validateDescription>;
+} {
+  const validation = validateDescription(description);
+  
+  if (validation.status === 'too-long') {
+    return {
+      optimized: truncateDescription(description),
+      validation: {
+        ...validation,
+        message: `Description was truncated from ${validation.length} to ${META_DESCRIPTION_LIMITS.MAX} chars.`,
+      },
+    };
+  }
+  
+  return {
+    optimized: description,
+    validation,
+  };
 }
 
 /**

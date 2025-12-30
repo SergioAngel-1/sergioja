@@ -4,11 +4,22 @@
  */
 
 import type { SEOMetadata } from '@/shared/seo';
+import { optimizeDescription } from '@/shared/seo';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://portfolio.sergioja.com';
 const TWITTER_HANDLE = (process.env.NEXT_PUBLIC_TWITTER_HANDLE || '').replace(/^@/, '') || undefined;
 const SITE_NAME = 'Portafolio Sergio Jáuregui';
+
+// Description: 143 chars - Optimal length for SEO (120-160 chars recommended)
 const SITE_DESCRIPTION = 'Portfolio profesional de Sergio Jáuregui. Explora mis proyectos, habilidades técnicas y experiencia en desarrollo Full Stack.';
+
+// Validar y optimizar descripción en desarrollo
+if (process.env.NODE_ENV === 'development') {
+  const { validation } = optimizeDescription(SITE_DESCRIPTION);
+  if (!validation.isValid) {
+    console.warn(`[SEO Warning] Portfolio site description: ${validation.message}`);
+  }
+}
 
 export const defaultSEO: SEOMetadata = {
   title: SITE_NAME,
