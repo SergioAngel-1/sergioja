@@ -8,12 +8,14 @@ interface ProjectImageGalleryProps {
   images: string[];
   selectedImageIndex: number | null;
   onImageSelect: (index: number) => void;
+  projectTitle: string;
 }
 
 export default function ProjectImageGallery({
   images,
   selectedImageIndex,
   onImageSelect,
+  projectTitle,
 }: ProjectImageGalleryProps) {
   if (!images || images.length === 0) {
     return null;
@@ -40,7 +42,7 @@ export default function ProjectImageGallery({
           >
             <Image
               src={image}
-              alt={`Preview ${index + 1}`}
+              alt={`${projectTitle} - Imagen ${index + 1}`}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 15vw"
