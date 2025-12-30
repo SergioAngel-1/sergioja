@@ -11,7 +11,24 @@ export default function robots(): MetadataRoute.Robots {
 
   const cfg = customRobots({
     allowPaths: ['/'],
-    disallowPaths: ['/api/', '/admin/'],
+    disallowPaths: [
+      '/api/',
+      '/admin/',
+      '/_next/static/',
+      '/_next/image/',
+      '/favicon/',
+      '/*.ico',
+      '/*.woff',
+      '/*.woff2',
+      '/*.ttf',
+      '/*.eot',
+      '/*.svg',
+      '/*.png',
+      '/*.jpg',
+      '/*.jpeg',
+      '/*.gif',
+      '/*.webp',
+    ],
     sitemaps: [`${baseUrl}/sitemap.xml`],
   });
 
