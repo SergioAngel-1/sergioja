@@ -1,8 +1,25 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { generateCanonicalUrl } from '@/shared/seo/canonical';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://portfolio.sergioja.com';
 
 export default function Head() {
+  const [canonicalUrl, setCanonicalUrl] = useState<string>(SITE_URL);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      setCanonicalUrl(generateCanonicalUrl(SITE_URL, pathname));
+    }
+  }, []);
+
   return (
     <>
+      {/* Canonical URL */}
+      <link rel="canonical" href={canonicalUrl} />
+      
       {/* Preconnect to external CDNs */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

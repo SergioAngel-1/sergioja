@@ -4,6 +4,10 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Agregar pathname a headers para canonical URL
+  const response = NextResponse.next();
+  response.headers.set('x-pathname', pathname);
+  
   // Extraer slug de la ruta (remover / inicial)
   const slug = pathname.replace(/^\/+/, '');
   
@@ -36,7 +40,7 @@ export async function middleware(request: NextRequest) {
     }
   }
   
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
