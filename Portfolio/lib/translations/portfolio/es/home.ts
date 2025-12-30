@@ -10,6 +10,8 @@ export const homeEs = {
   'home.viewProjects': 'Ver Proyectos',
   'home.contact': 'Contactar',
   'home.available': 'Disponible para nuevos proyectos',
+  'home.busy': 'Enfocado en colaboraciones activas',
+  'home.unavailable': 'No disponible temporalmente',
   'home.name': 'SERGIO JÁUREGUI',
   'home.firstName': 'SERGIO',
   'home.lastName': 'JÁUREGUI',

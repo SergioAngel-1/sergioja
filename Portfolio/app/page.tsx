@@ -36,6 +36,9 @@ import { api } from '@/lib/api-client';
 import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+import useProfile from '@/lib/hooks/useProfile';
+
+type AvailabilityStatus = 'available' | 'busy' | 'unavailable';
 
 export default function Home() {
   const [typedText, setTypedText] = useState('');
@@ -45,6 +48,9 @@ export default function Home() {
   
   // Track scroll depth and time on page
   usePageAnalytics();
+  
+  // Usar hook de perfil para obtener disponibilidad
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
   const [currentView, setCurrentView] = useState<'main' | 'help' | 'status' | 'games' | 'language'>('main');
   const [showMatrixDialog, setShowMatrixDialog] = useState(false);
   const [matrixMessage, setMatrixMessage] = useState('');
@@ -52,7 +58,7 @@ export default function Home() {
   const [showMobileTerminal, setShowMobileTerminal] = useState(false);
   const terminalInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const log = useLogger('HomePage');
+  const log = useLogger('Home');
   const controls = useAnimation();
   const { t, language } = useLanguage();
   const { matrixMode, setMatrixMode } = useMatrix();
@@ -62,6 +68,34 @@ export default function Home() {
     () => [t('home.title'), t('home.developer'), t('home.automation'), t('home.scalability'), t('home.integration')],
     [language]
   );
+
+  // Determinar estado de disponibilidad desde el perfil
+  const availabilityStatus: AvailabilityStatus =
+    profile?.availability === 'busy' || profile?.availability === 'unavailable'
+      ? profile.availability
+      : 'available';
+  
+  // Configuración de disponibilidad con colores y textos
+  const availabilityConfig = useMemo(() => {
+    const map: Record<AvailabilityStatus, { text: string; color: string; bgColor: string }> = {
+      available: {
+        text: t('home.available'),
+        color: '#00F7C0',
+        bgColor: 'bg-[#00F7C0]',
+      },
+      busy: {
+        text: t('home.busy') || 'Ocupado',
+        color: '#FFA500',
+        bgColor: 'bg-[#FFA500]',
+      },
+      unavailable: {
+        text: t('home.unavailable') || 'No disponible',
+        color: '#FE4C4C',
+        bgColor: 'bg-[#FE4C4C]',
+      },
+    };
+    return map[availabilityStatus];
+  }, [availabilityStatus, t]);
 
   // Register terminal handler with Header (toggle open/close)
   useEffect(() => {
@@ -414,7 +448,7 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            {/* Status indicator */}
+            {/* Status indicator - Dinámico desde API */}
             <motion.div
               className="flex items-center gap-fluid-sm justify-center sm:justify-start"
               initial={{ opacity: 0 }}
@@ -422,11 +456,28 @@ export default function Home() {
               transition={{ delay: 1, duration: 0.8 }}
             >
               <div className="relative">
-                <div className="bg-cyber-red rounded-full animate-pulse" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
-                <div className="absolute inset-0 bg-cyber-red rounded-full animate-ping" style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }} />
+                <div 
+                  className="rounded-full animate-pulse" 
+                  style={{ 
+                    width: fluidSizing.space.md, 
+                    height: fluidSizing.space.md,
+                    backgroundColor: availabilityConfig.color,
+                    boxShadow: `0 0 12px ${availabilityConfig.color}`,
+                  }} 
+                />
+                <motion.div 
+                  className="absolute inset-0 rounded-full" 
+                  style={{ 
+                    width: fluidSizing.space.md, 
+                    height: fluidSizing.space.md,
+                    backgroundColor: availabilityConfig.color,
+                  }}
+                  animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
               </div>
               <span className="text-text-secondary font-rajdhani text-fluid-sm">
-                {t('home.available')}
+                {availabilityConfig.text}
               </span>
             </motion.div>
 

@@ -10,6 +10,8 @@ export const homeEn = {
   'home.viewProjects': 'View Projects',
   'home.contact': 'Contact',
   'home.available': 'Available for new projects',
+  'home.busy': 'Focused on active collaborations',
+  'home.unavailable': 'Temporarily unavailable',
   'home.name': 'SERGIO JÁUREGUI',
   'home.firstName': 'SERGIO',
   'home.lastName': 'JÁUREGUI',
