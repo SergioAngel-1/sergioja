@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 
@@ -45,6 +45,24 @@ export default function GameModal({
   controlsStacked = false
 }: GameModalProps) {
   const { t } = useLanguage();
+
+  // Emitir eventos para ocultar navbar, breadcrumb, terminal y bloquear scroll
+  useEffect(() => {
+    if (isOpen) {
+      window.dispatchEvent(new Event('game-modal-open'));
+      // Bloquear scroll del body
+      document.body.style.overflow = 'hidden';
+    } else {
+      window.dispatchEvent(new Event('game-modal-close'));
+      // Restaurar scroll del body
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      // Cleanup: asegurar que el scroll se restaure
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   return (
     <AnimatePresence>

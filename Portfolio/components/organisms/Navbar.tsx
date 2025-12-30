@@ -57,12 +57,16 @@ export default function Navbar() {
     window.addEventListener('devtips-modal-close', handleModalClose);
     window.addEventListener('terminal-modal-open', handleModalOpen);
     window.addEventListener('terminal-modal-close', handleModalClose);
+    window.addEventListener('game-modal-open', handleModalOpen);
+    window.addEventListener('game-modal-close', handleModalClose);
 
     return () => {
       window.removeEventListener('devtips-modal-open', handleModalOpen);
       window.removeEventListener('devtips-modal-close', handleModalClose);
       window.removeEventListener('terminal-modal-open', handleModalOpen);
       window.removeEventListener('terminal-modal-close', handleModalClose);
+      window.removeEventListener('game-modal-open', handleModalOpen);
+      window.removeEventListener('game-modal-close', handleModalClose);
     };
   }, []);
 
