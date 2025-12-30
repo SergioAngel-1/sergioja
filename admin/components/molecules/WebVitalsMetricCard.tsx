@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import Icon from '../atoms/Icon';
 import { fluidSizing } from '@/lib/fluidSizing';
 
 interface MetricInfo {
@@ -38,6 +40,8 @@ export default function WebVitalsMetricCard({
   info,
   index,
 }: WebVitalsMetricCardProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const getRatingColor = () => {
     if (average <= info.thresholds.good) return RATING_COLORS.good;
     if (average <= info.thresholds.poor) return RATING_COLORS['needs-improvement'];
@@ -53,10 +57,39 @@ export default function WebVitalsMetricCard({
       style={{ padding: fluidSizing.space.lg }}
     >
       <div className="flex items-center justify-between" style={{ marginBottom: fluidSizing.space.md }}>
-        <div>
-          <h3 className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text.lg }}>
-            {name}
-          </h3>
+        <div className="flex-1">
+          <div className="flex items-center" style={{ gap: fluidSizing.space.xs }}>
+            <h3 className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text.lg }}>
+              {name}
+            </h3>
+            <div 
+              className="relative flex-shrink-0"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <div className="cursor-help text-text-muted hover:text-admin-primary transition-colors">
+                <Icon name="info" size={16} />
+              </div>
+              {showTooltip && (
+                <div 
+                  className="absolute left-0 top-full bg-admin-dark-elevated border border-admin-primary/30 rounded-lg shadow-2xl z-50"
+                  style={{ 
+                    padding: fluidSizing.space.sm,
+                    marginTop: fluidSizing.space.xs,
+                    minWidth: '250px',
+                    maxWidth: '300px'
+                  }}
+                >
+                  <p className="text-text-primary font-medium" style={{ fontSize: fluidSizing.text.sm, marginBottom: fluidSizing.space.xs }}>
+                    {info.name}
+                  </p>
+                  <p className="text-text-muted" style={{ fontSize: fluidSizing.text.xs }}>
+                    {info.description}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
           <p className="text-text-muted" style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}>
             {info.name}
           </p>
