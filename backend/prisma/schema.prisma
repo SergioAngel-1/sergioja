@@ -157,6 +157,27 @@ model PageView {
   @@map("page_views")
 }
 
+// Analytics - Web Vitals Metrics
+model WebVitalsMetric {
+  id              String   @id @default(cuid())
+  name            String   // CLS, LCP, FID, FCP, TTFB, INP
+  value           Float
+  rating          String   // good, needs-improvement, poor
+  delta           Float?
+  metricId        String
+  navigationType  String?
+  url             String
+  userAgent       String?
+  timestamp       DateTime
+  createdAt       DateTime @default(now())
+
+  @@index([name])
+  @@index([rating])
+  @@index([timestamp])
+  @@index([createdAt])
+  @@map("web_vitals_metrics")
+}
+
 // Newsletter Subscriptions
 model NewsletterSubscription {
   id        String   @id @default(cuid())
