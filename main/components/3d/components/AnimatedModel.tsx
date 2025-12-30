@@ -133,16 +133,17 @@ export function AnimatedModel({
     }
   }, [modalClosedTimestamp]);
 
-  // Frame animation loop
+  // Frame animation loop optimizado para prevenir violaciones de RAF
   useFrame((state, delta) => {
+    // Early exit optimizado: verificar group primero para evitar cálculos innecesarios
+    const group = groupRef.current;
+    if (!group) return;
+
     const now = state.clock.getElapsedTime();
     // Throttle to target FPS: 30fps in low performance, 60fps normal
     const interval = lowPerformanceMode ? 1 / 30 : 1 / 60;
     if (now - tickRef.current < interval) return;
     tickRef.current = now;
-
-    const group = groupRef.current;
-    if (!group) return;
 
     group.position.z = 0;
 
@@ -153,40 +154,40 @@ export function AnimatedModel({
       targetEulerRef.current.set(tx, ty, 0, 'XYZ');
       targetQuatRef.current.setFromEuler(targetEulerRef.current);
       group.quaternion.slerp(targetQuatRef.current, 0.15);
-    } else {
-      // Interactive animation with smooth interpolation
-      let targetRotY = 0;
-      let targetRotX = 0;
-
-      // Prioridad 1: Botón clickeado en mobile
-      if (isMobile && buttonTargetRef.current.active) {
-        targetRotY = MathUtils.clamp(buttonTargetRef.current.x * 0.5, -0.5, 0.5);
-        targetRotX = MathUtils.clamp(buttonTargetRef.current.y * 0.35, -0.35, 0.35);
-      }
-      // Prioridad 2: Giroscopio en mobile (deshabilitado si modal está abierto o recién cerrado)
-      else if (isMobile && !lowPerformanceMode && !isModalOpen && canUseGyroRef.current) {
-        const { beta, gamma } = orientation;
-        targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
-        targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
-      }
-      // Prioridad 3: Mouse en desktop
-      else if (!isMobile) {
-        targetRotY = MathUtils.clamp(mousePosition.x * 0.4, -0.4, 0.4);
-        targetRotX = MathUtils.clamp(mousePosition.y * 0.25, -0.25, 0.25);
-      }
-
-      // Aplicar rotación directamente con quaternion slerp (eliminada doble interpolación)
-      // Slerp es suficiente para movimiento suave, exponential smoothing era redundante
-      const finalRotX = BASE_ROT_X + targetRotX;
-      const finalRotY = BASE_ROT_Y + targetRotY;
-      
-      targetEulerRef.current.set(finalRotX, finalRotY, 0, 'XYZ');
-      targetQuatRef.current.setFromEuler(targetEulerRef.current);
-
-      // Damping factor ajustado para compensar eliminación de exponential smoothing
-      const dampingFactor = lowPerformanceMode ? 0.08 : 0.15;
-      group.quaternion.slerp(targetQuatRef.current, dampingFactor);
+      return; // Early exit después de intro animation
     }
+
+    // Interactive animation - calcular target rotation basado en input
+    let targetRotY = 0;
+    let targetRotX = 0;
+
+    // Prioridad 1: Botón clickeado en mobile
+    if (isMobile && buttonTargetRef.current.active) {
+      targetRotY = MathUtils.clamp(buttonTargetRef.current.x * 0.5, -0.5, 0.5);
+      targetRotX = MathUtils.clamp(buttonTargetRef.current.y * 0.35, -0.35, 0.35);
+    }
+    // Prioridad 2: Giroscopio en mobile (deshabilitado si modal está abierto o recién cerrado)
+    else if (isMobile && !lowPerformanceMode && !isModalOpen && canUseGyroRef.current) {
+      const { beta, gamma } = orientation;
+      targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
+      targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
+    }
+    // Prioridad 3: Mouse en desktop
+    else if (!isMobile) {
+      targetRotY = MathUtils.clamp(mousePosition.x * 0.4, -0.4, 0.4);
+      targetRotX = MathUtils.clamp(mousePosition.y * 0.25, -0.25, 0.25);
+    }
+
+    // Aplicar rotación con quaternion slerp
+    const finalRotX = BASE_ROT_X + targetRotX;
+    const finalRotY = BASE_ROT_Y + targetRotY;
+    
+    targetEulerRef.current.set(finalRotX, finalRotY, 0, 'XYZ');
+    targetQuatRef.current.setFromEuler(targetEulerRef.current);
+
+    // Damping factor ajustado
+    const dampingFactor = lowPerformanceMode ? 0.08 : 0.15;
+    group.quaternion.slerp(targetQuatRef.current, dampingFactor);
   });
 
   const hasContent = scene.children.length > 0;
