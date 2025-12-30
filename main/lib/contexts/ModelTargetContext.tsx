@@ -39,8 +39,11 @@ export function ModelTargetProvider({ children }: { children: ReactNode }) {
   const setIsModalOpen = (isOpen: boolean) => {
     setIsModalOpenState(isOpen);
     if (!isOpen) {
-      // Cuando se cierra el modal, guardar timestamp para delay de giroscopio
-      setModalClosedTimestamp(Date.now());
+      // Delay para asegurar que router.push complete antes de actualizar timestamp
+      // Esto previene race condition con la navegación asíncrona
+      setTimeout(() => {
+        setModalClosedTimestamp(Date.now());
+      }, 50);
     }
   };
 
