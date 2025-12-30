@@ -143,6 +143,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       name: 'Métricas',
       items: [
         { name: 'Analytics', href: '/dashboard/analytics', icon: 'analytics' },
+        { name: 'Web Vitals', href: '/dashboard/web-vitals', icon: 'activity' },
         { name: 'Exportes', href: '#', icon: 'server', disabled: true },
       ],
     },

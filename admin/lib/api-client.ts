@@ -308,8 +308,12 @@ export const api = {
 
   // Analytics
   getAnalytics: () => apiClient.get('/portfolio/analytics/summary'),
-  getPageViews: (params?: Record<string, unknown>) => apiClient.get('/admin/analytics/page-views', params),
-  getProjectViews: (params?: Record<string, unknown>) => apiClient.get('/admin/analytics/project-views', params),
+  getPageViews: (params?: { timeRange?: string; limit?: number; offset?: number }) =>
+    apiClient.get('/admin/analytics/page-views', params),
+  getProjectViews: (params?: { timeRange?: string; limit?: number; offset?: number }) =>
+    apiClient.get('/admin/analytics/project-views', params),
+  getWebVitals: (params?: { timeRange?: string; metric?: string; rating?: string; limit?: number; offset?: number }) =>
+    apiClient.get('/admin/analytics/web-vitals', params),
   getDashboardStats: () => apiClient.get('/admin/dashboard/stats'),
 
   // Categories

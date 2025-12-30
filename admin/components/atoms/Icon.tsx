@@ -238,6 +238,11 @@ export default function Icon({ name, className = '', size = 24 }: IconProps) {
         <polyline points="12 5 19 12 12 19"/>
       </svg>
     ),
+    activity: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    ),
   };
 
   const icon = icons[name] || icons.dashboard;
