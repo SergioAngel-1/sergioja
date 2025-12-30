@@ -314,6 +314,10 @@ export const api = {
     apiClient.get('/admin/analytics/project-views', params),
   getWebVitals: (params?: { timeRange?: string; metric?: string; rating?: string; limit?: number; offset?: number }) =>
     apiClient.get('/admin/analytics/web-vitals', params),
+  cleanupWebVitals: (daysOld?: number) =>
+    apiClient.post('/admin/analytics/web-vitals/cleanup', { daysOld }),
+  deleteAllWebVitals: () =>
+    apiClient.delete('/admin/analytics/web-vitals'),
   getDashboardStats: () => apiClient.get('/admin/dashboard/stats'),
 
   // Categories

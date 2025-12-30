@@ -42,21 +42,34 @@ async function sendToAnalytics(metric: WebVitalsMetric, logger?: any) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) return;
 
-    // Log en desarrollo, enviar en desarrollo y producción
+    // Sampling: Solo enviar 10% de las métricas en producción (100% en dev)
+    const sampleRate = process.env.NODE_ENV === 'production' ? 0.1 : 1.0;
+    if (Math.random() > sampleRate) {
+      if (logger?.debug) {
+        logger.debug('Web Vitals sampled out', metric.name);
+      }
+      return;
+    }
+
+    // Log en desarrollo
     if (process.env.NODE_ENV !== 'production') {
       if (logger?.debug) {
         logger.debug('Web Vitals (dev)', metric);
       }
-      // Continuar y enviar también en desarrollo para testing
     }
+
+    // Extraer solo navegador y OS del userAgent (reducir tamaño)
+    const userAgentSimplified = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || 
+                                navigator.userAgent.match(/(Windows|Mac|Linux|Android|iOS)/)?.[0] || 
+                                'Unknown';
 
     await fetch(`${apiUrl}/api/portfolio/analytics/web-vitals`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...metric,
-        url: window.location.href,
-        userAgent: navigator.userAgent,
+        url: window.location.pathname, // Solo pathname, no query params
+        userAgent: userAgentSimplified, // Versión simplificada
         timestamp: Date.now(),
       }),
     });

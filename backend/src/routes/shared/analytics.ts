@@ -271,4 +271,57 @@ router.post('/web-vitals', asyncHandler(async (req: Request, res: Response) => {
   });
 }));
 
+// DELETE /api/admin/analytics/web-vitals - Eliminar todas las métricas
+router.delete('/web-vitals', authMiddleware, asyncHandler(async (_req: Request, res: Response) => {
+  const totalBefore = await prisma.webVitalsMetric.count();
+
+  const result = await prisma.webVitalsMetric.deleteMany({});
+
+  logger.warn('All Web Vitals metrics deleted', { deleted: result.count, totalBefore });
+
+  res.json({
+    success: true,
+    data: {
+      deleted: result.count,
+      message: 'Todas las métricas de Web Vitals han sido eliminadas',
+    },
+    timestamp: new Date().toISOString(),
+  });
+}));
+
+// POST /api/admin/analytics/web-vitals/cleanup - Limpiar métricas antiguas
+router.post('/web-vitals/cleanup', authMiddleware, asyncHandler(async (req: Request, res: Response) => {
+  const { daysOld = 90 } = req.body;
+
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+
+  const result = await prisma.webVitalsMetric.deleteMany({
+    where: {
+      createdAt: {
+        lt: cutoffDate,
+      },
+    },
+  });
+
+  const totalMetrics = await prisma.webVitalsMetric.count();
+  const oldestMetric = await prisma.webVitalsMetric.findFirst({
+    orderBy: { createdAt: 'asc' },
+    select: { createdAt: true },
+  });
+
+  logger.info('Web Vitals cleanup completed', { deleted: result.count, remaining: totalMetrics });
+
+  res.json({
+    success: true,
+    data: {
+      deleted: result.count,
+      remaining: totalMetrics,
+      oldestMetric: oldestMetric?.createdAt,
+      cutoffDate,
+    },
+    timestamp: new Date().toISOString(),
+  });
+}));
+
 export default router;

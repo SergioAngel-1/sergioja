@@ -12,6 +12,7 @@ import WebVitalsMetricCard from '@/components/molecules/WebVitalsMetricCard';
 import WebVitalsTable from '@/components/molecules/WebVitalsTable';
 import WebVitalsFilters from '@/components/molecules/WebVitalsFilters';
 import WebVitalsEmptyState from '@/components/molecules/WebVitalsEmptyState';
+import WebVitalsMaintenanceButtons from '@/components/molecules/WebVitalsMaintenanceButtons';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { clamp, fluidSizing } from '@/lib/fluidSizing';
@@ -232,6 +233,11 @@ export default function WebVitalsPage() {
             <WebVitalsTable
               metrics={data.metrics}
               metricInfo={METRIC_INFO}
+            />
+
+            {/* Botones de mantenimiento */}
+            <WebVitalsMaintenanceButtons
+              onMaintenanceComplete={loadWebVitals}
             />
           </>
         )}

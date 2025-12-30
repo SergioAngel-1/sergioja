@@ -166,8 +166,8 @@ model WebVitalsMetric {
   delta           Float?
   metricId        String
   navigationType  String?
-  url             String
-  userAgent       String?
+  url             String   // Solo pathname para reducir tamaño
+  userAgent       String?  // Versión simplificada (navegador/OS)
   timestamp       DateTime
   createdAt       DateTime @default(now())
 
@@ -175,6 +175,7 @@ model WebVitalsMetric {
   @@index([rating])
   @@index([timestamp])
   @@index([createdAt])
+  @@index([name, createdAt]) // Índice compuesto para consultas frecuentes
   @@map("web_vitals_metrics")
 }
 
