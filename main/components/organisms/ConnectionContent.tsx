@@ -48,10 +48,14 @@ export default function ConnectionContent({ profile }: ConnectionContentProps) {
   // Función para limpiar errores cuando el usuario modifica los campos
   const handleInputChange = useCallback((field: keyof ContactMessage, value: string) => {
     // SIEMPRE limpiar mensajes de error del historial cuando el usuario escribe
-    initConsole();
+    // Reinicializar consola con traducciones actuales
+    setConsoleHistory([
+      t('connection.consoleInit'),
+      t('connection.consoleWaiting')
+    ]);
     
     setFormData(prev => ({ ...prev, [field]: value }));
-  }, [initConsole]);
+  }, [t]);
 
 
   const handleConsoleSubmit = async (e: React.FormEvent) => {
