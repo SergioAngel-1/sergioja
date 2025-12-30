@@ -130,6 +130,100 @@ router.get('/project-views', authMiddleware, asyncHandler(async (req: Request, r
   });
 }));
 
+// GET /api/admin/analytics/web-vitals - Obtener métricas de Web Vitals
+router.get('/web-vitals', authMiddleware, asyncHandler(async (req: Request, res: Response) => {
+  const { timeRange, metric, rating, limit = '100', offset = '0' } = req.query;
+
+  const where: Record<string, unknown> = {};
+
+  // Filtrar por rango de tiempo
+  if (timeRange && typeof timeRange === 'string') {
+    const now = new Date();
+    let startDate: Date;
+
+    switch (timeRange) {
+      case '7d':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case 'all':
+      default:
+        startDate = new Date(0);
+        break;
+    }
+
+    where.createdAt = { gte: startDate };
+  }
+
+  // Filtrar por métrica específica (CLS, LCP, FID, etc.)
+  if (metric && typeof metric === 'string') {
+    where.name = metric;
+  }
+
+  // Filtrar por rating (good, needs-improvement, poor)
+  if (rating && typeof rating === 'string') {
+    where.rating = rating;
+  }
+
+  const webVitals = await prisma.webVitalsMetric.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    take: parseInt(limit as string),
+    skip: parseInt(offset as string),
+  });
+
+  const total = await prisma.webVitalsMetric.count({ where });
+
+  // Calcular estadísticas agregadas
+  const stats = {
+    total,
+    byMetric: {} as Record<string, number>,
+    byRating: {} as Record<string, number>,
+    averages: {} as Record<string, number>,
+  };
+
+  // Agrupar por métrica
+  const allMetrics = await prisma.webVitalsMetric.groupBy({
+    by: ['name'],
+    where: timeRange ? { createdAt: where.createdAt as any } : {},
+    _count: { name: true },
+    _avg: { value: true },
+  });
+
+  allMetrics.forEach((m: any) => {
+    stats.byMetric[m.name] = m._count.name;
+    stats.averages[m.name] = m._avg.value || 0;
+  });
+
+  // Agrupar por rating
+  const allRatings = await prisma.webVitalsMetric.groupBy({
+    by: ['rating'],
+    where: timeRange ? { createdAt: where.createdAt as any } : {},
+    _count: { rating: true },
+  });
+
+  allRatings.forEach((r: any) => {
+    stats.byRating[r.rating] = r._count.rating;
+  });
+
+  logger.info('Web Vitals metrics retrieved', { count: webVitals.length, total });
+
+  res.json({
+    success: true,
+    data: {
+      metrics: webVitals,
+      stats,
+      pagination: {
+        total,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+      },
+    },
+  });
+}));
+
 // POST /api/analytics/web-vitals - Recibir métricas de Web Vitals
 router.post('/web-vitals', asyncHandler(async (req: Request, res: Response) => {
   const { name, value, rating, delta, id, navigationType, url, userAgent, timestamp } = req.body;
@@ -155,10 +249,20 @@ router.post('/web-vitals', asyncHandler(async (req: Request, res: Response) => {
     timestamp: new Date(timestamp || Date.now()).toISOString(),
   });
 
-  // TODO: Guardar en base de datos si se necesita persistencia
-  // await prisma.webVitalsMetric.create({
-  //   data: { name, value, rating, delta, id, navigationType, url, userAgent, timestamp: new Date(timestamp) }
-  // });
+  // Guardar en base de datos
+  await prisma.webVitalsMetric.create({
+    data: {
+      name,
+      value: parseFloat(value),
+      rating,
+      delta: delta !== undefined ? parseFloat(delta) : null,
+      metricId: id,
+      navigationType: navigationType || null,
+      url,
+      userAgent: userAgent || null,
+      timestamp: new Date(timestamp || Date.now()),
+    },
+  });
 
   res.json({
     success: true,
