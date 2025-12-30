@@ -165,7 +165,7 @@ export default function HexButton({
               </div>
             </motion.div>
 
-            {/* Menu label - below on mobile only */}
+            {/* Menu label - below/above on mobile only */}
             <motion.div
               className={`md:hidden absolute pointer-events-none transition-all duration-200 ${
                 isActive
@@ -174,7 +174,9 @@ export default function HexButton({
               }`}
               style={{
                 left: '50%',
-                top: `calc(100% + ${fluidSizing.space.xs})`,
+                ...(position.includes('bottom')
+                  ? { bottom: `calc(100% + ${fluidSizing.space.xs})` }
+                  : { top: `calc(100% + ${fluidSizing.space.xs})` }),
                 transform: 'translateX(-50%)',
                 zIndex: 3,
               }}
@@ -194,20 +196,52 @@ export default function HexButton({
             </motion.div>
           </>
         ) : (
-          /* Non-menu labels (lateral, on hover) */
-          <motion.div
-            className={`absolute pointer-events-none transform transition-all duration-200 ${
-              isActive ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
-            } ${ !isActive ? (position.includes('left') ? 'group-hover:translate-x-1.5' : 'group-hover:-translate-x-1.5') : '' }`}
-            style={{
-              ...(position.includes('left') 
-                ? { left: `calc(100% + ${fluidSizing.space.xs})` } 
-                : { right: `calc(100% + ${fluidSizing.space.xs})` }),
-              top: '50%',
-              zIndex: 3,
-            }}
-          >
-            <div className="relative -translate-y-1/2">
+          <>
+            {/* Non-menu labels - lateral on desktop (hover) */}
+            <motion.div
+              className={`hidden md:block absolute pointer-events-none transform transition-all duration-200 ${
+                isActive ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
+              } ${ !isActive ? (position.includes('left') ? 'group-hover:translate-x-1.5' : 'group-hover:-translate-x-1.5') : '' }`}
+              style={{
+                ...(position.includes('left') 
+                  ? { left: `calc(100% + ${fluidSizing.space.xs})` } 
+                  : { right: `calc(100% + ${fluidSizing.space.xs})` }),
+                top: '50%',
+                zIndex: 3,
+              }}
+            >
+              <div className="relative -translate-y-1/2">
+                <div 
+                  className="bg-black/40 backdrop-blur-sm border border-white/20 rounded px-2 py-1"
+                  style={{
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <span className="font-mono text-white/70 text-fluid-xs tracking-wider uppercase leading-none">
+                    {label}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Non-menu labels - below/above on mobile (always visible) */}
+            <motion.div
+              className={`md:hidden absolute pointer-events-none transition-all duration-200 ${
+                isActive
+                  ? 'opacity-0'
+                  : (anyModalOpen ? 'opacity-0' : 'opacity-100')
+              }`}
+              style={{
+                left: '50%',
+                ...(position.includes('bottom')
+                  ? { bottom: `calc(100% + ${fluidSizing.space.xs})` }
+                  : { top: `calc(100% + ${fluidSizing.space.xs})` }),
+                transform: 'translateX(-50%)',
+                zIndex: 3,
+              }}
+            >
               <div 
                 className="bg-black/40 backdrop-blur-sm border border-white/20 rounded px-2 py-1"
                 style={{
@@ -220,8 +254,8 @@ export default function HexButton({
                   {label}
                 </span>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
         {/* SVG Hexágono */}
         <svg 
