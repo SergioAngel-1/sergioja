@@ -20,7 +20,7 @@ export default function Header({ showBreadcrumbs = false, showHomeBadge = false,
   const { t } = useLanguage();
   const inlineBadgeRef = useRef<HTMLDivElement>(null);
   const [badgeHeight, setBadgeHeight] = useState<number | null>(null);
-  const scrollDirection = useScrollDirection({ threshold: 10, debounce: 50 });
+  const scrollDirection = useScrollDirection({ threshold: 10 });
   const [isScrolled, setIsScrolled] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
