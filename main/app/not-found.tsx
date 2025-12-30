@@ -12,7 +12,9 @@ export default function NotFound() {
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden">
       {/* Hexagon grid background */}
-      <HexagonGrid />
+      <div className="opacity-40">
+        <HexagonGrid />
+      </div>
 
       {/* Data streams */}
       
