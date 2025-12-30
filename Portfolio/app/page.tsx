@@ -404,7 +404,7 @@ export default function Home() {
               className="font-rajdhani text-text-secondary mb-fluid-xl max-w-xl leading-relaxed text-fluid-lg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
             >
               {t('home.tagline')}
             </motion.p>
