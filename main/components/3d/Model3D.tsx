@@ -16,10 +16,9 @@ import { GyroControls } from './components/GyroControls';
 interface Model3DProps {
   mousePosition: { x: number; y: number };
   onAnimationComplete?: () => void;
-  onModelLoaded?: () => void;
 }
 
-export default function Model3D({ mousePosition, onAnimationComplete, onModelLoaded }: Model3DProps) {
+export default function Model3D({ mousePosition, onAnimationComplete }: Model3DProps) {
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showGyroButton, setShowGyroButton] = useState(false);
@@ -44,30 +43,29 @@ export default function Model3D({ mousePosition, onAnimationComplete, onModelLoa
   useEffect(() => {
     setMounted(true);
     log.info('model_mount');
-  }, [log]);
-
-  // Callback cuando el modelo termina de cargar
-  const handleModelLoaded = () => {
-    setIsLoading(false);
-    log.info('model_ready');
-    onModelLoaded?.();
     
-    // Mostrar controles de giroscopio si NO está en bajo rendimiento
-    if (!lowPerformanceMode && isMobile) {
-      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        // iOS: Mostrar botón para solicitar permiso
-        log.info('gyro_button_shown_ios');
-        setShowGyroButton(true);
-      } else {
-        // Android: Mostrar hint informativo (giroscopio ya activo)
-        log.info('gyro_hint_shown_android');
-        setShowGyroHint(true);
-        setGyroEnabled(true); // Activar inmediatamente en Android
-        // Ocultar hint después de 5 segundos
-        setTimeout(() => setShowGyroHint(false), 5000);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      log.info('model_ready');
+      // Mostrar controles de giroscopio si NO está en bajo rendimiento
+      if (!lowPerformanceMode && isMobile) {
+        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+          // iOS: Mostrar botón para solicitar permiso
+          log.info('gyro_button_shown_ios');
+          setShowGyroButton(true);
+        } else {
+          // Android: Mostrar hint informativo (giroscopio ya activo)
+          log.info('gyro_hint_shown_android');
+          setShowGyroHint(true);
+          setGyroEnabled(true); // Activar inmediatamente en Android
+          // Ocultar hint después de 5 segundos
+          setTimeout(() => setShowGyroHint(false), 5000);
+        }
       }
-    }
-  };
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [lowPerformanceMode, log, isMobile]);
 
   const handleGyroPermission = async () => {
     log.interaction('gyro_enable_click');
@@ -85,15 +83,22 @@ export default function Model3D({ mousePosition, onAnimationComplete, onModelLoa
     <div className="relative w-full h-full">
       <ModelBackground />
 
-      {/* Mostrar loader mientras carga */}
-      {(!mounted || isLoading) && (
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          <Loader size="md" message={t('loader.loadingModel')} />
-        </div>
-      )}
-
-      {/* Canvas siempre renderizado para que el modelo pueda cargar */}
-      {mounted && (
+      {/* Contenido: Loader o Canvas */}
+      {!mounted || isLoading ? (
+        <>
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <Loader size="md" message={t('loader.loadingModel')} />
+          </div>
+          <GyroControls
+            showButton={showGyroButton}
+            gyroEnabled={gyroEnabled}
+            lowPerformanceMode={lowPerformanceMode}
+            onEnableGyro={handleGyroPermission}
+            enableLabel={t('gyro.enable')}
+            movePhoneLabel={t('gyro.movePhone')}
+          />
+        </>
+      ) : (
         <>
           <div className="absolute inset-0 z-10">
             <Canvas
@@ -122,7 +127,6 @@ export default function Model3D({ mousePosition, onAnimationComplete, onModelLoa
                 gyroEnabled={gyroEnabled}
                 lowPerformanceMode={lowPerformanceMode}
                 onIntroAnimationEnd={onAnimationComplete}
-                onModelLoaded={handleModelLoaded}
                 onGyroRequestPermissionReady={(requestFn) => {
                   gyroRequestPermissionRef.current = requestFn;
                 }}
