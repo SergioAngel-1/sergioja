@@ -125,6 +125,10 @@ export function AnimatedModel({
   // Handle gyro delay after modal closes (optimized with ref)
   useEffect(() => {
     if (modalClosedTimestamp) {
+      // Desactivar button target inmediatamente cuando se cierra el modal
+      buttonTargetRef.current.active = false;
+      
+      // Pausar giroscopio brevemente para permitir animación de retorno
       canUseGyroRef.current = false;
       const timeout = setTimeout(() => {
         canUseGyroRef.current = true;
