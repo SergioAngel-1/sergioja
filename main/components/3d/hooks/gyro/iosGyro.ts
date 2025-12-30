@@ -51,9 +51,8 @@ export async function requestIOSGyroPermission({
       // Guardar referencia para cleanup ANTES de addEventListener
       listenerRef.current = handleOrientation;
       
-      window.addEventListener('deviceorientation', listenerRef.current, {
-        passive: true,
-      } as any);
+      // CRÍTICO: Usar 'deviceorientation' (sin mayúsculas) y sin 'as any'
+      window.addEventListener('deviceorientation', handleOrientation, true);
       
       return true;
     }

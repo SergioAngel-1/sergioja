@@ -50,11 +50,12 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
       // Mostrar controles de giroscopio si NO está en bajo rendimiento
       if (!lowPerformanceMode && isMobile) {
         if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-          // iOS: Mostrar botón para solicitar permiso
+          // iOS: Mostrar botón para solicitar permiso (NO activar gyroEnabled aún)
           log.info('gyro_button_shown_ios');
           setShowGyroButton(true);
+          // NO setear gyroEnabled aquí - se activará después del permiso
         } else {
-          // Android: Mostrar hint informativo (giroscopio ya activo)
+          // Android: Mostrar hint informativo y activar giroscopio
           log.info('gyro_hint_shown_android');
           setShowGyroHint(true);
           setGyroEnabled(true); // Activar inmediatamente en Android

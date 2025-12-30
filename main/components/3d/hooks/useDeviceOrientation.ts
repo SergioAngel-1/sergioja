@@ -68,8 +68,11 @@ export function useDeviceOrientation(
     }
 
     return () => {
-      // Cleanup: remover listener si existe (Android o iOS después de permiso)
-      cleanupAndroidGyro(listenerRef);
+      // Cleanup: remover listener (funciona para Android e iOS)
+      if (listenerRef.current) {
+        window.removeEventListener('deviceorientation', listenerRef.current);
+        listenerRef.current = null;
+      }
     };
   }, [enabled, log, isMobile]);
 
