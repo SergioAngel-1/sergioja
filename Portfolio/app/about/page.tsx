@@ -24,6 +24,7 @@ import type { Profile } from '@/shared/types';
 export default function AboutPage() {
   const { skills, loading, error } = useSkills();
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>('all');
+  const [cvDownloaded, setCvDownloaded] = useState(false);
   const log = useLogger('AboutPage');
   const { t } = useLanguage();
   
@@ -203,23 +204,36 @@ export default function AboutPage() {
                         return;
                       }
                       
-                      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-                      const response = await fetch(`${apiUrl}/api/portfolio/cv/${encodeURIComponent(profile.cvFileName)}`);
-                      if (!response.ok) throw new Error('Failed to download CV');
-                      const blob = await response.blob();
-                      const url = window.URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = profile.cvFileName;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      window.URL.revokeObjectURL(url);
-                      trackDownload(profile.cvFileName, 'pdf');
-                      log.interaction('download_cv', 'cv_button');
+                      try {
+                        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                        const response = await fetch(`${apiUrl}/api/portfolio/cv/${encodeURIComponent(profile.cvFileName)}`);
+                        if (!response.ok) throw new Error('Failed to download CV');
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = profile.cvFileName;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                        trackDownload(profile.cvFileName, 'pdf');
+                        log.interaction('download_cv', 'cv_button');
+                        
+                        // Cambiar texto del botón
+                        setCvDownloaded(true);
+                        
+                        // Resetear después de 3 segundos
+                        setTimeout(() => {
+                          setCvDownloaded(false);
+                        }, 3000);
+                      } catch (error) {
+                        log.error('Error downloading CV', error);
+                      }
                     }}
+                    disabled={cvDownloaded}
                   >
-                    {t('about.downloadCV')}
+                    {cvDownloaded ? 'CV descargada ✓' : t('about.downloadCV')}
                   </Button>
                 </motion.div>
 
