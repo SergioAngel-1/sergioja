@@ -38,33 +38,40 @@ export function useDeviceOrientation(
 
   // Configurar listener de orientación
   useEffect(() => {
-    if (isMobile && typeof DeviceOrientationEvent !== 'undefined') {
-      setIsSupported(true);
-      
-      const permissionNeeded = iosNeedsPermission();
-      setNeedsPermission(permissionNeeded);
-
-      if (!permissionNeeded && enabled) {
-        // Android: Adjuntar listener inmediatamente solo si está habilitado
-        setupAndroidGyro({
-          orientationRef,
-          hasValidDataRef,
-          listenerRef,
-          setIsActive,
-          onSensorActive: () => log.info('gyro_sensor_active'),
-          onSensorLost: () => log.warn('gyro_sensor_lost'),
-        });
-      }
-    } else {
+    if (!isMobile || typeof DeviceOrientationEvent === 'undefined') {
       setIsSupported(false);
       log.warn('gyro_not_supported');
+      return;
+    }
+
+    setIsSupported(true);
+    const permissionNeeded = iosNeedsPermission();
+    setNeedsPermission(permissionNeeded);
+
+    // Android: Adjuntar listener solo si está habilitado y no necesita permiso
+    if (!permissionNeeded && enabled) {
+      // Limpiar listener anterior si existe antes de adjuntar uno nuevo
+      cleanupAndroidGyro(listenerRef);
+      
+      setupAndroidGyro({
+        orientationRef,
+        hasValidDataRef,
+        listenerRef,
+        setIsActive,
+        onSensorActive: () => log.info('gyro_sensor_active'),
+        onSensorLost: () => log.warn('gyro_sensor_lost'),
+      });
+    } else if (!permissionNeeded && !enabled) {
+      // Android: Remover listener si se desactiva
+      cleanupAndroidGyro(listenerRef);
+      setIsActive(false);
     }
 
     return () => {
       // Cleanup: remover listener si existe (Android o iOS después de permiso)
       cleanupAndroidGyro(listenerRef);
     };
-  }, [enabled, onSchedule, log, isMobile]);
+  }, [enabled, log, isMobile]);
 
   const requestPermission = async (): Promise<boolean> => {
     return requestIOSGyroPermission({
