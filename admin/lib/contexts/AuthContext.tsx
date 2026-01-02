@@ -34,7 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
-    const initAuth = async () => {
+    const initAuth = async (retryCount = 0) => {
+      const MAX_RETRIES = 2;
+      const RETRY_DELAY_MS = 1000;
+
       // Skip auth check on login page to avoid unnecessary 401 errors
       if (pathname === '/login') {
         if (isMounted) {
@@ -61,18 +64,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error: unknown) {
         if (!isMounted) return;
         
+        const axiosError = error as { response?: { status?: number }; code?: string };
+        
+        // Identificar errores de red que ameritan retry
+        const isNetworkError = 
+          axiosError?.code === 'ECONNABORTED' ||
+          axiosError?.code === 'ERR_NETWORK' ||
+          axiosError?.code === 'ETIMEDOUT' ||
+          !axiosError?.response; // Sin respuesta del servidor
+        
+        // Si es error de red y aún quedan reintentos
+        if (isNetworkError && retryCount < MAX_RETRIES) {
+          const delay = RETRY_DELAY_MS * Math.pow(2, retryCount); // Backoff exponencial
+          logger.warn(`Auth: Error de red, reintentando (${retryCount + 1}/${MAX_RETRIES}) en ${delay}ms`, error);
+          
+          setTimeout(() => {
+            if (isMounted) {
+              initAuth(retryCount + 1);
+            }
+          }, delay);
+          return;
+        }
+        
         // Si es 401, es normal (no hay sesión)
-        const axiosError = error as { response?: { status?: number } };
         if (axiosError?.response?.status !== 401) {
           logger.error('Auth: Error verificando sesión', error);
         }
+        
         setUser(null);
         // Redirect to login on auth error (except on login page)
         if (pathname !== '/login') {
           router.push('/login');
         }
       } finally {
-        if (isMounted) {
+        if (isMounted && retryCount === 0) {
+          // Solo marcar como no loading en el primer intento
           setIsLoading(false);
         }
       }
@@ -141,7 +167,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const refreshAuth = async () => {
+  const refreshAuth = async (retryCount = 0) => {
+    const MAX_RETRIES = 2;
+    const RETRY_DELAY_MS = 1000;
+
     try {
       // Obtener información actualizada del usuario
       const response = await api.getMe();
@@ -152,8 +181,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await logout();
       }
     } catch (error: unknown) {
+      const axiosError = error as { response?: { status?: number }; code?: string };
+      
+      // Identificar errores de red que ameritan retry
+      const isNetworkError = 
+        axiosError?.code === 'ECONNABORTED' ||
+        axiosError?.code === 'ERR_NETWORK' ||
+        axiosError?.code === 'ETIMEDOUT' ||
+        !axiosError?.response;
+      
+      // Si es error de red y aún quedan reintentos
+      if (isNetworkError && retryCount < MAX_RETRIES) {
+        const delay = RETRY_DELAY_MS * Math.pow(2, retryCount);
+        logger.warn(`Auth: Error de red al refrescar, reintentando (${retryCount + 1}/${MAX_RETRIES}) en ${delay}ms`, error);
+        
+        setTimeout(() => {
+          refreshAuth(retryCount + 1);
+        }, delay);
+        return;
+      }
+      
       // Si no es 401, loguear error
-      const axiosError = error as { response?: { status?: number } };
       if (axiosError?.response?.status !== 401) {
         logger.error('Auth: Error refrescando usuario', error);
       }
