@@ -23,8 +23,13 @@ export function usePageAnalytics(
     startTime.current = Date.now();
     timeTracked.current = false;
 
+    // Throttle helper
+    let throttleTimeout: NodeJS.Timeout | null = null;
+    let lastScrollTime = 0;
+    const THROTTLE_DELAY_MS = 200;
+
     // Scroll depth tracking
-    const handleScroll = () => {
+    const handleScrollCore = () => {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -43,6 +48,28 @@ export function usePageAnalytics(
           trackScrollDepth(milestone);
         }
       });
+    };
+
+    // Throttled scroll handler
+    const handleScroll = () => {
+      const now = Date.now();
+      const timeSinceLastScroll = now - lastScrollTime;
+
+      if (timeSinceLastScroll >= THROTTLE_DELAY_MS) {
+        // Ejecutar inmediatamente si ha pasado suficiente tiempo
+        lastScrollTime = now;
+        handleScrollCore();
+      } else {
+        // Programar ejecución después del delay
+        if (throttleTimeout) {
+          clearTimeout(throttleTimeout);
+        }
+        throttleTimeout = setTimeout(() => {
+          lastScrollTime = Date.now();
+          handleScrollCore();
+          throttleTimeout = null;
+        }, THROTTLE_DELAY_MS - timeSinceLastScroll);
+      }
     };
 
     // Time on page tracking
@@ -73,6 +100,11 @@ export function usePageAnalytics(
 
     // Cleanup
     return () => {
+      // Limpiar throttle timeout pendiente
+      if (throttleTimeout) {
+        clearTimeout(throttleTimeout);
+      }
+
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
