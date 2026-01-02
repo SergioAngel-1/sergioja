@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import { Prisma } from '@prisma/client';
 import { appConfig } from '../config/env';
 import { logger } from '../lib/logger';
 import { prisma } from '../lib/prisma';
@@ -76,64 +77,73 @@ export async function authenticateUser(
   password: string
 ): Promise<{ user: any; tokens: AuthTokens } | null> {
   try {
-    // Buscar usuario en base de datos
-    const user = await prisma.adminUser.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        password: true,
-        role: true,
-        isActive: true,
-      },
-    });
+    // Usar transacción para optimizar queries y garantizar atomicidad
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Buscar usuario en base de datos
+      const user = await tx.adminUser.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          password: true,
+          role: true,
+          isActive: true,
+        },
+      });
 
-    if (!user) {
-      logger.warn('Login attempt with non-existent email', { email });
-      return null;
-    }
+      if (!user) {
+        logger.warn('Login attempt with non-existent email', { email });
+        return null;
+      }
 
-    if (!user.isActive) {
-      logger.warn('Login attempt with inactive user', { email });
-      return null;
-    }
+      if (!user.isActive) {
+        logger.warn('Login attempt with inactive user', { email });
+        return null;
+      }
 
-    // Verificar password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    
-    if (!isPasswordValid) {
-      logger.warn('Login attempt with invalid password', { email });
-      return null;
-    }
+      // Verificar password (fuera de la transacción para no bloquear)
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      
+      if (!isPasswordValid) {
+        logger.warn('Login attempt with invalid password', { email });
+        return null;
+      }
 
-    // Generar tokens
-    const payload: TokenPayload = {
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    };
-
-    const tokens = generateTokens(payload);
-
-    // Guardar refresh token en base de datos
-    await prisma.refreshToken.create({
-      data: {
-        token: hashToken(tokens.refreshToken),
+      // Generar tokens
+      const payload: TokenPayload = {
         userId: user.id,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días
-      },
+        email: user.email,
+        role: user.role,
+      };
+
+      const tokens = generateTokens(payload);
+
+      // Guardar refresh token en base de datos (dentro de la transacción)
+      await tx.refreshToken.create({
+        data: {
+          token: hashToken(tokens.refreshToken),
+          userId: user.id,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días
+        },
+      });
+
+      // Remover password del objeto user
+      const { password: _, ...userWithoutPassword } = user;
+
+      return {
+        user: userWithoutPassword,
+        tokens,
+      };
     });
 
-    // Remover password del objeto user
-    const { password: _, ...userWithoutPassword } = user;
+    if (!result) {
+      return null;
+    }
 
-    logger.info('User authenticated successfully', { userId: user.id, email: user.email });
+    logger.info('User authenticated successfully', { userId: result.user.id, email: result.user.email });
 
-    return {
-      user: userWithoutPassword,
-      tokens,
-    };
+    return result;
   } catch (error) {
     logger.error('Authentication error', error);
     return null;
