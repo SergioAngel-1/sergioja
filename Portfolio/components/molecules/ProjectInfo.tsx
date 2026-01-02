@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { TechIcon } from '@/lib/utils/techIcons';
+import Tooltip from '@/components/atoms/Tooltip';
 import type { Project } from '@/shared/types';
 
 interface ProjectInfoProps {
@@ -14,10 +15,25 @@ interface ProjectInfoProps {
 export default function ProjectInfo({ project }: ProjectInfoProps) {
   const { t } = useLanguage();
   
+  // Función para truncar texto
+  const truncateText = (text: string, maxLength: number = 50) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  const categoriesText = project.categories?.join(', ').toUpperCase() || 'N/A';
+  const isCategoriesTruncated = categoriesText.length > 50;
+  
   const infoItems: { label: string; value: ReactNode; icon: ReactNode }[] = [
     {
       label: t('projects.category'),
-      value: project.categories?.join(', ').toUpperCase() || 'N/A',
+      value: isCategoriesTruncated ? (
+        <Tooltip content={categoriesText} position="bottom" maxWidth="400px">
+          <span className="cursor-help">{truncateText(categoriesText, 50)}</span>
+        </Tooltip>
+      ) : (
+        categoriesText
+      ),
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -50,8 +66,8 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
       value: (
         <div className="flex items-center justify-end flex-wrap" style={{ gap: fluidSizing.space.xs }}>
           {visibleTechs.map((tech) => (
-            <span key={tech.name} className="relative text-white/80">
-              <span className="peer inline-flex">
+            <Tooltip key={tech.name} content={tech.name} position="top">
+              <span className="text-white/80 inline-flex cursor-help">
                 {tech.icon ? (
                   <span
                     className="inline-flex w-4 h-4 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
@@ -61,20 +77,14 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
                   <TechIcon tech={tech.name} className="w-4 h-4" />
                 )}
               </span>
-              <span className="hidden sm:block absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-black/90 text-white text-xs whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">
-                {tech.name}
-              </span>
-            </span>
+            </Tooltip>
           ))}
           {extraTechCount > 0 && (
-            <span className="relative text-white/80">
-              <span className="peer inline-flex items-center justify-center w-4 h-4 rounded-full border border-white/30 text-[10px] font-mono">
+            <Tooltip content={`+${extraTechCount} ${t('projects.moreTechnologies') || 'more technologies'}`} position="top">
+              <span className="text-white/80 inline-flex items-center justify-center w-4 h-4 rounded-full border border-white/30 text-[10px] font-mono cursor-help">
                 +
               </span>
-              <span className="hidden sm:block absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded bg-black/90 text-white text-xs whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">
-                +{extraTechCount}
-              </span>
-            </span>
+            </Tooltip>
           )}
         </div>
       ),
