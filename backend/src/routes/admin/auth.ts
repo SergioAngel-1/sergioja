@@ -12,11 +12,18 @@ import { asyncHandler } from '../../middleware/errorHandler';
 const router = Router();
 
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10, // 10 intentos (aumentado de 5 para mejor UX)
   standardHeaders: true,
   legacyHeaders: false,
   skip: () => process.env.NODE_ENV !== 'production',
+  message: {
+    success: false,
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Demasiados intentos de inicio de sesión. Por favor, intenta nuevamente en 15 minutos.',
+    },
+  },
 });
 
 // Schema de validación para login
