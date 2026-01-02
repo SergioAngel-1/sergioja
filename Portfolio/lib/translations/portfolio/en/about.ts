@@ -25,7 +25,7 @@ export const aboutEn = {
   'about.strategyValue': 'All technical decisions must drive the business. I align the technology roadmap with strategic objectives to ensure tangible and sustainable financial impact.',
   'about.fullstack': 'Comprehensive Full Stack Engineering',
   'about.fullstackValue': 'I design, develop, and deploy complete solutions, from user experience to backend infrastructure and data management and analysis.',
-  'about.skillsTitle': 'SKILLS AND EXPERIENCE',
+  'about.skillsTitle': 'SKILLS',
   'about.all': 'All',
   'about.filter': 'Filter',
   'about.skillsCount': 'skills',

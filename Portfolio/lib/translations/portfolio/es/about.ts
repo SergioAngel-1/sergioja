@@ -25,7 +25,7 @@ export const aboutEs = {
   'about.strategyValue': 'Todas las decisiones técnicas deben impulsar el negocio. Alineo la hoja de ruta tecnológica con los objetivos estratégicos para garantizar un impacto financiero tangible y sostenible.',
   'about.fullstack': 'Ingeniería Full Stack Integral',
   'about.fullstackValue': 'Diseño, desarrollo y despliego soluciones completas, desde la experiencia del usuario hasta la infraestructura backend y la gestión y análisis de datos.',
-  'about.skillsTitle': 'HABILIDADES Y EXPERIENCIA',
+  'about.skillsTitle': 'HABILIDADES',
   'about.all': 'Todas',
   'about.filter': 'Filtrar',
   'about.skillsCount': 'habilidades',
