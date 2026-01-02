@@ -105,7 +105,7 @@ export default function Pagination({
                 onClick={() => onPageChange(pageNum)}
                 className={`px-3 py-2 rounded-lg border transition-all duration-200 ${
                   isActive
-                    ? 'bg-admin-primary border-admin-primary text-black font-semibold shadow-lg shadow-admin-primary/50'
+                    ? 'bg-admin-primary border-admin-primary text-black font-semibold'
                     : 'bg-background-elevated border-white/10 text-white hover:bg-admin-primary/20 hover:border-admin-primary/50'
                 }`}
                 style={{ fontSize: fluidSizing.text.sm }}
