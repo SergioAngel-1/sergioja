@@ -107,6 +107,24 @@ export function trackPageView(source: string, pagePath: string, pageTitle?: stri
     page_path: pagePath,
     page_title: pageTitle || (typeof document !== 'undefined' ? document.title : undefined),
   });
+
+  // Guardar en backend (solo para portfolio)
+  if (source === 'portfolio' && typeof window !== 'undefined') {
+    const userAgent = navigator.userAgent;
+    const referrer = document.referrer;
+    
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/analytics/page-view`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: pagePath,
+        userAgent,
+        referrer: referrer || undefined,
+      }),
+    }).catch((error) => {
+      logger.error('Error saving page view', error, 'Analytics');
+    });
+  }
 }
 
 /**

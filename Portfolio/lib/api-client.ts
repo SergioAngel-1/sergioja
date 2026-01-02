@@ -134,6 +134,10 @@ export const api = {
 
   // Analytics
   getAnalytics: () => apiClient.get('/analytics/summary'),
+  savePageView: (data: { path: string; ipAddress?: string; userAgent?: string; referrer?: string }) => 
+    apiClient.post('/analytics/page-view', data),
+  saveProjectView: (data: { projectId: string; ipAddress?: string; userAgent?: string; referrer?: string }) => 
+    apiClient.post('/analytics/project-view', data),
 
   // Redirects
   getRedirect: (slug: string) => apiClient.getPublic(`/portfolio/redirects/${slug}`),

@@ -15,6 +15,7 @@ import { ModalProvider } from '@/lib/contexts/ModalContext';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
 import WebVitalsTracker from '@/components/WebVitalsTracker';
+import PageViewTracker from '@/components/PageViewTracker';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -134,6 +135,7 @@ export default function RootLayout({
           }))}
         </Script>
         <WebVitalsTracker />
+        <PageViewTracker />
         <LanguageProvider>
           <PerformanceProvider>
             <MatrixProvider>

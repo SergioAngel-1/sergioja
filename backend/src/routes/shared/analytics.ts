@@ -70,11 +70,34 @@ router.get('/page-views', authMiddleware, asyncHandler(async (req: Request, res:
 
   const total = await prisma.pageView.count({ where });
 
+  // Agrupar por path para estadísticas
+  const byPath = await prisma.pageView.groupBy({
+    by: ['path'],
+    where: timeRange && timeRange !== 'all' ? { createdAt: where.createdAt as any } : {},
+    _count: { path: true },
+    orderBy: { _count: { path: 'desc' } },
+  });
+
+  const stats = {
+    total,
+    byPath: Object.fromEntries(
+      byPath.map((p: any) => [p.path, p._count.path])
+    ),
+  };
+
   logger.info('Page views retrieved', { count: pageViews.length, total });
 
   res.json({
     success: true,
-    data: pageViews,
+    data: {
+      pageViews,
+      stats,
+      pagination: {
+        total,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+      },
+    },
   });
 }));
 
@@ -122,11 +145,34 @@ router.get('/project-views', authMiddleware, asyncHandler(async (req: Request, r
 
   const total = await prisma.projectView.count({ where });
 
+  // Agrupar por proyecto para estadísticas
+  const byProject = await prisma.projectView.groupBy({
+    by: ['projectId'],
+    where: timeRange && timeRange !== 'all' ? { createdAt: where.createdAt as any } : {},
+    _count: { projectId: true },
+    orderBy: { _count: { projectId: 'desc' } },
+  });
+
+  const stats = {
+    total,
+    byProject: Object.fromEntries(
+      byProject.map((p: any) => [p.projectId, p._count.projectId])
+    ),
+  };
+
   logger.info('Project views retrieved', { count: projectViews.length, total });
 
   res.json({
     success: true,
-    data: projectViews,
+    data: {
+      projectViews,
+      stats,
+      pagination: {
+        total,
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+      },
+    },
   });
 }));
 
@@ -221,6 +267,95 @@ router.get('/web-vitals', authMiddleware, asyncHandler(async (req: Request, res:
         offset: parseInt(offset as string),
       },
     },
+  });
+}));
+
+// POST /api/analytics/page-view - Guardar vista de página
+router.post('/page-view', asyncHandler(async (req: Request, res: Response) => {
+  const { path, ipAddress, userAgent, referrer } = req.body;
+
+  // Validar datos requeridos
+  if (!path) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'INVALID_REQUEST',
+        message: 'Missing required field: path',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // Log de la vista de página recibida
+  logger.info('Page view received', { path, ipAddress, userAgent });
+
+  // Guardar en base de datos
+  const pageView = await prisma.pageView.create({
+    data: {
+      path,
+      ipAddress: ipAddress || null,
+      userAgent: userAgent || null,
+      referrer: referrer || null,
+    },
+  });
+
+  res.json({
+    success: true,
+    data: pageView,
+    timestamp: new Date().toISOString(),
+  });
+}));
+
+// POST /api/analytics/project-view - Guardar vista de proyecto
+router.post('/project-view', asyncHandler(async (req: Request, res: Response) => {
+  const { projectId, ipAddress, userAgent, referrer } = req.body;
+
+  // Validar datos requeridos
+  if (!projectId) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'INVALID_REQUEST',
+        message: 'Missing required field: projectId',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // Verificar que el proyecto existe
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { id: true, title: true },
+  });
+
+  if (!project) {
+    return res.status(404).json({
+      success: false,
+      error: {
+        code: 'PROJECT_NOT_FOUND',
+        message: 'Project not found',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // Log de la vista de proyecto recibida
+  logger.info('Project view received', { projectId, projectTitle: project.title, ipAddress, userAgent });
+
+  // Guardar en base de datos
+  const projectView = await prisma.projectView.create({
+    data: {
+      projectId,
+      ipAddress: ipAddress || null,
+      userAgent: userAgent || null,
+      referrer: referrer || null,
+    },
+  });
+
+  res.json({
+    success: true,
+    data: projectView,
+    timestamp: new Date().toISOString(),
   });
 }));
 

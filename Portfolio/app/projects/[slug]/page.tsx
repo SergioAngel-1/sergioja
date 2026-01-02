@@ -20,6 +20,7 @@ import ProjectImageViewer from '@/components/molecules/ProjectImageViewer';
 import ProjectImageGallery from '@/components/molecules/ProjectImageGallery';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+import { useProjectView } from '@/shared/hooks/useProjectView';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -39,6 +40,9 @@ export default function ProjectDetailPage() {
   
   // Track scroll depth and time on page
   usePageAnalytics();
+  
+  // Track project view
+  useProjectView(project?.id, project?.slug);
 
   useEffect(() => {
     setMounted(true);

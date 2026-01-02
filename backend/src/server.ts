@@ -126,6 +126,8 @@ app.get('/health', healthResponse);
 
 // API Routes
 logger.info('Setting up routes...');
+// Shared routes (public analytics endpoints)
+app.use('/api/analytics', analyticsRoutes);
 // Admin routes
 app.use('/api/admin/auth', authRoutes);
 app.use('/api/admin/dashboard', dashboardRoutes);

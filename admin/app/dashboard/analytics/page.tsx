@@ -10,6 +10,8 @@ import Icon from '@/components/atoms/Icon';
 import Button from '@/components/atoms/Button';
 import StatCard from '@/components/molecules/StatCard';
 import TopSection from '@/components/molecules/TopSection';
+import Pagination from '@/components/atoms/Pagination';
+import Select from '@/components/molecules/Select';
 import { api } from '@/lib/api-client';
 import { logger } from '@/lib/logger';
 import { clamp, fluidSizing } from '@/lib/fluidSizing';
@@ -22,6 +24,9 @@ export default function AnalyticsPage() {
   const [projectViews, setProjectViews] = useState<ProjectView[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('30d');
+  const [selectedPath, setSelectedPath] = useState<string | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -38,17 +43,15 @@ export default function AnalyticsPage() {
       ]);
 
       if (pageViewsRes.success && pageViewsRes.data) {
-        const data = Array.isArray(pageViewsRes.data)
-          ? pageViewsRes.data
-          : (pageViewsRes.data as { pageViews?: PageView[] }).pageViews || [];
-        setPageViews(data);
+        // Handle new normalized structure
+        const data = (pageViewsRes.data as any).pageViews || pageViewsRes.data;
+        setPageViews(Array.isArray(data) ? data : []);
       }
 
       if (projectViewsRes.success && projectViewsRes.data) {
-        const data = Array.isArray(projectViewsRes.data)
-          ? projectViewsRes.data
-          : (projectViewsRes.data as { projectViews?: ProjectView[] }).projectViews || [];
-        setProjectViews(data);
+        // Handle new normalized structure
+        const data = (projectViewsRes.data as any).projectViews || projectViewsRes.data;
+        setProjectViews(Array.isArray(data) ? data : []);
       }
 
       logger.info('Analytics loaded successfully');
@@ -100,6 +103,30 @@ export default function AnalyticsPage() {
       .map(([path, count]) => ({ path, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
+  }, [pageViews]);
+
+  // Filtrar page views por path seleccionado
+  const filteredPageViews = useMemo(() => {
+    if (!selectedPath || selectedPath === 'all') return pageViews;
+    return pageViews.filter(view => view.path === selectedPath);
+  }, [pageViews, selectedPath]);
+
+  // Paginar page views
+  const totalPages = Math.ceil(filteredPageViews.length / itemsPerPage);
+  const paginatedPageViews = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredPageViews.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredPageViews, currentPage]);
+
+  // Reset página cuando cambia el filtro
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedPath, timeRange]);
+
+  // Obtener paths únicos para el filtro
+  const uniquePaths = useMemo(() => {
+    const paths = Array.from(new Set(pageViews.map(view => view.path)));
+    return paths.sort();
   }, [pageViews]);
 
   const topProjects = useMemo(() => {
@@ -159,6 +186,24 @@ export default function AnalyticsPage() {
           <div className="flex items-center justify-center" style={{ padding: `${fluidSizing.space['2xl']} 0` }}>
             <Loader size="lg" text="Cargando datos..." />
           </div>
+        ) : pageViews.length === 0 && projectViews.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg text-center"
+            style={{ padding: fluidSizing.space['2xl'] }}
+          >
+            <div style={{ marginBottom: fluidSizing.space.lg }}>
+              <Icon name="analytics" size={48} className="text-admin-primary/50 mx-auto" />
+            </div>
+            <h3 className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text.xl, marginBottom: fluidSizing.space.sm }}>
+              No hay datos de analytics
+            </h3>
+            <p className="text-text-muted" style={{ fontSize: fluidSizing.text.sm }}>
+              Las métricas aparecerán cuando los usuarios visiten el portfolio.
+            </p>
+          </motion.div>
         ) : (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
@@ -209,6 +254,109 @@ export default function AnalyticsPage() {
                 itemColor="#34d399"
               />
             </div>
+
+            {/* Filtro por path */}
+            {uniquePaths.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg"
+                style={{ padding: fluidSizing.space.lg }}
+              >
+                <div className="flex items-center justify-between flex-wrap" style={{ gap: fluidSizing.space.md }}>
+                  <div className="flex items-center" style={{ gap: fluidSizing.space.sm }}>
+                    <Icon name="filter" size={20} className="text-admin-primary" />
+                    <span className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text.base }}>
+                      Filtrar por página
+                    </span>
+                  </div>
+                  <div className="w-full sm:w-auto sm:min-w-[300px]">
+                    <Select
+                      value={selectedPath || 'all'}
+                      onChange={(value) => setSelectedPath(value === 'all' ? undefined : value)}
+                      options={[
+                        { value: 'all', label: `Todas las páginas (${pageViews.length})` },
+                        ...uniquePaths.map(path => ({
+                          value: path,
+                          label: `${path} (${pageViews.filter(v => v.path === path).length})`
+                        }))
+                      ]}
+                      placeholder="Seleccionar página..."
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Tabla de page views recientes */}
+            {paginatedPageViews.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.45 }}
+                className="bg-admin-dark-elevated border border-admin-primary/20 rounded-lg overflow-hidden"
+              >
+                <div className="flex items-center border-b border-admin-primary/20" style={{ padding: fluidSizing.space.lg, gap: fluidSizing.space.sm }}>
+                  <Icon name="eye" size={24} className="text-admin-primary" />
+                  <h3 className="font-orbitron font-bold text-admin-primary" style={{ fontSize: fluidSizing.text.lg }}>
+                    Vistas Recientes
+                  </h3>
+                  <span className="text-text-muted text-sm ml-auto">
+                    {filteredPageViews.length} registro{filteredPageViews.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-admin-dark-surface">
+                      <tr>
+                        <th className="text-left text-admin-primary font-orbitron text-xs uppercase tracking-wider" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
+                          Página
+                        </th>
+                        <th className="text-left text-admin-primary font-orbitron text-xs uppercase tracking-wider" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
+                          Fecha
+                        </th>
+                        <th className="text-left text-admin-primary font-orbitron text-xs uppercase tracking-wider" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
+                          Referrer
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedPageViews.map((view, index) => (
+                        <tr key={view.id} className="border-t border-admin-primary/10 hover:bg-admin-dark-surface/50 transition-colors">
+                          <td className="text-text-primary font-mono text-sm" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
+                            {view.path}
+                          </td>
+                          <td className="text-text-muted text-sm" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
+                            {new Date(view.createdAt).toLocaleString('es-ES', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </td>
+                          <td className="text-text-muted text-xs truncate max-w-xs" style={{ padding: `${fluidSizing.space.md} ${fluidSizing.space.lg}` }}>
+                            {view.referrer || '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Paginación */}
+            {filteredPageViews.length > itemsPerPage && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredPageViews.length}
+              />
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
