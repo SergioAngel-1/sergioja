@@ -31,12 +31,14 @@ interface MultiImageUploaderProps {
   images: string[];
   onChange: (images: string[]) => void;
   maxImages?: number;
+  variant?: 'desktop' | 'mobile';
 }
 
 export default function MultiImageUploader({
   images,
   onChange,
   maxImages = 5,
+  variant = 'desktop',
 }: MultiImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -132,14 +134,28 @@ export default function MultiImageUploader({
 
   const canAddMore = images.length < maxImages;
 
+  const aspectRatioClass = variant === 'mobile' ? 'aspect-[9/16]' : 'aspect-video';
+  const recommendedDimensions = variant === 'mobile' 
+    ? '1080x1920px (9:16 - Vertical)'
+    : '1920x1080px (16:9 - Horizontal)';
+
   return (
     <div>
-      <label 
-        className="block text-text-muted font-medium uppercase tracking-wider" 
-        style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}
-      >
-        Imágenes del Proyecto ({images.length}/{maxImages})
-      </label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: fluidSizing.space.xs }}>
+        <label 
+          className="block text-text-muted font-medium uppercase tracking-wider" 
+          style={{ fontSize: fluidSizing.text.xs }}
+        >
+          Imágenes {variant === 'mobile' ? 'Mobile' : 'Desktop'} ({images.length}/{maxImages})
+        </label>
+        <span 
+          className="text-admin-primary font-mono" 
+          style={{ fontSize: fluidSizing.text.xs }}
+          title="Dimensiones recomendadas"
+        >
+          {recommendedDimensions}
+        </span>
+      </div>
 
       {/* Grid de imágenes */}
       <div 
@@ -149,7 +165,7 @@ export default function MultiImageUploader({
         {images.map((img, index) => (
           <div
             key={index}
-            className="relative aspect-video bg-admin-dark-surface border border-admin-primary/20 rounded-lg overflow-hidden group"
+            className={`relative ${aspectRatioClass} bg-admin-dark-surface border border-admin-primary/20 rounded-lg overflow-hidden group`}
           >
             <img
               src={img}
@@ -178,7 +194,7 @@ export default function MultiImageUploader({
         {/* Botón para agregar más imágenes */}
         {canAddMore && (
           <label
-            className={`aspect-video bg-admin-dark-surface border-2 border-dashed rounded-lg cursor-pointer transition-all duration-200 flex flex-col items-center justify-center ${
+            className={`${aspectRatioClass} bg-admin-dark-surface border-2 border-dashed rounded-lg cursor-pointer transition-all duration-200 flex flex-col items-center justify-center ${
               isDragging
                 ? 'border-admin-primary bg-admin-primary/10'
                 : 'border-admin-primary/30 hover:border-admin-primary/50 hover:bg-admin-primary/5'

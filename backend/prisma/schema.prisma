@@ -43,7 +43,8 @@ model Project {
   title           String
   longDescriptionEs String?  @db.Text
   longDescriptionEn String?  @db.Text
-  images          String[]  @default([]) // Múltiples imágenes del proyecto
+  imagesDesktop   String[]  @default([]) // Imágenes optimizadas para desktop (16:9)
+  imagesMobile    String[]  @default([]) // Imágenes optimizadas para mobile (9:16)
   categories      String[]  @default([]) // web, mobile, ai, backend, fullstack - múltiples categorías
   status          ProjectStatus @default(DRAFT)
   isFeatured      Boolean   @default(false)

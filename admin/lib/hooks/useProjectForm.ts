@@ -27,7 +27,8 @@ interface ProjectFormData {
   publishedAt: string | null;
   repositoryUrl?: string;
   liveUrl?: string;
-  images: string[];
+  imagesDesktop?: string[];
+  imagesMobile?: string[];
   isCodePublic?: boolean;
   performanceScore: number | null;
   accessibilityScore: number | null;
@@ -58,7 +59,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     publishedAt: null,
     repositoryUrl: '',
     liveUrl: '',
-    images: [],
+    imagesDesktop: [],
+    imagesMobile: [],
     isCodePublic: true,
     performanceScore: null,
     accessibilityScore: null,
@@ -139,7 +141,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         status: project.status || (project.publishedAt ? 'PUBLISHED' : 'DRAFT'),
         repositoryUrl: project.repoUrl || project.repositoryUrl || '',
         liveUrl: project.demoUrl || project.liveUrl || '',
-        images: Array.isArray(project.images) ? project.images : [],
+        imagesDesktop: Array.isArray(project.imagesDesktop) ? project.imagesDesktop : [],
+        imagesMobile: Array.isArray(project.imagesMobile) ? project.imagesMobile : [],
         isCodePublic: project.isCodePublic !== undefined ? project.isCodePublic : true,
         publishedAt: project.publishedAt || null,
         performanceScore: project.performanceScore ?? null,
@@ -161,7 +164,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         publishedAt: null,
         repositoryUrl: '',
         liveUrl: '',
-        images: [],
+        imagesDesktop: [],
+        imagesMobile: [],
         isCodePublic: true,
         performanceScore: null,
         accessibilityScore: null,
@@ -251,7 +255,8 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       repoUrl: formData.repositoryUrl,
       liveUrl: formData.liveUrl,
       demoUrl: formData.liveUrl,
-      images: formData.images,
+      imagesDesktop: formData.imagesDesktop || [],
+      imagesMobile: formData.imagesMobile || [],
       isCodePublic: formData.isCodePublic,
       performanceScore: formData.performanceScore,
       accessibilityScore: formData.accessibilityScore,

@@ -9,7 +9,7 @@ import ProjectBasicFields from './ProjectBasicFields';
 import ProjectUrlFields from './ProjectUrlFields';
 import ProjectToggles from './ProjectToggles';
 import ProjectScoresFields from './ProjectScoresFields';
-import MultiImageUploader from './MultiImageUploader';
+import ImageUploadTabs from './ImageUploadTabs';
 import CategoryManagementModal from './CategoryManagementModal';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
@@ -29,6 +29,8 @@ interface ProjectFormData {
   liveUrl?: string;
   imageUrl?: string;
   isCodePublic?: boolean;
+  imagesDesktop?: string[];
+  imagesMobile?: string[];
 }
 
 interface Skill {
@@ -183,11 +185,12 @@ export default function ProjectFormModal({
             onManualModeChange={setIsManualSlugMode}
           />
 
-          {/* Multi Image Upload */}
-          <MultiImageUploader
-            images={formData.images}
-            onChange={(images) => updateFormData({ images })}
-            maxImages={5}
+          {/* Multi Image Upload - Desktop & Mobile */}
+          <ImageUploadTabs
+            desktopImages={formData.imagesDesktop || []}
+            mobileImages={formData.imagesMobile || []}
+            onDesktopChange={(images) => updateFormData({ imagesDesktop: images })}
+            onMobileChange={(images) => updateFormData({ imagesMobile: images })}
           />
 
           {/* Categories */}
