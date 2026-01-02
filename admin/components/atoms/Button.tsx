@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, ReactNode, forwardRef } from 'react';
+import { ButtonHTMLAttributes, ReactNode, forwardRef, memo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { fluidSizing } from '@/lib/fluidSizing';
@@ -59,6 +59,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       ref={ref}
       whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
       whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
       className={cn(
         baseStyles,
         variants[variant],
@@ -68,6 +69,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       )}
       style={{
         ...sizeStyles[size],
+        willChange: 'transform',
         ...(props.style || {}),
       }}
       disabled={disabled || isLoading}
@@ -100,4 +102,4 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
 
 Button.displayName = 'Button';
 
-export default Button;
+export default memo(Button);

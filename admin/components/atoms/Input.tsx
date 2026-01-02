@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { InputHTMLAttributes, forwardRef, memo } from 'react';
 import { cn } from '@/lib/utils';
 import { fluidSizing } from '@/lib/fluidSizing';
 
@@ -117,4 +117,4 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
 Input.displayName = 'Input';
 
-export default Input;
+export default memo(Input);
