@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { alerts } from '@/lib/alerts';
 import { clamp, fluidSizing } from '@/lib/fluidSizing';
-import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/lib/recaptcha';
+import { getReCaptchaToken, loadRecaptchaEnterprise, RECAPTCHA_ACTIONS } from '@/lib/recaptcha';
 import { trackLoginSuccess, trackLoginFailed, trackLoginError } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 import { logger } from '@/lib/logger';
@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [recaptchaReady, setRecaptchaReady] = useState(false);
   
   // Track scroll depth and time on page
   usePageAnalytics();
@@ -34,32 +35,57 @@ export default function LoginPage() {
     if (process.env.NODE_ENV === 'production') {
       const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
       if (siteKey) {
-        loadRecaptchaEnterprise(siteKey).catch(() => {
-          // Silenciar error; en desarrollo puede no cargar
-        });
+        loadRecaptchaEnterprise(siteKey)
+          .then(() => {
+            setRecaptchaReady(true);
+            logger.info('reCAPTCHA Enterprise loaded successfully');
+          })
+          .catch((error) => {
+            logger.error('Failed to load reCAPTCHA Enterprise', error);
+            setRecaptchaReady(false);
+          });
+      } else {
+        setRecaptchaReady(false);
       }
+    } else {
+      // En desarrollo, no necesita reCAPTCHA
+      setRecaptchaReady(true);
     }
 
     // Cleanup: remover badge de reCAPTCHA al desmontar componente
     return () => {
-      const badge = document.querySelector('.grecaptcha-badge');
-      if (badge) {
-        badge.remove();
+      try {
+        const badge = document.querySelector('.grecaptcha-badge');
+        if (badge && badge.parentNode) {
+          badge.parentNode.removeChild(badge);
+        }
+      } catch (error) {
+        // Silenciar errores de cleanup
       }
     };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validación temprana
+    if (!email.trim() || !password.trim()) {
+      alerts.error('Error de validación', 'Email y contraseña son requeridos');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       // Obtener token de reCAPTCHA Enterprise en producción
       let recaptchaToken: string | undefined = undefined;
-      if (process.env.NODE_ENV === 'production') {
+      if (process.env.NODE_ENV === 'production' && recaptchaReady) {
         const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
         if (siteKey) {
-          recaptchaToken = await getReCaptchaToken(siteKey, 'admin_login') || undefined;
+          recaptchaToken = await getReCaptchaToken(siteKey, RECAPTCHA_ACTIONS.ADMIN_LOGIN) || undefined;
+          if (!recaptchaToken) {
+            logger.warn('Failed to obtain reCAPTCHA token, proceeding without it');
+          }
         }
       }
 
@@ -68,7 +94,7 @@ export default function LoginPage() {
         email,
         password,
         recaptchaToken,
-        recaptchaToken ? 'admin_login' : undefined
+        recaptchaToken ? RECAPTCHA_ACTIONS.ADMIN_LOGIN : undefined
       );
       
       if (success) {

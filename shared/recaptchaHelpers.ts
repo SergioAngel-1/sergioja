@@ -134,7 +134,7 @@ export async function loadRecaptchaEnterprise(siteKey: string, timeoutMs: number
 export const RECAPTCHA_ACTIONS = {
   SUBMIT_CONTACT: 'submit_contact',
   SUBSCRIBE_NEWSLETTER: 'subscribe_newsletter',
-  LOGIN: 'login',
+  ADMIN_LOGIN: 'admin_login',
   SIGNUP: 'signup',
 } as const;
 
