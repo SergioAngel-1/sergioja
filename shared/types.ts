@@ -52,8 +52,9 @@ export interface Project {
   title: string;
   longDescriptionEs?: string | null;
   longDescriptionEn?: string | null;
-  image?: string; // Primera imagen (para compatibilidad - calculada desde images[0])
-  images?: string[]; // Array de imágenes del proyecto (campo real en DB)
+  thumbnailImage?: string | null; // Imagen principal para tarjeta de proyecto (16:9)
+  imagesDesktop?: string[]; // Imágenes optimizadas para desktop (16:9)
+  imagesMobile?: string[]; // Imágenes optimizadas para mobile (9:16)
   categories: string[]; // Array de categorías (web, mobile, ai, backend, fullstack)
   categoryLabels?: Record<string, string>; // Mapeo de category name -> label amigable
   status: ProjectStatus;

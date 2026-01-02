@@ -375,7 +375,7 @@ function ProjectsPageContent() {
                 longDescriptionEs={project.longDescriptionEs}
                 longDescriptionEn={project.longDescriptionEn}
                 category={project.categories[0] || 'web'}
-                image={project.images && project.images.length > 0 ? project.images[0] : undefined}
+                thumbnailImage={project.thumbnailImage}
                 isFeatured={project.isFeatured}
                 status={project.status}
                 demoUrl={project.demoUrl}

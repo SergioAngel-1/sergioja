@@ -15,7 +15,8 @@ import ProjectMetrics from '@/components/molecules/ProjectMetrics';
 import ProjectInfo from '@/components/molecules/ProjectInfo';
 import ProjectActions from '@/components/molecules/ProjectActions';
 import RelatedProjects from '@/components/molecules/RelatedProjects';
-import ProjectPreviewViewer from '@/components/molecules/ProjectPreviewViewer';
+import ProjectDemoViewer from '@/components/molecules/ProjectDemoViewer';
+import ProjectImageViewer from '@/components/molecules/ProjectImageViewer';
 import ProjectImageGallery from '@/components/molecules/ProjectImageGallery';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
@@ -32,6 +33,7 @@ export default function ProjectDetailPage() {
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'demo' | 'image'>('demo');
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [selectedGalleryType, setSelectedGalleryType] = useState<'desktop' | 'mobile'>('desktop');
   const [initialLowModeSet, setInitialLowModeSet] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   
@@ -58,7 +60,7 @@ export default function ProjectDetailPage() {
 
   // Auto-select first image in low performance mode if images are available
   useEffect(() => {
-    if (lowPerformanceMode && project?.images && project.images.length > 0 && !initialLowModeSet) {
+    if (lowPerformanceMode && project?.imagesDesktop && project.imagesDesktop.length > 0 && !initialLowModeSet) {
       setSelectedImageIndex(0);
       setViewMode('image');
       setInitialLowModeSet(true);
@@ -177,27 +179,117 @@ export default function ProjectDetailPage() {
                 {t('projects.preview')}
               </h2>
               
+              {/* Back to demo button and tabs */}
+              {viewMode === 'image' && (
+                <div className="flex items-center justify-between mb-4">
+                  {/* Back to demo button */}
+                  {project.demoUrl && (
+                    <motion.button
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={() => {
+                        setViewMode('demo');
+                        setSelectedImageIndex(null);
+                      }}
+                      className="flex items-center text-white/70 hover:text-white transition-colors font-mono"
+                      style={{ gap: fluidSizing.space.sm, fontSize: fluidSizing.text.sm }}
+                    >
+                      <svg style={{ width: fluidSizing.size.iconSm, height: fluidSizing.size.iconSm }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                      </svg>
+                      {t('projects.backToDemo')}
+                    </motion.button>
+                  )}
+
+                  {/* Desktop/Mobile Tabs */}
+                  {((project.imagesDesktop && project.imagesDesktop.length > 0) && (project.imagesMobile && project.imagesMobile.length > 0)) && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="inline-flex bg-background-elevated/50 backdrop-blur-sm border border-white/20 rounded-lg p-1"
+                    >
+                      <button
+                        onClick={() => {
+                          const newImages = project.imagesDesktop;
+                          if (newImages && newImages.length > 0) {
+                            setSelectedGalleryType('desktop');
+                            setSelectedImageIndex(0);
+                            log.interaction('switch_gallery_type', `${project.slug}-desktop`);
+                          }
+                        }}
+                        className={`px-4 py-2 rounded-md font-mono text-sm transition-all duration-200 ${
+                          selectedGalleryType === 'desktop'
+                            ? 'bg-white text-background-dark shadow-lg'
+                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                        }`}
+                        style={{ fontSize: fluidSizing.text.sm }}
+                      >
+                        Desktop
+                      </button>
+                      <button
+                        onClick={() => {
+                          const newImages = project.imagesMobile;
+                          if (newImages && newImages.length > 0) {
+                            setSelectedGalleryType('mobile');
+                            setSelectedImageIndex(0);
+                            log.interaction('switch_gallery_type', `${project.slug}-mobile`);
+                          }
+                        }}
+                        className={`px-4 py-2 rounded-md font-mono text-sm transition-all duration-200 ${
+                          selectedGalleryType === 'mobile'
+                            ? 'bg-white text-background-dark shadow-lg'
+                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                        }`}
+                        style={{ fontSize: fluidSizing.text.sm }}
+                      >
+                        Mobile
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+
               {/* Vista previa - Full width */}
               <div className="flex-1" style={{ minHeight: '500px' }}>
-                <ProjectPreviewViewer
-                  demoUrl={project.demoUrl}
-                  images={project.images}
-                  title={project.title}
-                  lowPerformanceMode={lowPerformanceMode}
-                  viewMode={viewMode}
-                  selectedImageIndex={selectedImageIndex}
-                  onBackToDemo={() => {
-                    setViewMode('demo');
-                    setSelectedImageIndex(null);
-                  }}
-                />
+                {viewMode === 'demo' ? (
+                  <ProjectDemoViewer
+                    demoUrl={project.demoUrl}
+                    title={project.title}
+                    lowPerformanceMode={lowPerformanceMode}
+                    hasGallery={((project.imagesDesktop && project.imagesDesktop.length > 0) || (project.imagesMobile && project.imagesMobile.length > 0))}
+                    onViewGallery={() => {
+                      const firstGalleryType = (project.imagesDesktop && project.imagesDesktop.length > 0) ? 'desktop' : 'mobile';
+                      const firstImages = firstGalleryType === 'desktop' ? project.imagesDesktop : project.imagesMobile;
+                      if (firstImages && firstImages.length > 0) {
+                        setSelectedGalleryType(firstGalleryType);
+                        setSelectedImageIndex(0);
+                        setViewMode('image');
+                        log.interaction('view_gallery_from_demo', `${project.slug}-${firstGalleryType}`);
+                      }
+                    }}
+                  />
+                ) : (
+                  <ProjectImageViewer
+                    images={selectedGalleryType === 'mobile' ? (project.imagesMobile || []) : (project.imagesDesktop || [])}
+                    selectedImageIndex={selectedImageIndex}
+                    galleryType={selectedGalleryType}
+                    title={project.title}
+                    onNavigate={(newIndex) => {
+                      setSelectedImageIndex(newIndex);
+                      log.interaction('navigate_project_image', `${project.slug}-${selectedGalleryType}-${newIndex}`);
+                    }}
+                  />
+                )}
               </div>
             </motion.div>
           </div>
         </div>
 
         {/* Project Gallery - New Section */}
-        {project.images && project.images.length > 0 && (
+        {((project.imagesDesktop && project.imagesDesktop.length > 0) || (project.imagesMobile && project.imagesMobile.length > 0)) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -211,60 +303,25 @@ export default function ProjectDetailPage() {
               {t('projects.galleryTitle') || 'Galería del Proyecto'}
             </h2>
 
-            {/* Gallery Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
-              {project.images.map((image, index) => (
-                <motion.button
-                  key={index}
-                  onClick={() => {
-                    setSelectedImageIndex(index);
-                    setViewMode('image');
-                    log.interaction('view_project_image', `${project.slug}-${index}`);
-                    
-                    // Scroll to preview section
-                    setTimeout(() => {
-                      previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                  }}
-                  className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all duration-300 ${
-                    selectedImageIndex === index && viewMode === 'image'
-                      ? 'border-white'
-                      : 'border-white/20 hover:border-white/50'
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.1 + index * 0.05 }}
-                >
-                  <Image
-                    src={image}
-                    alt={`${project.title} - Image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                    loading={index === 0 ? undefined : "lazy"}
-                    priority={index === 0}
-                  />
-                  <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors" />
-                  <div 
-                    className="absolute bg-black/70 backdrop-blur-sm text-white rounded font-mono"
-                    style={{
-                      bottom: fluidSizing.space.xs,
-                      right: fluidSizing.space.xs,
-                      padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
-                      fontSize: fluidSizing.text.xs,
-                    }}
-                  >
-                    {index + 1}
-                  </div>
-                </motion.button>
-              ))}
-            </div>
-
-            {/* Corner Accents */}
-            <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white opacity-50" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
-            <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white opacity-50" style={{ width: fluidSizing.space.sm, height: fluidSizing.space.sm }} />
+            {/* Gallery Component */}
+            <ProjectImageGallery
+              desktopImages={project.imagesDesktop || []}
+              mobileImages={project.imagesMobile || []}
+              selectedImageIndex={selectedImageIndex}
+              selectedGalleryType={selectedGalleryType}
+              onImageSelect={(index: number, galleryType: 'desktop' | 'mobile') => {
+                setSelectedImageIndex(index);
+                setSelectedGalleryType(galleryType);
+                setViewMode('image');
+                log.interaction('view_project_image', `${project.slug}-${galleryType}-${index}`);
+                
+                // Scroll to preview section
+                setTimeout(() => {
+                  previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+              }}
+              projectTitle={project.title}
+            />
           </motion.div>
         )}
 

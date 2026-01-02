@@ -12,7 +12,7 @@ interface ProjectCardProps {
   longDescriptionEs?: string | null;
   longDescriptionEn?: string | null;
   category?: string;
-  image?: string | null;
+  thumbnailImage?: string | null;
   isFeatured: boolean;
   status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
   demoUrl?: string | null;
@@ -29,7 +29,7 @@ export default function ProjectCard({
   longDescriptionEs,
   longDescriptionEn,
   category,
-  image,
+  thumbnailImage,
   isFeatured,
   status,
   demoUrl,
@@ -75,12 +75,12 @@ export default function ProjectCard({
           className="relative flex-shrink-0 bg-admin-dark-surface rounded-lg overflow-hidden w-full sm:w-auto"
           style={{ width: '120px', height: '80px' }}
         >
-          {image ? (
+          {thumbnailImage ? (
             <Image
-              src={image}
+              src={thumbnailImage}
               alt={title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover"
               sizes="120px"
             />
           ) : (

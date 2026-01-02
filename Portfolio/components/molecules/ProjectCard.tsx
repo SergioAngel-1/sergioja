@@ -77,12 +77,12 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
 
           {/* Image/Screenshot Section */}
           <div className="relative w-full aspect-video bg-background-elevated overflow-hidden">
-            {project.images?.[0] && !imageError ? (
+            {project.thumbnailImage && !imageError ? (
               <Image
-                src={project.images[0]}
+                src={project.thumbnailImage}
                 alt={project.title}
                 fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                className="object-cover"
                 onError={() => setImageError(true)}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />

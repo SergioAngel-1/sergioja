@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       p.longDescriptionEs || p.longDescriptionEn || defaultSEO.description
     );
     const canonical = `${baseUrl}/projects/${p.slug}`;
-    const image = p.image ? normalizeUrl(p.image, baseUrl) : `${baseUrl}/media/logo-sergioja.png`;
+    const image = p.thumbnailImage ? normalizeUrl(p.thumbnailImage, baseUrl) : `${baseUrl}/media/logo-sergioja.png`;
 
     const config = mergeMetadata(defaultSEO, {
       title: p.title,
@@ -111,7 +111,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
 
   if (p) {
     const canonical = `${baseUrl}/projects/${p.slug}`;
-    const image = p.image ? normalizeUrl(p.image, baseUrl) : `${baseUrl}/media/logo-sergioja.png`;
+    const image = p.thumbnailImage ? normalizeUrl(p.thumbnailImage, baseUrl) : `${baseUrl}/media/logo-sergioja.png`;
     const breadcrumb = generateBreadcrumbSchema([
       { name: siteConfig.name, url: siteConfig.url },
       { name: 'Proyectos', url: `${baseUrl}/projects` },

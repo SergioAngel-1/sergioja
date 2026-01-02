@@ -22,7 +22,7 @@ export default function ProjectImageGalleryMobile({
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto overflow-x-visible custom-scrollbar p-2" style={{ gap: fluidSizing.space.sm }}>
+    <div className="flex flex-row overflow-x-auto overflow-y-hidden custom-scrollbar" style={{ gap: fluidSizing.space.md, padding: '8px' }}>
       {images.map((image, index) => {
         const isSelected = selectedImageIndex !== null && selectedImageIndex === index;
         return (
@@ -34,10 +34,11 @@ export default function ProjectImageGalleryMobile({
                 ? 'border-white'
                 : 'border-white/20 hover:border-white/50'
             }`}
+            style={{ width: '180px', height: '320px' }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
           >
             <Image
@@ -45,7 +46,7 @@ export default function ProjectImageGalleryMobile({
               alt={`${projectTitle} - Imagen Mobile ${index + 1}`}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 15vw"
+              sizes="180px"
             />
             <div 
               className="absolute bg-black/50 backdrop-blur-sm text-white rounded"
