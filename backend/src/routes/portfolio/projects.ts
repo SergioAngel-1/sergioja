@@ -217,6 +217,25 @@ router.get('/:slug', asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
+  // Obtener labels de las categorías desde ProjectCategory
+  const categoryLabels: Record<string, string> = {};
+  if (project.categories && project.categories.length > 0) {
+    const projectCategories = await prisma.projectCategory.findMany({
+      where: {
+        name: { in: project.categories },
+        active: true,
+      },
+      select: {
+        name: true,
+        label: true,
+      },
+    });
+    
+    projectCategories.forEach((cat: { name: string; label: string }) => {
+      categoryLabels[cat.name] = cat.label;
+    });
+  }
+
   // Transform to match frontend interface
   const transformedProject: Project = {
     id: project.id,
@@ -226,6 +245,7 @@ router.get('/:slug', asyncHandler(async (req: Request, res: Response) => {
     longDescriptionEn: project.longDescriptionEn ?? null,
     images: project.images || [],
     categories: project.categories || [],
+    categoryLabels: categoryLabels, // Agregar labels de categorías
     status: project.status,
     isFeatured: project.isFeatured,
     demoUrl: project.demoUrl || undefined,

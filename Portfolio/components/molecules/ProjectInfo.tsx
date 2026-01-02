@@ -15,24 +15,36 @@ interface ProjectInfoProps {
 export default function ProjectInfo({ project }: ProjectInfoProps) {
   const { t } = useLanguage();
   
-  // Función para truncar texto
-  const truncateText = (text: string, maxLength: number = 50) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+  // Obtener label de categoría desde el backend o usar el ID como fallback
+  const getCategoryDisplayName = (category: string) => {
+    return project.categoryLabels?.[category] || category.replace(/_/g, ' ');
   };
-
-  const categoriesText = project.categories?.join(', ').toUpperCase() || 'N/A';
-  const isCategoriesTruncated = categoriesText.length > 50;
   
   const infoItems: { label: string; value: ReactNode; icon: ReactNode }[] = [
     {
       label: t('projects.category'),
-      value: isCategoriesTruncated ? (
-        <Tooltip content={categoriesText} position="bottom" maxWidth="400px">
-          <span className="cursor-help">{truncateText(categoriesText, 50)}</span>
-        </Tooltip>
-      ) : (
-        categoriesText
+      value: (
+        <div className="flex items-center justify-end flex-wrap" style={{ gap: fluidSizing.space.xs }}>
+          {project.categories && project.categories.length > 0 ? (
+            project.categories.slice(0, 6).map((category, index) => {
+              const displayName = getCategoryDisplayName(category);
+              return (
+                <span key={index} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors">
+                  {displayName}
+                </span>
+              );
+            })
+          ) : (
+            <span className="text-white/60">N/A</span>
+          )}
+          {project.categories && project.categories.length > 6 && (
+            <Tooltip content={project.categories.slice(6).map(c => getCategoryDisplayName(c)).join(', ')} position="top" maxWidth="300px">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/10 border border-white/20 text-white cursor-help hover:bg-white/20 transition-colors">
+                +{project.categories.length - 6}
+              </span>
+            </Tooltip>
+          )}
+        </div>
       ),
       icon: (
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

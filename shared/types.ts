@@ -55,6 +55,7 @@ export interface Project {
   image?: string; // Primera imagen (para compatibilidad - calculada desde images[0])
   images?: string[]; // Array de imágenes del proyecto (campo real en DB)
   categories: string[]; // Array de categorías (web, mobile, ai, backend, fullstack)
+  categoryLabels?: Record<string, string>; // Mapeo de category name -> label amigable
   status: ProjectStatus;
   isFeatured: boolean;
   demoUrl?: string;
