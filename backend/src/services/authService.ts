@@ -156,7 +156,7 @@ export async function refreshAccessToken(
 
     // Verificar que el refresh token existe en la base de datos y no ha sido revocado
     const tokenHash = hashToken(refreshToken);
-    let storedToken = await prisma.refreshToken.findFirst({
+    const storedToken = await prisma.refreshToken.findFirst({
       where: {
         token: tokenHash,
         userId: payload.userId,
@@ -166,20 +166,6 @@ export async function refreshAccessToken(
         },
       },
     });
-
-    // Compatibilidad hacia atrás: buscar tokens antiguos sin hash
-    if (!storedToken) {
-      storedToken = await prisma.refreshToken.findFirst({
-        where: {
-          token: refreshToken,
-          userId: payload.userId,
-          revokedAt: null,
-          expiresAt: {
-            gt: new Date(),
-          },
-        },
-      });
-    }
 
     if (!storedToken) {
       logger.warn('Refresh token not found or revoked', { userId: payload.userId });
@@ -240,12 +226,11 @@ export async function refreshAccessToken(
  */
 export async function revokeRefreshToken(refreshToken: string): Promise<boolean> {
   try {
+    const tokenHash = hashToken(refreshToken);
     const result = await prisma.refreshToken.updateMany({
       where: {
-        OR: [
-          { token: hashToken(refreshToken), revokedAt: null },
-          { token: refreshToken, revokedAt: null },
-        ],
+        token: tokenHash,
+        revokedAt: null,
       },
       data: {
         revokedAt: new Date(),
