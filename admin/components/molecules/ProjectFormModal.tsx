@@ -10,6 +10,7 @@ import ProjectUrlFields from './ProjectUrlFields';
 import ProjectToggles from './ProjectToggles';
 import ProjectScoresFields from './ProjectScoresFields';
 import ImageUploadTabs from './ImageUploadTabs';
+import SingleImageUploader from './SingleImageUploader';
 import CategoryManagementModal from './CategoryManagementModal';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
@@ -183,6 +184,14 @@ export default function ProjectFormModal({
             onLongDescriptionEsChange={(longDescriptionEs) => updateFormData({ longDescriptionEs })}
             onLongDescriptionEnChange={(longDescriptionEn) => updateFormData({ longDescriptionEn })}
             onManualModeChange={setIsManualSlugMode}
+          />
+
+          {/* Thumbnail Image */}
+          <SingleImageUploader
+            image={formData.thumbnailImage || ''}
+            onChange={(image) => updateFormData({ thumbnailImage: image })}
+            label="Imagen Principal (Thumbnail)"
+            recommendedDimensions="1920x1080px (16:9 - Horizontal)"
           />
 
           {/* Multi Image Upload - Desktop & Mobile */}

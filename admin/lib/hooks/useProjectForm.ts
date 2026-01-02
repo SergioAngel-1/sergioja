@@ -27,6 +27,7 @@ interface ProjectFormData {
   publishedAt: string | null;
   repositoryUrl?: string;
   liveUrl?: string;
+  thumbnailImage?: string;
   imagesDesktop?: string[];
   imagesMobile?: string[];
   isCodePublic?: boolean;
@@ -59,6 +60,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     publishedAt: null,
     repositoryUrl: '',
     liveUrl: '',
+    thumbnailImage: '',
     imagesDesktop: [],
     imagesMobile: [],
     isCodePublic: true,
@@ -141,6 +143,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         status: project.status || (project.publishedAt ? 'PUBLISHED' : 'DRAFT'),
         repositoryUrl: project.repoUrl || project.repositoryUrl || '',
         liveUrl: project.demoUrl || project.liveUrl || '',
+        thumbnailImage: project.thumbnailImage || '',
         imagesDesktop: Array.isArray(project.imagesDesktop) ? project.imagesDesktop : [],
         imagesMobile: Array.isArray(project.imagesMobile) ? project.imagesMobile : [],
         isCodePublic: project.isCodePublic !== undefined ? project.isCodePublic : true,
@@ -164,6 +167,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         publishedAt: null,
         repositoryUrl: '',
         liveUrl: '',
+        thumbnailImage: '',
         imagesDesktop: [],
         imagesMobile: [],
         isCodePublic: true,
@@ -255,6 +259,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       repoUrl: formData.repositoryUrl,
       liveUrl: formData.liveUrl,
       demoUrl: formData.liveUrl,
+      thumbnailImage: formData.thumbnailImage || '',
       imagesDesktop: formData.imagesDesktop || [],
       imagesMobile: formData.imagesMobile || [],
       isCodePublic: formData.isCodePublic,

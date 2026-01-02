@@ -43,6 +43,7 @@ model Project {
   title           String
   longDescriptionEs String?  @db.Text
   longDescriptionEn String?  @db.Text
+  thumbnailImage  String?   // Imagen principal para tarjeta de proyecto (16:9)
   imagesDesktop   String[]  @default([]) // Imágenes optimizadas para desktop (16:9)
   imagesMobile    String[]  @default([]) // Imágenes optimizadas para mobile (9:16)
   categories      String[]  @default([]) // web, mobile, ai, backend, fullstack - múltiples categorías
