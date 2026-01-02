@@ -26,6 +26,7 @@ interface TechnologyManagerProps {
   categories: Category[];
   onChange: (technologies: TechnologyFormData[]) => void;
   label?: string;
+  onCreateCategory?: () => void;
 }
 
 export default function TechnologyManager({
@@ -34,6 +35,7 @@ export default function TechnologyManager({
   categories,
   onChange,
   label = 'Tecnologías',
+  onCreateCategory,
 }: TechnologyManagerProps) {
   const [techInput, setTechInput] = useState('');
   const [showTechForm, setShowTechForm] = useState(false);
@@ -134,39 +136,42 @@ export default function TechnologyManager({
 
   return (
     <div>
-      <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
-        {label}
-      </label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: fluidSizing.space.sm }}>
+        <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs }}>
+          {label}
+        </label>
+        {onCreateCategory && (
+          <button
+            type="button"
+            onClick={onCreateCategory}
+            className="bg-admin-primary/20 hover:bg-admin-primary/30 text-admin-primary rounded-lg transition-all duration-200 flex items-center justify-center"
+            style={{ padding: fluidSizing.space.sm, minWidth: fluidSizing.size.buttonMd }}
+            title="Crear nueva categoría de tecnología"
+          >
+            <Icon name="plus" size={20} />
+          </button>
+        )}
+      </div>
       
       {!showTechForm ? (
         <>
           <div className="relative">
-            <div className="flex" style={{ gap: fluidSizing.space.sm }}>
-              <input
-                type="text"
-                value={techInput}
-                onChange={(e) => setTechInput(e.target.value)}
-                onFocus={() => {
-                  // Mostrar sugerencias si hay disponibles, incluso con input vacío
-                  if (filteredSuggestions.length > 0) {
-                    setShowSuggestions(true);
-                  }
-                }}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
-                className="flex-1 bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
-                style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
-                placeholder="Buscar o agregar tecnología..."
-              />
-              <button
-                type="button"
-                onClick={handleAddTechnology}
-                className="bg-admin-primary/20 hover:bg-admin-primary/30 text-admin-primary rounded-lg transition-all duration-200 flex items-center justify-center"
-                style={{ padding: fluidSizing.space.sm, minWidth: fluidSizing.size.buttonMd }}
-              >
-                <Icon name="plus" size={20} />
-              </button>
-            </div>
+            <input
+              type="text"
+              value={techInput}
+              onChange={(e) => setTechInput(e.target.value)}
+              onFocus={() => {
+                // Mostrar sugerencias si hay disponibles, incluso con input vacío
+                if (filteredSuggestions.length > 0) {
+                  setShowSuggestions(true);
+                }
+              }}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
+              className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-admin-primary/50 focus:ring-2 focus:ring-admin-primary/20 transition-all duration-200"
+              style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.base }}
+              placeholder="Buscar o agregar tecnología..."
+            />
             
             {/* Suggestions Dropdown */}
             {showSuggestions && filteredSuggestions.length > 0 && (

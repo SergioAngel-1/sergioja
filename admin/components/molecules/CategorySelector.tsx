@@ -1,5 +1,6 @@
 'use client';
 
+import Icon from '../atoms/Icon';
 import { fluidSizing } from '@/lib/fluidSizing';
 
 interface Category {
@@ -15,6 +16,7 @@ interface CategorySelectorProps {
   label?: string;
   required?: boolean;
   isLoading?: boolean;
+  onCreateNew?: () => void;
 }
 
 export default function CategorySelector({
@@ -24,6 +26,7 @@ export default function CategorySelector({
   label = 'Categorías',
   required = false,
   isLoading = false,
+  onCreateNew,
 }: CategorySelectorProps) {
   const handleToggle = (categoryName: string) => {
     const isSelected = selectedCategories.some(
@@ -39,9 +42,22 @@ export default function CategorySelector({
 
   return (
     <div>
-      <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs, marginBottom: fluidSizing.space.sm }}>
-        {label} {required && '*'}
-      </label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: fluidSizing.space.sm }}>
+        <label className="block text-text-muted font-medium uppercase tracking-wider" style={{ fontSize: fluidSizing.text.xs }}>
+          {label} {required && '*'}
+        </label>
+        {onCreateNew && (
+          <button
+            type="button"
+            onClick={onCreateNew}
+            className="bg-admin-primary/20 hover:bg-admin-primary/30 text-admin-primary rounded-lg transition-all duration-200 flex items-center justify-center"
+            style={{ padding: fluidSizing.space.sm, minWidth: fluidSizing.size.buttonMd }}
+            title="Crear nueva categoría"
+          >
+            <Icon name="plus" size={20} />
+          </button>
+        )}
+      </div>
       
       {isLoading ? (
         <div className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-muted flex items-center justify-center" style={{ padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, fontSize: fluidSizing.text.sm }}>

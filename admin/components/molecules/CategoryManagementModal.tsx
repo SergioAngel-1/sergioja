@@ -35,7 +35,7 @@ export default function CategoryManagementModal({
   const [formData, setFormData] = useState<Category>({
     name: '',
     label: '',
-    color: '#00FF00',
+    color: '#FFFFFF',
     icon: '',
     order: 0,
     active: true,
@@ -80,7 +80,7 @@ export default function CategoryManagementModal({
     setFormData({
       name: '',
       label: '',
-      color: '#00FF00',
+      color: '#FFFFFF',
       icon: '',
       order: categories.length + 1,
       active: true,

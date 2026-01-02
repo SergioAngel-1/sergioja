@@ -10,6 +10,7 @@ import ProjectUrlFields from './ProjectUrlFields';
 import ProjectToggles from './ProjectToggles';
 import ProjectScoresFields from './ProjectScoresFields';
 import MultiImageUploader from './MultiImageUploader';
+import CategoryManagementModal from './CategoryManagementModal';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { useCategories, useProjectForm } from '@/lib/hooks';
@@ -57,13 +58,15 @@ export default function ProjectFormModal({
 }: ProjectFormModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isManualSlugMode, setIsManualSlugMode] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [categoryModalType, setCategoryModalType] = useState<'project' | 'technology'>('project');
 
   // Cargar categorías usando hook personalizado
-  const { categories: backendCategories, isLoading: loadingProjectCats } = useCategories(
+  const { categories: backendCategories, isLoading: loadingProjectCats, reload: reloadProjectCategories } = useCategories(
     'project',
     isOpen
   );
-  const { categories: techCategories, isLoading: loadingTechCats } = useCategories(
+  const { categories: techCategories, isLoading: loadingTechCats, reload: reloadTechCategories } = useCategories(
     'technology',
     isOpen
   );
@@ -194,6 +197,10 @@ export default function ProjectFormModal({
             onChange={handleCategoriesChange}
             required
             isLoading={loadingProjectCats}
+            onCreateNew={() => {
+              setCategoryModalType('project');
+              setIsCategoryModalOpen(true);
+            }}
           />
 
           {/* Technologies */}
@@ -202,6 +209,10 @@ export default function ProjectFormModal({
             availableSkills={existingSkills}
             categories={techCategories}
             onChange={handleTechnologiesChange}
+            onCreateCategory={() => {
+              setCategoryModalType('technology');
+              setIsCategoryModalOpen(true);
+            }}
           />
 
           {/* Toggles */}
@@ -241,6 +252,21 @@ export default function ProjectFormModal({
           />
         </div>
       </form>
+
+      {/* Category Management Modal */}
+      <CategoryManagementModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => {
+          setIsCategoryModalOpen(false);
+          // Recargar las categorías correspondientes después de cerrar el modal
+          if (categoryModalType === 'project') {
+            reloadProjectCategories();
+          } else {
+            reloadTechCategories();
+          }
+        }}
+        type={categoryModalType}
+      />
     </Modal>
   );
 }
