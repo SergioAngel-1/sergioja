@@ -129,6 +129,9 @@ export default function HexButton({
             backdropFilter: 'blur(6px)',
             WebkitBackdropFilter: 'blur(6px)',
             backgroundColor: isActive ? 'rgba(0, 0, 0, 0.35)' : 'rgba(0, 0, 0, 0.25)',
+            willChange: 'backdrop-filter',
+            transform: 'translateZ(0)',
+            isolation: 'isolate',
             zIndex: 0
           }}
         />

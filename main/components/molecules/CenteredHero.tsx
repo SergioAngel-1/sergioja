@@ -83,6 +83,8 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
             top: '10%',
             background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
             filter: 'blur(40px)',
+            willChange: 'filter',
+            transform: 'translateZ(0)',
           }}
         />
         

@@ -12,6 +12,9 @@ export function ModelBackground() {
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
           backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          willChange: 'backdrop-filter',
+          transform: 'translateZ(0)',
+          isolation: 'isolate',
         }}
       />
 
