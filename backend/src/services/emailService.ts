@@ -28,6 +28,9 @@ class EmailService {
     }
 
     try {
+      // Configuración específica para Google Workspace
+      const isGmail = appConfig.email.host?.includes('gmail.com');
+      
       this.transporter = nodemailer.createTransport({
         host: appConfig.email.host,
         port: appConfig.email.port || 587,
@@ -36,9 +39,38 @@ class EmailService {
           user: appConfig.email.user,
           pass: appConfig.email.pass,
         },
+        tls: {
+          rejectUnauthorized: true,
+          minVersion: 'TLSv1.2',
+        },
+        requireTLS: true,
+        // Configuración adicional para Gmail/Google Workspace
+        ...(isGmail && {
+          service: 'gmail',
+          authMethod: 'PLAIN',
+        }),
       });
 
-      logger.info('Email service initialized successfully');
+      logger.info('Email service initialized successfully', {
+        host: appConfig.email.host,
+        port: appConfig.email.port,
+        user: appConfig.email.user,
+        secure: appConfig.email.port === 465,
+        isGmail,
+      });
+      
+      // Verificar conexión SMTP al inicializar
+      this.transporter.verify((error: any, success: any) => {
+        if (error) {
+          logger.error('SMTP connection verification failed', {
+            error: error.message,
+            code: error.code,
+            command: error.command,
+          });
+        } else {
+          logger.info('SMTP connection verified successfully');
+        }
+      });
     } catch (error) {
       logger.error('Failed to initialize email service', error);
     }
