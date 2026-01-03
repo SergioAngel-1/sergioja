@@ -165,6 +165,7 @@ router.post('/refresh', asyncHandler(async (req: Request, res: Response) => {
   const tokens = await refreshAccessToken(refreshToken);
 
   if (!tokens) {
+    logger.warn('Token refresh failed - invalid or expired refresh token');
     return res.status(401).json({
       success: false,
       error: {
@@ -176,6 +177,7 @@ router.post('/refresh', asyncHandler(async (req: Request, res: Response) => {
 
   // Configurar nuevas cookies
   const isProduction = process.env.NODE_ENV === 'production';
+  logger.info('Setting new access and refresh token cookies');
 
   res.cookie('accessToken', tokens.accessToken, {
     httpOnly: true,

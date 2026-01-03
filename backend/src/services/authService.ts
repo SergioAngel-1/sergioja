@@ -207,20 +207,22 @@ export async function refreshAccessToken(
 
     const tokens = generateTokens(newPayload);
 
-    // Revocar el refresh token anterior
-    await prisma.refreshToken.update({
-      where: { id: storedToken.id },
-      data: { revokedAt: new Date() },
-    });
-
-    // Guardar nuevo refresh token
-    await prisma.refreshToken.create({
-      data: {
-        token: hashToken(tokens.refreshToken),
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      },
-    });
+    // Usar transacción para revocar y crear tokens atómicamente
+    await prisma.$transaction([
+      // Revocar el refresh token anterior
+      prisma.refreshToken.update({
+        where: { id: storedToken.id },
+        data: { revokedAt: new Date() },
+      }),
+      // Guardar nuevo refresh token
+      prisma.refreshToken.create({
+        data: {
+          token: hashToken(tokens.refreshToken),
+          userId: user.id,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      }),
+    ]);
 
     logger.info('Access token refreshed', { userId: user.id });
 

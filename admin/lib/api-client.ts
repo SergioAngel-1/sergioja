@@ -8,6 +8,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 class ApiClient {
   private client: AxiosInstance;
+  private isRefreshing = false;
+  private refreshPromise: Promise<any> | null = null;
 
   constructor() {
     this.client = axios.create({
@@ -76,44 +78,85 @@ class ApiClient {
           originalRequest._retry = true;
           
           try {
-            // Intentar refrescar el token usando axios directamente para evitar interceptor
-            const refreshPayload: Record<string, string> = {};
-            if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-              const refreshToken = localStorage.getItem('refreshToken');
-              if (refreshToken) {
-                refreshPayload.refreshToken = refreshToken;
-              }
-            }
-            
-            const refreshResponse = await axios.post(
-              `${API_URL}/api/admin/auth/refresh`,
-              refreshPayload,
-              {
-                withCredentials: true,
-                headers: { 'Content-Type': 'application/json' }
-              }
-            );
-            
-            // En desarrollo, actualizar tokens en localStorage
-            if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && refreshResponse.data?.data) {
-              const data = refreshResponse.data.data as { accessToken?: string; refreshToken?: string };
-              if (data.accessToken) {
-                localStorage.setItem('accessToken', data.accessToken);
-              }
-              if (data.refreshToken) {
-                localStorage.setItem('refreshToken', data.refreshToken);
+            // Si ya hay un refresh en progreso, esperar a que termine
+            if (this.isRefreshing && this.refreshPromise) {
+              logger.info('Waiting for ongoing token refresh...');
+              await this.refreshPromise;
+              
+              // Después del refresh, reintentar con el nuevo token
+              if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+                const newToken = localStorage.getItem('accessToken');
+                if (newToken && originalRequest.headers) {
+                  originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                }
               }
               
-              // Actualizar header de la petición original con el nuevo token
-              if (originalRequest.headers && data.accessToken) {
-                originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
-              }
+              return this.client(originalRequest);
             }
+            
+            // Marcar que estamos refrescando
+            this.isRefreshing = true;
+            
+            // Crear la promesa de refresh
+            this.refreshPromise = (async () => {
+              try {
+                logger.info('Starting token refresh...');
+                
+                // Intentar refrescar el token usando axios directamente para evitar interceptor
+                const refreshPayload: Record<string, string> = {};
+                if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+                  const refreshToken = localStorage.getItem('refreshToken');
+                  if (refreshToken) {
+                    refreshPayload.refreshToken = refreshToken;
+                  }
+                }
+                
+                const refreshResponse = await axios.post(
+                  `${API_URL}/api/admin/auth/refresh`,
+                  refreshPayload,
+                  {
+                    withCredentials: true,
+                    headers: { 'Content-Type': 'application/json' }
+                  }
+                );
+                
+                // En desarrollo, actualizar tokens en localStorage
+                if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined' && refreshResponse.data?.data) {
+                  const data = refreshResponse.data.data as { accessToken?: string; refreshToken?: string };
+                  if (data.accessToken) {
+                    localStorage.setItem('accessToken', data.accessToken);
+                    logger.info('Access token refreshed successfully');
+                  }
+                  if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                  }
+                  
+                  // Actualizar header de la petición original con el nuevo token
+                  if (originalRequest.headers && data.accessToken) {
+                    originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+                  }
+                }
+                
+                return refreshResponse;
+              } finally {
+                // Limpiar el estado de refresh
+                this.isRefreshing = false;
+                this.refreshPromise = null;
+              }
+            })();
+            
+            // Esperar a que termine el refresh
+            await this.refreshPromise;
             
             // Reintentar la petición original
             return this.client(originalRequest);
           } catch (refreshError) {
+            // Limpiar el estado de refresh
+            this.isRefreshing = false;
+            this.refreshPromise = null;
+            
             // Si el refresh falla, limpiar tokens y redirigir al login
+            logger.error('Token refresh failed, redirecting to login');
             if (typeof window !== 'undefined') {
               if (process.env.NODE_ENV === 'development') {
                 localStorage.removeItem('accessToken');
