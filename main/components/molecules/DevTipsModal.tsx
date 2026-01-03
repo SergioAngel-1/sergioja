@@ -7,6 +7,7 @@ import { fluidSizing } from '@/lib/fluidSizing';
 import { createPortal } from 'react-dom';
 import { useLogger } from '@/shared/hooks/useLogger';
 import Input from '@/components/atoms/Input';
+import { validateEmail } from '@/shared/formValidations';
 
 interface DevTipsModalProps {
   isOpen: boolean;
@@ -29,24 +30,16 @@ export default function DevTipsModal({ isOpen, onClose, onSubmit }: DevTipsModal
     }
   }, [isOpen]);
 
-  const validateEmail = (val: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(val);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     log.interaction('devtips_submit_click');
 
-    if (!email.trim()) {
-      setError(t('devTips.emailRequired'));
-      log.warn('devtips_validation_error', { reason: 'email_required' });
-      return;
-    }
-    if (!validateEmail(email)) {
-      setError(t('devTips.emailInvalid'));
-      log.warn('devtips_validation_error', { reason: 'email_invalid' });
+    // Usar validación compartida de shared/formValidations
+    const validation = validateEmail(email, t);
+    if (!validation.isValid) {
+      setError(validation.error || t('devTips.emailInvalid'));
+      log.warn('devtips_validation_error', { reason: validation.errorKey || 'email_invalid' });
       return;
     }
 
