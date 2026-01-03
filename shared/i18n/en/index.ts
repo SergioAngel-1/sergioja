@@ -59,6 +59,7 @@ export const en = {
   'projects.actions': 'Actions',
   'projects.previewDisabledPerformance': 'Preview disabled in low performance mode',
   'projects.noPreview': 'No preview available',
+  'projects.moreTechnologies': 'more technologies',
 
   'contact.name': 'Name',
   'contact.email': 'Email',

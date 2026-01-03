@@ -62,6 +62,7 @@ export const es = {
   'projects.actions': 'Acciones',
   'projects.previewDisabledPerformance': 'Vista previa deshabilitada en modo de bajo rendimiento',
   'projects.noPreview': 'No hay vista previa disponible',
+  'projects.moreTechnologies': 'más tecnologías',
 
   // Contact form
   'contact.name': 'Nombre',
