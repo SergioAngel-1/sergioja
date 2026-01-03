@@ -27,14 +27,25 @@ export const createHybridKeyGenerator = () => {
       }
     }
     
-    // Para usuarios anónimos: IP + User-Agent hash (fingerprint de dispositivo)
+    // Para usuarios anónimos: IP + fingerprint mejorado (múltiples headers)
     const ip = getClientIp(req);
     const userAgent = req.get('user-agent') || 'unknown';
+    const acceptLanguage = req.get('accept-language') || '';
+    const acceptEncoding = req.get('accept-encoding') || '';
+    const accept = req.get('accept') || '';
     
-    // Crear un fingerprint del dispositivo basado en User-Agent
+    // Crear un fingerprint del dispositivo basado en múltiples headers
+    // Esto hace más difícil bypassear el rate limit simplemente cambiando User-Agent
+    const fingerprintData = [
+      userAgent,
+      acceptLanguage,
+      acceptEncoding,
+      accept,
+    ].join('|');
+    
     const fingerprint = crypto
       .createHash('sha256')
-      .update(userAgent)
+      .update(fingerprintData)
       .digest('hex')
       .substring(0, 12);
     
