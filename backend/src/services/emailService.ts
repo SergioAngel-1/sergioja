@@ -44,7 +44,7 @@ class EmailService {
     }
   }
 
-  async sendEmail(options: EmailOptions): Promise<boolean> {
+  async sendEmail(options: EmailOptions, retries: number = 3): Promise<boolean> {
     if (!this.transporter) {
       logger.warn('Email service not available. Email not sent.', {
         to: options.to,
@@ -54,25 +54,60 @@ class EmailService {
       return false;
     }
 
-    try {
-      const fromAddress = appConfig.email.fromName 
-        ? `"${appConfig.email.fromName}" <${appConfig.email.from || appConfig.email.user}>`
-        : appConfig.email.from || appConfig.email.user;
+    const fromAddress = appConfig.email.fromName 
+      ? `"${appConfig.email.fromName}" <${appConfig.email.from || appConfig.email.user}>`
+      : appConfig.email.from || appConfig.email.user;
 
-      const info = await this.transporter.sendMail({
-        from: fromAddress,
-        to: options.to,
-        subject: options.subject,
-        text: options.text,
-        html: options.html,
-      });
+    // Retry logic con exponential backoff
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const info = await this.transporter.sendMail({
+          from: fromAddress,
+          to: options.to,
+          subject: options.subject,
+          text: options.text,
+          html: options.html,
+        });
 
-      logger.info(`Email sent successfully: ${info.messageId}`);
-      return true;
-    } catch (error) {
-      logger.error('Failed to send email', error);
-      return false;
+        logger.info(`Email sent successfully: ${info.messageId}`, {
+          to: options.to,
+          subject: options.subject,
+          attempt,
+        });
+        return true;
+      } catch (error: any) {
+        const isLastAttempt = attempt === retries;
+        
+        logger.error(`Email send attempt ${attempt}/${retries} failed`, {
+          to: options.to,
+          subject: options.subject,
+          error: error.message,
+          code: error.code,
+        });
+
+        if (isLastAttempt) {
+          // En el último intento, loguear error crítico
+          logger.error('All email send attempts failed', {
+            to: options.to,
+            subject: options.subject,
+            totalAttempts: retries,
+            finalError: error.message,
+          });
+          return false;
+        }
+
+        // Exponential backoff: 1s, 2s, 4s
+        const backoffMs = Math.pow(2, attempt - 1) * 1000;
+        logger.info(`Retrying email send in ${backoffMs}ms...`, {
+          attempt: attempt + 1,
+          maxAttempts: retries,
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+      }
     }
+
+    return false;
   }
 
   async sendContactNotification(data: {

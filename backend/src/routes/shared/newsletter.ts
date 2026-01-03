@@ -67,20 +67,43 @@ router.post(
 
     logger.info('Newsletter subscription saved', { id: subscription.id, email: subscription.email });
 
-    const notifOk = await emailService.sendNewsletterNotification({ email });
-    if (notifOk) logger.info('Newsletter notification email sent');
-    else logger.warn('Failed to send newsletter notification email');
-
-    const welcomeOk = await emailService.sendNewsletterWelcome({ email });
-    if (welcomeOk) logger.info('Newsletter welcome email sent');
-    else logger.warn('Failed to send newsletter welcome email');
-
+    // Responder inmediatamente al usuario (no esperar emails)
     const response: ApiResponse<{ message: string }> = {
       success: true,
       data: { message: 'Subscription successful' },
       timestamp: new Date().toISOString(),
     };
-    return res.status(201).json(response);
+    res.status(201).json(response);
+
+    // Enviar emails en background (no bloquea response)
+    // Si fallan después de 3 intentos, solo se loguea el error
+    Promise.all([
+      emailService.sendNewsletterNotification({ email }).then(sent => {
+        if (sent) {
+          logger.info('Newsletter notification email sent');
+        } else {
+          logger.error('Failed to send newsletter notification email after all retries', {
+            subscriptionId: subscription.id,
+            email,
+          });
+        }
+      }),
+      emailService.sendNewsletterWelcome({ email }).then(sent => {
+        if (sent) {
+          logger.info('Newsletter welcome email sent');
+        } else {
+          logger.error('Failed to send newsletter welcome email after all retries', {
+            subscriptionId: subscription.id,
+            email,
+          });
+        }
+      }),
+    ]).catch(err => {
+      logger.error('Unexpected error in background email sending', {
+        error: err,
+        subscriptionId: subscription.id,
+      });
+    });
   })
 );
 

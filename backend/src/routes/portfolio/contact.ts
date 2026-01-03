@@ -74,25 +74,7 @@ router.post(
       email: formData.email,
     });
 
-    // Send notification email to yourself
-    const notificationSent = await emailService.sendContactNotification(formData);
-
-    if (notificationSent) {
-      logger.info('Contact notification email sent successfully');
-    } else {
-      logger.warn('Failed to send contact notification email');
-    }
-
-    // Send confirmation email to user
-    const confirmationSent = await emailService.sendConfirmationEmail({
-      name: formData.name,
-      email: formData.email,
-    });
-
-    if (confirmationSent) {
-      logger.info('Confirmation email sent to user');
-    }
-
+    // Responder inmediatamente al usuario (no esperar emails)
     const response: ApiResponse<{ message: string }> = {
       success: true,
       data: {
@@ -102,6 +84,39 @@ router.post(
     };
 
     res.status(201).json(response);
+
+    // Enviar emails en background (no bloquea response)
+    // Si fallan después de 3 intentos, solo se loguea el error
+    Promise.all([
+      emailService.sendContactNotification(formData).then(sent => {
+        if (sent) {
+          logger.info('Contact notification email sent successfully');
+        } else {
+          logger.error('Failed to send contact notification email after all retries', {
+            submissionId: submission.id,
+            email: formData.email,
+          });
+        }
+      }),
+      emailService.sendConfirmationEmail({
+        name: formData.name,
+        email: formData.email,
+      }).then(sent => {
+        if (sent) {
+          logger.info('Confirmation email sent to user');
+        } else {
+          logger.error('Failed to send confirmation email after all retries', {
+            submissionId: submission.id,
+            userEmail: formData.email,
+          });
+        }
+      }),
+    ]).catch(err => {
+      logger.error('Unexpected error in background email sending', {
+        error: err,
+        submissionId: submission.id,
+      });
+    });
   })
 );
 
