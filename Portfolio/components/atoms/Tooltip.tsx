@@ -52,7 +52,7 @@ export default function Tooltip({
           style={{ maxWidth }}
         >
           <div
-            className="bg-black/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-2xl whitespace-nowrap"
+            className="bg-black/95 backdrop-blur-sm border border-white/20 rounded-lg shadow-2xl"
             style={{
               padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
             }}

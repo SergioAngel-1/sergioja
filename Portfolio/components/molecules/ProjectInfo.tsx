@@ -26,7 +26,7 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
       value: (
         <div className="flex items-center justify-end flex-wrap" style={{ gap: fluidSizing.space.xs }}>
           {project.categories && project.categories.length > 0 ? (
-            project.categories.slice(0, 6).map((category, index) => {
+            project.categories.slice(0, 4).map((category, index) => {
               const displayName = getCategoryDisplayName(category);
               return (
                 <span key={index} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors">
@@ -37,10 +37,23 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
           ) : (
             <span className="text-white/60">N/A</span>
           )}
-          {project.categories && project.categories.length > 6 && (
-            <Tooltip content={project.categories.slice(6).map(c => getCategoryDisplayName(c)).join(', ')} position="top" maxWidth="300px">
+          {project.categories && project.categories.length > 4 && (
+            <Tooltip 
+              content={
+                <div className="flex flex-col gap-1">
+                  {project.categories.slice(4).map((c, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <span className="text-white/60">•</span>
+                      <span>{getCategoryDisplayName(c)}</span>
+                    </div>
+                  ))}
+                </div>
+              } 
+              position="top" 
+              maxWidth="300px"
+            >
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono bg-white/10 border border-white/20 text-white cursor-help hover:bg-white/20 transition-colors">
-                +{project.categories.length - 6}
+                +{project.categories.length - 4}
               </span>
             </Tooltip>
           )}
@@ -92,7 +105,20 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
             </Tooltip>
           ))}
           {extraTechCount > 0 && (
-            <Tooltip content={`+${extraTechCount} ${t('projects.moreTechnologies') || 'more technologies'}`} position="top">
+            <Tooltip 
+              content={
+                <div className="flex flex-col gap-1">
+                  {project.technologies.slice(maxVisibleTechIcons).map((tech, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <span className="text-white/60">•</span>
+                      <span>{tech.name}</span>
+                    </div>
+                  ))}
+                </div>
+              } 
+              position="top"
+              maxWidth="300px"
+            >
               <span className="text-white/80 inline-flex items-center justify-center w-4 h-4 rounded-full border border-white/30 text-[10px] font-mono cursor-help">
                 +
               </span>
