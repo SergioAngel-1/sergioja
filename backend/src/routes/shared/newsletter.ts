@@ -7,11 +7,15 @@ import { verifyRecaptchaEnterprise } from '../../services/recaptchaService';
 import { emailService } from '../../services/emailService';
 import { authMiddleware } from '../../middleware/auth';
 import { asyncHandler } from '../../middleware/errorHandler';
+import { newsletterLimiter } from '../../lib/rateLimit';
 
 const router = Router();
 
+// POST /api/newsletter/subscribe - Suscribirse al newsletter
+// Rate limited: 5 suscripciones por hora por dispositivo
 router.post(
   '/subscribe',
+  newsletterLimiter,
   [body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail()],
   asyncHandler(async (req: Request, res: Response) => {
     const errors = validationResult(req);

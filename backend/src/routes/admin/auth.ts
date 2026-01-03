@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
 import { authenticateUser, refreshAccessToken, revokeRefreshToken, revokeAllUserTokens } from '../../services/authService';
@@ -11,20 +10,10 @@ import { asyncHandler } from '../../middleware/errorHandler';
 
 const router = Router();
 
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 10, // 10 intentos
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: () => process.env.NODE_ENV !== 'production',
-  message: {
-    success: false,
-    error: {
-      code: 'RATE_LIMIT_EXCEEDED',
-      message: 'Demasiados intentos de inicio de sesión. Por favor, intenta nuevamente en 15 minutos.',
-    },
-  },
-});
+// Importar loginLimiter del sistema centralizado de rate limiting
+// Usa IP + email hash como clave, permitiendo que diferentes usuarios
+// en la misma IP puedan intentar logearse independientemente
+import { loginLimiter } from '../../lib/rateLimit';
 
 // Schema de validación para login
 const loginSchema = z.object({

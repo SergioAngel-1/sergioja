@@ -6,12 +6,15 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { verifyRecaptchaEnterprise } from '../../services/recaptchaService';
 import { asyncHandler } from '../../middleware/errorHandler';
+import { contactLimiter } from '../../lib/rateLimit';
 
 const router = Router();
 
 // POST /api/contact - Submit contact form
+// Rate limited: 5 mensajes por hora por dispositivo
 router.post(
   '/',
+  contactLimiter,
   [
     body('name').trim().notEmpty().withMessage('Name is required').isLength({ max: 100 }),
     body('email').trim().isEmail().withMessage('Valid email is required').normalizeEmail(),

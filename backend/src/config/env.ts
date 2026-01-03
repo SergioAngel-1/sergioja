@@ -37,9 +37,8 @@ const envSchema = z.object({
   RECAPTCHA_SITE_KEY: z.string().optional(),
   RECAPTCHA_MIN_SCORE: z.string().optional(),
   
-  // Rate Limiting
-  RATE_LIMIT_WINDOW_MS: z.string().default('900000'),
-  RATE_LIMIT_MAX_REQUESTS: z.string().default('100'),
+  // Rate Limiting - Configuración centralizada en src/lib/rateLimit.ts
+  // Ya no requiere variables de entorno
   
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
@@ -92,10 +91,7 @@ export const appConfig = {
     siteKey: env.RECAPTCHA_SITE_KEY,
     minScore: env.RECAPTCHA_MIN_SCORE ? parseFloat(env.RECAPTCHA_MIN_SCORE) : 0.5,
   },
-  rateLimit: {
-    windowMs: parseInt(env.RATE_LIMIT_WINDOW_MS, 10),
-    maxRequests: parseInt(env.RATE_LIMIT_MAX_REQUESTS, 10),
-  },
+  // Rate Limiting - Ver src/lib/rateLimit.ts para configuración
   logging: {
     level: env.LOG_LEVEL,
   },
