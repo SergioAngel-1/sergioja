@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, FormEvent, useRef, useCallback, useEffect, useMemo, ChangeEvent } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useLogger } from '@/shared/hooks/useLogger';
@@ -20,7 +20,7 @@ const DevTipsModal = dynamic(() => import('@/components/molecules/DevTipsModal')
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
-import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
+import { validateContactForm, sanitizeContactForm, validateName, validateEmail, validateSubject, validateMessage } from '@/shared/formValidations';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { trackContactSubmit, trackNewsletterSubscribe, trackOutboundLink } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
@@ -47,6 +47,14 @@ export default function ContactPage() {
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [tokenExpiry, setTokenExpiry] = useState<number>(0);
   
+  // Validación en tiempo real por campo
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+  
   // Usar hook de perfil
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   
@@ -62,6 +70,55 @@ export default function ContactPage() {
       loadRecaptchaEnterprise(key).catch(() => {});
     }
   }, []);
+
+  // Validación en tiempo real con debounce
+  const validateField = useCallback((field: keyof typeof formData, value: string) => {
+    let validation;
+    
+    switch (field) {
+      case 'name':
+        validation = validateName(value, t);
+        break;
+      case 'email':
+        validation = validateEmail(value, t);
+        break;
+      case 'subject':
+        validation = validateSubject(value, t);
+        break;
+      case 'message':
+        validation = validateMessage(value, t);
+        break;
+      default:
+        return;
+    }
+    
+    setFieldErrors(prev => ({
+      ...prev,
+      [field]: validation.isValid ? '' : (validation.error || '')
+    }));
+  }, [t]);
+
+  // Debounced validation (500ms)
+  const debouncedValidate = useCallback((field: keyof typeof formData, value: string) => {
+    const timeoutId = setTimeout(() => {
+      validateField(field, value);
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [validateField]);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const fieldName = name as keyof typeof formData;
+    
+    setFormData(prev => ({ ...prev, [fieldName]: value }));
+    
+    // Limpiar error del campo al escribir
+    setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+    
+    // Validar después de 500ms de inactividad
+    debouncedValidate(fieldName, value);
+  };
 
   const handleNewsletterSubmit = async (email: string) => {
     // Suscripción al newsletter con reCAPTCHA Enterprise (solo en producción)
@@ -189,16 +246,20 @@ export default function ContactPage() {
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    const fieldName = name as keyof typeof formData;
+    
+    setFormData(prev => ({ ...prev, [fieldName]: value }));
+    
+    // Limpiar error del campo al escribir
+    setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+    
+    // Validar después de 500ms de inactividad
+    debouncedValidate(fieldName, value);
     
     // Limpiar estado de error INMEDIATAMENTE cuando el usuario empiece a escribir
     setStatus('idle');
     setErrorMessage('');
-    
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }, []);
+  }, [debouncedValidate]);
 
 
   const availabilityStatus: AvailabilityStatus =
@@ -395,51 +456,95 @@ export default function ContactPage() {
               ) : (
                 <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }} noValidate>
                   {/* Name Input */}
-                  <Input
-                    type="text"
-                    id="name"
-                    name="name"
-                    label={t('contact.name')}
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder={t('contact.namePlaceholder')}
-                    required
-                  />
+                  <div>
+                    <Input
+                      type="text"
+                      id="name"
+                      name="name"
+                      label={t('contact.name')}
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder={t('contact.namePlaceholder')}
+                      required
+                    />
+                    {fieldErrors.name && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-cyber-red text-xs mt-1 font-mono"
+                      >
+                        {fieldErrors.name}
+                      </motion.p>
+                    )}
+                  </div>
 
                   {/* Email Input */}
-                  <Input
-                    type="text"
-                    id="email"
-                    name="email"
-                    label={t('contact.email')}
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder={t('contact.emailPlaceholder')}
-                    required
-                  />
+                  <div>
+                    <Input
+                      type="text"
+                      id="email"
+                      name="email"
+                      label={t('contact.email')}
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder={t('contact.emailPlaceholder')}
+                      required
+                    />
+                    {fieldErrors.email && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-cyber-red text-xs mt-1 font-mono"
+                      >
+                        {fieldErrors.email}
+                      </motion.p>
+                    )}
+                  </div>
 
                   {/* Subject Input */}
-                  <Input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    label={t('contact.subject')}
-                    value={formData.subject}
-                    onChange={handleChange}
-                    placeholder={t('contact.subjectPlaceholder')}
-                    required
-                  />
+                  <div>
+                    <Input
+                      type="text"
+                      id="subject"
+                      name="subject"
+                      label={t('contact.subject')}
+                      value={formData.subject}
+                      onChange={handleChange}
+                      placeholder={t('contact.subjectPlaceholder')}
+                      required
+                    />
+                    {fieldErrors.subject && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-cyber-red text-xs mt-1 font-mono"
+                      >
+                        {fieldErrors.subject}
+                      </motion.p>
+                    )}
+                  </div>
 
                   {/* Message Textarea */}
-                  <Textarea
-                    id="message"
-                    name="message"
-                    label={t('contact.message')}
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder={t('contact.messagePlaceholder')}
-                    required
-                  />
+                  <div>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      label={t('contact.message')}
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder={t('contact.messagePlaceholder')}
+                      required
+                    />
+                    {fieldErrors.message && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-cyber-red text-xs mt-1 font-mono"
+                      >
+                        {fieldErrors.message}
+                      </motion.p>
+                    )}
+                  </div>
 
                   {/* Submit Button */}
                   <Button

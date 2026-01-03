@@ -8,7 +8,7 @@ import { fluidSizing } from '@/lib/fluidSizing';
 import Input from '@/components/atoms/Input';
 import Textarea from '@/components/atoms/Textarea';
 import { alerts } from '@/shared/alertSystem';
-import { validateContactForm, sanitizeContactForm } from '@/shared/formValidations';
+import { validateContactForm, sanitizeContactForm, validateName, validateEmail, validateSubject, validateMessage } from '@/shared/formValidations';
 import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLogger } from '@/shared/hooks/useLogger';
@@ -35,6 +35,14 @@ export default function ConnectionContent({ profile }: ConnectionContentProps) {
   // Cache de token reCAPTCHA (TTL: 2 minutos)
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [tokenExpiry, setTokenExpiry] = useState<number>(0);
+  
+  // Validación en tiempo real por campo
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
 
   // Inicializar consola con traducciones
   const initConsole = useCallback(() => {
@@ -44,22 +52,65 @@ export default function ConnectionContent({ profile }: ConnectionContentProps) {
     ]);
   }, [t]);
 
+  // Validación en tiempo real con debounce
+  const validateField = useCallback((field: keyof ContactMessage, value: string) => {
+    let validation;
+    
+    switch (field) {
+      case 'name':
+        validation = validateName(value, t);
+        break;
+      case 'email':
+        validation = validateEmail(value, t);
+        break;
+      case 'subject':
+        validation = validateSubject(value, t);
+        break;
+      case 'message':
+        validation = validateMessage(value, t);
+        break;
+      default:
+        return;
+    }
+    
+    setFieldErrors(prev => ({
+      ...prev,
+      [field]: validation.isValid ? '' : (validation.error || '')
+    }));
+  }, [t]);
+
+  // Debounced validation (500ms)
+  const debouncedValidate = useCallback((field: keyof ContactMessage, value: string) => {
+    const timeoutId = setTimeout(() => {
+      validateField(field, value);
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [validateField]);
+
   // Inicializar al montar
   useEffect(() => {
     initConsole();
   }, [initConsole]);
 
-  // Función para limpiar errores cuando el usuario modifica los campos
-  const handleInputChange = useCallback((field: keyof ContactMessage, value: string) => {
-    // SIEMPRE limpiar mensajes de error del historial cuando el usuario escribe
-    // Reinicializar consola con traducciones actuales
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const fieldName = name as keyof ContactMessage;
+    
+    setFormData(prev => ({ ...prev, [fieldName]: value }));
+    
+    // Limpiar error del campo al escribir
+    setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
+    
+    // Validar después de 500ms de inactividad
+    debouncedValidate(fieldName, value);
+    
+    // Limpiar mensajes de error del historial cuando el usuario escribe
     setConsoleHistory([
       t('connection.consoleInit'),
       t('connection.consoleWaiting')
     ]);
-    
-    setFormData(prev => ({ ...prev, [field]: value }));
-  }, [t]);
+  };
 
 
   const handleConsoleSubmit = async (e: React.FormEvent) => {
@@ -262,29 +313,65 @@ export default function ConnectionContent({ profile }: ConnectionContentProps) {
         {/* Form */}
         <form ref={formRef} onSubmit={handleConsoleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }} noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: fluidSizing.space.sm }}>
-            <Input
-              type="text"
-              label={t('contact.name')}
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder={t('connection.namePlaceholder')}
-            />
-            <Input
-              type="email"
-              label={t('contact.email')}
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder={t('connection.emailPlaceholder')}
-            />
+            <div>
+              <Input
+                type="text"
+                label={t('contact.name')}
+                value={formData.name}
+                onChange={handleInputChange}
+                name="name"
+                placeholder={t('connection.namePlaceholder')}
+              />
+              {fieldErrors.name && (
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-red-400 text-xs mt-1 font-mono"
+                >
+                  {fieldErrors.name}
+                </motion.p>
+              )}
+            </div>
+            <div>
+              <Input
+                type="email"
+                label={t('contact.email')}
+                value={formData.email}
+                onChange={handleInputChange}
+                name="email"
+                placeholder={t('connection.emailPlaceholder')}
+              />
+              {fieldErrors.email && (
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-red-400 text-xs mt-1 font-mono"
+                >
+                  {fieldErrors.email}
+                </motion.p>
+              )}
+            </div>
           </div>
           
-          <Textarea
-            label={t('contact.message')}
-            value={formData.message}
-            onChange={(e) => handleInputChange('message', e.target.value)}
-            placeholder={t('connection.messagePlaceholder')}
-            rows={3}
-          />
+          <div>
+            <Textarea
+              label={t('contact.message')}
+              value={formData.message}
+              onChange={handleInputChange}
+              name="message"
+              placeholder={t('connection.messagePlaceholder')}
+              rows={3}
+            />
+            {fieldErrors.message && (
+              <motion.p
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-red-400 text-xs mt-1 font-mono"
+              >
+                {fieldErrors.message}
+              </motion.p>
+            )}
+          </div>
 
           <button
             type="submit"
