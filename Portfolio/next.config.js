@@ -9,6 +9,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   fallbacks: {
     document: '/offline',
   },
+  buildExcludes: [/middleware-manifest\.json$/],
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  dynamicStartUrl: true,
+  dynamicStartUrlRedirect: '/',
 });
 
 /** @type {import('next').NextConfig} */
@@ -16,6 +21,9 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone', // Para Docker
   swcMinify: true,
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
   
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
