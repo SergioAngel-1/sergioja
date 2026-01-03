@@ -19,11 +19,19 @@ interface RecaptchaAssessmentResponse {
 
 // Cache para el access token de Google
 let cachedAccessToken: { token: string; expiresAt: number } | null = null;
+// Promise para evitar race conditions en refresh simultáneos
+let refreshPromise: Promise<string | null> | null = null;
 
 async function getGoogleAccessToken(): Promise<string | null> {
   // Si hay token en caché y no ha expirado, usarlo
   if (cachedAccessToken && cachedAccessToken.expiresAt > Date.now()) {
     return cachedAccessToken.token;
+  }
+
+  // Si ya hay un refresh en progreso, esperar a que termine
+  if (refreshPromise) {
+    logger.debug('Waiting for ongoing token refresh...');
+    return refreshPromise;
   }
 
   const { serviceAccountKey } = appConfig.recaptcha;
@@ -33,70 +41,79 @@ async function getGoogleAccessToken(): Promise<string | null> {
     return null;
   }
 
-  try {
-    let credentials: any;
-    let sak = serviceAccountKey.trim();
+  // Crear promise para el refresh y almacenarla
+  refreshPromise = (async () => {
     try {
-      credentials = JSON.parse(sak);
-    } catch {
-      if (sak.length >= 2 && ((sak.startsWith("'") && sak.endsWith("'")) || (sak.startsWith('"') && sak.endsWith('"')))) {
-        const unquoted = sak.slice(1, -1);
-        credentials = JSON.parse(unquoted);
-      } else {
-        throw new Error('Invalid RECAPTCHA_ENTERPRISE_SERVICE_ACCOUNT');
+      let credentials: any;
+      let sak = serviceAccountKey.trim();
+      try {
+        credentials = JSON.parse(sak);
+      } catch {
+        if (sak.length >= 2 && ((sak.startsWith("'") && sak.endsWith("'")) || (sak.startsWith('"') && sak.endsWith('"')))) {
+          const unquoted = sak.slice(1, -1);
+          credentials = JSON.parse(unquoted);
+        } else {
+          throw new Error('Invalid RECAPTCHA_ENTERPRISE_SERVICE_ACCOUNT');
+        }
       }
-    }
-    
-    // Create JWT for Google OAuth
-    const header = {
-      alg: 'RS256',
-      typ: 'JWT',
-    };
+      
+      // Create JWT for Google OAuth
+      const header = {
+        alg: 'RS256',
+        typ: 'JWT',
+      };
 
-    const now = Math.floor(Date.now() / 1000);
-    const payload = {
-      iss: credentials.client_email,
-      scope: 'https://www.googleapis.com/auth/cloud-platform',
-      aud: 'https://oauth2.googleapis.com/token',
-      exp: now + 3600,
-      iat: now,
-    };
+      const now = Math.floor(Date.now() / 1000);
+      const payload = {
+        iss: credentials.client_email,
+        scope: 'https://www.googleapis.com/auth/cloud-platform',
+        aud: 'https://oauth2.googleapis.com/token',
+        exp: now + 3600,
+        iat: now,
+      };
 
-    // Crear JWT con jsonwebtoken
-    const assertion = jwt.sign(payload, credentials.private_key, {
-      algorithm: 'RS256',
-      header,
-    });
+      // Crear JWT con jsonwebtoken
+      const assertion = jwt.sign(payload, credentials.private_key, {
+        algorithm: 'RS256',
+        header,
+      });
 
-    // Exchange JWT for access token
-    const response = await fetch('https://oauth2.googleapis.com/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion,
-      }),
-    });
+      // Exchange JWT for access token
+      const response = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+          assertion,
+        }),
+      });
 
-    if (!response.ok) {
-      const error = await response.text();
-      logger.error('Failed to get Google access token', { error });
+      if (!response.ok) {
+        const error = await response.text();
+        logger.error('Failed to get Google access token', { error });
+        return null;
+      }
+
+      const data = await response.json() as { access_token: string; expires_in: number };
+      
+      // Cachear el token (expira en 1 hora, renovar 5 min antes)
+      cachedAccessToken = {
+        token: data.access_token,
+        expiresAt: Date.now() + (data.expires_in - 300) * 1000,
+      };
+
+      logger.info('Google access token refreshed successfully');
+      return data.access_token;
+    } catch (error) {
+      logger.error('Error getting Google access token', error);
       return null;
+    } finally {
+      // Limpiar promise después de completar (éxito o error)
+      refreshPromise = null;
     }
+  })();
 
-    const data = await response.json() as { access_token: string; expires_in: number };
-    
-    // Cachear el token (expira en 1 hora, renovar 5 min antes)
-    cachedAccessToken = {
-      token: data.access_token,
-      expiresAt: Date.now() + (data.expires_in - 300) * 1000,
-    };
-
-    return data.access_token;
-  } catch (error) {
-    logger.error('Error getting Google access token', error);
-    return null;
-  }
+  return refreshPromise;
 }
 
 export async function verifyRecaptchaEnterprise(
