@@ -36,15 +36,6 @@ export default function Home() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  const isInIframe = () => {
-    if (typeof window === 'undefined') return false;
-    try {
-      return window.self !== window.top;
-    } catch {
-      return true;
-    }
-  };
-  
   // Track scroll depth and time on page
   usePageAnalytics();
 

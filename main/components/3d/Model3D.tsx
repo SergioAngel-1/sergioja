@@ -18,17 +18,33 @@ interface Model3DProps {
   onAnimationComplete?: () => void;
 }
 
+// Detectar si estamos en un iframe
+const isInIframe = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true; // Cross-origin iframe
+  }
+};
+
 export default function Model3D({ mousePosition, onAnimationComplete }: Model3DProps) {
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showGyroButton, setShowGyroButton] = useState(false);
   const [showGyroHint, setShowGyroHint] = useState(false);
   const [gyroEnabled, setGyroEnabled] = useState(false);
+  const [inIframe, setInIframe] = useState(false);
   const gyroRequestPermissionRef = useRef<(() => Promise<boolean>) | null>(null);
   const isMobile = useIsMobile();
   const { t } = useLanguage();
   const log = useLogger('Model3D');
   const { lowPerformanceMode, mode } = usePerformance();
+  
+  // Detectar iframe al montar
+  useEffect(() => {
+    setInIframe(isInIframe());
+  }, []);
 
   // Desactivar gyro si se activa low performance mode
   useEffect(() => {
@@ -80,9 +96,19 @@ export default function Model3D({ mousePosition, onAnimationComplete }: Model3DP
     }
   };
 
+  // Desactivar backdrop-filter en iframe o low performance para evitar bugs de renderizado
+  const disableBackdropBlur = inIframe || lowPerformanceMode;
+
   return (
-    <div className="relative w-full h-full">
-      <ModelBackground />
+    <div 
+      className="relative w-full h-full"
+      style={{
+        isolation: 'isolate',
+        borderRadius: '50%',
+        overflow: 'hidden',
+      }}
+    >
+      <ModelBackground disableBackdropBlur={disableBackdropBlur} />
 
       {/* Contenido: Loader o Canvas */}
       {!mounted || isLoading ? (

@@ -1,11 +1,21 @@
 'use client';
 
-import { Suspense, useEffect, useState, useRef } from 'react';
+import { Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Loader from '@/components/atoms/Loader';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+
+// Detectar si estamos en un iframe
+const isInIframe = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true; // Cross-origin iframe
+  }
+};
 
 const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
   ssr: false,
@@ -19,11 +29,14 @@ const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
 export default function CenteredHero({ onModelIntroComplete }: { onModelIntroComplete?: () => void }) {
   const [mounted, setMounted] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [inIframe, setInIframe] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
   const rafIdRef = useRef<number | null>(null);
   const pendingPositionRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    setInIframe(isInIframe());
     
     // Optimized mouse tracking: Use RAF to batch updates at monitor refresh rate
     // This allows smooth 3D tracking while preventing excessive re-renders
@@ -73,20 +86,30 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
           height: fluidSizing.size.heroContainer,
         }}
       >
-        {/* 3D Model Container */}
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: '80%',
-            height: '80%',
-            left: '10%',
-            top: '10%',
-            background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
-            filter: 'blur(40px)',
-            willChange: 'filter',
-            transform: 'translateZ(0)',
-          }}
-        />
+        {/* 3D Model Container - Blur effect (desactivado en iframe para evitar bugs) */}
+        {!inIframe && (
+          <div
+            className="absolute"
+            style={{
+              width: '80%',
+              height: '80%',
+              left: '10%',
+              top: '10%',
+              clipPath: 'circle(50% at 50% 50%)',
+              WebkitClipPath: 'circle(50% at 50% 50%)',
+            }}
+          >
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)',
+                filter: 'blur(clamp(20px, 6vw, 40px))',
+                willChange: animationComplete ? 'auto' : 'filter',
+                transform: 'translateZ(0)',
+              }}
+            />
+          </div>
+        )}
         
         {/* 3D Model Container with blurred gray background */}
         <motion.div 
@@ -117,7 +140,13 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
             }
           >
             {/* Renderizar modelo solo después de que el contenedor sea visible */}
-            <Model3D mousePosition={mousePosition} onAnimationComplete={onModelIntroComplete} />
+            <Model3D 
+              mousePosition={mousePosition} 
+              onAnimationComplete={() => {
+                setAnimationComplete(true);
+                onModelIntroComplete?.();
+              }} 
+            />
           </Suspense>
         </motion.div>
       </div>
