@@ -49,11 +49,19 @@ export default function AboutPage() {
   // Obtener categorías desde el backend
   const { categories: backendCategories, isLoading: categoriesLoading } = useTechnologyCategories();
 
-  // Crear mapa de colores por categoría
+  // Crear mapa de colores y labels por categoría
   const categoryColorMap = useMemo(() => {
     const map: Record<string, string> = {};
     backendCategories.forEach(cat => {
       map[cat.name] = cat.color || '#ff0000';
+    });
+    return map;
+  }, [backendCategories]);
+
+  const categoryLabelMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    backendCategories.forEach(cat => {
+      map[cat.name] = cat.label;
     });
     return map;
   }, [backendCategories]);
@@ -329,7 +337,7 @@ export default function AboutPage() {
                         style={{ backgroundColor: categoryColorMap[category] || '#FF0000' }}
                       />
                       <h3 className="font-orbitron text-lg sm:text-xl md:text-2xl font-bold text-white uppercase tracking-wider">
-                        {category}
+                        {categoryLabelMap[category] || category}
                       </h3>
                     </div>
                     <div className="flex-1 h-px bg-gradient-to-r from-white/30 via-white/10 to-transparent" />

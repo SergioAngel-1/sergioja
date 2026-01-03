@@ -116,38 +116,78 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
       take: limitNum,
     });
 
+  // Obtener todas las categorías únicas de los proyectos
+  const allCategories = new Set<string>();
+  projects.forEach((p: any) => {
+    if (p.categories) {
+      p.categories.forEach((cat: string) => allCategories.add(cat));
+    }
+  });
+
+  // Obtener labels de todas las categorías en una sola query
+  const categoryLabelsMap: Record<string, string> = {};
+  if (allCategories.size > 0) {
+    const projectCategories = await prisma.projectCategory.findMany({
+      where: {
+        name: { in: Array.from(allCategories) },
+        active: true,
+      },
+      select: {
+        name: true,
+        label: true,
+      },
+    });
+    
+    projectCategories.forEach((cat: { name: string; label: string }) => {
+      categoryLabelsMap[cat.name] = cat.label;
+    });
+  }
+
   // Transform to match frontend interface
-  const transformedProjects: Project[] = projects.map((p: any) => ({
-    id: p.id,
-    slug: p.slug,
-    title: p.title,
-    longDescriptionEs: p.longDescriptionEs ?? null,
-    longDescriptionEn: p.longDescriptionEn ?? null,
-    thumbnailImage: p.thumbnailImage || null,
-    imagesDesktop: p.imagesDesktop || [],
-    imagesMobile: p.imagesMobile || [],
-    categories: p.categories || [],
-    status: p.status,
-    isFeatured: p.isFeatured,
-    demoUrl: p.demoUrl || undefined,
-    repoUrl: p.repoUrl || undefined,
-    githubUrl: p.githubUrl || p.repoUrl || undefined,
-    isCodePublic: p.isCodePublic,
-    performanceScore: p.performanceScore || null,
-    accessibilityScore: p.accessibilityScore || null,
-    seoScore: p.seoScore || null,
-    publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
-    createdAt: p.createdAt.toISOString(),
-    updatedAt: p.updatedAt.toISOString(),
-    technologies: p.technologies?.map((pt: any) => ({
-      name: pt.technology?.name,
-      category: pt.category,
-      proficiency: pt.proficiency,
-      yearsOfExperience: pt.yearsOfExperience,
-      icon: pt.technology?.icon ?? undefined,
-      color: pt.technology?.color ?? undefined,
-    })).filter((t: any) => !!t.name) || [],
-  }));
+  const transformedProjects: Project[] = projects.map((p: any) => {
+    // Crear categoryLabels específico para este proyecto
+    const projectCategoryLabels: Record<string, string> = {};
+    if (p.categories) {
+      p.categories.forEach((cat: string) => {
+        if (categoryLabelsMap[cat]) {
+          projectCategoryLabels[cat] = categoryLabelsMap[cat];
+        }
+      });
+    }
+
+    return {
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      longDescriptionEs: p.longDescriptionEs ?? null,
+      longDescriptionEn: p.longDescriptionEn ?? null,
+      thumbnailImage: p.thumbnailImage || null,
+      imagesDesktop: p.imagesDesktop || [],
+      imagesMobile: p.imagesMobile || [],
+      categories: p.categories || [],
+      categoryLabels: projectCategoryLabels, // Agregar labels de categorías
+      status: p.status,
+      isFeatured: p.isFeatured,
+      demoUrl: p.demoUrl || undefined,
+      repoUrl: p.repoUrl || undefined,
+      githubUrl: p.githubUrl || p.repoUrl || undefined,
+      isCodePublic: p.isCodePublic,
+      performanceScore: p.performanceScore || null,
+      accessibilityScore: p.accessibilityScore || null,
+      seoScore: p.seoScore || null,
+      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+      technologies: p.technologies?.map((pt: any) => ({
+        name: pt.technology?.name,
+        category: pt.category,
+        proficiency: pt.proficiency,
+        yearsOfExperience: pt.yearsOfExperience,
+        icon: pt.technology?.icon ?? undefined,
+        color: pt.technology?.color ?? undefined,
+      })).filter((t: any) => !!t.name) || [],
+    };
+  });
 
   const response: ApiResponse<PaginatedResponse<Project>> = {
     success: true,

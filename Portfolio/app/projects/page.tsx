@@ -135,17 +135,30 @@ export default function WorkPage() {
               />
 
             {/* Stats - 3 columnas en el extremo */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="grid grid-cols-3 lg:min-w-[240px]"
-              style={{ gap: fluidSizing.space.sm }}
-            >
-              <StatCard label={t('work.total')} value={stats.total} index={0} />
-              <StatCard label={t('work.featured')} value={stats.featured} index={1} />
-              <StatCard label={t('work.categories')} value={stats.categories} index={2} />
-            </motion.div>
+            {loading ? (
+              <div className="grid grid-cols-3 lg:min-w-[240px]" style={{ gap: fluidSizing.space.sm }}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="relative bg-background-elevated border border-white/20 rounded-lg overflow-hidden animate-pulse" style={{ padding: fluidSizing.space.md, minHeight: '120px' }}>
+                    <div className="flex flex-col items-center justify-center h-full gap-2">
+                      <div className="h-8 w-12 bg-white/10 rounded" />
+                      <div className="h-3 w-16 bg-white/10 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="grid grid-cols-3 lg:min-w-[240px]"
+                style={{ gap: fluidSizing.space.sm }}
+              >
+                <StatCard label={t('work.total')} value={stats.total} index={0} />
+                <StatCard label={t('work.featured')} value={stats.featured} index={1} />
+                <StatCard label={t('work.categories')} value={stats.categories} index={2} />
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -172,7 +185,25 @@ export default function WorkPage() {
         )}
 
         {/* Projects display */}
-        {(error || (!loading && projects.length === 0)) ? (
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="relative bg-background-surface/50 border border-white/20 rounded-lg overflow-hidden animate-pulse" style={{ height: '400px' }}>
+                <div className="w-full aspect-video bg-white/5" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-white/10 rounded w-3/4" />
+                  <div className="h-3 bg-white/10 rounded w-full" />
+                  <div className="h-3 bg-white/10 rounded w-5/6" />
+                  <div className="flex gap-2 mt-4">
+                    <div className="h-6 w-16 bg-white/10 rounded-full" />
+                    <div className="h-6 w-16 bg-white/10 rounded-full" />
+                    <div className="h-6 w-16 bg-white/10 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (error || (!loading && projects.length === 0)) ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
