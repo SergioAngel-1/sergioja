@@ -127,7 +127,7 @@ export default function AboutSection() {
                 </h3>
                 <div className="space-y-4 text-text-secondary font-rajdhani text-base leading-relaxed">
                   <p>
-                    I'm a <span className="text-cyber-blue-cyan font-semibold">creative developer</span> who bridges the gap between design and functionality,
+                    I&apos;m a <span className="text-cyber-blue-cyan font-semibold">creative developer</span> who bridges the gap between design and functionality,
                     crafting digital experiences that are both visually stunning and technically robust.
                   </p>
                   <p>

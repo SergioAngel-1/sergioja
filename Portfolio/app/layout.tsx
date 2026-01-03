@@ -2,16 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/organisms/Navbar';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import NextPageButton from '@/components/molecules/NextPageButton';
-import PageLoader from '@/components/molecules/PageLoader';
-import HeaderWrapper from '@/components/organisms/HeaderWrapper';
-import AlertContainer from '@/components/molecules/alerts/AlertContainer';
-import { PerformanceProvider } from '@/lib/contexts/PerformanceContext';
-import { LanguageProvider } from '@/lib/contexts/LanguageContext';
-import { MatrixProvider } from '@/lib/contexts/MatrixContext';
-import { ModalProvider } from '@/lib/contexts/ModalContext';
+import ClientProviders from '@/components/ClientProviders';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
 import WebVitalsTracker from '@/components/WebVitalsTracker';
@@ -136,22 +127,9 @@ export default function RootLayout({
         </Script>
         <WebVitalsTracker />
         <PageViewTracker />
-        <LanguageProvider>
-          <PerformanceProvider>
-            <MatrixProvider>
-              <ModalProvider>
-                <ErrorBoundary>
-                  <PageLoader />
-                  <HeaderWrapper />
-                  <Navbar />
-                  <main className="min-h-viewport with-safe-insets overflow-hidden">{children}</main>
-                  <NextPageButton />
-                  <AlertContainer />
-                </ErrorBoundary>
-              </ModalProvider>
-            </MatrixProvider>
-          </PerformanceProvider>
-        </LanguageProvider>
+        <ClientProviders>
+          <main className="min-h-viewport with-safe-insets overflow-hidden">{children}</main>
+        </ClientProviders>
       </body>
     </html>
   );

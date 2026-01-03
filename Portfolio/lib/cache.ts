@@ -252,7 +252,8 @@ export function buildVersionedKey(
   version: number | string | undefined
 ): string {
   const suffix = version ? `:v${version}` : '';
-  return `${useCacheKey(baseKey, params)}${suffix}`;
+  const paramsStr = params ? JSON.stringify(params) : '';
+  return `${baseKey}:${paramsStr}${suffix}`;
 }
 
 /**
