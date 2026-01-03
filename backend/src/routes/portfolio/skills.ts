@@ -3,6 +3,7 @@ import { ApiResponse, Skill, Project } from '../../../../shared/types';
 import { prisma } from '../../lib/prisma';
 import { logger } from '../../lib/logger';
 import { asyncHandler } from '../../middleware/errorHandler';
+import { authMiddleware, adminRoleMiddleware } from '../../middleware/auth';
 
 const router = Router();
 
@@ -177,8 +178,8 @@ router.get('/:id/projects', asyncHandler(async (req: Request, res: Response) => 
   res.json(response);
 }));
 
-// PUT /api/skills/:id - Update a skill
-router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+// PUT /api/skills/:id - Update a skill (admin only)
+router.put('/:id', authMiddleware, adminRoleMiddleware, asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { category, proficiency, yearsOfExperience, color, icon } = req.body;
 
@@ -229,8 +230,8 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
   res.json(response);
 }));
 
-// DELETE /api/skills/:id - Delete a skill
-router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+// DELETE /api/skills/:id - Delete a skill (admin only)
+router.delete('/:id', authMiddleware, adminRoleMiddleware, asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const technology = await prisma.technology.findUnique({

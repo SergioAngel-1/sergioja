@@ -96,18 +96,39 @@ app.use(express.json({ limit: '10mb' })); // Aumentar límite para imágenes en 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Rate limiting
-const limiter = rateLimit({
+// Rate limiting - Separado para rutas públicas y autenticadas
+const publicLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 min default
   max: process.env.NODE_ENV === 'development'
-    ? 1000 // Permissive en dev, no disabled
+    ? 1000 // Permissive en dev
     : parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limit público si la request tiene token de autenticación
+    return !!req.cookies.accessToken;
+  },
 });
 
-app.use('/api/', limiter);
+// Rate limiter más permisivo para TODAS las operaciones autenticadas
+const authenticatedLimiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 min
+  max: process.env.NODE_ENV === 'development'
+    ? 2000 // Muy permissive en dev
+    : 500, // 500 requests en 15 min para usuarios autenticados (mucho más permisivo)
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Solo aplicar a requests autenticadas
+    return !req.cookies.accessToken;
+  },
+});
+
+// Aplicar ambos limiters - solo uno se activará dependiendo de si hay auth
+app.use('/api/', publicLimiter);
+app.use('/api/', authenticatedLimiter);
 
 // Request logging
 app.use(requestLogger);
