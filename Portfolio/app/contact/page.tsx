@@ -64,12 +64,7 @@ export default function ContactPage() {
   // Track scroll depth and time on page
   usePageAnalytics();
 
-  useEffect(() => {
-    const key = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
-    if (key && process.env.NODE_ENV === 'production') {
-      loadRecaptchaEnterprise(key).catch(() => {});
-    }
-  }, []);
+  // ✅ No cargar reCAPTCHA en mount - getReCaptchaToken() lo carga automáticamente cuando se necesita (lazy loading)
 
   // Validación en tiempo real con debounce
   const validateField = useCallback((field: keyof typeof formData, value: string) => {

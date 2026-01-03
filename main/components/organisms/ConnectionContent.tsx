@@ -155,8 +155,7 @@ export default function ConnectionContent({ profile }: ConnectionContentProps) {
           token = recaptchaToken;
           log.info('Using cached reCAPTCHA token');
         } else {
-          // Cargar script y generar nuevo token
-          await loadRecaptchaEnterprise(siteKey);
+          // ✅ getReCaptchaToken() carga el script automáticamente si es necesario (no llamar loadRecaptchaEnterprise explícitamente)
           token = await getReCaptchaToken(siteKey, 'submit_contact');
           
           if (!token) {
