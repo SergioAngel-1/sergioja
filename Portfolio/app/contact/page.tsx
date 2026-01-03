@@ -43,6 +43,10 @@ export default function ContactPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
   
+  // Cache de token reCAPTCHA (TTL: 2 minutos)
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [tokenExpiry, setTokenExpiry] = useState<number>(0);
+  
   // Usar hook de perfil
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   
@@ -109,16 +113,27 @@ export default function ContactPage() {
 
     setStatus('loading');
     
-    // Obtener token de reCAPTCHA v3 (solo en producción con siteKey configurado)
-    let recaptchaToken: string | null | undefined = undefined;
+    // Obtener o reutilizar token de reCAPTCHA (solo en producción con siteKey configurado)
+    let token: string | null | undefined = undefined;
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
     
     if (siteKey && process.env.NODE_ENV === 'production') {
-      recaptchaToken = await getReCaptchaToken(siteKey, 'submit_contact');
-      if (!recaptchaToken) {
-        setStatus('error');
-        setErrorMessage(t('contact.recaptchaRequired') || 'Por favor completa el reCAPTCHA');
-        return;
+      // Verificar si hay token en cache y no ha expirado
+      if (recaptchaToken && Date.now() < tokenExpiry) {
+        token = recaptchaToken;
+        log.info('Using cached reCAPTCHA token');
+      } else {
+        // Generar nuevo token
+        token = await getReCaptchaToken(siteKey, 'submit_contact');
+        if (!token) {
+          setStatus('error');
+          setErrorMessage(t('contact.recaptchaRequired') || 'Por favor completa el reCAPTCHA');
+          return;
+        }
+        // Cachear token por 2 minutos (120000ms)
+        setRecaptchaToken(token);
+        setTokenExpiry(Date.now() + 120000);
+        log.info('Generated and cached new reCAPTCHA token');
       }
     }
     log.interaction('submit_contact_form', 'contact_form', formData);
@@ -127,7 +142,7 @@ export default function ContactPage() {
     const sanitizedData = sanitizeContactForm(formData);
 
     try {
-      const response = await api.submitContact({ ...sanitizedData, recaptchaToken, recaptchaAction: 'submit_contact' });
+      const response = await api.submitContact({ ...sanitizedData, recaptchaToken: token, recaptchaAction: 'submit_contact' });
       
       if (response.success) {
         setStatus('success');

@@ -31,6 +31,10 @@ export default function ConnectionContent({ profile }: ConnectionContentProps) {
   const [sending, setSending] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const { t, language } = useLanguage();
+  
+  // Cache de token reCAPTCHA (TTL: 2 minutos)
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [tokenExpiry, setTokenExpiry] = useState<number>(0);
 
   // Inicializar consola con traducciones
   const initConsole = useCallback(() => {
@@ -89,28 +93,40 @@ export default function ConnectionContent({ profile }: ConnectionContentProps) {
     setSending(true);
     log.info('contact_submit_start');
     
-    // Cargar script de reCAPTCHA Enterprise bajo demanda y obtener token (solo en producción)
-    let recaptchaToken: string | null | undefined = undefined;
+    // Obtener o reutilizar token de reCAPTCHA (solo en producción)
+    let token: string | null | undefined = undefined;
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
     
     if (siteKey && process.env.NODE_ENV === 'production') {
       try {
-        await loadRecaptchaEnterprise(siteKey);
-        recaptchaToken = await getReCaptchaToken(siteKey, 'submit_contact');
-        
-        if (!recaptchaToken) {
-          setConsoleHistory(prev => [
-            ...prev,
-            `> Error: ${t('contact.recaptchaRequired')}`
-          ]);
-          alerts.error(
-            t('alerts.sendError'),
-            t('contact.recaptchaRequired'),
-            6000
-          );
-          setSending(false);
-          log.error('recaptcha_token_missing');
-          return;
+        // Verificar si hay token en cache y no ha expirado
+        if (recaptchaToken && Date.now() < tokenExpiry) {
+          token = recaptchaToken;
+          log.info('Using cached reCAPTCHA token');
+        } else {
+          // Cargar script y generar nuevo token
+          await loadRecaptchaEnterprise(siteKey);
+          token = await getReCaptchaToken(siteKey, 'submit_contact');
+          
+          if (!token) {
+            setConsoleHistory(prev => [
+              ...prev,
+              `> Error: ${t('contact.recaptchaRequired')}`
+            ]);
+            alerts.error(
+              t('alerts.sendError'),
+              t('contact.recaptchaRequired'),
+              6000
+            );
+            setSending(false);
+            log.error('recaptcha_token_missing');
+            return;
+          }
+          
+          // Cachear token por 2 minutos (120000ms)
+          setRecaptchaToken(token);
+          setTokenExpiry(Date.now() + 120000);
+          log.info('Generated and cached new reCAPTCHA token');
         }
       } catch (error) {
         setConsoleHistory(prev => [
@@ -138,7 +154,7 @@ export default function ConnectionContent({ profile }: ConnectionContentProps) {
     try {
       const payload: ContactSubmissionPayload = {
         ...sanitizedData,
-        recaptchaToken: recaptchaToken || undefined,
+        recaptchaToken: token || undefined,
         recaptchaAction: 'submit_contact',
       };
       const response = await api.submitContact(payload);
