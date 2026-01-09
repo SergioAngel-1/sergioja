@@ -25,5 +25,9 @@ export const contactEn = {
   'contact.busy': 'FOCUSED ON ACTIVE COLLABORATIONS',
   'contact.busyMsg': 'I\'m currently dedicated to ongoing partnerships, but I\'d love to explore what we could build together once I wrap them up.',
   'contact.unavailable': 'NOT TAKING NEW PROJECTS',
-  'contact.unavailableMsg': 'I\'m temporarily unavailable for new engagements. Leave me a message and I\'ll reach out as soon as new availability opens up.',
+  'contact.unavailableMsg': 'I\'m not taking new projects right now. Leave me a message and I\'ll reach out when I open my schedule again.',
+  'contact.legalLinks': 'Legal Information',
+  'contact.faqDesc': 'Frequently asked questions about services and processes',
+  'contact.termsDesc': 'Terms and conditions of use',
+  'contact.privacyDesc': 'Privacy policy and data',
 } as const;

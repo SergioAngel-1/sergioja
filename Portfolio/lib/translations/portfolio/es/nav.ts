@@ -4,7 +4,7 @@ export const navEs = {
   'nav.about': 'ACERCA DE',
   'nav.contact': 'CONTACTO',
   'nav.projects': 'PROYECTOS',
-  'nav.faq': 'FAQ',
+  'nav.faq': 'PREGUNTAS FRECUENTES',
   'nav.terms': 'TÉRMINOS Y CONDICIONES',
   'nav.privacy': 'POLÍTICA DE PRIVACIDAD',
 } as const;

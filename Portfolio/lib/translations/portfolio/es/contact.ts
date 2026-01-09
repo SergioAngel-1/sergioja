@@ -26,4 +26,8 @@ export const contactEs = {
   'contact.busyMsg': 'Actualmente estoy dedicado a alianzas en curso, pero me encantaría explorar nuevos desafíos apenas libere agenda.',
   'contact.unavailable': 'SIN DISPONIBILIDAD TEMPORALMENTE',
   'contact.unavailableMsg': 'Por ahora no estoy tomando nuevos proyectos. Déjame un mensaje y te escribiré cuando abra nuevamente mi agenda.',
+  'contact.legalLinks': 'Información Legal',
+  'contact.faqDesc': 'Preguntas frecuentes sobre servicios y procesos',
+  'contact.termsDesc': 'Términos y condiciones de uso',
+  'contact.privacyDesc': 'Política de privacidad y datos',
 } as const;

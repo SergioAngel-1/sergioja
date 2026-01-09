@@ -1,31 +1,31 @@
 'use client';
 
-import { useState, FormEvent, useRef, useCallback, useEffect, useMemo, ChangeEvent } from 'react';
+import { useState, FormEvent, useRef, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useLogger } from '@/shared/hooks/useLogger';
+import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
 import PageHeader from '@/components/organisms/PageHeader';
-import Button from '@/components/atoms/Button';
-import Input from '@/components/atoms/Input';
-import Textarea from '@/components/atoms/Textarea';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
+import ContactMethodCard from '@/components/molecules/ContactMethodCard';
+import SocialLinkItem from '@/components/molecules/SocialLinkItem';
+import AvailabilityBadge from '@/components/molecules/AvailabilityBadge';
+import LegalLinksSection from '@/components/molecules/LegalLinksSection';
+import ContactForm from '@/components/organisms/ContactForm';
 import { api } from '@/lib/api-client';
-import type { Profile } from '@/shared/types';
 import useProfile from '@/lib/hooks/useProfile';
-// Lazy load DevTipsModal (only needed when user clicks newsletter)
 const DevTipsModal = dynamic(() => import('@/components/molecules/DevTipsModal'), {
   ssr: false,
 });
-import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { alerts } from '@/shared/alertSystem';
 import { validateContactForm, sanitizeContactForm, validateName, validateEmail, validateSubject, validateMessage } from '@/shared/formValidations';
-import { getReCaptchaToken, loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
+import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 import { trackContactSubmit, trackNewsletterSubscribe, trackOutboundLink } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 import { usePWAInstall } from '@/shared/hooks/usePWAInstall';
-
 
 type AvailabilityStatus = 'available' | 'busy' | 'unavailable';
 
@@ -38,35 +38,21 @@ export default function ContactPage() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const log = useLogger('ContactPage');
-  const { t, language } = useLanguage();
-  const formRef = useRef<HTMLFormElement>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
+  const { t, language } = useLanguage();
+  const log = useLogger('ContactPage');
+  const router = useRouter();
+  const { profile } = useProfile();
   
-  // Cache de token reCAPTCHA (TTL: 2 minutos)
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [tokenExpiry, setTokenExpiry] = useState<number>(0);
+  const formRef = useRef<HTMLFormElement>(null);
   
-  // Validación en tiempo real por campo
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
-  
-  // Usar hook de perfil
-  const { profile, loading: profileLoading, error: profileError } = useProfile();
-  
-  // PWA Install
   const { isInstallable, isInstalled, install } = usePWAInstall();
   
-  // Track scroll depth and time on page
   usePageAnalytics();
 
-  // ✅ No cargar reCAPTCHA en mount - getReCaptchaToken() lo carga automáticamente cuando se necesita (lazy loading)
-
-  // Validación en tiempo real con debounce
   const validateField = useCallback((field: keyof typeof formData, value: string) => {
     let validation;
     
@@ -93,7 +79,6 @@ export default function ContactPage() {
     }));
   }, [t]);
 
-  // Debounced validation (500ms)
   const debouncedValidate = useCallback((field: keyof typeof formData, value: string) => {
     const timeoutId = setTimeout(() => {
       validateField(field, value);
@@ -102,21 +87,18 @@ export default function ContactPage() {
     return () => clearTimeout(timeoutId);
   }, [validateField]);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const fieldName = name as keyof typeof formData;
     
     setFormData(prev => ({ ...prev, [fieldName]: value }));
-    
-    // Limpiar error del campo al escribir
     setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
-    
-    // Validar después de 500ms de inactividad
     debouncedValidate(fieldName, value);
-  };
+    setStatus('idle');
+    setErrorMessage('');
+  }, [debouncedValidate]);
 
   const handleNewsletterSubmit = async (email: string) => {
-    // Suscripción al newsletter con reCAPTCHA Enterprise (solo en producción)
     let recaptchaToken: string | null | undefined = undefined;
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
     
@@ -148,14 +130,12 @@ export default function ContactPage() {
     e.preventDefault();
     setErrorMessage('');
 
-    // Validar formulario con traducciones
     const validation = validateContactForm(formData, t);
     if (!validation.isValid) {
       const firstError = Object.values(validation.errors)[0];
       setStatus('error');
       setErrorMessage(firstError || t('alerts.checkForm'));
       
-      // Scroll automático al formulario (sin alerta del sistema)
       setTimeout(() => {
         formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
@@ -165,24 +145,20 @@ export default function ContactPage() {
 
     setStatus('loading');
     
-    // Obtener o reutilizar token de reCAPTCHA (solo en producción con siteKey configurado)
     let token: string | null | undefined = undefined;
     const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '';
     
     if (siteKey && process.env.NODE_ENV === 'production') {
-      // Verificar si hay token en cache y no ha expirado
       if (recaptchaToken && Date.now() < tokenExpiry) {
         token = recaptchaToken;
         log.info('Using cached reCAPTCHA token');
       } else {
-        // Generar nuevo token
         token = await getReCaptchaToken(siteKey, 'submit_contact');
         if (!token) {
           setStatus('error');
           setErrorMessage(t('contact.recaptchaRequired') || 'Por favor completa el reCAPTCHA');
           return;
         }
-        // Cachear token por 2 minutos (120000ms)
         setRecaptchaToken(token);
         setTokenExpiry(Date.now() + 120000);
         log.info('Generated and cached new reCAPTCHA token');
@@ -190,7 +166,6 @@ export default function ContactPage() {
     }
     log.interaction('submit_contact_form', 'contact_form', formData);
 
-    // Sanitizar datos antes de enviar
     const sanitizedData = sanitizeContactForm(formData);
 
     try {
@@ -204,7 +179,6 @@ export default function ContactPage() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
-        // Mostrar alerta de éxito
         alerts.success(
           t('alerts.messageSent'),
           t('alerts.messageSentDesc'),
@@ -217,7 +191,6 @@ export default function ContactPage() {
         setErrorMessage(errorMsg);
         log.error('Contact form submission failed', response.error);
         
-        // Mostrar alerta de error
         alerts.error(
           t('alerts.sendError'),
           errorMsg,
@@ -230,7 +203,6 @@ export default function ContactPage() {
       setErrorMessage(errorMsg);
       log.error('Contact form network error', error);
       
-      // Mostrar alerta de error de red
       alerts.error(
         t('alerts.connectionError'),
         t('alerts.connectionErrorDesc'),
@@ -238,24 +210,6 @@ export default function ContactPage() {
       );
     }
   };
-
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    const fieldName = name as keyof typeof formData;
-    
-    setFormData(prev => ({ ...prev, [fieldName]: value }));
-    
-    // Limpiar error del campo al escribir
-    setFieldErrors(prev => ({ ...prev, [fieldName]: '' }));
-    
-    // Validar después de 500ms de inactividad
-    debouncedValidate(fieldName, value);
-    
-    // Limpiar estado de error INMEDIATAMENTE cuando el usuario empiece a escribir
-    setStatus('idle');
-    setErrorMessage('');
-  }, [debouncedValidate]);
-
 
   const availabilityStatus: AvailabilityStatus =
     profile?.availability === 'busy' || profile?.availability === 'unavailable'
@@ -354,7 +308,6 @@ export default function ContactPage() {
       url: '#newsletter', 
       icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' 
     },
-    // PWA Install button - solo mostrar si es instalable y no está instalado
     ...((isInstallable && !isInstalled) ? [{
       name: t('contact.installApp'),
       url: '#install-pwa',
@@ -365,10 +318,8 @@ export default function ContactPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
-      {/* Cyber grid background */}
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
-      {/* Animated glow effects */}
       <GlowEffect
         color="white"
         size="lg"
@@ -388,11 +339,9 @@ export default function ContactPage() {
         animationType="pulse"
       />
 
-      {/* Floating particles - Reducidas en móvil */}
       <FloatingParticles count={50} color="bg-white" />
 
       <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
-        {/* Header */}
         <div className="mb-8 md:mb-16">
           <PageHeader 
             title={t('contact.title')} 
@@ -408,209 +357,18 @@ export default function ContactPage() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="lg:col-span-3 flex"
           >
-            <div className="relative w-full bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg hover:border-white/50 transition-all duration-300 flex flex-col" style={{ padding: fluidSizing.space.xl }}>
-              <h2 className="font-orbitron font-bold text-white text-fluid-2xl" style={{ marginBottom: fluidSizing.space.lg }}>
-                {t('contact.sendMessage')}
-              </h2>
-
-              {status === 'success' ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex-1 flex flex-col items-center justify-center text-center"
-                  style={{ gap: fluidSizing.space.xl }}
-                >
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  >
-                    <svg className="w-20 h-20 text-white/80 mx-auto" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </motion.div>
-                  
-                  <div>
-                    <h3 className="font-orbitron font-bold text-white text-fluid-xl mb-2">
-                      {t('contact.success')}
-                    </h3>
-                    <p className="text-white/70 font-rajdhani text-fluid-base">
-                      {t('contact.successMsg')}
-                    </p>
-                  </div>
-
-                  <Button
-                    onClick={() => setStatus('idle')}
-                    variant="blue"
-                    size="lg"
-                    className="w-full max-w-xs"
-                  >
-                    Enviar otro mensaje
-                  </Button>
-                </motion.div>
-              ) : (
-                <form ref={formRef} onSubmit={handleSubmit} className="flex-1 flex flex-col" style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.lg }} noValidate>
-                  {/* Name Input */}
-                  <div>
-                    <Input
-                      type="text"
-                      id="name"
-                      name="name"
-                      label={t('contact.name')}
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder={t('contact.namePlaceholder')}
-                      required
-                    />
-                    {fieldErrors.name && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-cyber-red text-xs mt-1 font-mono"
-                      >
-                        {fieldErrors.name}
-                      </motion.p>
-                    )}
-                  </div>
-
-                  {/* Email Input */}
-                  <div>
-                    <Input
-                      type="text"
-                      id="email"
-                      name="email"
-                      label={t('contact.email')}
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder={t('contact.emailPlaceholder')}
-                      required
-                    />
-                    {fieldErrors.email && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-cyber-red text-xs mt-1 font-mono"
-                      >
-                        {fieldErrors.email}
-                      </motion.p>
-                    )}
-                  </div>
-
-                  {/* Subject Input */}
-                  <div>
-                    <Input
-                      type="text"
-                      id="subject"
-                      name="subject"
-                      label={t('contact.subject')}
-                      value={formData.subject}
-                      onChange={handleChange}
-                      placeholder={t('contact.subjectPlaceholder')}
-                      required
-                    />
-                    {fieldErrors.subject && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-cyber-red text-xs mt-1 font-mono"
-                      >
-                        {fieldErrors.subject}
-                      </motion.p>
-                    )}
-                  </div>
-
-                  {/* Message Textarea */}
-                  <div>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      label={t('contact.message')}
-                      value={formData.message}
-                      onChange={handleChange}
-                      placeholder={t('contact.messagePlaceholder')}
-                      required
-                    />
-                    {fieldErrors.message && (
-                      <motion.p
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-cyber-red text-xs mt-1 font-mono"
-                      >
-                        {fieldErrors.message}
-                      </motion.p>
-                    )}
-                  </div>
-
-                  {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    variant="blue"
-                    size="lg"
-                    disabled={status === 'loading'}
-                    className="w-full"
-                  >
-                    {status === 'loading' ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <motion.div
-                          className="w-5 h-5 border-2 border-background-dark border-t-transparent rounded-full"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        />
-                        {t('contact.sending')}
-                      </span>
-                    ) : (
-                      t('contact.send')
-                    )}
-                  </Button>
-
-                  {/* reCAPTCHA disclaimer - Required when hiding badge */}
-                  <p className="text-text-muted text-center leading-relaxed font-mono text-fluid-xs">
-                    {t('recaptcha.disclaimer')}{' '}
-                    <a 
-                      href="https://policies.google.com/privacy" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-cyber-blue-cyan hover:text-white underline transition-colors"
-                    >
-                      {t('recaptcha.privacy')}
-                    </a>
-                    {' '}{language === 'es' ? 'y los' : 'and'}{' '}
-                    <a 
-                      href="https://policies.google.com/terms" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-cyber-blue-cyan hover:text-white underline transition-colors"
-                    >
-                      {t('recaptcha.terms')}
-                    </a>
-                    {' '}{language === 'es' ? 'de Google se aplican' : 'apply'}.
-                  </p>
-
-                  {/* Error Message - Only show on error */}
-                  {status === 'error' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-3 bg-white/5 border border-white/20 rounded-lg backdrop-blur-sm"
-                    >
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-white/70 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                        <div>
-                          <p className="text-white/90 font-rajdhani font-medium text-sm">{t('contact.error')}</p>
-                          <p className="text-white/50 text-xs mt-0.5">{errorMessage}</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </form>
-              )}
-
-              {/* Corner accents */}
-              <div className="absolute top-0 left-0 border-t-2 border-l-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
-              <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
-            </div>
+            <ContactForm
+              formData={formData}
+              status={status}
+              errorMessage={errorMessage}
+              fieldErrors={fieldErrors}
+              language={language}
+              formRef={formRef}
+              onSubmit={handleSubmit}
+              onChange={handleChange}
+              onReset={() => setStatus('idle')}
+              t={t}
+            />
           </motion.div>
 
           {/* Right side - Contact Info */}
@@ -621,54 +379,17 @@ export default function ContactPage() {
             className="lg:col-span-2"
             style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.xl }}
           >
-            {/* Contact Methods - Grid 3 */}
+            {/* Contact Methods */}
             <div className="grid grid-cols-2 sm:grid-cols-3" style={{ gap: fluidSizing.space.md }}>
               {contactMethods.map((method, index) => (
-                <motion.div
+                <ContactMethodCard
                   key={method.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  className={`relative group ${index === 2 ? 'col-span-2 sm:col-span-1' : ''}`}
-                >
-                  {method.href ? (
-                    <a href={method.href} className="block h-full">
-                      <div className="h-full bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300" style={{ padding: fluidSizing.space.md }}>
-                        <div className="flex flex-col items-center text-center" style={{ gap: fluidSizing.space.md }}>
-                          <div className="text-white group-hover:scale-110 transition-transform">
-                            {method.icon}
-                          </div>
-                          <div>
-                            <div className="text-text-muted font-mono uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.xs }}>
-                              {method.label}
-                            </div>
-                            <div className="text-text-primary font-rajdhani font-semibold break-all text-fluid-xs">
-                              {method.value}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 rounded-lg blur-lg transition-opacity pointer-events-none" />
-                    </a>
-                  ) : (
-                    <div className="h-full bg-background-elevated border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300" style={{ padding: fluidSizing.space.md }}>
-                      <div className="flex flex-col items-center text-center" style={{ gap: fluidSizing.space.md }}>
-                        <div className="text-white group-hover:scale-110 transition-transform">
-                          {method.icon}
-                        </div>
-                        <div>
-                          <div className="text-text-muted font-mono uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.xs }}>
-                            {method.label}
-                          </div>
-                          <div className="text-text-primary font-rajdhani font-semibold text-fluid-xs">
-                            {method.value}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 rounded-lg blur-lg transition-opacity pointer-events-none" />
-                    </div>
-                  )}
-                </motion.div>
+                  icon={method.icon}
+                  label={method.label}
+                  value={method.value}
+                  href={method.href}
+                  index={index}
+                />
               ))}
             </div>
 
@@ -685,149 +406,80 @@ export default function ContactPage() {
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: fluidSizing.space.md }}>
                 {socialLinks.map((social, index) => (
-                social.comingSoon ? (
-                  <motion.button
+                  <SocialLinkItem
                     key={social.name}
-                    type="button"
-                    disabled
-                    className="relative flex items-center w-full bg-background-elevated/30 rounded-lg opacity-50 cursor-not-allowed group text-left"
-                    style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 0.5, x: 0 }}
-                    transition={{ delay: 1 + index * 0.1 }}
-                  >
-                    <svg className="size-icon-md text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={social.icon} />
-                    </svg>
-                    <span className="text-text-secondary font-rajdhani font-medium text-fluid-base">
-                      {social.name}
-                    </span>
-                    <span className="absolute -top-2 right-2 text-[10px] font-mono bg-white/10 border border-white/20 rounded px-2 py-0.5 text-white/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      {t('performance.comingSoon')}
-                    </span>
-                    <svg className="size-icon-sm ml-auto text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </motion.button>
-                ) : social.name === 'Newsletter' ? (
-                  <motion.button
-                    key={social.name}
-                    type="button"
-                    onClick={() => setShowNewsletterModal(true)}
-                    className="flex items-center w-full bg-background-elevated/50 rounded-lg hover:bg-background-elevated transition-all duration-300 group text-left"
-                    style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1 + index * 0.1 }}
-                    whileHover={{ x: 5 }}
-                  >
-                    <svg className="size-icon-md text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={social.icon} />
-                    </svg>
-                    <span className="text-text-secondary group-hover:text-text-primary font-rajdhani font-medium transition-colors text-fluid-base">
-                      {social.name}
-                    </span>
-                    <svg className="size-icon-sm ml-auto text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </motion.button>
-                ) : social.isPWA ? (
-                  <motion.button
-                    key={social.name}
-                    type="button"
-                    onClick={handleInstallPWA}
-                    className="flex items-center w-full bg-background-elevated/50 rounded-lg hover:bg-background-elevated transition-all duration-300 group text-left"
-                    style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1 + index * 0.1 }}
-                    whileHover={{ x: 5 }}
-                  >
-                    <svg className="size-icon-md text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={social.icon} />
-                    </svg>
-                    <span className="text-text-secondary group-hover:text-text-primary font-rajdhani font-medium transition-colors text-fluid-base">
-                      {social.name}
-                    </span>
-                    <svg className="size-icon-sm ml-auto text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </motion.button>
-                ) : (
-                  <motion.a
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center bg-background-elevated/50 rounded-lg hover:bg-background-elevated transition-all duration-300 group"
-                    style={{ gap: fluidSizing.space.sm, padding: fluidSizing.space.sm }}
-                    onClick={() => trackOutboundLink(social.url, social.name)}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1 + index * 0.1 }}
-                    whileHover={{ x: 5 }}
-                  >
-                    <svg className="size-icon-md text-text-muted group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
-                      <path d={social.icon} />
-                    </svg>
-                    <span className="text-text-secondary group-hover:text-text-primary font-rajdhani font-medium transition-colors text-fluid-base">
-                      {social.name}
-                    </span>
-                    <svg className="size-icon-sm ml-auto text-text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </motion.a>
-                )
-              ))}
+                    name={social.name}
+                    url={social.url}
+                    icon={social.icon}
+                    index={index}
+                    variant={
+                      social.comingSoon ? 'comingSoon' :
+                      social.name === 'Newsletter' ? 'newsletter' :
+                      social.isPWA ? 'pwa' :
+                      'normal'
+                    }
+                    onNewsletterClick={() => setShowNewsletterModal(true)}
+                    onPWAClick={handleInstallPWA}
+                    onLinkClick={trackOutboundLink}
+                    comingSoonText={t('performance.comingSoon')}
+                  />
+                ))}
               </div>
             </motion.div>
 
             {/* Availability Status */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.3, duration: 0.6 }}
-              className="bg-background-surface/50 backdrop-blur-sm border border-white/30 rounded-lg"
-              style={{ padding: fluidSizing.space.lg }}
-            >
-              <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginBottom: fluidSizing.space.sm }}>
-                <div className="relative">
-                  <div
-                    className="rounded-full"
-                    style={{
-                      width: fluidSizing.space.md,
-                      height: fluidSizing.space.md,
-                      backgroundColor: availabilityCopy.color,
-                      boxShadow: `0 0 12px ${availabilityCopy.color}`,
-                    }}
-                  />
-                  <motion.div
-                    className="absolute inset-0 rounded-full"
-                    style={{
-                      width: fluidSizing.space.md,
-                      height: fluidSizing.space.md,
-                      backgroundColor: availabilityCopy.color,
-                    }}
-                    animate={{ scale: [1, 1.5, 1], opacity: [0.8, 0, 0.8] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                </div>
-                <span className="font-orbitron font-bold text-white text-fluid-sm">
-                  {availabilityCopy.title}
-                </span>
-              </div>
-              <p className="text-text-secondary font-rajdhani leading-relaxed text-fluid-sm">
-                {availabilityCopy.description}
-              </p>
-            </motion.div>
+            <AvailabilityBadge
+              title={availabilityCopy.title}
+              description={availabilityCopy.description}
+              color={availabilityCopy.color}
+            />
+
+            {/* Legal Links */}
+            <LegalLinksSection
+              title={t('contact.legalLinks')}
+              links={[
+                { 
+                  key: 'faq', 
+                  label: t('nav.faq'), 
+                  path: '/faq',
+                  icon: (
+                    <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  )
+                },
+                { 
+                  key: 'terms', 
+                  label: t('nav.terms'), 
+                  path: '/terms',
+                  icon: (
+                    <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  )
+                },
+                { 
+                  key: 'privacy', 
+                  label: t('nav.privacy'), 
+                  path: '/privacy',
+                  icon: (
+                    <svg className="size-icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  )
+                },
+              ]}
+              onLinkClick={(key) => log.interaction('click_legal_link', key)}
+            />
           </motion.div>
         </div>
+      </div>
+
       <DevTipsModal
         isOpen={showNewsletterModal}
         onClose={() => setShowNewsletterModal(false)}
         onSubmit={(email: string) => handleNewsletterSubmit(email)}
       />
-      </div>
     </div>
   );
 }
