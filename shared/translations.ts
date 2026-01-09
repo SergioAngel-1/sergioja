@@ -28,6 +28,10 @@ export interface BaseTranslations {
   'nav.language': string;
   'nav.clickToView': string;
   'nav.clickToChangeLanguage': string;
+  'nav.faq': string;
+  'nav.privacy': string;
+  'nav.terms': string;
+  'nav.cookies': string;
   
   // Performance
   'performance.title': string;

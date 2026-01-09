@@ -11,6 +11,10 @@ export const en = {
   'nav.language': 'LANGUAGE',
   'nav.clickToView': 'Click to view each section',
   'nav.clickToChangeLanguage': 'Click to change language',
+  'nav.faq': 'FAQ',
+  'nav.privacy': 'Privacy',
+  'nav.terms': 'Terms',
+  'nav.cookies': 'Cookie Preferences',
 
   'performance.title': 'PERFORMANCE',
   'performance.low': 'Low',

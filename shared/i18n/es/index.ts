@@ -12,6 +12,10 @@ export const es = {
   'nav.language': 'IDIOMA',
   'nav.clickToView': 'Haz clic para ver cada sección',
   'nav.clickToChangeLanguage': 'Haz clic para cambiar de idioma',
+  'nav.faq': 'FAQ',
+  'nav.privacy': 'Privacidad',
+  'nav.terms': 'Términos',
+  'nav.cookies': 'Preferencias de Cookies',
 
   // Performance
   'performance.title': 'RENDIMIENTO',
