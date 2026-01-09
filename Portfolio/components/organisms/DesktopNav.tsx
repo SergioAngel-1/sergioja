@@ -66,7 +66,7 @@ export default function DesktopNav({
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed left-0 top-0 h-screen bg-background-surface/90 backdrop-blur-md border-r border-white/30 z-[10000] md:flex flex-col items-center overflow-hidden hidden"
+      className="hidden md:flex fixed left-0 top-0 h-screen bg-background-surface/90 backdrop-blur-md border-r border-white/30 z-[10000] flex-col items-center overflow-hidden"
       style={{
         width: 'var(--nav-width)',
         padding: `${fluidSizing.space.md} 0`

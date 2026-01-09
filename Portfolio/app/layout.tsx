@@ -129,7 +129,7 @@ export default function RootLayout({
           }))}
         </Script>
           <ClientProviders>
-            <main className="min-h-screen pl-0 md:pl-20 pb-20 md:pb-0">{children}</main>
+            <main className="min-h-screen pb-20 md:pb-0">{children}</main>
           </ClientProviders>
           <WebVitalsTracker />
           <PageViewTracker />
