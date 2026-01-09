@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { usePageAnalytics } from '@/shared/hooks/usePageAnalytics';
@@ -14,6 +15,7 @@ import Select from '@/components/molecules/Select';
 import FAQCategory from '@/components/molecules/FAQCategory';
 import Button from '@/components/atoms/Button';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { generateFAQPageSchema, toJsonLd } from '@/shared/seo';
 
 interface FAQItem {
   question: string;
@@ -114,8 +116,22 @@ export default function FAQPage() {
     ];
   }, [faqData, categoryConfig, t]);
 
+  // Generate FAQPage schema for Google rich snippets
+  const faqSchema = useMemo(() => {
+    return generateFAQPageSchema({
+      questions: faqData.map(faq => ({
+        question: faq.question,
+        answer: faq.answer,
+      })),
+    });
+  }, [faqData]);
+
   return (
-    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
+    <>
+      <Script id="ld-faq" type="application/ld+json" strategy="beforeInteractive">
+        {toJsonLd(faqSchema)}
+      </Script>
+      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
       <GlowEffect
@@ -273,5 +289,6 @@ export default function FAQPage() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }

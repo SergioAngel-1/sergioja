@@ -11,6 +11,7 @@ import type {
   BreadcrumbItemSchema,
   ArticleSchema,
   ProjectSchema,
+  FAQPageSchema,
 } from './types';
 
 /**
@@ -154,6 +155,26 @@ export function generateProjectSchema(data: {
     dateModified: data.dateModified,
     keywords: data.keywords,
     inLanguage: data.inLanguage,
+  };
+}
+
+/**
+ * Genera schema de FAQPage para rich snippets de Google
+ */
+export function generateFAQPageSchema(data: {
+  questions: Array<{ question: string; answer: string }>;
+}): any {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: data.questions.map(q => ({
+      '@type': 'Question',
+      name: q.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: q.answer,
+      },
+    })),
   };
 }
 

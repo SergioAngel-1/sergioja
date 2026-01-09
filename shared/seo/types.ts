@@ -191,3 +191,19 @@ export interface ProjectSchema extends StructuredDataBase {
   keywords?: string[];
   inLanguage?: string;
 }
+
+export interface FAQPageSchema extends StructuredDataBase {
+  '@type': 'FAQPage';
+  mainEntity: QuestionSchema[];
+}
+
+export interface QuestionSchema {
+  '@type': 'Question';
+  name: string;
+  acceptedAnswer: AnswerSchema;
+}
+
+export interface AnswerSchema {
+  '@type': 'Answer';
+  text: string;
+}
