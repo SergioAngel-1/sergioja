@@ -9,11 +9,6 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   fallbacks: {
     document: '/offline',
   },
-  buildExcludes: [/middleware-manifest\.json$/],
-  cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
-  dynamicStartUrl: true,
-  dynamicStartUrlRedirect: '/',
 });
 
 /** @type {import('next').NextConfig} */

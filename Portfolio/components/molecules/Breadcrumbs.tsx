@@ -39,6 +39,10 @@ export default function Breadcrumbs({ items, maxLength = 25, maxLengthMobile = 1
     }
   };
 
+  if (!mounted) {
+    return null;
+  }
+
   // Auto-generate breadcrumbs from pathname if not provided
   const breadcrumbItems = items || generateBreadcrumbs(pathname, t);
   
@@ -46,10 +50,6 @@ export default function Breadcrumbs({ items, maxLength = 25, maxLengthMobile = 1
   const mobileBreadcrumbs = breadcrumbItems.length > 2 
     ? breadcrumbItems.slice(-2) 
     : breadcrumbItems;
-
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <motion.nav

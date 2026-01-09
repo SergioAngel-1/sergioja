@@ -343,7 +343,7 @@ export default function ContactPage() {
 
       <FloatingParticles count={50} color="bg-white" />
 
-      <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', paddingLeft: fluidSizing.space.lg, paddingRight: fluidSizing.space.lg, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})`, paddingBottom: 0 }}>
+      <div className="relative z-10 mx-auto w-full pb-4 md:pb-24" style={{ maxWidth: '1600px', paddingLeft: fluidSizing.space.lg, paddingRight: fluidSizing.space.lg, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
         <div className="mb-8 md:mb-16">
           <PageHeader 
             title={t('contact.title')} 

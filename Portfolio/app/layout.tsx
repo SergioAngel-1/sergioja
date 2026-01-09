@@ -6,13 +6,9 @@ import './globals.css';
 import ClientProviders from '@/components/ClientProviders';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
+import { CookieConsentProvider } from '@/shared/contexts/CookieConsentContext';
 
 // Import client-only components dynamically to avoid hydration errors
-const CookieConsentProvider = dynamic(
-  () => import('@/shared/contexts/CookieConsentContext').then(mod => ({ default: mod.CookieConsentProvider })),
-  { ssr: false }
-);
-
 const CookieConsentBanner = dynamic(
   () => import('@/shared/components/CookieConsentBanner'),
   { ssr: false }
@@ -96,7 +92,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <head>
         {/* Preconnect to external CDNs */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
