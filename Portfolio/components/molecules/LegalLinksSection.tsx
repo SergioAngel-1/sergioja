@@ -26,7 +26,7 @@ export default function LegalLinksSection({ title, links, onLinkClick }: LegalLi
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.4, duration: 0.6 }}
       className="border-t border-white/10"
-      style={{ paddingTop: fluidSizing.space.lg }}
+      style={{ marginTop: fluidSizing.space['2xl'], paddingTop: fluidSizing.space.lg }}
     >
       {/* Header simple */}
       <p className="text-white/50 font-mono uppercase tracking-wider text-fluid-xs" style={{ marginBottom: fluidSizing.space.md }}>

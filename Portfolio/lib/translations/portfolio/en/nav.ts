@@ -4,8 +4,8 @@ export const navEn = {
   'nav.about': 'ABOUT',
   'nav.contact': 'CONTACT',
   'nav.projects': 'PROJECTS',
-  'nav.faq': 'FAQ',
-  'nav.terms': 'Terms',
-  'nav.privacy': 'Privacy',
-  'nav.cookies': 'Cookies',
+  'nav.faq': 'Frequently Asked Questions',
+  'nav.terms': 'Terms and Conditions',
+  'nav.privacy': 'Privacy Policy',
+  'nav.cookies': 'Cookie Management',
 } as const;
