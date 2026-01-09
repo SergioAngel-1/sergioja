@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { usePageAnalytics } from '@/shared/hooks/usePageAnalytics';
@@ -11,6 +12,8 @@ import GlowEffect from '@/components/atoms/GlowEffect';
 import Button from '@/components/atoms/Button';
 import TermsCard from '@/components/molecules/TermsCard';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { generateArticleSchema, toJsonLd } from '@/shared/seo';
+import { siteConfig } from '@/lib/seo/config';
 
 export default function TermsPage() {
   const { t } = useLanguage();
@@ -21,6 +24,23 @@ export default function TermsPage() {
     (depth: number) => log.interaction('scroll_depth', depth.toString()),
     (seconds: number) => log.interaction('time_on_page', seconds.toString())
   );
+
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://portfolio.sergioja.com';
+
+  // Generate Article schema for better indexation
+  const articleSchema = generateArticleSchema({
+    headline: t('terms.title'),
+    description: t('terms.intro'),
+    url: `${SITE_URL}/terms`,
+    datePublished: '2024-01-01T00:00:00Z',
+    dateModified: new Date().toISOString(),
+    author: {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: siteConfig.author.name,
+      url: siteConfig.url,
+    },
+  });
 
   const sections = [
     { key: 'section1', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
@@ -36,7 +56,11 @@ export default function TermsPage() {
   ];
 
   return (
-    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
+    <>
+      <Script id="ld-terms" type="application/ld+json" strategy="beforeInteractive">
+        {toJsonLd(articleSchema)}
+      </Script>
+      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
       <GlowEffect
@@ -139,5 +163,6 @@ export default function TermsPage() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }
