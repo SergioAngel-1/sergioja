@@ -1,0 +1,131 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useCookieConsent } from '../contexts/CookieConsentContext';
+
+interface CookieConsentBannerProps {
+  variant?: 'main' | 'portfolio';
+}
+
+export default function CookieConsentBanner({ variant = 'main' }: CookieConsentBannerProps) {
+  const { consentStatus, acceptCookies, rejectCookies } = useCookieConsent();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (consentStatus === 'pending') {
+      const timer = setTimeout(() => setIsVisible(true), 300);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [consentStatus]);
+
+
+  useEffect(() => {
+    if (consentStatus === 'pending' && isVisible) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [consentStatus, isVisible]);
+
+  if (consentStatus !== 'pending' || !isVisible) {
+    return null;
+  }
+
+  const isMain = variant === 'main';
+
+  return (
+    <div 
+      className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      style={{
+        zIndex: 999999,
+        animation: 'fadeIn 0.3s ease-out forwards',
+      }}
+    >
+      {/* Modal */}
+      <div 
+        className={`relative max-w-lg w-full sm:w-auto ${isMain ? 'bg-black' : 'bg-background-surface'} border border-white/30 rounded-lg overflow-hidden`}
+        style={{
+          animation: 'scaleIn 0.4s ease-out forwards',
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-center gap-4 border-b border-white/20 p-6">
+          <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-white/10 border-2 border-white/30">
+            <svg 
+              className="w-6 h-6 text-white" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+              />
+            </svg>
+          </div>
+          <h2 className="font-orbitron font-bold text-xl sm:text-2xl text-white">
+            Uso de Cookies
+          </h2>
+        </div>
+
+        {/* Body */}
+        <div className="p-6">
+          <p className="text-white/70 text-sm sm:text-base leading-relaxed">
+            Utilizamos cookies y tecnologías similares para analizar el tráfico del sitio y mejorar tu experiencia. 
+            Puedes aceptar todas las cookies o solo las esenciales.
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="flex flex-col sm:flex-row gap-3 border-t border-white/20 p-6">
+          <button
+            onClick={rejectCookies}
+            className="flex-1 px-6 py-3 border border-white/30 hover:border-white/50 hover:bg-white/10 bg-white/5 text-white font-bold text-sm sm:text-base transition-all duration-200"
+          >
+            Solo Esenciales
+          </button>
+          <button
+            onClick={acceptCookies}
+            className="flex-1 px-6 py-3 bg-white hover:bg-white/90 text-black font-bold text-sm sm:text-base transition-all duration-200"
+          >
+            Aceptar Todas
+          </button>
+        </div>
+
+        {/* Decorative corners */}
+        <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-white/30" />
+        <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-white/30" />
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        @keyframes scaleIn {
+          from {
+            transform: scale(0.9);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}

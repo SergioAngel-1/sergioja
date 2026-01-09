@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import dynamic from 'next/dynamic';
 import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import AlertContainer from '@/components/molecules/AlertContainer';
@@ -7,7 +8,27 @@ import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { ModelTargetProvider } from '@/lib/contexts/ModelTargetContext';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
-import WebVitalsTracker from '@/components/WebVitalsTracker';
+
+// Import client-only components dynamically to avoid hydration errors
+const CookieConsentProvider = dynamic(
+  () => import('@/shared/contexts/CookieConsentContext').then(mod => ({ default: mod.CookieConsentProvider })),
+  { ssr: false }
+);
+
+const CookieConsentBanner = dynamic(
+  () => import('@/shared/components/CookieConsentBanner'),
+  { ssr: false }
+);
+
+const GTMLoader = dynamic(
+  () => import('@/shared/components/GTMLoader'),
+  { ssr: false }
+);
+
+const WebVitalsTracker = dynamic(
+  () => import('@/components/WebVitalsTracker'),
+  { ssr: false }
+);
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -74,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning data-tag-assistant-prod-present={(isProd && GTM_ID) ? '' : undefined}>
+    <html lang="es" suppressHydrationWarning>
       <head>
         {/* Canonical URL - Todas las rutas de modales apuntan a la homepage */}
         <link rel="canonical" href={SITE_URL} />
@@ -97,47 +118,31 @@ export default function RootLayout({
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-light text-text-primary antialiased`}
       >
-        {isProd && GTM_ID && (
-          <Script id="gtm-base" strategy="afterInteractive">
-            {`(function(w,d,s,l,i){
-              w[l]=w[l]||[];
-              w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
-              var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'? '&l='+l : '';
-              j.async=true;
-              j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-              f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','${GTM_ID}');`}
-          </Script>
-        )}
-        {isProd && GTM_ID && (
-          <noscript
-            dangerouslySetInnerHTML={{
-              __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
-            }}
-          />
-        )}
-        <Script id="ld-person" type="application/ld+json" strategy="beforeInteractive">
+        <CookieConsentProvider>
+          {isProd && GTM_ID && <GTMLoader gtmId={GTM_ID} />}
+          <Script id="ld-person" type="application/ld+json" strategy="beforeInteractive">
           {toJsonLd(generatePersonSchema({
             name: siteConfig.author.name,
             url: siteConfig.url,
             sameAs: [siteConfig.author.social.github, siteConfig.author.social.linkedin],
           }))}
         </Script>
-        <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
+          <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
           {toJsonLd(generateWebSiteSchema({
             name: siteConfig.name,
             url: siteConfig.url,
             description: siteConfig.description,
           }))}
         </Script>
-        <LanguageProvider>
-          <ModelTargetProvider>
-            <main className="h-viewport overflow-hidden">{children}</main>
-            <AlertContainer />
-          </ModelTargetProvider>
-        </LanguageProvider>
-        <WebVitalsTracker />
+          <LanguageProvider>
+            <ModelTargetProvider>
+              <main className="h-viewport overflow-hidden">{children}</main>
+              <AlertContainer />
+            </ModelTargetProvider>
+          </LanguageProvider>
+          <WebVitalsTracker />
+          <CookieConsentBanner variant="main" />
+        </CookieConsentProvider>
       </body>
     </html>
   );
