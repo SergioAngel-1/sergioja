@@ -174,6 +174,44 @@ export default function NavigationContent({ onNavigate }: NavigationContentProps
         </p>
       </div>
 
+      {/* Legal links - subtle at the bottom */}
+      <div style={{ paddingTop: fluidSizing.space.lg, marginTop: fluidSizing.space.md, borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+        <div className="flex items-center justify-center flex-wrap" style={{ gap: fluidSizing.space.sm }}>
+          <button
+            onClick={() => {
+              const portfolioUrl = process.env.NEXT_PUBLIC_PORTFOLIO_URL || 'https://portfolio.sergioja.com';
+              window.open(`${portfolioUrl}/faq`, '_blank', 'noopener,noreferrer');
+              logger.info('FAQ link clicked - redirected to Portfolio', 'NavigationContent');
+            }}
+            className="text-white/30 hover:text-white/60 transition-colors duration-200 text-fluid-xs font-mono"
+          >
+            FAQ
+          </button>
+          <span className="text-white/20">•</span>
+          <button
+            onClick={() => {
+              const portfolioUrl = process.env.NEXT_PUBLIC_PORTFOLIO_URL || 'https://portfolio.sergioja.com';
+              window.open(`${portfolioUrl}/privacy`, '_blank', 'noopener,noreferrer');
+              logger.info('Privacy link clicked - redirected to Portfolio', 'NavigationContent');
+            }}
+            className="text-white/30 hover:text-white/60 transition-colors duration-200 text-fluid-xs font-mono"
+          >
+            Privacidad
+          </button>
+          <span className="text-white/20">•</span>
+          <button
+            onClick={() => {
+              const portfolioUrl = process.env.NEXT_PUBLIC_PORTFOLIO_URL || 'https://portfolio.sergioja.com';
+              window.open(`${portfolioUrl}/terms`, '_blank', 'noopener,noreferrer');
+              logger.info('Terms link clicked - redirected to Portfolio', 'NavigationContent');
+            }}
+            className="text-white/30 hover:text-white/60 transition-colors duration-200 text-fluid-xs font-mono"
+          >
+            Términos
+          </button>
+        </div>
+      </div>
+
     </div>
   );
 }
