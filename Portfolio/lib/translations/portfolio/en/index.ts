@@ -5,6 +5,7 @@ import { workEn } from './work';
 import { projectsEn } from './projects';
 import { aboutEn } from './about';
 import { contactEn } from './contact';
+import { faqEn } from './faq';
 import { otherEn } from './other';
 import { terminalEn } from './terminal';
 import { gamesEn } from './games';
@@ -17,6 +18,7 @@ export const en = {
   ...projectsEn,
   ...aboutEn,
   ...contactEn,
+  ...faqEn,
   ...otherEn,
   ...terminalEn,
   ...gamesEn,

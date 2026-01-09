@@ -5,6 +5,7 @@ import { workEs } from './work';
 import { projectsEs } from './projects';
 import { aboutEs } from './about';
 import { contactEs } from './contact';
+import { faqEs } from './faq';
 import { otherEs } from './other';
 import { terminalEs } from './terminal';
 import { gamesEs } from './games';
@@ -17,6 +18,7 @@ export const es = {
   ...projectsEs,
   ...aboutEs,
   ...contactEs,
+  ...faqEs,
   ...otherEs,
   ...terminalEs,
   ...gamesEs,

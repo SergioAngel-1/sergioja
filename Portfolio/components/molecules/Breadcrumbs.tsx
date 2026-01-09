@@ -139,6 +139,8 @@ function generateBreadcrumbs(pathname: string, t: (key: string) => string): Brea
       work: t('nav.work'),
       about: t('nav.about'),
       contact: t('nav.contact'),
+      projects: t('nav.projects'),
+      faq: 'FAQ',
     };
     
     breadcrumbs.push({

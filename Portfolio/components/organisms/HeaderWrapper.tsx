@@ -9,7 +9,7 @@ export default function HeaderWrapper() {
   const [onTerminalOpen, setOnTerminalOpen] = useState<(() => void) | undefined>(undefined);
   
   // Lista de rutas válidas
-  const validRoutes = ['/', '/projects', '/about', '/contact'];
+  const validRoutes = ['/', '/projects', '/about', '/contact', '/faq'];
   const isValidRoute = validRoutes.includes(pathname) || pathname.startsWith('/projects/');
   
   // Determinar si mostrar breadcrumbs o home badge según la ruta
