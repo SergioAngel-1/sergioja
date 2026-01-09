@@ -4,8 +4,8 @@ export const navEs = {
   'nav.about': 'ACERCA DE',
   'nav.contact': 'CONTACTO',
   'nav.projects': 'PROYECTOS',
-  'nav.faq': 'Preguntas frecuentes',
-  'nav.terms': 'Términos y condiciones',
-  'nav.privacy': 'Políticas y privacidad',
-  'nav.cookies': 'Administración de cookies',
+  'nav.faq': 'PREGUNTAS FRECUENTES',
+  'nav.terms': 'TÉRMINOS Y CONDICIONES',
+  'nav.privacy': 'POLÍTICAS Y PRIVACIDAD',
+  'nav.cookies': 'ADMINISTRACIÓN DE COOKIES',
 } as const;
