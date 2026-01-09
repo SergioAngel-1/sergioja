@@ -141,6 +141,7 @@ function generateBreadcrumbs(pathname: string, t: (key: string) => string): Brea
       contact: t('nav.contact'),
       projects: t('nav.projects'),
       faq: 'FAQ',
+      terms: 'Términos',
     };
     
     breadcrumbs.push({
