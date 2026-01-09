@@ -7,6 +7,7 @@ import { aboutEs } from './about';
 import { contactEs } from './contact';
 import { faqEs } from './faq';
 import { termsEs } from './terms';
+import { privacyEs } from './privacy';
 import { otherEs } from './other';
 import { terminalEs } from './terminal';
 import { gamesEs } from './games';
@@ -21,6 +22,7 @@ export const es = {
   ...contactEs,
   ...faqEs,
   ...termsEs,
+  ...privacyEs,
   ...otherEs,
   ...terminalEs,
   ...gamesEs,

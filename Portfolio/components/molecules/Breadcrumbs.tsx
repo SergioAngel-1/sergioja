@@ -140,8 +140,9 @@ function generateBreadcrumbs(pathname: string, t: (key: string) => string): Brea
       about: t('nav.about'),
       contact: t('nav.contact'),
       projects: t('nav.projects'),
-      faq: 'FAQ',
-      terms: 'Términos',
+      faq: t('nav.faq'),
+      terms: t('nav.terms'),
+      privacy: t('nav.privacy'),
     };
     
     breadcrumbs.push({
