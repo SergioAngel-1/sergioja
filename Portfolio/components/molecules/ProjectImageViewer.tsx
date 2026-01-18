@@ -156,7 +156,8 @@ export default function ProjectImageViewer({
             fill
             className="object-contain rounded-lg"
             sizes={galleryType === 'mobile' ? '(max-width: 768px) 90vw, 50vw' : '(max-width: 768px) 100vw, 85vw'}
-            priority
+            priority={selectedImageIndex === 0}
+            loading={selectedImageIndex === 0 ? undefined : 'lazy'}
             onError={() => setImageError(true)}
           />
           {/* Contador de imagen */}

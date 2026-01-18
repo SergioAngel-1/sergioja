@@ -47,6 +47,7 @@ export default function ProjectImageGalleryMobile({
               fill
               className="object-cover"
               sizes="180px"
+              loading="lazy"
             />
             <div 
               className="absolute bg-black/50 backdrop-blur-sm text-white rounded"
