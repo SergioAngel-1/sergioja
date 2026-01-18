@@ -197,4 +197,10 @@ export const es = {
   // Loader
   'loader.loadingModel': 'Cargando modelo',
   'loader.initializing': 'Inicializando',
+
+  // Cookie Consent
+  'cookies.title': 'Uso de Cookies',
+  'cookies.description': 'Utilizamos cookies y tecnologías similares para analizar el tráfico del sitio y mejorar tu experiencia. Puedes aceptar todas las cookies o solo las esenciales.',
+  'cookies.acceptAll': 'Aceptar Todas',
+  'cookies.onlyEssential': 'Solo Esenciales',
 } as const;

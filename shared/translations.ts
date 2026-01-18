@@ -200,6 +200,12 @@ export interface BaseTranslations {
   // Loader
   'loader.loadingModel': string;
   'loader.initializing': string;
+
+  // Cookie Consent
+  'cookies.title': string;
+  'cookies.description': string;
+  'cookies.acceptAll': string;
+  'cookies.onlyEssential': string;
 }
 
 // Alias para compatibilidad

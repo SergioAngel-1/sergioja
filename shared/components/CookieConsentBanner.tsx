@@ -2,14 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import { useCookieConsent } from '../contexts/CookieConsentContext';
+import { translate, Language } from '../translations';
 
 interface CookieConsentBannerProps {
   variant?: 'main' | 'portfolio';
+  language?: Language;
+  t?: (key: string) => string;
 }
 
-export default function CookieConsentBanner({ variant = 'main' }: CookieConsentBannerProps) {
+export default function CookieConsentBanner({ variant = 'main', language = 'es', t }: CookieConsentBannerProps) {
   const { consentStatus, acceptCookies, rejectCookies } = useCookieConsent();
   const [isVisible, setIsVisible] = useState(false);
+
+  // Use provided translation function or fallback to default translate
+  const getText = (key: string): string => {
+    if (t) {
+      return t(key);
+    }
+    return translate(key as any, language);
+  };
 
   useEffect(() => {
     if (consentStatus === 'pending') {
@@ -72,15 +83,14 @@ export default function CookieConsentBanner({ variant = 'main' }: CookieConsentB
             </svg>
           </div>
           <h2 className="font-orbitron font-bold text-xl sm:text-2xl text-white">
-            Uso de Cookies
+            {getText('cookies.title')}
           </h2>
         </div>
 
         {/* Body */}
         <div className="p-6">
           <p className="text-white/70 text-sm sm:text-base leading-relaxed">
-            Utilizamos cookies y tecnologías similares para analizar el tráfico del sitio y mejorar tu experiencia. 
-            Puedes aceptar todas las cookies o solo las esenciales.
+            {getText('cookies.description')}
           </p>
         </div>
 
@@ -90,13 +100,13 @@ export default function CookieConsentBanner({ variant = 'main' }: CookieConsentB
             onClick={rejectCookies}
             className="flex-1 px-6 py-3 border border-white/30 hover:border-white/50 hover:bg-white/10 bg-white/5 text-white font-bold text-sm sm:text-base transition-all duration-200"
           >
-            Solo Esenciales
+            {getText('cookies.onlyEssential')}
           </button>
           <button
             onClick={acceptCookies}
             className="flex-1 px-6 py-3 bg-white hover:bg-white/90 text-black font-bold text-sm sm:text-base transition-all duration-200"
           >
-            Aceptar Todas
+            {getText('cookies.acceptAll')}
           </button>
         </div>
 

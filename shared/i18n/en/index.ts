@@ -183,4 +183,10 @@ export const en = {
 
   'loader.loadingModel': 'Loading model',
   'loader.initializing': 'Initializing',
+
+  // Cookie Consent
+  'cookies.title': 'Cookie Usage',
+  'cookies.description': 'We use cookies and similar technologies to analyze site traffic and improve your experience. You can accept all cookies or only essential ones.',
+  'cookies.acceptAll': 'Accept All',
+  'cookies.onlyEssential': 'Only Essential',
 } as const;

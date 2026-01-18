@@ -133,7 +133,6 @@ export default function RootLayout({
           </ClientProviders>
           <WebVitalsTracker />
           <PageViewTracker />
-          <CookieConsentBanner variant="portfolio" />
         </CookieConsentProvider>
       </body>
     </html>

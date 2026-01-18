@@ -7,6 +7,7 @@ import HeaderWrapper from '@/components/organisms/HeaderWrapper';
 import Navbar from '@/components/organisms/Navbar';
 import NextPageButton from '@/components/molecules/NextPageButton';
 import AlertContainer from '@/components/molecules/alerts/AlertContainer';
+import CookieConsentWrapper from '@/components/CookieConsentWrapper';
 import { PerformanceProvider } from '@/lib/contexts/PerformanceContext';
 import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { MatrixProvider } from '@/lib/contexts/MatrixContext';
@@ -29,6 +30,7 @@ export default function ClientProviders({ children }: ClientProvidersProps) {
               {children}
               <NextPageButton />
               <AlertContainer />
+              <CookieConsentWrapper />
             </ErrorBoundary>
           </ModalProvider>
         </MatrixProvider>

@@ -15,8 +15,8 @@ const CookieConsentProvider = dynamic(
   { ssr: false }
 );
 
-const CookieConsentBanner = dynamic(
-  () => import('@/shared/components/CookieConsentBanner'),
+const CookieConsentWrapper = dynamic(
+  () => import('@/components/CookieConsentWrapper'),
   { ssr: false }
 );
 
@@ -138,10 +138,10 @@ export default function RootLayout({
             <ModelTargetProvider>
               <main className="h-viewport overflow-hidden">{children}</main>
               <AlertContainer />
+              <CookieConsentWrapper />
             </ModelTargetProvider>
           </LanguageProvider>
           <WebVitalsTracker />
-          <CookieConsentBanner variant="main" />
         </CookieConsentProvider>
       </body>
     </html>
