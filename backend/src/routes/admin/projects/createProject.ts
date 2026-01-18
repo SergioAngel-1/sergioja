@@ -11,6 +11,7 @@ import { ProjectStatus, isProjectStatus } from './types';
 export const createProject = asyncHandler(async (req: Request, res: Response) => {
     const {
       title,
+      slug: customSlug,
       longDescription,
       longDescriptionEs,
       longDescriptionEn,
@@ -58,8 +59,10 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
       });
     }
 
-    // Crear slug desde el título (normalizar acentos y caracteres especiales)
-    let slug = slugify(title);
+    // Usar slug personalizado si existe, sino crear desde el título
+    let slug = customSlug && customSlug.trim().length > 0 
+      ? customSlug.trim() 
+      : slugify(title);
 
     // Validar que el slug no esté vacío (puede ocurrir si el título solo tiene caracteres especiales)
     if (!slug || slug.length === 0) {
