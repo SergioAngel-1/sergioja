@@ -5,7 +5,7 @@ import { asyncHandler } from '../../../middleware/errorHandler';
 
 // GET /api/admin/projects - Obtener todos los proyectos (incluyendo borradores)
 export const getAllProjects = asyncHandler(async (req: Request, res: Response) => {
-  const { category, featured, page = '1', limit = '100' } = req.query;
+  const { category, featured, status, search, page = '1', limit = '20' } = req.query;
     const pageNum = parseInt(page as string, 10);
     const limitNum = parseInt(limit as string, 10);
 
@@ -18,6 +18,28 @@ export const getAllProjects = asyncHandler(async (req: Request, res: Response) =
     
     if (featured === 'true') {
       where.isFeatured = true;
+    }
+
+    // Filtro por status
+    if (status && typeof status === 'string' && status !== 'all') {
+      if (status === 'published') {
+        where.status = 'PUBLISHED';
+      } else if (status === 'in_progress') {
+        where.status = 'IN_PROGRESS';
+      } else if (status === 'draft') {
+        where.status = 'DRAFT';
+      } else if (status === 'featured') {
+        where.isFeatured = true;
+      }
+    }
+
+    // Filtro por búsqueda (título o descripción)
+    if (search && typeof search === 'string' && search.trim().length > 0) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { longDescriptionEs: { contains: search, mode: 'insensitive' } },
+        { longDescriptionEn: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
     // Get total count
@@ -98,10 +120,18 @@ export const getAllProjects = asyncHandler(async (req: Request, res: Response) =
       })),
     }));
 
-  logger.info('Admin projects retrieved', { count: transformedProjects.length, total });
+  logger.info('Admin projects retrieved', { count: transformedProjects.length, total, page: pageNum, limit: limitNum });
 
   res.json({
     success: true,
-    data: transformedProjects,
+    data: {
+      data: transformedProjects,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    },
   });
 });

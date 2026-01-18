@@ -28,6 +28,9 @@ function ProjectsPageContent() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProjects, setTotalProjects] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [existingSkills, setExistingSkills] = useState<any[]>([]);
@@ -39,43 +42,65 @@ function ProjectsPageContent() {
   const loadProjects = useCallback(async () => {
     try {
       setIsLoadingProjects(true);
-      const response = await api.getProjects();
+      
+      // Construir parámetros para filtros server-side
+      const params: Record<string, unknown> = {
+        page: currentPage,
+        limit: 20,
+      };
+      
+      if (selectedCategory !== 'all') {
+        params.category = selectedCategory;
+      }
+      
+      if (selectedStatus !== 'all') {
+        params.status = selectedStatus;
+      }
+      
+      if (searchQuery.trim()) {
+        params.search = searchQuery.trim();
+      }
+      
+      const response = await api.getProjects(params);
       
       if (response.success && response.data) {
-        // El backend puede devolver { data: [...], pagination: {...} } o directamente [...]
-        let projectsData: any[] = [];
         const responseData = response.data as any;
         
-        if (Array.isArray(responseData)) {
-          // Formato directo: { success: true, data: [...] }
-          projectsData = responseData;
-        } else if (responseData.data && Array.isArray(responseData.data)) {
-          // Formato anidado: { success: true, data: { data: [...], pagination: {...} } }
-          projectsData = responseData.data;
+        // Formato paginado: { data: [...], pagination: {...} }
+        if (responseData.data && Array.isArray(responseData.data)) {
+          setProjects(responseData.data as Project[]);
+          
+          if (responseData.pagination) {
+            setTotalPages(responseData.pagination.totalPages || 1);
+            setTotalProjects(responseData.pagination.total || 0);
+          }
+          
+          logger.info('Projects loaded successfully', { 
+            count: responseData.data.length, 
+            page: currentPage,
+            total: responseData.pagination?.total 
+          });
+        } else if (Array.isArray(responseData)) {
+          // Fallback: formato directo sin paginación
+          setProjects(responseData as Project[]);
+          setTotalProjects(responseData.length);
+          setTotalPages(1);
         }
-        
-        
-        // NO transformar las tecnologías - mantener el formato completo de Prisma
-        const transformedProjects = projectsData.map((project: any) => ({
-          ...project,
-          // Mantener technologies con metadata completa para el modal
-          // El formato de Prisma es: { category, proficiency, yearsOfExperience, technology: { name, color } }
-        }));
-        
-        
-        setProjects(transformedProjects as Project[]);
-        logger.info('Projects loaded successfully', { count: transformedProjects.length });
       } else {
         logger.error('Failed to load projects', response.error);
         setProjects([]);
+        setTotalProjects(0);
+        setTotalPages(1);
       }
     } catch (error) {
       logger.error('Error loading projects', error);
       setProjects([]);
+      setTotalProjects(0);
+      setTotalPages(1);
     } finally {
       setIsLoadingProjects(false);
     }
-  }, []);
+  }, [currentPage, selectedCategory, selectedStatus, searchQuery]);
 
   const loadExistingSkills = useCallback(async () => {
     try {
@@ -96,6 +121,11 @@ function ProjectsPageContent() {
     loadExistingSkills();
   }, [loadProjects, loadExistingSkills]);
 
+  // Resetear a página 1 cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedStatus, searchQuery]);
+
   // Detectar query param para abrir modal de nuevo proyecto
   useEffect(() => {
     const shouldOpenModal = searchParams.get('new') === 'true';
@@ -106,73 +136,26 @@ function ProjectsPageContent() {
     }
   }, [searchParams, isLoadingProjects, router]);
 
-  // Filtrado optimizado con useMemo
-  const filteredProjects = useMemo(() => {
-    let filtered = projects;
+  // Los proyectos ya vienen filtrados del backend, no necesitamos filtrado client-side
+  const filteredProjects = projects;
 
-    // Filter by category - soportar tanto categories (array) como category (string)
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter((p) => {
-        return p.categories.includes(selectedCategory);
-      });
-    }
-
-    // Filter by status
-    if (selectedStatus === 'published') {
-      filtered = filtered.filter((p) => p.status === 'PUBLISHED');
-    } else if (selectedStatus === 'in_progress') {
-      filtered = filtered.filter((p) => p.status === 'IN_PROGRESS');
-    } else if (selectedStatus === 'draft') {
-      filtered = filtered.filter((p) => p.status === 'DRAFT');
-    } else if (selectedStatus === 'featured') {
-      filtered = filtered.filter((p) => p.isFeatured);
-    }
-
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query) ||
-          (p.longDescriptionEs || p.longDescriptionEn || '').toLowerCase().includes(query)
-      );
-    }
-
-    return filtered;
-  }, [projects, selectedCategory, selectedStatus, searchQuery]);
-
-  // Calculate categories combining backend categories with project counts
+  // Calculate categories combining backend categories (conteo aproximado de página actual)
   const categories = useMemo(() => {
-    const counts: Record<string, number> = {
-      all: projects.length,
-    };
-
-    // Contar proyectos por categoría dinámicamente
-    projects.forEach((project) => {
-      project.categories.forEach((cat: string) => {
-        if (counts[cat] === undefined) {
-          counts[cat] = 0;
-        }
-        counts[cat]++;
-      });
-    });
-
-    // Crear array de categorías con sus conteos
     const categoryList = [
-      { value: 'all', label: 'Todos', count: counts.all }
+      { value: 'all', label: 'Todos', count: totalProjects }
     ];
 
-    // Agregar categorías del backend (incluso si no tienen proyectos)
+    // Agregar categorías del backend
     backendCategories.forEach((backendCat) => {
       categoryList.push({
         value: backendCat.name,
         label: backendCat.label,
-        count: counts[backendCat.name] || 0
+        count: 0 // El conteo exacto requeriría queries adicionales
       });
     });
 
     return categoryList;
-  }, [projects, backendCategories]);
+  }, [totalProjects, backendCategories]);
 
   const handleEditProject = (project: Project) => {
     setSelectedProject(project);
@@ -295,7 +278,7 @@ function ProjectsPageContent() {
         <div className="grid grid-cols-2 sm:grid-cols-5" style={{ gap: fluidSizing.space.md }}>
           <StatCard
             title="Total"
-            value={projects.length}
+            value={totalProjects}
             variant="simple"
             delay={0.2}
           />
@@ -387,6 +370,66 @@ function ProjectsPageContent() {
               />
             ))}
           </div>
+        )}
+
+        {/* Paginación */}
+        {!isLoadingProjects && filteredProjects.length > 0 && totalPages > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex items-center justify-center gap-2"
+            style={{ marginTop: fluidSizing.space.lg }}
+          >
+            <Button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              variant="secondary"
+              size="sm"
+            >
+              Anterior
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <Button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    variant={currentPage === pageNum ? 'primary' : 'secondary'}
+                    size="sm"
+                    className="min-w-[40px]"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+            
+            <Button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              variant="secondary"
+              size="sm"
+            >
+              Siguiente
+            </Button>
+            
+            <span className="text-text-muted text-sm ml-4">
+              Página {currentPage} de {totalPages} ({totalProjects} proyectos)
+            </span>
+          </motion.div>
         )}
       </div>
 
