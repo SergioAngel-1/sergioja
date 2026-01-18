@@ -214,6 +214,7 @@ export default function ProjectSlugField({
 
     if (!existingSlug) {
       // Para proyectos nuevos, solo guardar localmente
+      setPreviewSlug(manualSlug); // Actualizar preview con el slug manual
       if (onSlugUpdated) {
         onSlugUpdated(manualSlug);
       }
@@ -434,7 +435,7 @@ export default function ProjectSlugField({
       )}
       
       {/* Botón para activar modo manual o desbloquear URL */}
-      {!isManualMode && existingSlug && (
+      {!isManualMode && (
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -446,7 +447,7 @@ export default function ProjectSlugField({
             </svg>
             {hasManualSlug ? 'Cambiar URL manual' : 'Insertar URL manual'}
           </button>
-          {hasManualSlug && (
+          {hasManualSlug && existingSlug && (
             <button
               type="button"
               onClick={handleUnlockSlug}

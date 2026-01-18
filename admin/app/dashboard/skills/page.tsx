@@ -268,7 +268,7 @@ export default function SkillsPage() {
               <SearchBar
                 onSearch={setSearchQuery}
                 placeholder="Buscar tecnologías..."
-                icon="code"
+                icon="search"
               />
             </div>
 

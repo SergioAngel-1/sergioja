@@ -41,7 +41,7 @@ export default function FilterBar({
       <SearchBar
         onSearch={onSearch}
         placeholder={searchPlaceholder}
-        icon="code"
+        icon="search"
       />
 
       {/* Filters */}
