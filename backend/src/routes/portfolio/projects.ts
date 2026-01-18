@@ -87,6 +87,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
         categories: true,
         status: true,
         isFeatured: true,
+        displayOrder: true,
         demoUrl: true,
         repoUrl: true,
         githubUrl: true,
@@ -112,7 +113,11 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
           },
         },
       },
-      orderBy: [{ publishedAt: 'desc' }, { updatedAt: 'desc' }],
+      orderBy: [
+        { displayOrder: { sort: 'asc', nulls: 'last' } },
+        { publishedAt: 'desc' },
+        { updatedAt: 'desc' }
+      ],
       skip: (pageNum - 1) * limitNum,
       take: limitNum,
     });
@@ -202,6 +207,7 @@ router.get('/:slug', asyncHandler(async (req: Request, res: Response) => {
         categories: true,
         status: true,
         isFeatured: true,
+        displayOrder: true,
         demoUrl: true,
         repoUrl: true,
         githubUrl: true,

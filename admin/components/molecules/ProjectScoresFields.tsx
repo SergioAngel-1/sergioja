@@ -6,18 +6,22 @@ interface ProjectScoresFieldsProps {
   performanceScore: number | null;
   accessibilityScore: number | null;
   seoScore: number | null;
+  displayOrder: number | null;
   onPerformanceScoreChange: (score: number | null) => void;
   onAccessibilityScoreChange: (score: number | null) => void;
   onSeoScoreChange: (score: number | null) => void;
+  onDisplayOrderChange: (order: number | null) => void;
 }
 
 export default function ProjectScoresFields({
   performanceScore,
   accessibilityScore,
   seoScore,
+  displayOrder,
   onPerformanceScoreChange,
   onAccessibilityScoreChange,
   onSeoScoreChange,
+  onDisplayOrderChange,
 }: ProjectScoresFieldsProps) {
   const handleScoreChange = (
     value: string,
@@ -43,7 +47,7 @@ export default function ProjectScoresFields({
         Puntajes de Calidad (0-100)
       </label>
       
-      <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: fluidSizing.space.md }}>
+      <div className="grid grid-cols-1 md:grid-cols-4" style={{ gap: fluidSizing.space.md }}>
         {/* Performance Score */}
         <div>
           <label 
@@ -118,13 +122,37 @@ export default function ProjectScoresFields({
             }}
           />
         </div>
+
+        {/* Display Order */}
+        <div>
+          <label 
+            htmlFor="displayOrder" 
+            className="block text-text-secondary" 
+            style={{ fontSize: fluidSizing.text.sm, marginBottom: fluidSizing.space.xs }}
+          >
+            Orden
+          </label>
+          <input
+            type="number"
+            id="displayOrder"
+            min="1"
+            value={displayOrder ?? ''}
+            onChange={(e) => handleScoreChange(e.target.value, onDisplayOrderChange)}
+            placeholder="1, 2, 3..."
+            className="w-full bg-admin-dark-surface border border-admin-primary/20 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:border-admin-primary transition-colors"
+            style={{ 
+              padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`, 
+              fontSize: fluidSizing.text.base 
+            }}
+          />
+        </div>
       </div>
       
       <p 
         className="text-text-muted" 
         style={{ fontSize: fluidSizing.text.xs, marginTop: fluidSizing.space.xs }}
       >
-        Opcional: Puntajes de rendimiento, accesibilidad y SEO (basados en Lighthouse o similar)
+        Opcional: Puntajes de rendimiento, accesibilidad y SEO (basados en Lighthouse o similar). El orden determina la posición del proyecto en el Portfolio (menor número = más arriba).
       </p>
     </div>
   );

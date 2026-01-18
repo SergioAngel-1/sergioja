@@ -49,6 +49,7 @@ model Project {
   categories      String[]  @default([]) // web, mobile, ai, backend, fullstack - múltiples categorías
   status          ProjectStatus @default(DRAFT)
   isFeatured      Boolean   @default(false)
+  displayOrder    Int?      @unique // Orden de visualización manual (único, no se repite)
   demoUrl         String?
   repoUrl         String?
   githubUrl       String?   // Alias for repoUrl
@@ -67,6 +68,7 @@ model Project {
 
   @@index([status])
   @@index([isFeatured])
+  @@index([displayOrder])
   @@index([publishedAt(sort: Desc)]) // For sorting by date
   @@index([slug])
   @@map("projects")

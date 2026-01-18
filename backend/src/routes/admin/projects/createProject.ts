@@ -21,6 +21,7 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
       featured,
       isFeatured,
       status,
+      displayOrder,
       repoUrl,
       demoUrl,
       thumbnailImage,
@@ -92,6 +93,24 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
     // Encontrar slug disponible (optimizado para evitar N+1 queries)
     slug = await findAvailableSlug(slug);
 
+    // Validar displayOrder único si se proporciona
+    if (displayOrder !== null && displayOrder !== undefined) {
+      const existingProject = await prisma.project.findUnique({
+        where: { displayOrder: parseInt(displayOrder, 10) },
+        select: { id: true, title: true },
+      });
+
+      if (existingProject) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: `El orden ${displayOrder} ya está asignado al proyecto "${existingProject.title}". Elige un número diferente.`,
+          },
+        });
+      }
+    }
+
     // Determinar categorías (soportar ambos formatos)
     let projectCategories: string[] = [];
     if (categories && Array.isArray(categories)) {
@@ -120,6 +139,7 @@ export const createProject = asyncHandler(async (req: Request, res: Response) =>
         categories: projectCategories,
         status: resolvedStatus,
         isFeatured: (isFeatured !== undefined ? isFeatured : featured) || false,
+        displayOrder: displayOrder ? parseInt(displayOrder, 10) : null,
         repoUrl: repoUrl || null,
         demoUrl: demoUrl || null,
         thumbnailImage: thumbnailImage || null,

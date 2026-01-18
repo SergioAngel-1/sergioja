@@ -25,6 +25,7 @@ interface ProjectFormData {
   isFeatured: boolean;
   status: 'DRAFT' | 'IN_PROGRESS' | 'PUBLISHED';
   publishedAt: string | null;
+  displayOrder: number | null;
   repositoryUrl?: string;
   liveUrl?: string;
   thumbnailImage?: string;
@@ -58,6 +59,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
     isFeatured: false,
     status: 'DRAFT',
     publishedAt: null,
+    displayOrder: null,
     repositoryUrl: '',
     liveUrl: '',
     thumbnailImage: '',
@@ -141,6 +143,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         ) || [],
         isFeatured: project.isFeatured || false,
         status: project.status || (project.publishedAt ? 'PUBLISHED' : 'DRAFT'),
+        displayOrder: project.displayOrder ?? null,
         repositoryUrl: project.repoUrl || project.repositoryUrl || '',
         liveUrl: project.demoUrl || project.liveUrl || '',
         thumbnailImage: project.thumbnailImage || '',
@@ -165,6 +168,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
         isFeatured: false,
         status: 'DRAFT',
         publishedAt: null,
+        displayOrder: null,
         repositoryUrl: '',
         liveUrl: '',
         thumbnailImage: '',
@@ -255,6 +259,7 @@ export function useProjectForm({ project, backendCategories, isOpen }: UseProjec
       status: formData.status,
       isFeatured: formData.isFeatured,
       publishedAt: resolvedPublishedAt,
+      displayOrder: formData.displayOrder,
       repositoryUrl: formData.repositoryUrl,
       repoUrl: formData.repositoryUrl,
       liveUrl: formData.liveUrl,

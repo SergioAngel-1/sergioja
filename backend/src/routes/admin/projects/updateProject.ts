@@ -23,6 +23,7 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
       featured,
       isFeatured,
       status,
+      displayOrder,
       repoUrl,
       demoUrl,
       images,
@@ -107,6 +108,27 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
       }
     }
 
+    // Validar displayOrder único si se proporciona y es diferente al actual
+    if (displayOrder !== null && displayOrder !== undefined) {
+      const parsedOrder = parseInt(displayOrder, 10);
+      if (parsedOrder !== existingProject.displayOrder) {
+        const conflictProject = await prisma.project.findUnique({
+          where: { displayOrder: parsedOrder },
+          select: { id: true, title: true },
+        });
+
+        if (conflictProject && conflictProject.id !== existingProject.id) {
+          return res.status(400).json({
+            success: false,
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: `El orden ${parsedOrder} ya está asignado al proyecto "${conflictProject.title}". Elige un número diferente.`,
+            },
+          });
+        }
+      }
+    }
+
     // Actualizar proyecto
     const resolvedStatus: ProjectStatus = isProjectStatus(status)
       ? status
@@ -134,6 +156,7 @@ export const updateProject = asyncHandler(async (req: Request, res: Response) =>
         categories: projectCategories !== undefined ? projectCategories : existingProject.categories,
         status: resolvedStatus,
         isFeatured: isFeatured !== undefined ? isFeatured : (featured !== undefined ? featured : existingProject.isFeatured),
+        displayOrder: displayOrder !== undefined ? (displayOrder ? parseInt(displayOrder, 10) : null) : existingProject.displayOrder,
         repoUrl: repoUrl !== undefined ? repoUrl : existingProject.repoUrl,
         demoUrl: demoUrl !== undefined ? demoUrl : existingProject.demoUrl,
         thumbnailImage: thumbnailImage !== undefined ? thumbnailImage : existingProject.thumbnailImage,

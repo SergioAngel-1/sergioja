@@ -60,6 +60,7 @@ export const getAllProjects = asyncHandler(async (req: Request, res: Response) =
         categories: true,
         status: true,
         isFeatured: true,
+        displayOrder: true,
         demoUrl: true,
         repoUrl: true,
         githubUrl: true,
@@ -83,7 +84,10 @@ export const getAllProjects = asyncHandler(async (req: Request, res: Response) =
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { displayOrder: { sort: 'asc', nulls: 'last' } },
+        { createdAt: 'desc' }
+      ],
       skip: (pageNum - 1) * limitNum,
       take: limitNum,
     });
@@ -101,6 +105,7 @@ export const getAllProjects = asyncHandler(async (req: Request, res: Response) =
       categories: p.categories || [],
       status: p.status,
       isFeatured: p.isFeatured,
+      displayOrder: p.displayOrder ?? null,
       demoUrl: p.demoUrl,
       repoUrl: p.repoUrl,
       githubUrl: p.githubUrl || p.repoUrl,

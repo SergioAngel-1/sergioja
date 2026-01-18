@@ -256,11 +256,13 @@ export default function ProjectFormModal({
             performanceScore={formData.performanceScore}
             accessibilityScore={formData.accessibilityScore}
             seoScore={formData.seoScore}
+            displayOrder={formData.displayOrder}
             onPerformanceScoreChange={(performanceScore) => updateFormData({ performanceScore })}
             onAccessibilityScoreChange={(accessibilityScore) =>
               updateFormData({ accessibilityScore })
             }
             onSeoScoreChange={(seoScore) => updateFormData({ seoScore })}
+            onDisplayOrderChange={(displayOrder) => updateFormData({ displayOrder })}
           />
         </div>
       </form>
