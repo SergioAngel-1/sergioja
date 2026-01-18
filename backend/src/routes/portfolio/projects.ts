@@ -4,6 +4,7 @@ import { prisma } from '../../lib/prisma';
 import { logger } from '../../lib/logger';
 import { asyncHandler } from '../../middleware/errorHandler';
 import { getProjectCacheVersion } from '../../lib/cacheVersion';
+import { categoryCache } from '../../lib/categoryCache';
 
 const router = Router();
 
@@ -116,32 +117,8 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
       take: limitNum,
     });
 
-  // Obtener todas las categorías únicas de los proyectos
-  const allCategories = new Set<string>();
-  projects.forEach((p: any) => {
-    if (p.categories) {
-      p.categories.forEach((cat: string) => allCategories.add(cat));
-    }
-  });
-
-  // Obtener labels de todas las categorías en una sola query
-  const categoryLabelsMap: Record<string, string> = {};
-  if (allCategories.size > 0) {
-    const projectCategories = await prisma.projectCategory.findMany({
-      where: {
-        name: { in: Array.from(allCategories) },
-        active: true,
-      },
-      select: {
-        name: true,
-        label: true,
-      },
-    });
-    
-    projectCategories.forEach((cat: { name: string; label: string }) => {
-      categoryLabelsMap[cat.name] = cat.label;
-    });
-  }
+  // Obtener labels de categorías desde caché en memoria (elimina query N+1)
+  const categoryLabelsMap = await categoryCache.getProjectCategoryLabels();
 
   // Transform to match frontend interface
   const transformedProjects: Project[] = projects.map((p: any) => {
@@ -263,22 +240,14 @@ router.get('/:slug', asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
-  // Obtener labels de las categorías desde ProjectCategory
+  // Obtener labels de categorías desde caché en memoria (elimina query N+1)
+  const categoryLabelsMap = await categoryCache.getProjectCategoryLabels();
   const categoryLabels: Record<string, string> = {};
   if (project.categories && project.categories.length > 0) {
-    const projectCategories = await prisma.projectCategory.findMany({
-      where: {
-        name: { in: project.categories },
-        active: true,
-      },
-      select: {
-        name: true,
-        label: true,
-      },
-    });
-    
-    projectCategories.forEach((cat: { name: string; label: string }) => {
-      categoryLabels[cat.name] = cat.label;
+    project.categories.forEach((cat: string) => {
+      if (categoryLabelsMap[cat]) {
+        categoryLabels[cat] = categoryLabelsMap[cat];
+      }
     });
   }
 

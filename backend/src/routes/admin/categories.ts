@@ -4,6 +4,7 @@ import { prisma } from '../../lib/prisma';
 import { logger } from '../../lib/logger';
 import { authMiddleware } from '../../middleware/auth';
 import { asyncHandler } from '../../middleware/errorHandler';
+import { categoryCache } from '../../lib/categoryCache';
 
 const router = Router();
 
@@ -63,6 +64,9 @@ router.post('/projects', authMiddleware, asyncHandler(async (req: Request, res: 
     },
   });
 
+  categoryCache.invalidateProjectCategories();
+  logger.info('Project category created, cache invalidated', { name, label });
+
   const response: ApiResponse<typeof category> = {
     success: true,
     data: category,
@@ -98,6 +102,9 @@ router.post('/technologies', authMiddleware, asyncHandler(async (req: Request, r
     },
   });
 
+  categoryCache.invalidateTechnologyCategories();
+  logger.info('Technology category created, cache invalidated', { name, label });
+
   const response: ApiResponse<typeof category> = {
     success: true,
     data: category,
@@ -124,6 +131,9 @@ router.put('/projects/:id', authMiddleware, asyncHandler(async (req: Request, re
       active,
     },
   });
+
+  categoryCache.invalidateProjectCategories();
+  logger.info('Project category updated, cache invalidated', { id, name });
 
   const response: ApiResponse<typeof category> = {
     success: true,
@@ -152,6 +162,9 @@ router.put('/technologies/:id', authMiddleware, asyncHandler(async (req: Request
     },
   });
 
+  categoryCache.invalidateTechnologyCategories();
+  logger.info('Technology category updated, cache invalidated', { id, name });
+
   const response: ApiResponse<typeof category> = {
     success: true,
     data: category,
@@ -169,6 +182,9 @@ router.delete('/projects/:id', authMiddleware, asyncHandler(async (req: Request,
     where: { id },
   });
 
+  categoryCache.invalidateProjectCategories();
+  logger.info('Project category deleted, cache invalidated', { id });
+
   const response: ApiResponse<null> = {
     success: true,
     data: null,
@@ -185,6 +201,9 @@ router.delete('/technologies/:id', authMiddleware, asyncHandler(async (req: Requ
   await prisma.technologyCategory.delete({
     where: { id },
   });
+
+  categoryCache.invalidateTechnologyCategories();
+  logger.info('Technology category deleted, cache invalidated', { id });
 
   const response: ApiResponse<null> = {
     success: true,

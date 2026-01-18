@@ -49,28 +49,27 @@ export function useProjects(options?: UseProjectsOptions) {
         logger.debug('Fetching projects', stableOptions, 'useProjects');
         const startTime = performance.now();
         
-        // Obtener versión de caché del backend
-        let cacheVersionNumber: number;
-        try {
-          const versionResponse = await api.getProjectCacheVersion();
-          cacheVersionNumber = versionResponse.success && versionResponse.data
-            ? (versionResponse.data as any).version
-            : Date.now();
-        } catch (versionError) {
-          logger.warn('Failed to get project cache version', versionError, 'useProjects');
-          cacheVersionNumber = Date.now();
-        }
-
         const shouldUseCache = stableOptions?.useCache !== false;
-        const cacheKey = buildVersionedKey('projects', requestParams, cacheVersionNumber);
         
         let response;
         if (shouldUseCache) {
+          // Usar cacheVersion del response para invalidación automática
+          const tempKey = buildVersionedKey('projects', requestParams, undefined);
           response = await cache.fetchWithCache(
-            cacheKey,
+            tempKey,
             () => api.getProjects(stableOptions),
             CacheTTL.FIVE_MINUTES
           );
+          
+          // Si el response incluye cacheVersion, actualizar la key con versión
+          if (response.cacheVersion) {
+            const versionedKey = buildVersionedKey('projects', requestParams, response.cacheVersion);
+            // Si la versión cambió, invalidar caché antiguo
+            if (versionedKey !== tempKey) {
+              cache.delete(tempKey);
+              cache.set(versionedKey, response, CacheTTL.FIVE_MINUTES);
+            }
+          }
         } else {
           response = await api.getProjects(stableOptions);
         }
@@ -119,23 +118,22 @@ export function useProject(slug: string) {
         setRedirectTo(null);
         logger.debug(`Fetching project: ${slug}`, 'useProject');
 
-        let cacheVersionNumber: number;
-        try {
-          const versionResponse = await api.getProjectCacheVersion();
-          cacheVersionNumber = versionResponse.success && versionResponse.data
-            ? (versionResponse.data as any).version
-            : Date.now();
-        } catch (versionError) {
-          logger.warn('Failed to get project cache version', versionError, 'useProject');
-          cacheVersionNumber = Date.now();
-        }
-
-        const cacheKey = buildVersionedKey(`project:${slug}`, undefined, cacheVersionNumber);
+        // Usar cacheVersion del response en lugar de request separado
+        const tempKey = buildVersionedKey(`project:${slug}`, undefined, undefined);
         const response = await cache.fetchWithCache(
-          cacheKey,
+          tempKey,
           () => api.getProjectBySlug(slug),
           CacheTTL.FIVE_MINUTES
         );
+        
+        // Si el response incluye cacheVersion, actualizar la key
+        if (response.cacheVersion) {
+          const versionedKey = buildVersionedKey(`project:${slug}`, undefined, response.cacheVersion);
+          if (versionedKey !== tempKey) {
+            cache.delete(tempKey);
+            cache.set(versionedKey, response, CacheTTL.FIVE_MINUTES);
+          }
+        }
         
         if (response.success && response.data) {
           setProject(response.data as Project);
