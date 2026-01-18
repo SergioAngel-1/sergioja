@@ -8,8 +8,8 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   response.headers.set('x-pathname', pathname);
   
-  // Extraer slug de la ruta (remover / inicial)
-  const slug = pathname.replace(/^\/+/, '');
+  // Extraer slug limpio (sin / inicial y final)
+  const slug = pathname.replace(/^\/+/, '').replace(/\/$/, '');
   
   if (slug && slug.length > 0) {
     try {
@@ -22,16 +22,27 @@ export async function middleware(request: NextRequest) {
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.data?.redirectTo) {
-          // Redirección 301 permanente para SEO
           const redirectTarget = data.data.redirectTo;
-          const targetPath = redirectTarget.startsWith('/')
-            ? redirectTarget
-            : `/${redirectTarget}`;
-          const redirectUrl = new URL(targetPath, request.url);
           
-          console.log('[SEO Redirect] 301:', pathname, '->', redirectUrl.pathname);
+          // Determinar si es URL externa o ruta interna
+          const isExternalUrl = redirectTarget.startsWith('http://') || redirectTarget.startsWith('https://');
           
-          return NextResponse.redirect(redirectUrl, { status: 301 });
+          if (isExternalUrl) {
+            // Redirección a URL externa
+            console.log('[SEO Redirect] 301 (external):', pathname, '->', redirectTarget);
+            return NextResponse.redirect(redirectTarget, { status: 301 });
+          } else {
+            // Redirección interna
+            // Si redirectTo no empieza con /, agregarlo
+            const targetPath = redirectTarget.startsWith('/') 
+              ? redirectTarget 
+              : `/${redirectTarget}`;
+            const redirectUrl = new URL(targetPath, request.url);
+            
+            console.log('[SEO Redirect] 301 (internal):', pathname, '->', redirectUrl.pathname);
+            
+            return NextResponse.redirect(redirectUrl, { status: 301 });
+          }
         }
       }
     } catch (error) {
