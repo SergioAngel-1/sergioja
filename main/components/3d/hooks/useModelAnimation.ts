@@ -23,7 +23,7 @@ export function useModelAnimation({
       return;
     }
 
-    let startTime = Date.now();
+    const startTime = Date.now();
 
     const animate = () => {
       const elapsed = Date.now() - startTime;

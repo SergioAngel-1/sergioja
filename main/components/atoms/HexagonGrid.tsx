@@ -78,8 +78,6 @@ export default function HexagonGrid() {
   useEffect(() => {
     if (!mounted || lowPerformanceMode || isMobile) return;
     
-    let animationFrameId: number | null = null;
-    
     const handleMouseMove = (e: MouseEvent) => {
       // Store pending position
       pendingPositionRef.current = { x: e.clientX, y: e.clientY };
