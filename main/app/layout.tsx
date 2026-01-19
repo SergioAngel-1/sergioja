@@ -11,7 +11,7 @@ import { defaultSEO, siteConfig } from '@/lib/seo/config';
 
 // Import client-only components dynamically to avoid hydration errors
 const CookieConsentProvider = dynamic(
-  () => import('@/shared/contexts/CookieConsentContext').then(mod => ({ default: mod.CookieConsentProvider })),
+  () => import('@/contexts/CookieConsentContext').then(mod => ({ default: mod.CookieConsentProvider })),
   { ssr: false }
 );
 
@@ -21,7 +21,7 @@ const CookieConsentWrapper = dynamic(
 );
 
 const GTMLoader = dynamic(
-  () => import('@/shared/components/GTMLoader'),
+  () => import('@/components/GTMLoader'),
   { ssr: false }
 );
 
@@ -134,11 +134,11 @@ export default function RootLayout({
             description: siteConfig.description,
           }))}
         </Script>
+          <CookieConsentWrapper />
           <LanguageProvider>
             <ModelTargetProvider>
               <main className="h-viewport overflow-hidden">{children}</main>
               <AlertContainer />
-              <CookieConsentWrapper />
             </ModelTargetProvider>
           </LanguageProvider>
           <WebVitalsTracker />

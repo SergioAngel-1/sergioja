@@ -104,7 +104,7 @@ router.post('/login', loginLimiter, asyncHandler(async (req: Request, res: Respo
   res.cookie('accessToken', tokens.accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax', // 'none' requiere secure=true en prod
+    sameSite: 'lax', // 'lax' es suficiente para same-site requests (admin.sergioja.com -> api.sergioja.com)
     maxAge: 15 * 60 * 1000, // 15 minutos
     path: '/',
     domain: isProduction ? '.sergioja.com' : undefined, // Compartir entre subdominios
@@ -113,7 +113,7 @@ router.post('/login', loginLimiter, asyncHandler(async (req: Request, res: Respo
   res.cookie('refreshToken', tokens.refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
     path: '/',
     domain: isProduction ? '.sergioja.com' : undefined,
@@ -171,7 +171,7 @@ router.post('/refresh', asyncHandler(async (req: Request, res: Response) => {
   res.cookie('accessToken', tokens.accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: 15 * 60 * 1000,
     path: '/',
     domain: isProduction ? '.sergioja.com' : undefined,
@@ -180,7 +180,7 @@ router.post('/refresh', asyncHandler(async (req: Request, res: Response) => {
   res.cookie('refreshToken', tokens.refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
     domain: isProduction ? '.sergioja.com' : undefined,

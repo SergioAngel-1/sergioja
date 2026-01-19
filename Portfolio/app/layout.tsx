@@ -3,19 +3,17 @@ import Script from 'next/script';
 import dynamic from 'next/dynamic';
 import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import ClientProviders from '@/components/ClientProviders';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
-import { CookieConsentProvider } from '@/shared/contexts/CookieConsentContext';
 
 // Import client-only components dynamically to avoid hydration errors
 const CookieConsentBanner = dynamic(
-  () => import('@/shared/components/CookieConsentBanner'),
+  () => import('@/components/CookieConsentBanner'),
   { ssr: false }
 );
 
 const GTMLoader = dynamic(
-  () => import('@/shared/components/GTMLoader'),
+  () => import('@/components/GTMLoader'),
   { ssr: false }
 );
 
@@ -26,6 +24,11 @@ const WebVitalsTracker = dynamic(
 
 const PageViewTracker = dynamic(
   () => import('@/components/PageViewTracker'),
+  { ssr: false }
+);
+
+const ClientProviders = dynamic(
+  () => import('@/components/ClientProviders'),
   { ssr: false }
 );
 
@@ -112,28 +115,27 @@ export default function RootLayout({
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-dark text-text-primary antialiased`}
       >
-        <CookieConsentProvider>
-          {isProd && GTM_ID && <GTMLoader gtmId={GTM_ID} />}
-          <Script id="ld-person" type="application/ld+json" strategy="beforeInteractive">
+        {isProd && GTM_ID && <GTMLoader gtmId={GTM_ID} />}
+        <Script id="ld-person" type="application/ld+json" strategy="beforeInteractive">
           {toJsonLd(generatePersonSchema({
             name: siteConfig.author.name,
             url: siteConfig.url,
             sameAs: [siteConfig.author.social.github, siteConfig.author.social.linkedin],
           }))}
         </Script>
-          <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
+        <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
           {toJsonLd(generateWebSiteSchema({
             name: siteConfig.name,
             url: siteConfig.url,
             description: siteConfig.description,
           }))}
         </Script>
-          <ClientProviders>
-            <main className="min-h-screen pb-20 md:pb-0">{children}</main>
-          </ClientProviders>
-          <WebVitalsTracker />
-          <PageViewTracker />
-        </CookieConsentProvider>
+        <CookieConsentBanner variant="portfolio" />
+        <ClientProviders>
+          <main className="min-h-screen pb-20 md:pb-0">{children}</main>
+        </ClientProviders>
+        <WebVitalsTracker />
+        <PageViewTracker />
       </body>
     </html>
   );

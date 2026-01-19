@@ -6,7 +6,6 @@ import dynamic from 'next/dynamic';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
-import { useCookieConsent } from '@/shared/contexts/CookieConsentContext';
 import PageHeader from '@/components/organisms/PageHeader';
 import FloatingParticles from '@/components/atoms/FloatingParticles';
 import GlowEffect from '@/components/atoms/GlowEffect';
@@ -44,7 +43,13 @@ export default function ContactPage() {
   const { t, language } = useLanguage();
   const log = useLogger('ContactPage');
   const router = useRouter();
-  const { openPreferences } = useCookieConsent();
+  
+  // Opens cookie preferences - dispatches event to show banner without reload
+  const openCookiePreferences = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('openCookiePreferences'));
+    }
+  }, []);
   const { profile } = useProfile();
   
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
@@ -486,7 +491,7 @@ export default function ContactPage() {
           ]}
           onLinkClick={(key) => {
             if (key === 'cookies') {
-              openPreferences();
+              openCookiePreferences();
               log.interaction('click_cookie_preferences', 'opened');
             } else {
               log.interaction('click_legal_link', key);

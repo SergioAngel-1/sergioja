@@ -2,30 +2,41 @@
 
 import { useEffect, useState } from 'react';
 import { useCookieConsent } from '../contexts/CookieConsentContext';
-import { translate, Language } from '../translations';
+
+type Language = 'es' | 'en';
 
 interface CookieConsentBannerProps {
   variant?: 'main' | 'portfolio';
   language?: Language;
-  t?: (key: string) => string;
 }
 
-export default function CookieConsentBanner({ variant = 'main', language = 'es', t }: CookieConsentBannerProps) {
+const translations = {
+  es: {
+    'cookies.title': 'Gestión de Cookies',
+    'cookies.description': 'Usamos cookies para mejorar tu experiencia y analizar el rendimiento de nuestro sitio. Al aceptar, consientes el uso de cookies analíticas.',
+    'cookies.acceptAll': 'Aceptar todas',
+    'cookies.onlyEssential': 'Solo esenciales',
+  },
+  en: {
+    'cookies.title': 'Cookie Management',
+    'cookies.description': 'We use cookies to enhance your experience and analyze our site\'s performance. By accepting, you consent to the use of analytical cookies.',
+    'cookies.acceptAll': 'Accept All',
+    'cookies.onlyEssential': 'Essential Only',
+  }
+};
+
+export default function CookieConsentBanner({ variant = 'main', language = 'es' }: CookieConsentBannerProps) {
   const { consentStatus, acceptCookies, rejectCookies } = useCookieConsent();
   const [isVisible, setIsVisible] = useState(false);
 
-  // Use provided translation function or fallback to default translate
   const getText = (key: string): string => {
-    if (t) {
-      return t(key);
-    }
-    return translate(key as any, language);
+    return translations[language][key as keyof typeof translations['es']] || key;
   };
 
   useEffect(() => {
     if (consentStatus === 'pending') {
-      const timer = setTimeout(() => setIsVisible(true), 300);
-      return () => clearTimeout(timer);
+      // Show immediately - animation is handled by CSS
+      setIsVisible(true);
     } else {
       setIsVisible(false);
     }
@@ -33,14 +44,23 @@ export default function CookieConsentBanner({ variant = 'main', language = 'es',
 
 
   useEffect(() => {
-    if (consentStatus === 'pending' && isVisible) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+    try {
+      if (consentStatus === 'pending' && isVisible) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    } catch (error) {
+      // Silent fail if body is not accessible (edge case in iframes)
+      console.warn('Failed to toggle body scroll lock:', error);
     }
-    
+
     return () => {
-      document.body.style.overflow = '';
+      try {
+        document.body.style.overflow = '';
+      } catch (error) {
+        // Silent fail on cleanup
+      }
     };
   }, [consentStatus, isVisible]);
 
@@ -51,7 +71,7 @@ export default function CookieConsentBanner({ variant = 'main', language = 'es',
   const isMain = variant === 'main';
 
   return (
-    <div 
+    <div
       className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       style={{
         zIndex: 999999,
@@ -59,7 +79,7 @@ export default function CookieConsentBanner({ variant = 'main', language = 'es',
       }}
     >
       {/* Modal */}
-      <div 
+      <div
         className={`relative max-w-lg w-full sm:w-auto ${isMain ? 'bg-black' : 'bg-background-surface'} border border-white/30 rounded-lg overflow-hidden`}
         style={{
           animation: 'scaleIn 0.4s ease-out forwards',
@@ -68,17 +88,17 @@ export default function CookieConsentBanner({ variant = 'main', language = 'es',
         {/* Header */}
         <div className="flex items-center gap-4 border-b border-white/20 p-6">
           <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-white/10 border-2 border-white/30">
-            <svg 
-              className="w-6 h-6 text-white" 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
           </div>
@@ -124,7 +144,7 @@ export default function CookieConsentBanner({ variant = 'main', language = 'es',
             opacity: 1;
           }
         }
-        
+
         @keyframes scaleIn {
           from {
             transform: scale(0.9);

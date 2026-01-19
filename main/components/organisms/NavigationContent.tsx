@@ -3,7 +3,7 @@
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
-import { useCookieConsent } from '@/shared/contexts/CookieConsentContext';
+import { useCookieConsent } from '@/contexts/CookieConsentContext';
 import { logger } from '@/lib/logger';
 
 interface NavigationContentProps {

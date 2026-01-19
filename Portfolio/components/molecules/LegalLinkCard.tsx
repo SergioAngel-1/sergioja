@@ -9,18 +9,21 @@ interface LegalLinkCardProps {
   label: string;
   path: string;
   index: number;
+  keyName: string;
   onLinkClick?: (key: string) => void;
 }
 
-export default function LegalLinkCard({ icon, label, path, index, onLinkClick }: LegalLinkCardProps) {
+export default function LegalLinkCard({ icon, label, path, index, keyName, onLinkClick }: LegalLinkCardProps) {
   const router = useRouter();
 
   return (
     <motion.button
       onClick={() => {
-        onLinkClick?.(path);
-        window.dispatchEvent(new Event('app:navigation-start'));
-        router.push(path);
+        onLinkClick?.(keyName);
+        if (path !== '#') {
+          window.dispatchEvent(new Event('app:navigation-start'));
+          router.push(path);
+        }
       }}
       className="relative group bg-background-elevated/30 backdrop-blur-sm border border-white/10 rounded-lg hover:border-white/30 transition-all duration-300 text-left overflow-hidden"
       style={{ padding: fluidSizing.space.sm }}

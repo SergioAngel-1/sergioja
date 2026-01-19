@@ -1,15 +1,24 @@
 'use client';
 
-import CookieConsentBanner from '@/shared/components/CookieConsentBanner';
-import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useState, useEffect } from 'react';
+import CookieConsentBanner from '@/components/CookieConsentBanner';
+
+type Language = 'es' | 'en';
 
 export default function CookieConsentWrapper() {
-  const { language, t } = useLanguage();
+  const [language, setLanguage] = useState<Language>('es');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = window.localStorage.getItem('language');
+      if (stored === 'en' || stored === 'es') {
+        setLanguage(stored);
+      } else {
+        const browserLang = navigator.language.toLowerCase().startsWith('es') ? 'es' : 'en';
+        setLanguage(browserLang);
+      }
+    }
+  }, []);
   
-  // Wrapper function to match expected signature
-  const translateWrapper = (key: string): string => {
-    return t(key as any);
-  };
-  
-  return <CookieConsentBanner variant="main" language={language} t={translateWrapper} />;
+  return <CookieConsentBanner variant="main" language={language} />;
 }
