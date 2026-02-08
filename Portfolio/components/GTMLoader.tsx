@@ -1,37 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useCookieConsent } from '@/contexts/CookieConsentContext';
 
 interface GTMLoaderProps {
   gtmId: string;
 }
 
-const STORAGE_KEY = 'cookie-consent';
-
 export default function GTMLoader({ gtmId }: GTMLoaderProps) {
-  const [hasConsent, setHasConsent] = useState(false);
+  const { hasConsent } = useCookieConsent();
   const scriptRef = useRef<HTMLScriptElement | null>(null);
   const iframeRef = useRef<HTMLDivElement | null>(null);
-
-  // Read consent from localStorage on mount and listen for changes
-  useEffect(() => {
-    const checkConsent = () => {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      setHasConsent(stored === 'accepted');
-    };
-    
-    checkConsent();
-    
-    // Listen for storage changes (when user changes consent)
-    window.addEventListener('storage', checkConsent);
-    // Also check periodically in case localStorage changes in same tab
-    const interval = setInterval(checkConsent, 1000);
-    
-    return () => {
-      window.removeEventListener('storage', checkConsent);
-      clearInterval(interval);
-    };
-  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') {
@@ -68,6 +47,9 @@ export default function GTMLoader({ gtmId }: GTMLoaderProps) {
         iframeRef.current = null;
       }
 
+      // Remove consent-conditional preconnect hints
+      document.querySelectorAll('link[data-gtm-hint]').forEach(el => el.remove());
+
       // Reset dataLayer
       if (Array.isArray(win.dataLayer)) {
         win.dataLayer.length = 0;
@@ -82,6 +64,21 @@ export default function GTMLoader({ gtmId }: GTMLoaderProps) {
 
     // Enable GTM before injecting scripts
     win[gtmDisableFlag] = false;
+
+    // Inject preconnect/dns-prefetch hints for GTM (only after consent)
+    const gtmOrigin = 'https://www.googletagmanager.com';
+    if (!document.querySelector(`link[rel="preconnect"][href="${gtmOrigin}"][data-gtm-hint]`)) {
+      const preconnect = document.createElement('link');
+      preconnect.rel = 'preconnect';
+      preconnect.href = gtmOrigin;
+      preconnect.setAttribute('data-gtm-hint', '');
+      const dnsPrefetch = document.createElement('link');
+      dnsPrefetch.rel = 'dns-prefetch';
+      dnsPrefetch.href = gtmOrigin;
+      dnsPrefetch.setAttribute('data-gtm-hint', '');
+      document.head.appendChild(preconnect);
+      document.head.appendChild(dnsPrefetch);
+    }
 
     // Ensure dataLayer exists
     if (!Array.isArray(win.dataLayer)) {

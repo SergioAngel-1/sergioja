@@ -72,18 +72,12 @@ export default function CookieConsentBanner({ variant = 'main', language = 'es' 
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      style={{
-        zIndex: 999999,
-        animation: 'fadeIn 0.3s ease-out forwards',
-      }}
+      className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-cookie-fade-in"
+      style={{ zIndex: 999999 }}
     >
       {/* Modal */}
       <div
-        className={`relative max-w-lg w-full sm:w-auto ${isMain ? 'bg-black' : 'bg-background-surface'} border border-white/30 rounded-lg overflow-hidden`}
-        style={{
-          animation: 'scaleIn 0.4s ease-out forwards',
-        }}
+        className={`relative max-w-lg w-full sm:w-auto ${isMain ? 'bg-black' : 'bg-background-surface'} border border-white/30 rounded-lg overflow-hidden animate-cookie-scale-in`}
       >
         {/* Header */}
         <div className="flex items-center gap-4 border-b border-white/20 p-6">
@@ -135,27 +129,6 @@ export default function CookieConsentBanner({ variant = 'main', language = 'es' 
         <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-white/30" />
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes scaleIn {
-          from {
-            transform: scale(0.9);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 }

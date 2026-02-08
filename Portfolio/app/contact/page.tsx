@@ -26,6 +26,7 @@ import { getReCaptchaToken } from '@/shared/recaptchaHelpers';
 import { trackContactSubmit, trackNewsletterSubscribe, trackOutboundLink } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 import { usePWAInstall } from '@/shared/hooks/usePWAInstall';
+import { useCookieConsent } from '@/contexts/CookieConsentContext';
 
 type AvailabilityStatus = 'available' | 'busy' | 'unavailable';
 
@@ -44,12 +45,7 @@ export default function ContactPage() {
   const log = useLogger('ContactPage');
   const router = useRouter();
   
-  // Opens cookie preferences - dispatches event to show banner without reload
-  const openCookiePreferences = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('openCookiePreferences'));
-    }
-  }, []);
+  const { openPreferences: openCookiePreferences } = useCookieConsent();
   const { profile } = useProfile();
   
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);

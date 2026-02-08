@@ -1,18 +1,14 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import { useCookieConsent } from '@/contexts/CookieConsentContext';
 
 type Language = 'es' | 'en';
-type ConsentStatus = 'pending' | 'accepted' | 'rejected';
 
 interface CookieConsentBannerProps {
   variant?: 'main' | 'portfolio';
   language?: Language;
 }
-
-const STORAGE_KEY = 'cookie-consent';
-const PREVIOUS_STATUS_KEY = 'cookie-consent-previous';
-const TRACKING_COOKIE_PREFIXES = ['_ga', '_gid', '_gat', '_ga_', '_gcl_', '_fbp'];
 
 const translations = {
   es: {
@@ -29,131 +25,45 @@ const translations = {
   }
 };
 
-// Helper functions - self-contained, no context dependency
-const getStoredStatus = (): ConsentStatus | null => {
-  if (typeof window === 'undefined') return null;
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored === 'accepted' || stored === 'rejected' ? stored : null;
-};
-
-const clearTrackingCookies = () => {
-  if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  const cookies = document.cookie ? document.cookie.split(';') : [];
-  const host = window.location.hostname;
-  const parts = host.split('.');
-  const domains = ['', host];
-  if (parts.length >= 2) {
-    domains.push(`.${parts.slice(-2).join('.')}`);
-  }
-
-  cookies.forEach((cookie) => {
-    const [rawName] = cookie.split('=');
-    const name = rawName?.trim();
-    if (!name) return;
-    const shouldClear = TRACKING_COOKIE_PREFIXES.some((prefix) => name.startsWith(prefix));
-    if (!shouldClear) return;
-
-    domains.forEach((domain) => {
-      const baseStr = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;${domain ? ` domain=${domain};` : ''}`;
-      [baseStr, `${baseStr} SameSite=Lax`, `${baseStr} SameSite=None; Secure`, `${baseStr} SameSite=Strict`].forEach(cookieStr => {
-        try { document.cookie = cookieStr; } catch {}
-      });
-    });
-  });
-};
-
 export default function CookieConsentBanner({ variant = 'portfolio', language = 'es' }: CookieConsentBannerProps) {
-  const [consentStatus, setConsentStatus] = useState<ConsentStatus>('pending');
-  const [previousStatus, setPreviousStatus] = useState<ConsentStatus | null>(null);
+  const { consentStatus, acceptCookies, rejectCookies } = useCookieConsent();
   const [isVisible, setIsVisible] = useState(false);
-  const [isClient, setIsClient] = useState(false);
 
   const getText = (key: string): string => {
     return translations[language][key as keyof typeof translations['es']] || key;
   };
 
-  // Initialize on client
   useEffect(() => {
-    setIsClient(true);
-    const stored = getStoredStatus();
-    
-    // Check if there's a previous decision stored in sessionStorage
-    const previous = window.sessionStorage.getItem(PREVIOUS_STATUS_KEY);
-    if (previous === 'accepted' || previous === 'rejected') {
-      setPreviousStatus(previous);
-    }
-    
-    if (stored) {
-      setConsentStatus(stored);
-    } else {
-      setConsentStatus('pending');
-      setIsVisible(true);
-    }
-  }, []);
-
-  // Listen for openCookiePreferences event to show banner dynamically
-  useEffect(() => {
-    const handleOpenPreferences = () => {
-      const currentConsent = getStoredStatus();
-      // Save previous decision for comparison
-      if (currentConsent) {
-        window.sessionStorage.setItem(PREVIOUS_STATUS_KEY, currentConsent);
-        setPreviousStatus(currentConsent);
-      }
-      // Clear consent and show banner
-      window.localStorage.removeItem(STORAGE_KEY);
-      setConsentStatus('pending');
-      setIsVisible(true);
-    };
-
-    window.addEventListener('openCookiePreferences', handleOpenPreferences);
-    return () => window.removeEventListener('openCookiePreferences', handleOpenPreferences);
-  }, []);
-
-  // Handle visibility
-  useEffect(() => {
-    if (!isClient) return;
     if (consentStatus === 'pending') {
+      // Show immediately - animation is handled by CSS
       setIsVisible(true);
-      document.body.style.overflow = 'hidden';
     } else {
       setIsVisible(false);
-      document.body.style.overflow = '';
     }
-    return () => { document.body.style.overflow = ''; };
-  }, [consentStatus, isClient]);
+  }, [consentStatus]);
 
-  const acceptCookies = useCallback(() => {
-    const isChangingDecision = previousStatus && previousStatus !== 'accepted';
-    
-    window.localStorage.setItem(STORAGE_KEY, 'accepted');
-    window.sessionStorage.removeItem(PREVIOUS_STATUS_KEY);
-    setConsentStatus('accepted');
-    setIsVisible(false);
-    
-    // Reload if changing from a different decision
-    if (isChangingDecision) {
-      setTimeout(() => window.location.reload(), 100);
+  useEffect(() => {
+    try {
+      if (consentStatus === 'pending' && isVisible) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    } catch (error) {
+      // Silent fail if body is not accessible (edge case in iframes)
+      console.warn('Failed to toggle body scroll lock:', error);
     }
-  }, [previousStatus]);
 
-  const rejectCookies = useCallback(() => {
-    const isChangingDecision = previousStatus && previousStatus !== 'rejected';
-    
-    window.localStorage.setItem(STORAGE_KEY, 'rejected');
-    window.sessionStorage.removeItem(PREVIOUS_STATUS_KEY);
-    clearTrackingCookies();
-    setConsentStatus('rejected');
-    setIsVisible(false);
-    
-    // Reload if changing from a different decision
-    if (isChangingDecision) {
-      setTimeout(() => window.location.reload(), 100);
-    }
-  }, [previousStatus]);
+    return () => {
+      try {
+        document.body.style.overflow = '';
+      } catch (error) {
+        // Silent fail on cleanup
+      }
+    };
+  }, [consentStatus, isVisible]);
 
-  // Don't render on server or if already has consent
-  if (!isClient || consentStatus !== 'pending' || !isVisible) {
+  if (consentStatus !== 'pending' || !isVisible) {
     return null;
   }
 
@@ -161,18 +71,12 @@ export default function CookieConsentBanner({ variant = 'portfolio', language = 
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-      style={{
-        zIndex: 999999,
-        animation: 'fadeIn 0.3s ease-out forwards',
-      }}
+      className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-cookie-fade-in"
+      style={{ zIndex: 999999 }}
     >
       {/* Modal */}
       <div
-        className={`relative max-w-lg w-full sm:w-auto ${isMain ? 'bg-black' : 'bg-background-surface'} border border-white/30 rounded-lg overflow-hidden`}
-        style={{
-          animation: 'scaleIn 0.4s ease-out forwards',
-        }}
+        className={`relative max-w-lg w-full sm:w-auto ${isMain ? 'bg-black' : 'bg-background-surface'} border border-white/30 rounded-lg overflow-hidden animate-cookie-scale-in`}
       >
         {/* Header */}
         <div className="flex items-center gap-4 border-b border-white/20 p-6">
@@ -224,27 +128,6 @@ export default function CookieConsentBanner({ variant = 'portfolio', language = 
         <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-white/30" />
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes scaleIn {
-          from {
-            transform: scale(0.9);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 }

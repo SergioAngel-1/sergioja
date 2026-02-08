@@ -5,6 +5,7 @@
  */
 
 import { logger } from './logger';
+import { getStoredConsentStatus } from './cookieConsent';
 
 declare global {
   interface Window {
@@ -20,9 +21,13 @@ export interface GA4Event {
 
 /**
  * Push evento a dataLayer de GTM
+ * Solo pushea si el usuario ha aceptado cookies
  */
 export function trackEvent(event: GA4Event): void {
   if (typeof window === 'undefined') return;
+  
+  // Skip tracking if user hasn't accepted cookies
+  if (getStoredConsentStatus() !== 'accepted') return;
   
   try {
     window.dataLayer = window.dataLayer || [];

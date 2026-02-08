@@ -7,6 +7,11 @@ import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
 
 // Import client-only components dynamically to avoid hydration errors
+const CookieConsentProvider = dynamic(
+  () => import('@/contexts/CookieConsentContext').then(mod => ({ default: mod.CookieConsentProvider })),
+  { ssr: false }
+);
+
 const CookieConsentBanner = dynamic(
   () => import('@/components/CookieConsentBanner'),
   { ssr: false }
@@ -100,13 +105,11 @@ export default function RootLayout({
         {/* Preconnect to external CDNs */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://api.sergioja.com" />
         
         {/* DNS prefetch fallback */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://api.sergioja.com" />
         
         {/* Theme Color */}
@@ -115,27 +118,29 @@ export default function RootLayout({
       <body
         className={`${orbitron.variable} ${rajdhani.variable} ${jetbrainsMono.variable} font-rajdhani bg-background-dark text-text-primary antialiased`}
       >
-        {isProd && GTM_ID && <GTMLoader gtmId={GTM_ID} />}
-        <Script id="ld-person" type="application/ld+json" strategy="beforeInteractive">
-          {toJsonLd(generatePersonSchema({
-            name: siteConfig.author.name,
-            url: siteConfig.url,
-            sameAs: [siteConfig.author.social.github, siteConfig.author.social.linkedin],
-          }))}
-        </Script>
-        <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
-          {toJsonLd(generateWebSiteSchema({
-            name: siteConfig.name,
-            url: siteConfig.url,
-            description: siteConfig.description,
-          }))}
-        </Script>
-        <CookieConsentBanner variant="portfolio" />
-        <ClientProviders>
-          <main className="min-h-screen pb-20 md:pb-0">{children}</main>
-        </ClientProviders>
-        <WebVitalsTracker />
-        <PageViewTracker />
+        <CookieConsentProvider>
+          {isProd && GTM_ID && <GTMLoader gtmId={GTM_ID} />}
+          <Script id="ld-person" type="application/ld+json" strategy="beforeInteractive">
+            {toJsonLd(generatePersonSchema({
+              name: siteConfig.author.name,
+              url: siteConfig.url,
+              sameAs: [siteConfig.author.social.github, siteConfig.author.social.linkedin],
+            }))}
+          </Script>
+          <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
+            {toJsonLd(generateWebSiteSchema({
+              name: siteConfig.name,
+              url: siteConfig.url,
+              description: siteConfig.description,
+            }))}
+          </Script>
+          <CookieConsentBanner variant="portfolio" />
+          <ClientProviders>
+            <main className="min-h-screen pb-20 md:pb-0">{children}</main>
+          </ClientProviders>
+          <WebVitalsTracker />
+          <PageViewTracker />
+        </CookieConsentProvider>
       </body>
     </html>
   );
