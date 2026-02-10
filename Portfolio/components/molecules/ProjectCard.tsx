@@ -166,36 +166,43 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
             </div>
 
             {/* Stats - Metrics */}
-            {(project.performanceScore || project.accessibilityScore || project.seoScore) && (
-              <>
-                {/* Desktop: Grid */}
-                <div className="hidden sm:grid grid-cols-3" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.md }}>
-                  <StatCard label="Perf" value={project.performanceScore || 0} index={0} compact />
-                  <StatCard label="A11y" value={project.accessibilityScore || 0} index={1} compact />
-                  <StatCard label="SEO" value={project.seoScore || 0} index={2} compact />
-                </div>
-                
-                {/* Mobile: Vertical List con contenedor */}
-                <div className="sm:hidden bg-background-elevated/50 border border-white/10 rounded-md" style={{ marginBottom: fluidSizing.space.sm, padding: fluidSizing.space.sm }}>
-                  <div className="flex flex-col gap-1 text-[10px] font-mono">
-                    <div className="flex items-center justify-between">
-                      <span className="text-text-secondary">Perf</span>
-                      <span className="text-white font-bold">{project.performanceScore || 0}</span>
-                    </div>
-                    <div className="h-px bg-white/5" />
-                    <div className="flex items-center justify-between">
-                      <span className="text-text-secondary">A11y</span>
-                      <span className="text-white font-bold">{project.accessibilityScore || 0}</span>
-                    </div>
-                    <div className="h-px bg-white/5" />
-                    <div className="flex items-center justify-between">
-                      <span className="text-text-secondary">SEO</span>
-                      <span className="text-white font-bold">{project.seoScore || 0}</span>
+            {(() => {
+              const visibleMetrics = [
+                { label: 'Perf', value: project.performanceScore || 0 },
+                { label: 'A11y', value: project.accessibilityScore || 0 },
+                { label: 'SEO', value: project.seoScore || 0 },
+              ].filter(m => m.value > 0);
+
+              if (visibleMetrics.length === 0) return null;
+
+              const gridCols = visibleMetrics.length === 1 ? 'grid-cols-1' : visibleMetrics.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
+
+              return (
+                <>
+                  {/* Desktop: Grid */}
+                  <div className={`hidden sm:grid ${gridCols}`} style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.md }}>
+                    {visibleMetrics.map((m, i) => (
+                      <StatCard key={m.label} label={m.label} value={m.value} index={i} compact />
+                    ))}
+                  </div>
+                  
+                  {/* Mobile: Vertical List con contenedor */}
+                  <div className="sm:hidden bg-background-elevated/50 border border-white/10 rounded-md" style={{ marginBottom: fluidSizing.space.sm, padding: fluidSizing.space.sm }}>
+                    <div className="flex flex-col gap-1 text-[10px] font-mono">
+                      {visibleMetrics.map((m, i) => (
+                        <div key={m.label}>
+                          {i > 0 && <div className="h-px bg-white/5" />}
+                          <div className="flex items-center justify-between">
+                            <span className="text-text-secondary">{m.label}</span>
+                            <span className="text-white font-bold">{m.value}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-              </>
-            )}
+                </>
+              );
+            })()}
 
             {/* View Now Button */}
             <Button variant="outline" size="md" className="w-full border-white text-white hover:bg-white hover:text-black">

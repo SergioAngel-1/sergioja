@@ -101,6 +101,7 @@ export interface PortfolioTranslations {
   'projects.viewPage': string;
   'projects.viewCode': string;
   'projects.privateCode': string;
+  'projects.localProject': string;
   'projects.actions': string;
   'projects.preview': string;
   'projects.previewNotAvailable': string;

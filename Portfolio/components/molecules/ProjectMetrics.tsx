@@ -17,7 +17,7 @@ interface ProjectMetricsProps {
 export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
   const { t } = useLanguage();
   
-  const metricsData = [
+  const allMetrics = [
     { 
       label: t('projects.performance'), 
       value: metrics.performance,
@@ -47,12 +47,18 @@ export default function ProjectMetrics({ metrics }: ProjectMetricsProps) {
     },
   ];
 
+  const metricsData = allMetrics.filter(m => m.value > 0);
+
+  if (metricsData.length === 0) return null;
+
+  const gridCols = metricsData.length === 1 ? 'grid-cols-1' : metricsData.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4, duration: 0.6 }}
-      className="grid grid-cols-3 w-full h-full"
+      className={`grid ${gridCols} w-full h-full`}
       style={{ gap: fluidSizing.space.sm }}
     >
       {metricsData.map((metric, index) => (

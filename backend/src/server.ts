@@ -91,8 +91,8 @@ app.use(compression());
 app.use(cors(corsOptions));
 // Handle CORS preflight requests
 app.options('*', cors(corsOptions));
-app.use(express.json({ limit: '10mb' })); // Aumentar límite para imágenes en base64
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' })); // Aumentar límite para imágenes en base64 (thumbnail + desktop + mobile)
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
 // Rate limiting - Sistema híbrido con key generator por dispositivo

@@ -62,6 +62,20 @@ export default function ProjectDetailPage() {
     }
   }, [redirectTo, slug, router, log]);
 
+  // Auto-switch to gallery when demoUrl is empty but images are available
+  useEffect(() => {
+    if (project && !project.demoUrl) {
+      const hasDesktop = project.imagesDesktop && project.imagesDesktop.length > 0;
+      const hasMobile = project.imagesMobile && project.imagesMobile.length > 0;
+      if (hasDesktop || hasMobile) {
+        const galleryType = hasDesktop ? 'desktop' : 'mobile';
+        setSelectedGalleryType(galleryType);
+        setSelectedImageIndex(0);
+        setViewMode('image');
+      }
+    }
+  }, [project]);
+
   // Auto-select first image in low performance mode if images are available
   useEffect(() => {
     if (lowPerformanceMode && project?.imagesDesktop && project.imagesDesktop.length > 0 && !initialLowModeSet) {

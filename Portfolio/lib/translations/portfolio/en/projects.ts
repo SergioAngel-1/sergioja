@@ -6,6 +6,7 @@ export const projectsEn = {
   'projects.viewPage': 'View Page',
   'projects.viewCode': 'View Code',
   'projects.privateCode': 'Private Code',
+  'projects.localProject': 'Local Project',
   'projects.actions': 'Actions',
   'projects.preview': 'Preview',
   'projects.previewNotAvailable': 'Preview not available',

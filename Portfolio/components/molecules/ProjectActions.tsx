@@ -30,12 +30,21 @@ export default function ProjectActions({ project }: ProjectActionsProps) {
 
       {/* Action Buttons */}
       <div className="flex flex-col" style={{ gap: fluidSizing.space.md }}>
-        {project.demoUrl && (
+        {project.demoUrl ? (
           <Link href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="w-full">
             <Button variant="outline" size="lg" className="w-full border-white text-white hover:bg-white hover:text-black">
               {project.status === 'PUBLISHED' ? t('projects.viewPage') : t('projects.viewDemo')}
             </Button>
           </Link>
+        ) : (
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="w-full bg-white/10 text-white/40 border-white/20 cursor-not-allowed"
+            disabled
+          >
+            {t('projects.localProject')}
+          </Button>
         )}
         
         {project.isCodePublic !== false && project.repoUrl ? (
