@@ -1,31 +1,11 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import { cache } from 'react';
 import { generateTitle, normalizeUrl, generateBreadcrumbSchema, generateProjectSchema, generatePersonSchema, toJsonLd, mergeMetadata, generateMetadata as generateMeta, truncateDescription } from '@/shared/seo';
-import type { ApiResponse, Project } from '@/shared/types';
+import type { Project } from '@/shared/types';
 import { siteConfig, defaultSEO } from '@/lib/seo/config';
+import { getProject } from '@/lib/getProject';
 
 type Params = { slug: string };
-
-// Cached function to fetch project data (shared between metadata and layout)
-const getProject = cache(async (slug: string): Promise<Project | null> => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-  
-  try {
-    const res = await fetch(`${apiUrl}/api/portfolio/projects/${encodeURIComponent(slug)}`, { 
-      next: { revalidate: 3600 } 
-    });
-    
-    if (res.ok) {
-      const json = (await res.json()) as ApiResponse<Project>;
-      return json.data || null;
-    }
-  } catch (error) {
-    console.error('Error fetching project:', error);
-  }
-  
-  return null;
-});
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || siteConfig.url;

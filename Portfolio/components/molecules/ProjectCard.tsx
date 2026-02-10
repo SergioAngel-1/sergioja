@@ -68,7 +68,7 @@ export default function ProjectCard({ project, viewMode = 'grid', priority = fal
               animate={lowPerformanceMode ? {} : { opacity: 1, x: 0 }}
               transition={lowPerformanceMode ? {} : { type: 'spring', stiffness: 150, delay: 0.2 }}
             >
-              <svg className="w-2 h-2 sm:w-2.5 sm:h-2.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-cyber-red" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
               <span className="hidden sm:inline">FEATURED</span>
@@ -110,40 +110,46 @@ export default function ProjectCard({ project, viewMode = 'grid', priority = fal
           {/* Content */}
           <div className="flex-1 flex flex-col relative z-10" style={{ padding: fluidSizing.space.md }}>
             {/* Title */}
-            <h3 className="font-orbitron text-sm sm:text-base md:text-lg font-bold text-white transition-all duration-300 line-clamp-1" style={{ marginBottom: fluidSizing.space.sm }}>
+            <h3 className="font-orbitron text-sm sm:text-base md:text-lg font-bold text-white transition-all duration-300 line-clamp-2" style={{ marginBottom: fluidSizing.space.sm }}>
               {project.title}
             </h3>
             
             {/* Description */}
             {localizedDescription && (
-              <p className="text-text-secondary text-xs sm:text-sm leading-relaxed flex-1 line-clamp-2" style={{ marginBottom: fluidSizing.space.sm }}>
+              <p className="text-text-secondary text-xs sm:text-sm leading-relaxed line-clamp-2" style={{ marginBottom: fluidSizing.space.sm }}>
                 {localizedDescription}
               </p>
             )}
 
-            {/* Tech stack */}
-            <div className="flex flex-wrap" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.sm }}>
-              {project.technologies?.slice(0, 6).map((tech) => (
+            {/* Tech stack — grows to fill remaining space */}
+            <div className="flex flex-wrap flex-1 content-start" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.sm }}>
+              {project.technologies?.slice(0, 7).map((tech) => (
                 <Badge key={tech.name} variant="blue">
-                  <span className="flex items-center gap-1">
-                    {tech.color && (
+                  <span className="flex items-center gap-1" title={tech.name}>
+                    {tech.icon ? (
+                      <span
+                        className="inline-flex items-center justify-center w-3 h-3 flex-shrink-0 [&>svg]:w-full [&>svg]:h-full"
+                        dangerouslySetInnerHTML={{ __html: tech.icon }}
+                      />
+                    ) : tech.color ? (
                       <span
                         className="inline-block w-2 h-2 rounded-full flex-shrink-0"
                         style={{ backgroundColor: tech.color }}
                       />
-                    )}
-                    <span>{tech.name}</span>
+                    ) : null}
+                    <span className="hidden sm:inline">{tech.name}</span>
                   </span>
                 </Badge>
               ))}
-              {(project.technologies?.length || 0) > 6 && (
+              {(project.technologies?.length || 0) > 7 && (
                 <Badge variant="default">
-                  +{(project.technologies?.length || 0) - 6}
+                  +{(project.technologies?.length || 0) - 7}
                 </Badge>
               )}
             </div>
 
-            {/* Stats - Metrics */}
+            {/* Stats + Button — pinned to bottom */}
+            <div className="mt-auto">
             {(() => {
               const visibleMetrics = [
                 { label: 'Perf', value: project.performanceScore || 0 },
@@ -187,6 +193,7 @@ export default function ProjectCard({ project, viewMode = 'grid', priority = fal
               <span className="hidden sm:inline">{t('projects.viewNow') || 'Ver Ahora'}</span>
               <span className="sm:inline-block md:hidden">Ver</span>
             </Button>
+            </div>
           </div>
 
           {/* Corner accents */}

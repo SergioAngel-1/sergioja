@@ -394,6 +394,12 @@
     to { width: 100% }
   }
 
+  /* Progress slide animation (used in PageLoader) */
+  @keyframes progress-slide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
   .animate-progress {
     animation: progress-bar 8s linear infinite;
   }
@@ -481,6 +487,29 @@
 
   .custom-scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Light scrollbar — more visible, for galleries */
+  .custom-scrollbar-light::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar-light::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  .custom-scrollbar-light::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
+  }
+  .custom-scrollbar-light::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Firefox */
+  .custom-scrollbar-light {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.1);
   }
 
   /* Firefox */

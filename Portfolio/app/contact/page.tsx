@@ -51,6 +51,7 @@ export default function ContactPage() {
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [tokenExpiry, setTokenExpiry] = useState<number>(0);
   const formRef = useRef<HTMLFormElement>(null);
+  const debounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
   
   const { isInstallable, isInstalled, install } = usePWAInstall();
   
@@ -83,11 +84,12 @@ export default function ContactPage() {
   }, [t]);
 
   const debouncedValidate = useCallback((field: keyof typeof formData, value: string) => {
-    const timeoutId = setTimeout(() => {
+    if (debounceTimers.current[field]) {
+      clearTimeout(debounceTimers.current[field]);
+    }
+    debounceTimers.current[field] = setTimeout(() => {
       validateField(field, value);
     }, 500);
-    
-    return () => clearTimeout(timeoutId);
   }, [validateField]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -344,7 +346,7 @@ export default function ContactPage() {
 
       <FloatingParticles count={50} color="bg-white" />
 
-      <div className="relative z-10 mx-auto w-full pb-4 md:pb-24" style={{ maxWidth: '1600px', paddingLeft: fluidSizing.space.lg, paddingRight: fluidSizing.space.lg, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
+      <div className="relative z-10 mx-auto w-full pb-8 md:pb-24" style={{ maxWidth: '1600px', paddingLeft: fluidSizing.space.lg, paddingRight: fluidSizing.space.lg, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
         <div className="mb-8 md:mb-16">
           <PageHeader 
             title={t('contact.title')} 

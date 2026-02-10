@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { logger } from '@/lib/logger';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 
 interface ProjectDemoViewerProps {
   demoUrl?: string;
@@ -23,6 +24,7 @@ export default function ProjectDemoViewer({
 }: ProjectDemoViewerProps) {
   const { t } = useLanguage();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const isSmUp = useMediaQuery('(min-width: 640px)');
 
   // Log cuando se intenta cargar el iframe
   useEffect(() => {
@@ -90,40 +92,42 @@ export default function ProjectDemoViewer({
         transition={{ duration: 0.3 }}
         className="flex-1 w-full h-full"
       >
-      {/* Desktop/Tablet View */}
-      <div className="hidden sm:block w-full h-full bg-background-elevated rounded-lg overflow-hidden border border-white/10">
-        <iframe
-          ref={iframeRef}
-          src={demoUrl}
-          className="w-full h-full"
-          title={title}
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-          loading="lazy"
-        />
-      </div>
-      
-      {/* Mobile View - Simulated Phone */}
-      <div className="sm:hidden flex justify-center items-center h-full">
-        <div className="relative bg-background-dark rounded-[2.5rem] border-2 border-white/20 shadow-2xl" style={{ width: '360px', height: '720px', padding: fluidSizing.space.sm }}>
-          {/* Phone notch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-background-dark rounded-b-2xl z-10 border-x-2 border-b-2 border-white/20" />
-          
-          {/* Screen */}
-          <div className="relative w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
-            <iframe
-              ref={iframeRef}
-              src={demoUrl}
-              className="w-full h-full"
-              title={title}
-              sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-              loading="lazy"
-            />
-          </div>
-          
-          {/* Home indicator */}
-          <div className="absolute left-1/2 -translate-x-1/2 bg-white/30 rounded-full" style={{ bottom: fluidSizing.space.sm, width: '6rem', height: '0.25rem' }} />
+      {isSmUp ? (
+        /* Desktop/Tablet View — single iframe */
+        <div className="w-full h-full bg-background-elevated rounded-lg overflow-hidden border border-white/10">
+          <iframe
+            ref={iframeRef}
+            src={demoUrl}
+            className="w-full h-full"
+            title={title}
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+            loading="lazy"
+          />
         </div>
-      </div>
+      ) : (
+        /* Mobile View - Simulated Phone — single iframe */
+        <div className="flex justify-center items-center h-full">
+          <div className="relative bg-background-dark rounded-[2.5rem] border-2 border-white/20 shadow-2xl" style={{ width: '360px', height: '720px', padding: fluidSizing.space.sm }}>
+            {/* Phone notch */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-background-dark rounded-b-2xl z-10 border-x-2 border-b-2 border-white/20" />
+            
+            {/* Screen */}
+            <div className="relative w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
+              <iframe
+                ref={iframeRef}
+                src={demoUrl}
+                className="w-full h-full"
+                title={title}
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                loading="lazy"
+              />
+            </div>
+            
+            {/* Home indicator */}
+            <div className="absolute left-1/2 -translate-x-1/2 bg-white/30 rounded-full" style={{ bottom: fluidSizing.space.sm, width: '6rem', height: '0.25rem' }} />
+          </div>
+        </div>
+      )}
       </motion.div>
     </div>
   );

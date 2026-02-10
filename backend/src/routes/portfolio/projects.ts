@@ -91,7 +91,7 @@ router.get('/list', asyncHandler(async (req: Request, res: Response) => {
           technology: {
             select: {
               name: true,
-              // Excluir: icon (SVG completo, pesado para lista)
+              icon: true,
               color: true,
             },
           },
@@ -143,6 +143,7 @@ router.get('/list', asyncHandler(async (req: Request, res: Response) => {
         category: pt.category,
         proficiency: pt.proficiency,
         yearsOfExperience: pt.yearsOfExperience,
+        icon: pt.technology?.icon ?? undefined,
         color: pt.technology?.color ?? undefined,
       })).filter((t: any) => !!t.name) || [],
     };

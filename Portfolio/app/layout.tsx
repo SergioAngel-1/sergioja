@@ -136,7 +136,7 @@ export default function RootLayout({
           </Script>
           <CookieConsentBanner variant="portfolio" />
           <ClientProviders>
-            <main className="min-h-screen pb-20 md:pb-0">{children}</main>
+            <main className="min-h-screen">{children}</main>
           </ClientProviders>
           <WebVitalsTracker />
           <PageViewTracker />

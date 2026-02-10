@@ -1,9 +1,10 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
+import Spinner from '@/components/atoms/Spinner';
 
 interface PageLoaderProps {
   variant?: 'full' | 'simple';
@@ -19,29 +20,46 @@ export default function PageLoader({
   const [internalLoading, setInternalLoading] = useState(false);
   const pathname = usePathname();
   const shownAtRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Solo usar el loading interno si no se pasa isLoading como prop
   const isLoading = externalLoading !== undefined ? externalLoading : internalLoading;
 
+  // Fix #1: stable callbacks + timer cleanup via ref
+  const onStart = useCallback(() => {
+    // Clear any pending hide-timer so a rapid start→end→start doesn't flash
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    shownAtRef.current = Date.now();
+    setInternalLoading(true);
+  }, []);
+
+  const onEnd = useCallback(() => {
+    const elapsed = Date.now() - shownAtRef.current;
+    const minVisible = 300;
+    const delay = Math.max(minVisible - elapsed, 0);
+    timerRef.current = setTimeout(() => {
+      timerRef.current = null;
+      setInternalLoading(false);
+    }, delay);
+  }, []);
+
   useEffect(() => {
     if (variant !== 'full' || externalLoading !== undefined) return;
-    const onStart = () => {
-      shownAtRef.current = Date.now();
-      setInternalLoading(true);
-    };
-    const onEnd = () => {
-      const elapsed = Date.now() - shownAtRef.current;
-      const minVisible = 300;
-      const delay = Math.max(minVisible - elapsed, 0);
-      window.setTimeout(() => setInternalLoading(false), delay);
-    };
-    window.addEventListener('app:navigation-start', onStart as EventListener);
-    window.addEventListener('app:navigation-end', onEnd as EventListener);
+    window.addEventListener('app:navigation-start', onStart);
+    window.addEventListener('app:navigation-end', onEnd);
     return () => {
-      window.removeEventListener('app:navigation-start', onStart as EventListener);
-      window.removeEventListener('app:navigation-end', onEnd as EventListener);
+      window.removeEventListener('app:navigation-start', onStart);
+      window.removeEventListener('app:navigation-end', onEnd);
+      // Fix #1: clean up pending timer on unmount
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [variant, externalLoading]);
+  }, [variant, externalLoading, onStart, onEnd]);
 
   useEffect(() => {
     if (variant === 'full' && externalLoading === undefined) {
@@ -49,7 +67,7 @@ export default function PageLoader({
     }
   }, [pathname, variant, externalLoading]);
 
-  // Versión simplificada para cargas de datos
+  // Versión simplificada para cargas de datos — Fix #6: uses shared Spinner
   if (variant === 'simple') {
     return (
       <AnimatePresence mode="wait">
@@ -60,42 +78,14 @@ export default function PageLoader({
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2 }}
             className="flex flex-col items-center justify-center"
-            style={{ paddingTop: fluidSizing.space['2xl'], paddingBottom: fluidSizing.space['2xl'] }}
+            style={{ paddingTop: fluidSizing.space['2xl'], paddingBottom: fluidSizing.space['2xl'], gap: fluidSizing.space.md }}
           >
-            {/* Simple spinner */}
-            <div className="relative" style={{ width: fluidSizing.size.buttonLg, height: fluidSizing.size.buttonLg, marginBottom: fluidSizing.space.md }}>
-              <motion.div
-                className="absolute inset-0 border-4 border-white/30 border-t-white rounded-full"
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              />
-              <motion.div
-                className="absolute inset-2 border-4 border-white/20 border-b-white rounded-full"
-                animate={{ rotate: -360 }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              />
-            </div>
+            <Spinner />
 
-            {/* Loading text */}
-            <motion.p
-              className="text-text-muted font-mono text-fluid-sm"
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-            >
+            {/* Loading text — CSS pulse instead of FM */}
+            <p className="text-text-muted font-mono text-fluid-sm animate-pulse">
               {message}...
-            </motion.p>
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -111,121 +101,48 @@ export default function PageLoader({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed top-0 right-0 z-[9999] flex items-center justify-center bg-background-dark md:left-[var(--nav-width)] md:bottom-0 left-0"
-          style={{
-            bottom: 'calc(var(--mobile-nav-height, 0px))'
-          }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-background-dark md:left-[var(--nav-width)]"
         >
           {/* Cyber grid background */}
           <div className="absolute inset-0 cyber-grid opacity-20" />
 
-          {/* Animated glow effect */}
-          <motion.div
-            className="absolute w-96 h-96 bg-white rounded-full blur-[150px]"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.1, 0.2, 0.1],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: 'easeInOut',
+          {/* Fix #4: Fluid glow — smaller on mobile, lighter blur */}
+          <div
+            className="absolute rounded-full bg-white/15 animate-pulse"
+            style={{
+              width: 'clamp(12rem, 30vw, 24rem)',
+              height: 'clamp(12rem, 30vw, 24rem)',
+              filter: 'blur(clamp(60px, 10vw, 150px))',
             }}
           />
 
           {/* Loader content */}
           <div className="relative z-10 flex flex-col items-center" style={{ gap: fluidSizing.space.lg }}>
-            {/* Spinning loader */}
-            <div className="relative" style={{ width: 'clamp(5rem, 8vw, 6rem)', height: 'clamp(5rem, 8vw, 6rem)' }}>
-              {/* Outer ring */}
-              <motion.div
-                className="absolute inset-0 border-4 border-white/30 border-t-white rounded-full"
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              />
-              
-              {/* Middle ring */}
-              <motion.div
-                className="absolute inset-2 border-4 border-white/20 border-r-white rounded-full"
-                animate={{ rotate: -360 }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              />
-              
-              {/* Inner ring */}
-              <motion.div
-                className="absolute inset-4 border-4 border-cyber-red/30 border-b-cyber-red rounded-full"
-                animate={{ rotate: 360 }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-              />
+            {/* Fix #5 & #6: Shared Spinner with CSS animations, 3 rings for full variant */}
+            <Spinner size="clamp(5rem, 8vw, 6rem)" showInnerRing />
 
-              {/* Center dot */}
-              <motion.div
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <motion.div
-                  className="bg-white rounded-full"
-                  style={{ width: fluidSizing.space.md, height: fluidSizing.space.md }}
-                  animate={{
-                    scale: [1, 1.5, 1],
-                    opacity: [1, 0.5, 1],
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                />
-              </motion.div>
-            </div>
-
-            {/* Loading text */}
-            <motion.div
+            {/* Fix #3: Loading text uses message prop */}
+            <div
               className="flex items-center"
               style={{ gap: fluidSizing.space.sm }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
             >
               <span className="font-mono text-white text-fluid-sm">
-                {'<'} CARGANDO {'/>'} 
+                {'<'} {message} {'/>'}
               </span>
-              <motion.span
-                className="flex"
-                style={{ gap: fluidSizing.space.xs }}
-                animate={{ opacity: [1, 0.3, 1] }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              >
+              {/* Fix #5: CSS animation for dots instead of FM */}
+              <span className="flex animate-pulse" style={{ gap: fluidSizing.space.xs }}>
                 <span className="bg-white rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.xs }} />
                 <span className="bg-white rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.xs }} />
                 <span className="bg-cyber-red rounded-full" style={{ width: fluidSizing.space.xs, height: fluidSizing.space.xs }} />
-              </motion.span>
-            </motion.div>
+              </span>
+            </div>
 
-            {/* Progress bar */}
+            {/* Fix #2: Progress bar now loops continuously */}
             <div className="h-1 bg-background-elevated rounded-full overflow-hidden" style={{ width: 'clamp(12rem, 30vw, 16rem)' }}>
-              <motion.div
-                className="h-full bg-gradient-to-r from-white via-text-secondary to-white"
-                initial={{ x: '-100%' }}
-                animate={{ x: '100%' }}
-                transition={{
-                  duration: 0.8,
-                  ease: 'easeInOut',
+              <div
+                className="h-full bg-gradient-to-r from-white via-cyber-red to-white"
+                style={{
+                  animation: 'progress-slide 1s ease-in-out infinite',
                 }}
               />
             </div>
@@ -235,7 +152,7 @@ export default function PageLoader({
           <div className="absolute border-t-2 border-l-2 border-white" style={{ top: fluidSizing.space['2xl'], left: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
           <div className="absolute border-t-2 border-r-2 border-white" style={{ top: fluidSizing.space['2xl'], right: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
           <div className="absolute border-b-2 border-l-2 border-white" style={{ bottom: fluidSizing.space['2xl'], left: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
-          <div className="absolute border-b-2 border-r-2 border-cyber-red" style={{ bottom: fluidSizing.space['2xl'], right: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
+          <div className="absolute border-b-2 border-r-2 border-white" style={{ bottom: fluidSizing.space['2xl'], right: fluidSizing.space['2xl'], width: fluidSizing.space['2xl'], height: fluidSizing.space['2xl'] }} />
         </motion.div>
       )}
     </AnimatePresence>

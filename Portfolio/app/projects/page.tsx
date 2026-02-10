@@ -1,7 +1,7 @@
 import { serverFetch } from '@/lib/server-fetch';
 import type { Project, PaginatedResponse } from '@/shared/types';
 import type { ProjectCategory } from '@/lib/hooks/useProjectCategories';
-import ProjectsContent from './ProjectsContent';
+import ProjectsContent from '../../components/organisms/ProjectsContent';
 
 export default async function WorkPage() {
   // Server-side parallel fetch: projects + categories

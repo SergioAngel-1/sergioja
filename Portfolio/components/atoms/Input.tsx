@@ -27,8 +27,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           id={inputId}
           className={`w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all text-text-primary font-rajdhani placeholder:text-text-muted ${className}`}
           style={{
-            padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
-            fontSize: '16px',
+            padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
+            fontSize: 'max(12px, clamp(0.875rem, 1vw, 1rem))',
           }}
           {...props}
         />

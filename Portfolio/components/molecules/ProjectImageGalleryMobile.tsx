@@ -22,7 +22,7 @@ export default function ProjectImageGalleryMobile({
   }
 
   return (
-    <div className="flex flex-row overflow-x-auto overflow-y-hidden custom-scrollbar" style={{ gap: fluidSizing.space.md, padding: '8px' }}>
+    <div className="flex flex-row overflow-x-auto overflow-y-hidden custom-scrollbar-light" style={{ gap: fluidSizing.space.md, padding: '8px' }}>
       {images.map((image, index) => {
         const isSelected = selectedImageIndex !== null && selectedImageIndex === index;
         return (

@@ -28,9 +28,9 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={textareaId}
           className={`flex-1 w-full bg-background-elevated border border-white/20 rounded-lg focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50 transition-all resize-none text-text-primary font-rajdhani placeholder:text-text-muted ${className}`}
           style={{
-            padding: `${fluidSizing.space.sm} ${fluidSizing.space.md}`,
+            padding: `${fluidSizing.space.xs} ${fluidSizing.space.sm}`,
             minHeight: minHeight || clamp('120px', '20vw', '180px'),
-            fontSize: '16px',
+            fontSize: 'max(12px, clamp(0.875rem, 1vw, 1rem))',
           }}
           {...props}
         />
