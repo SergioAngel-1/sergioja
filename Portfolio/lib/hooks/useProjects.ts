@@ -43,6 +43,12 @@ export function useProjects(options?: UseProjectsOptions) {
   }), [stableOptions?.tech, stableOptions?.category, stableOptions?.featured, stableOptions?.page, stableOptions?.limit]);
 
   useEffect(() => {
+    // Skip fetch when options is undefined (server data is being used directly)
+    if (!stableOptions) {
+      setLoading(false);
+      return;
+    }
+
     const fetchProjects = async () => {
       try {
         setLoading(true);

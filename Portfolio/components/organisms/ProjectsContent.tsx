@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useProjects } from '@/lib/hooks/useProjects';
 import { useLogger } from '@/shared/hooks/useLogger';
@@ -29,16 +29,25 @@ export default function ProjectsContent({ initialProjects, initialCategories }: 
   const projectsPerPage = 8;
   const log = useLogger('WorkPage');
   const { t } = useLanguage();
+  // Track whether initial render animations have played to prevent scroll-to-top on data swap
+  const hasHydrated = useRef(false);
 
-  // Use client-side hook for category filtering, seeded with server data
-  const { projects, loading } = useProjects({
-    category: selectedCategory,
-    limit: 100,
-  });
+  // Only fetch client-side when a category filter is active;
+  // without filter we already have server data — no redundant fetch needed
+  const { projects, loading } = useProjects(
+    selectedCategory
+      ? { category: selectedCategory, limit: 100 }
+      : undefined
+  );
 
-  // On first render, use server data; after client fetch completes, use client data
-  const displayProjects = loading && !selectedCategory ? initialProjects : projects;
-  const isLoading = loading && displayProjects.length === 0;
+  // Use server data when no filter; client data when filtering
+  const displayProjects = selectedCategory ? projects : initialProjects;
+  const isLoading = selectedCategory ? (loading && projects.length === 0) : false;
+
+  // Mark hydrated after first paint so subsequent renders skip entry animations
+  useEffect(() => {
+    hasHydrated.current = true;
+  }, []);
 
   // Track scroll depth and time on page
   usePageAnalytics();
@@ -148,7 +157,7 @@ export default function ProjectsContent({ initialProjects, initialCategories }: 
               </div>
             ) : (
               <motion.div
-                initial={{ opacity: 0, x: 50 }}
+                initial={hasHydrated.current ? false : { opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="grid grid-cols-3 lg:min-w-[240px]"
@@ -165,7 +174,7 @@ export default function ProjectsContent({ initialProjects, initialCategories }: 
         {/* Filters */}
         {displayProjects.length > 0 && categories.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={hasHydrated.current ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
             className="mb-8 md:mb-12"
@@ -227,7 +236,7 @@ export default function ProjectsContent({ initialProjects, initialCategories }: 
         ) : displayProjects.length > 50 ? (
           // Use virtualized grid for large lists (>50 projects)
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={hasHydrated.current ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.6 }}
           >
@@ -250,7 +259,7 @@ export default function ProjectsContent({ initialProjects, initialCategories }: 
         {/* Pagination */}
         {!isLoading && displayProjects.length > projectsPerPage && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={hasHydrated.current ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.6 }}
             className="mt-12 flex justify-center"
