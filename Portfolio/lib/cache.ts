@@ -16,6 +16,8 @@ class CacheManager {
   private defaultTTL: number; // Time To Live en milisegundos
   private storageKey = `portfolio_cache_v${CACHE_STORAGE_VERSION}`;
   private isHydrated = false;
+  private persistTimer: ReturnType<typeof setTimeout> | null = null;
+  private persistDelay = 500; // ms debounce
 
   constructor(defaultTTL: number = 5 * 60 * 1000) { // 5 minutos por defecto
     this.cache = new Map();
@@ -59,11 +61,27 @@ class CacheManager {
   }
 
   /**
-   * Persiste el caché en localStorage
+   * Persiste el caché en localStorage (debounced)
    */
   private persist(): void {
     if (typeof window === 'undefined') return;
-    
+
+    if (this.persistTimer) {
+      clearTimeout(this.persistTimer);
+    }
+
+    this.persistTimer = setTimeout(() => {
+      this.persistNow();
+      this.persistTimer = null;
+    }, this.persistDelay);
+  }
+
+  /**
+   * Persiste inmediatamente (usado en beforeunload y flush)
+   */
+  private persistNow(): void {
+    if (typeof window === 'undefined') return;
+
     try {
       const entries: Record<string, CacheEntry<any>> = {};
       this.cache.forEach((value, key) => {
@@ -226,8 +244,10 @@ if (typeof window !== 'undefined') {
     cache.cleanup();
   }, 10 * 60 * 1000);
   
-  // Cleanup cuando se cierra la ventana/tab
+  // Flush pendiente + cleanup cuando se cierra la ventana/tab
   window.addEventListener('beforeunload', () => {
+    // Persistir datos pendientes del debounce antes de cerrar
+    (cache as any).persistNow();
     if (cleanupIntervalId) {
       clearInterval(cleanupIntervalId);
       cleanupIntervalId = null;
