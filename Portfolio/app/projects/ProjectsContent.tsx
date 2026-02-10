@@ -1,0 +1,280 @@
+'use client';
+
+import { useState, useMemo, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useProjects } from '@/lib/hooks/useProjects';
+import { useLogger } from '@/shared/hooks/useLogger';
+import type { ProjectCategory } from '@/lib/hooks/useProjectCategories';
+import ProjectCard from '@/components/molecules/ProjectCard';
+import VirtualizedProjectGrid from '@/components/molecules/VirtualizedProjectGrid';
+import PageHeader from '@/components/organisms/PageHeader';
+import StatCard from '@/components/atoms/StatCard';
+import FloatingParticles from '@/components/atoms/FloatingParticles';
+import GlowEffect from '@/components/atoms/GlowEffect';
+import Pagination from '@/components/molecules/Pagination';
+import CategoryFilter from '@/components/molecules/CategoryFilter';
+import { useLanguage } from '@/lib/contexts/LanguageContext';
+import { fluidSizing } from '@/lib/utils/fluidSizing';
+import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+import type { Project } from '@/shared/types';
+
+interface ProjectsContentProps {
+  initialProjects: Project[];
+  initialCategories: ProjectCategory[];
+}
+
+export default function ProjectsContent({ initialProjects, initialCategories }: ProjectsContentProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 8;
+  const log = useLogger('WorkPage');
+  const { t } = useLanguage();
+
+  // Use client-side hook for category filtering, seeded with server data
+  const { projects, loading } = useProjects({
+    category: selectedCategory,
+    limit: 100,
+  });
+
+  // On first render, use server data; after client fetch completes, use client data
+  const displayProjects = loading && !selectedCategory ? initialProjects : projects;
+  const isLoading = loading && displayProjects.length === 0;
+
+  // Track scroll depth and time on page
+  usePageAnalytics();
+
+  // Reset cuando cambia la categoría
+  const handleCategoryChange = (category: string | undefined) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+  };
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    const allCategories = displayProjects.flatMap(p => p.categories || []);
+    return {
+      total: displayProjects.length,
+      featured: displayProjects.filter(p => p.isFeatured).length,
+      categories: new Set(allCategories).size,
+    };
+  }, [displayProjects]);
+
+  // Transformar categorías del backend al formato esperado por CategoryFilter
+  const categories = useMemo(() => {
+    const categoryOptions: Array<{ value: string | undefined; label: string; count?: number }> = [
+      { value: undefined, label: t('work.all'), count: displayProjects.length },
+    ];
+
+    initialCategories.forEach(cat => {
+      const count = displayProjects.filter(p => p.categories?.includes(cat.name)).length;
+      if (count > 0) {
+        categoryOptions.push({
+          value: cat.name,
+          label: cat.label,
+          count,
+        });
+      }
+    });
+
+    return categoryOptions;
+  }, [initialCategories, displayProjects, t]);
+
+  // Pagination
+  const totalPages = Math.ceil(displayProjects.length / projectsPerPage);
+  const paginatedProjects = useMemo(() => {
+    const startIndex = (currentPage - 1) * projectsPerPage;
+    return displayProjects.slice(startIndex, startIndex + projectsPerPage);
+  }, [displayProjects, currentPage, projectsPerPage]);
+
+  useEffect(() => {
+    if (displayProjects.length === 0) {
+      if (currentPage !== 1) setCurrentPage(1);
+      return;
+    }
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [displayProjects.length, totalPages, currentPage]);
+
+  return (
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
+        {/* Cyber grid background */}
+        <div className="absolute inset-0 cyber-grid opacity-10" />
+
+        {/* Animated glow effects */}
+        <GlowEffect
+          color="white"
+          size="lg"
+          position={{ top: '5rem', right: '5rem' }}
+          opacity={0.15}
+          duration={3}
+          animationType="pulse"
+        />
+
+        <GlowEffect
+          color="white"
+          size="lg"
+          position={{ bottom: '5rem', left: '10rem' }}
+          opacity={0.1}
+          duration={4}
+          delay={0.5}
+          animationType="pulse"
+        />
+
+        {/* Floating particles - Reducidas en móvil */}
+        <FloatingParticles count={50} color="bg-white" />
+
+        <div className="relative z-10 mx-auto w-full" style={{ maxWidth: '1600px', padding: `${fluidSizing.space['2xl']} ${fluidSizing.space.lg}`, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
+          {/* Header */}
+          <div className="mb-8 md:mb-16">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
+              {/* Title and Description */}
+              <PageHeader 
+                title={t('work.title')} 
+                subtitle={t('work.description')} 
+              />
+
+            {/* Stats - 3 columnas en el extremo */}
+            {isLoading ? (
+              <div className="grid grid-cols-3 lg:min-w-[240px]" style={{ gap: fluidSizing.space.sm }}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="relative bg-background-elevated border border-white/20 rounded-lg overflow-hidden animate-pulse" style={{ padding: fluidSizing.space.md, minHeight: '120px' }}>
+                    <div className="flex flex-col items-center justify-center h-full gap-2">
+                      <div className="h-8 w-12 bg-white/10 rounded" />
+                      <div className="h-3 w-16 bg-white/10 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="grid grid-cols-3 lg:min-w-[240px]"
+                style={{ gap: fluidSizing.space.sm }}
+              >
+                <StatCard label={t('work.total')} value={stats.total} index={0} />
+                <StatCard label={t('work.featured')} value={stats.featured} index={1} />
+                <StatCard label={t('work.categories')} value={stats.categories} index={2} />
+              </motion.div>
+            )}
+          </div>
+        </div>
+
+        {/* Filters */}
+        {displayProjects.length > 0 && categories.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="mb-8 md:mb-12"
+          >
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={(category) => {
+                handleCategoryChange(category);
+                log.interaction('filter_category', category || 'all');
+              }}
+              label={t('work.filter')}
+              showCount={true}
+              animationDelay={0.7}
+            />
+          </motion.div>
+        )}
+
+        {/* Projects display */}
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="relative bg-background-surface/50 border border-white/20 rounded-lg overflow-hidden animate-pulse" style={{ height: '400px' }}>
+                <div className="w-full aspect-video bg-white/5" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-white/10 rounded w-3/4" />
+                  <div className="h-3 bg-white/10 rounded w-full" />
+                  <div className="h-3 bg-white/10 rounded w-5/6" />
+                  <div className="flex gap-2 mt-4">
+                    <div className="h-6 w-16 bg-white/10 rounded-full" />
+                    <div className="h-6 w-16 bg-white/10 rounded-full" />
+                    <div className="h-6 w-16 bg-white/10 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (displayProjects.length === 0) ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-8 md:py-20"
+          >
+            <div className="inline-block p-8 bg-background-surface/50 border border-white/30 rounded-lg">
+              <svg className="w-16 h-16 text-white mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p className="text-text-secondary text-lg font-rajdhani">{t('work.noProjects')}</p>
+              {selectedCategory && (
+                <button
+                  onClick={() => handleCategoryChange(undefined)}
+                  className="mt-4 px-6 py-2 bg-white/20 text-white border border-white/50 rounded-lg hover:bg-white/30 transition-all"
+                >
+                  {t('work.viewAll')}
+                </button>
+              )}
+            </div>
+          </motion.div>
+        ) : displayProjects.length > 50 ? (
+          // Use virtualized grid for large lists (>50 projects)
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+          >
+            <VirtualizedProjectGrid
+              projects={paginatedProjects}
+              itemsPerRow={4}
+              itemHeight={400}
+              gap={24}
+            />
+          </motion.div>
+        ) : (
+          // Use regular grid for smaller lists
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6"
+          >
+            {paginatedProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.4 }}
+              >
+                <ProjectCard project={project} viewMode="grid" />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Pagination */}
+        {!isLoading && displayProjects.length > projectsPerPage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.6 }}
+            className="mt-12 flex justify-center"
+          >
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </motion.div>
+        )}
+        </div>
+    </div>
+  );
+}

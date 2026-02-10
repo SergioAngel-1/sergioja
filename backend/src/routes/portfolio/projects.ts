@@ -19,6 +19,151 @@ router.get('/cache/version', asyncHandler(async (_req: Request, res: Response) =
   res.json(response);
 }));
 
+// GET /api/projects/list - Lightweight list for cards (excludes longDescription*, imagesDesktop, imagesMobile, tech icons SVG)
+router.get('/list', asyncHandler(async (req: Request, res: Response) => {
+  const { tech, category, featured, page = '1', limit = '50' } = req.query;
+  const pageNum = parseInt(page as string, 10);
+  const limitNum = Math.min(parseInt(limit as string, 10), 100); // Cap at 100
+
+  const where: any = { status: { in: ['PUBLISHED', 'IN_PROGRESS'] } };
+
+  if (category && typeof category === 'string') {
+    where.categories = { has: category };
+  }
+
+  if (featured === 'true') {
+    where.isFeatured = true;
+  }
+
+  if (tech && typeof tech === 'string') {
+    where.technologies = {
+      some: {
+        technology: {
+          name: { contains: tech, mode: 'insensitive' },
+        },
+      },
+    };
+  }
+
+  const total = await prisma.project.count({ where });
+
+  if (total === 0) {
+    return res.json({
+      success: true,
+      data: {
+        data: [],
+        pagination: { page: pageNum, limit: limitNum, total: 0, totalPages: 0 },
+      },
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  const projects = await prisma.project.findMany({
+    where,
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      // Excluir: longDescriptionEs, longDescriptionEn (pesados, solo se truncan en card)
+      // Incluir un excerpt calculado sería ideal, pero Prisma no soporta computed fields
+      // Solución: traer solo los primeros 200 chars sería con raw query; por ahora excluimos
+      thumbnailImage: true,
+      // Excluir: imagesDesktop, imagesMobile (no se usan en cards)
+      categories: true,
+      status: true,
+      isFeatured: true,
+      displayOrder: true,
+      demoUrl: true,
+      repoUrl: true,
+      githubUrl: true,
+      isCodePublic: true,
+      performanceScore: true,
+      accessibilityScore: true,
+      seoScore: true,
+      publishedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      technologies: {
+        select: {
+          category: true,
+          proficiency: true,
+          yearsOfExperience: true,
+          technology: {
+            select: {
+              name: true,
+              // Excluir: icon (SVG completo, pesado para lista)
+              color: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: [
+      { displayOrder: { sort: 'asc', nulls: 'last' } },
+      { publishedAt: 'desc' },
+      { updatedAt: 'desc' }
+    ],
+    skip: (pageNum - 1) * limitNum,
+    take: limitNum,
+  });
+
+  const categoryLabelsMap = await categoryCache.getProjectCategoryLabels();
+
+  const transformedProjects = projects.map((p: any) => {
+    const projectCategoryLabels: Record<string, string> = {};
+    if (p.categories) {
+      p.categories.forEach((cat: string) => {
+        if (categoryLabelsMap[cat]) {
+          projectCategoryLabels[cat] = categoryLabelsMap[cat];
+        }
+      });
+    }
+
+    return {
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      thumbnailImage: p.thumbnailImage || null,
+      categories: p.categories || [],
+      categoryLabels: projectCategoryLabels,
+      status: p.status,
+      isFeatured: p.isFeatured,
+      demoUrl: p.demoUrl || undefined,
+      repoUrl: p.repoUrl || undefined,
+      githubUrl: p.githubUrl || p.repoUrl || undefined,
+      isCodePublic: p.isCodePublic,
+      performanceScore: p.performanceScore || null,
+      accessibilityScore: p.accessibilityScore || null,
+      seoScore: p.seoScore || null,
+      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+      technologies: p.technologies?.map((pt: any) => ({
+        name: pt.technology?.name,
+        category: pt.category,
+        proficiency: pt.proficiency,
+        yearsOfExperience: pt.yearsOfExperience,
+        color: pt.technology?.color ?? undefined,
+      })).filter((t: any) => !!t.name) || [],
+    };
+  });
+
+  res.json({
+    success: true,
+    data: {
+      data: transformedProjects,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    },
+    timestamp: new Date().toISOString(),
+    cacheVersion: getProjectCacheVersion(),
+  });
+}));
+
 // GET /api/projects - Get all published projects with filtering and pagination
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const { tech, category, featured, page = '1', limit = '10' } = req.query;

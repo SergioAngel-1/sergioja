@@ -10,7 +10,6 @@ import Button from '../atoms/Button';
 import StatCard from '../atoms/StatCard';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
-import { TechIcon } from '@/lib/utils/techIcons';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import type { Project } from '@/shared/types';
 
@@ -121,42 +120,18 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
 
             {/* Tech stack */}
             <div className="flex flex-wrap" style={{ gap: fluidSizing.space.xs, marginBottom: fluidSizing.space.sm }}>
-              {project.technologies?.slice(0, 6).map((tech, index) => (
-                <motion.div
-                  key={tech.name}
-                  initial={lowPerformanceMode ? false : { opacity: 0, scale: 0.8 }}
-                  animate={lowPerformanceMode ? {} : { opacity: 1, scale: 1 }}
-                  transition={lowPerformanceMode ? {} : { delay: index * 0.05 }}
-                >
-                  {/* Mobile: Solo icono sin badge */}
-                  <div className="sm:hidden text-white/80">
-                    {tech.icon ? (
+              {project.technologies?.slice(0, 6).map((tech) => (
+                <Badge key={tech.name} variant="blue">
+                  <span className="flex items-center gap-1">
+                    {tech.color && (
                       <span
-                        className="inline-flex w-4 h-4 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
-                        dangerouslySetInnerHTML={{ __html: tech.icon }}
+                        className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: tech.color }}
                       />
-                    ) : (
-                      <TechIcon tech={tech.name} className="w-4 h-4" />
                     )}
-                  </div>
-                  
-                  {/* Desktop: Badge con icono + nombre */}
-                  <div className="hidden sm:block">
-                    <Badge variant="blue">
-                      <span className="flex items-center gap-1">
-                        {tech.icon ? (
-                          <span
-                            className="inline-flex w-3.5 h-3.5 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
-                            dangerouslySetInnerHTML={{ __html: tech.icon }}
-                          />
-                        ) : (
-                          <TechIcon tech={tech.name} className="w-3.5 h-3.5" />
-                        )}
-                        <span>{tech.name}</span>
-                      </span>
-                    </Badge>
-                  </div>
-                </motion.div>
+                    <span>{tech.name}</span>
+                  </span>
+                </Badge>
               ))}
               {(project.technologies?.length || 0) > 6 && (
                 <Badge variant="default">

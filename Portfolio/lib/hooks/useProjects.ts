@@ -13,6 +13,7 @@ interface UseProjectsOptions {
   page?: number;
   limit?: number;
   useCache?: boolean;
+  lightweight?: boolean; // Use /projects/list (lighter payload for cards)
 }
 
 export function useProjects(options?: UseProjectsOptions) {
@@ -29,6 +30,7 @@ export function useProjects(options?: UseProjectsOptions) {
     options?.page,
     options?.limit,
     options?.useCache,
+    options?.lightweight,
   ]);
 
   // Generar clave de caché única basada en las opciones
@@ -50,14 +52,17 @@ export function useProjects(options?: UseProjectsOptions) {
         const startTime = performance.now();
         
         const shouldUseCache = stableOptions?.useCache !== false;
+        const isLightweight = stableOptions?.lightweight !== false; // Default to lightweight
+        const fetcher = isLightweight ? api.getProjectsList : api.getProjects;
         
         let response;
         if (shouldUseCache) {
           // Usar cacheVersion del response para invalidación automática
-          const tempKey = buildVersionedKey('projects', requestParams, undefined);
+          const cachePrefix = isLightweight ? 'projects-list' : 'projects';
+          const tempKey = buildVersionedKey(cachePrefix, requestParams, undefined);
           response = await cache.fetchWithCache(
             tempKey,
-            () => api.getProjects(stableOptions),
+            () => fetcher(stableOptions),
             CacheTTL.FIVE_MINUTES
           );
           
@@ -71,7 +76,7 @@ export function useProjects(options?: UseProjectsOptions) {
             }
           }
         } else {
-          response = await api.getProjects(stableOptions);
+          response = await fetcher(stableOptions);
         }
         
         const duration = performance.now() - startTime;

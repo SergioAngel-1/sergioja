@@ -114,6 +114,8 @@ export const api = {
   // Projects
   getProjects: (params?: { tech?: string; category?: string; featured?: boolean; page?: number; limit?: number }) =>
     apiClient.get('/projects', params),
+  getProjectsList: (params?: { tech?: string; category?: string; featured?: boolean; page?: number; limit?: number }) =>
+    apiClient.get('/projects/list', params),
   getProjectBySlug: (slug: string) => apiClient.get(`/projects/${slug}`),
 
   // Skills
