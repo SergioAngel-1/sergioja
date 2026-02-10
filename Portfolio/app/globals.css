@@ -89,6 +89,13 @@
   .with-bottom-nav-inset {
     padding-bottom: 0 !important;
   }
+  .loader-bottom-inset {
+    bottom: 0 !important;
+  }
+}
+
+.loader-bottom-inset {
+  bottom: var(--mobile-nav-height, 0px);
 }
 
 /* Match breadcrumb height to floating round buttons on mobile */
