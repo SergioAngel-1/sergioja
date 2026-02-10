@@ -241,8 +241,8 @@ export default function ProjectsContent({ initialProjects, initialCategories }: 
         ) : (
           // Use regular grid for smaller lists
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            {paginatedProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} viewMode="grid" />
+            {paginatedProjects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} viewMode="grid" priority={currentPage === 1 && index < 4} />
             ))}
           </div>
         )}

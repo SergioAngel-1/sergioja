@@ -16,9 +16,10 @@ import type { Project } from '@/shared/types';
 interface ProjectCardProps {
   project: Project;
   viewMode?: 'grid' | 'list';
+  priority?: boolean;
 }
 
-export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardProps) {
+export default function ProjectCard({ project, viewMode = 'grid', priority = false }: ProjectCardProps) {
   const { t, language } = useLanguage();
   const { lowPerformanceMode } = usePerformance();
   const pathname = usePathname();
@@ -82,8 +83,10 @@ export default function ProjectCard({ project, viewMode = 'grid' }: ProjectCardP
                 alt={project.title}
                 fill
                 className="object-cover"
+                loading={priority ? 'eager' : 'lazy'}
+                priority={priority}
                 onError={() => setImageError(true)}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-background-elevated">

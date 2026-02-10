@@ -18,6 +18,7 @@ import ExperienceCarousel from '@/components/molecules/ExperienceCarousel';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { trackDownload } from '@/lib/analytics';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
+import { sanitizeSvg } from '@/lib/utils/sanitizeSvg';
 import useProfile from '@/lib/hooks/useProfile';
 import type { Profile } from '@/shared/types';
 
@@ -361,7 +362,7 @@ export default function AboutPage() {
                           {skill.icon && (
                             <div 
                               className="absolute top-2 right-2 w-5 h-5 sm:w-6 sm:h-6 opacity-30 group-hover:opacity-50 transition-opacity duration-300 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
-                              dangerouslySetInnerHTML={{ __html: skill.icon }}
+                              dangerouslySetInnerHTML={{ __html: sanitizeSvg(skill.icon) }}
                             />
                           )}
 
@@ -430,7 +431,7 @@ export default function AboutPage() {
                     {skill.icon && (
                       <div 
                         className="absolute top-2 right-2 w-5 h-5 sm:w-6 sm:h-6 opacity-30 group-hover:opacity-50 transition-opacity duration-300 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
-                        dangerouslySetInnerHTML={{ __html: skill.icon }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeSvg(skill.icon) }}
                       />
                     )}
 

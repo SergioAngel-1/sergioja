@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { TechIcon } from '@/lib/utils/techIcons';
+import { sanitizeSvg } from '@/lib/utils/sanitizeSvg';
 import Tooltip from '@/components/atoms/Tooltip';
 import type { Project } from '@/shared/types';
 
@@ -96,7 +97,7 @@ export default function ProjectInfo({ project }: ProjectInfoProps) {
                 {tech.icon ? (
                   <span
                     className="inline-flex w-4 h-4 [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
-                    dangerouslySetInnerHTML={{ __html: tech.icon }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeSvg(tech.icon) }}
                   />
                 ) : (
                   <TechIcon tech={tech.name} className="w-4 h-4" />
