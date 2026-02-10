@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
   if (slug && slug.length > 0) {
     try {
       // Verificar si existe redirección para este slug
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiUrl = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       const res = await fetch(`${apiUrl}/api/portfolio/redirects/${encodeURIComponent(slug)}`, {
         next: { revalidate: 3600 }, // Cache 1 hora
       });
