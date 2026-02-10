@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { useMatrix } from '@/lib/contexts/MatrixContext';
 import { useIsMobile } from '@/lib/hooks/useMediaQuery';
@@ -64,31 +63,41 @@ export default function FloatingParticles({
     return null;
   }
 
+  // Determinar animación CSS según modo
+  const animationName = lowPerformanceMode
+    ? 'none'
+    : matrixMode
+      ? 'fp-matrix'
+      : 'fp-float';
+
   return (
     <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fp-float {
+          0%, 100% { opacity: 0; transform: translateY(0) translateZ(0); }
+          50% { opacity: 1; transform: translateY(-30px) translateZ(0); }
+        }
+        @keyframes fp-matrix {
+          0%, 100% { opacity: 0; transform: translate(0, 0) scale(0) translateZ(0); }
+          50% { opacity: 1; transform: translate(var(--fp-x), -60px) scale(1.5) translateZ(0); }
+        }
+      `}} />
       {particles.map((particle) => (
-        <motion.div
+        <div
           key={particle.id}
           className={`absolute w-1 h-1 ${color} rounded-full ${className}`}
           style={{
             left: `${particle.left}%`,
             top: `${particle.top}%`,
-          }}
-          animate={lowPerformanceMode ? {} : matrixMode ? {
-            y: [0, -60, 0],
-            x: [0, particle.xOffset, 0],
-            opacity: [0, 1, 0],
-            scale: [0, 1.5, 0],
-          } : {
-            y: [0, -30, 0],
-            opacity: [0, 1, 0],
-          }}
-          transition={lowPerformanceMode ? {} : {
-            duration: particle.duration,
-            repeat: Infinity,
-            delay: particle.delay,
-          }}
-          suppressHydrationWarning
+            willChange: 'transform, opacity',
+            animationName,
+            animationDuration: `${particle.duration}s`,
+            animationDelay: `${particle.delay}s`,
+            animationIterationCount: 'infinite',
+            animationTimingFunction: 'ease-in-out',
+            animationFillMode: 'both',
+            '--fp-x': `${particle.xOffset}px`,
+          } as React.CSSProperties}
         />
       ))}
     </>
