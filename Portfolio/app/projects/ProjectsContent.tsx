@@ -240,23 +240,11 @@ export default function ProjectsContent({ initialProjects, initialCategories }: 
           </motion.div>
         ) : (
           // Use regular grid for smaller lists
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6"
-          >
-            {paginatedProjects.map((project, index) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05, duration: 0.4 }}
-              >
-                <ProjectCard project={project} viewMode="grid" />
-              </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+            {paginatedProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} viewMode="grid" />
             ))}
-          </motion.div>
+          </div>
         )}
 
         {/* Pagination */}
