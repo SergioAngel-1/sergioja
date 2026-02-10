@@ -11,6 +11,7 @@ import AnalyticsExports from '@/components/organisms/AnalyticsExports';
 import WebVitalsExports from '@/components/organisms/WebVitalsExports';
 import PortfolioExports from '@/components/organisms/PortfolioExports';
 import CommunicationExports from '@/components/organisms/CommunicationExports';
+import FullDatabaseExport from '@/components/organisms/FullDatabaseExport';
 import { clamp, fluidSizing } from '@/lib/fluidSizing';
 
 export default function ExportsPage() {
@@ -99,6 +100,9 @@ export default function ExportsPage() {
 
         {/* Communication Section */}
         <CommunicationExports onExport={handleExport} />
+
+        {/* Full Database Export */}
+        <FullDatabaseExport />
 
         {/* Info Card */}
         <motion.div

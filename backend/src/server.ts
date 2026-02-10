@@ -27,6 +27,7 @@ import contactRoutes from './routes/portfolio/contact';
 import portfolioProjectsRoutes from './routes/portfolio/projects';
 import portfolioCategoriesRoutes from './routes/portfolio/categories';
 import portfolioRedirectsRoutes from './routes/portfolio/redirects';
+import adminExportRoutes from './routes/admin/export';
 
 // Routes - Shared
 import analyticsRoutes from './routes/shared/analytics';
@@ -143,6 +144,7 @@ app.use('/api/admin/projects', adminProjectsRoutes);
 app.use('/api/admin/categories', categoriesRoutes);
 app.use('/api/admin/cv', adminCvRoutes);
 app.use('/api/admin/redirects', adminRedirectsRoutes);
+app.use('/api/admin/export', adminExportRoutes);
 // Portfolio routes
 app.use('/api/portfolio/profile', profileRoutes);
 app.use('/api/portfolio/cv', cvRoutes);

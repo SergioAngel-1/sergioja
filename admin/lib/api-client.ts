@@ -373,6 +373,10 @@ export const api = {
   deleteCategory: (type: 'projects' | 'technologies', id: string) =>
     apiClient.delete(`/admin/categories/${type}/${id}`),
 
+  // Export / Import
+  exportFullDatabase: () => apiClient.get('/admin/export/full'),
+  importFullDatabase: (data: Record<string, unknown>) => apiClient.post('/admin/export/import', data),
+
   // Redirects
   getRedirects: (options?: { skipCache?: boolean }) => 
     apiClient.get('/admin/redirects', options?.skipCache ? { cache: 'no-store' } : undefined),
