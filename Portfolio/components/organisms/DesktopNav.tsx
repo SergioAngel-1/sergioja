@@ -69,7 +69,8 @@ export default function DesktopNav({
       className="hidden md:flex fixed left-0 top-0 h-screen bg-background-surface/90 backdrop-blur-md border-r border-white/30 z-[10000] flex-col items-center overflow-hidden"
       style={{
         width: 'var(--nav-width)',
-        padding: `${fluidSizing.space.md} 0`
+        paddingTop: fluidSizing.space.md,
+        paddingBottom: fluidSizing.space.lg
       }}
     >
       <NavBackground 
