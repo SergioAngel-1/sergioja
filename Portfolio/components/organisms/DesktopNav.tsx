@@ -90,7 +90,7 @@ export default function DesktopNav({
 
       {/* Navigation Links */}
       <div 
-        className="flex-1 flex flex-col relative z-10"
+        className="flex-1 flex flex-col relative z-10 min-h-0"
         style={{ gap: 'var(--nav-gap)' }}
       >
         {navItems.map((item, index) => (
