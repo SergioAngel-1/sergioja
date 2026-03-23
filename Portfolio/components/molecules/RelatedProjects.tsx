@@ -30,7 +30,8 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
       {/* Separador */}
       <motion.div
         initial={{ opacity: 0, scaleX: 0 }}
-        animate={{ opacity: 1, scaleX: 1 }}
+        whileInView={{ opacity: 1, scaleX: 1 }}
+        viewport={{ once: true }}
         transition={{ duration: 0.6 }}
         className="w-full h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
         style={{ marginBottom: fluidSizing.space['2xl'] }}
@@ -39,7 +40,8 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
       {/* Título */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
         transition={{ delay: 0.2, duration: 0.6 }}
         style={{ marginBottom: fluidSizing.space.lg }}
       >
@@ -55,28 +57,25 @@ export default function RelatedProjects({ projects, currentProjectId }: RelatedP
       {/* Grid de proyectos relacionados */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.3, duration: 0.6 }}
         className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4"
         style={{ gap: fluidSizing.space.lg }}
       >
-        {relatedProjects.map((project, index) => (
-          <motion.div
-            key={project.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-          >
+        {relatedProjects.map((project) => (
+          <div key={project.id}>
             <ProjectCard project={project} />
-          </motion.div>
+          </div>
         ))}
       </motion.div>
 
       {/* Botón Ver más proyectos */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 0.6 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.5, duration: 0.6 }}
         className="flex justify-center"
         style={{ marginTop: fluidSizing.space.xl }}
       >
