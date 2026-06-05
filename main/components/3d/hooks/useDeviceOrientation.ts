@@ -41,7 +41,7 @@ export function useDeviceOrientation(
   useEffect(() => {
     if (!isMobile || typeof DeviceOrientationEvent === 'undefined') {
       setIsSupported(false);
-      log.warn('gyro_not_supported');
+      if (isMobile) log.warn('gyro_not_supported'); // solo loguear en mobile real sin soporte
       return;
     }
 

@@ -8,6 +8,7 @@ import { LanguageProvider } from '@/lib/contexts/LanguageContext';
 import { ModelTargetProvider } from '@/lib/contexts/ModelTargetContext';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
+import ServiceWorkerReload from '@/components/ServiceWorkerReload';
 
 // Import client-only components dynamically to avoid hydration errors
 const CookieConsentProvider = dynamic(
@@ -140,6 +141,7 @@ export default function RootLayout({
             </ModelTargetProvider>
           </LanguageProvider>
           <WebVitalsTracker />
+          <ServiceWorkerReload />
         </CookieConsentProvider>
       </body>
     </html>

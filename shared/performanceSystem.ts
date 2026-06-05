@@ -273,18 +273,21 @@ export class PerformanceManager {
   static recommendMode(frontend: 'main' | 'portfolio' = 'portfolio'): PerformanceMode {
     const capabilities = PerformanceManager.detectDeviceCapabilities();
 
-    // Recolección de razones, incluyendo no GPU sólo como indicador
+    // Main siempre arranca en modo bajo rendimiento en mobile:
+    // el modelo 3D + animaciones son demasiado pesados para la mayoría de GPUs móviles.
+    // Solo aplica a la recomendación inicial — si el usuario cambia el modo manualmente
+    // su preferencia queda guardada en localStorage y esta lógica no se vuelve a ejecutar.
+    if (frontend === 'main') {
+      logger.info('Recommending low performance mode: main always starts low', capabilities, 'Performance');
+      return 'low';
+    }
+
     const reasons = [...capabilities.lowEndReasons];
     if (!capabilities.hasGPU) {
       reasons.push('no_gpu');
     }
 
-    // Menos estricto: requerir más señales para caer a modo bajo
-    // main: más permisivo (umbral alto) para que más usuarios mantengan interactividad
-    // portfolio: también relajado
-    const threshold = frontend === 'main' ? 2 : 1; // se necesita > threshold
-
-    const shouldUseLowMode = reasons.length > threshold;
+    const shouldUseLowMode = reasons.length > 1;
 
     if (shouldUseLowMode) {
       logger.info(`Recommending low performance mode for ${frontend}`, capabilities, 'Performance');
