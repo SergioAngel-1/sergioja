@@ -10,13 +10,20 @@ const getApiUrl = () =>
  */
 export async function serverFetch<T>(
   path: string,
-  options?: { revalidate?: number }
+  options?: { revalidate?: number; noStore?: boolean }
 ): Promise<ApiResponse<T>> {
   const url = `${getApiUrl()}${path}`;
-  const res = await fetch(url, {
-    next: { revalidate: options?.revalidate ?? 60 },
+  const fetchOptions: RequestInit & { next?: { revalidate: number } } = {
     headers: { 'Content-Type': 'application/json' },
-  });
+  };
+
+  if (options?.noStore) {
+    fetchOptions.cache = 'no-store';
+  } else {
+    fetchOptions.next = { revalidate: options?.revalidate ?? 60 };
+  }
+
+  const res = await fetch(url, fetchOptions);
 
   if (!res.ok) {
     return {

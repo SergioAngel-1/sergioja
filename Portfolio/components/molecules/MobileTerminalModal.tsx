@@ -2,11 +2,16 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import TerminalInit from './TerminalInit';
 import TerminalHelp from './TerminalHelp';
 import TerminalStatus from './TerminalStatus';
-import TerminalGames from './TerminalGames';
 import TerminalLanguage from './TerminalLanguage';
+
+const TerminalGames = dynamic(() => import('./TerminalGames'), {
+  ssr: false,
+  loading: () => <div className="text-text-secondary font-mono text-sm p-4">Loading games...</div>,
+});
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 

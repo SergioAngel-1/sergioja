@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       p.longDescriptionEs || p.longDescriptionEn || defaultSEO.description
     );
     const canonical = `${baseUrl}/projects/${p.slug}`;
-    const image = p.thumbnailImage ? normalizeUrl(p.thumbnailImage, baseUrl) : `${baseUrl}/media/logo-sergioja.png`;
+    const image = p.thumbnailImage ? normalizeUrl(p.thumbnailImage, baseUrl) : `${baseUrl}/media/logo-sergioja.webp`;
 
     const config = mergeMetadata(defaultSEO, {
       title: p.title,
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
 
   const fallbackCanonical = `${baseUrl}/projects/${slug}`;
-  const fallbackImage = `${baseUrl}/media/logo-sergioja.png`;
+  const fallbackImage = `${baseUrl}/media/logo-sergioja.webp`;
   const fallbackConfig = mergeMetadata(defaultSEO, {
     title: defaultSEO.title,
     description: truncateDescription(defaultSEO.description || ''),
@@ -91,7 +91,7 @@ export default async function ProjectLayout({ children, params }: { children: Re
 
   if (p) {
     const canonical = `${baseUrl}/projects/${p.slug}`;
-    const image = p.thumbnailImage ? normalizeUrl(p.thumbnailImage, baseUrl) : `${baseUrl}/media/logo-sergioja.png`;
+    const image = p.thumbnailImage ? normalizeUrl(p.thumbnailImage, baseUrl) : `${baseUrl}/media/logo-sergioja.webp`;
     const breadcrumb = generateBreadcrumbSchema([
       { name: siteConfig.name, url: siteConfig.url },
       { name: 'Proyectos', url: `${baseUrl}/projects` },

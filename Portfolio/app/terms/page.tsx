@@ -82,7 +82,7 @@ export default function TermsPage() {
         animationType="pulse"
       />
 
-      <FloatingParticles count={50} color="bg-white" />
+      <FloatingParticles count={30} color="bg-white" />
 
       <div 
         className="relative z-10 mx-auto w-full" 

@@ -21,7 +21,7 @@ function seededRandom(seed: number): number {
 }
 
 export default function FloatingParticles({ 
-  count = 30, 
+  count = 20, 
   color = 'bg-white',
   className = ''
 }: FloatingParticlesProps) {

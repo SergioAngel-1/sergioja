@@ -56,11 +56,11 @@ export const defaultSEO: SEOMetadata = {
     locale: 'es_ES',
     images: [
       {
-        url: `${SITE_URL}/media/logo-sergioja.png`,
+        url: `${SITE_URL}/media/logo-sergioja.webp`,
         width: 1200,
         height: 630,
         alt: SITE_NAME,
-        type: 'image/png',
+        type: 'image/webp',
       },
     ],
   },
@@ -69,7 +69,7 @@ export const defaultSEO: SEOMetadata = {
     card: 'summary_large_image',
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: [`${SITE_URL}/media/logo-sergioja.png`],
+    images: [`${SITE_URL}/media/logo-sergioja.webp`],
     site: TWITTER_HANDLE ? `@${TWITTER_HANDLE}` : undefined,
     creator: TWITTER_HANDLE ? `@${TWITTER_HANDLE}` : undefined,
   },

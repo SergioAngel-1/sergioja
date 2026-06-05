@@ -5,25 +5,49 @@
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
+  lastAccessed: number;
   expiresAt: number;
 }
 
-const CACHE_STORAGE_VERSION = 2;
+const CACHE_STORAGE_VERSION = 3;
+const MAX_CACHE_ENTRIES = 50;
 
 class CacheManager {
   private cache: Map<string, CacheEntry<any>>;
   private inFlight: Map<string, Promise<any>>;
-  private defaultTTL: number; // Time To Live en milisegundos
+  private defaultTTL: number;
   private storageKey = `portfolio_cache_v${CACHE_STORAGE_VERSION}`;
   private isHydrated = false;
   private persistTimer: ReturnType<typeof setTimeout> | null = null;
   private persistDelay = 500; // ms debounce
 
-  constructor(defaultTTL: number = 5 * 60 * 1000) { // 5 minutos por defecto
+  constructor(defaultTTL: number = 5 * 60 * 1000) {
     this.cache = new Map();
     this.inFlight = new Map();
     this.defaultTTL = defaultTTL;
     this.hydrate();
+  }
+
+  private evictIfNeeded(): void {
+    if (this.cache.size < MAX_CACHE_ENTRIES) return;
+
+    const now = Date.now();
+    // Primero eliminar expirados
+    for (const [key, entry] of this.cache) {
+      if (now > entry.expiresAt) {
+        this.cache.delete(key);
+      }
+    }
+
+    // Si sigue sobre el límite, eliminar los menos accedidos recientemente
+    if (this.cache.size >= MAX_CACHE_ENTRIES) {
+      const sorted = [...this.cache.entries()]
+        .sort(([, a], [, b]) => a.lastAccessed - b.lastAccessed);
+      const toRemove = sorted.slice(0, sorted.length - MAX_CACHE_ENTRIES + 1);
+      for (const [key] of toRemove) {
+        this.cache.delete(key);
+      }
+    }
   }
 
   /**
@@ -106,12 +130,15 @@ class CacheManager {
    * Guarda datos en el caché
    */
   set<T>(key: string, data: T, ttl?: number): void {
+    const now = Date.now();
     const expirationTime = ttl || this.defaultTTL;
     const entry: CacheEntry<T> = {
       data,
-      timestamp: Date.now(),
-      expiresAt: Date.now() + expirationTime,
+      timestamp: now,
+      lastAccessed: now,
+      expiresAt: now + expirationTime,
     };
+    this.evictIfNeeded();
     this.cache.set(key, entry);
     this.persist();
   }
@@ -126,13 +153,13 @@ class CacheManager {
       return null;
     }
 
-    // Verificar si el caché ha expirado
     if (Date.now() > entry.expiresAt) {
       this.cache.delete(key);
       this.persist();
       return null;
     }
 
+    entry.lastAccessed = Date.now();
     return entry.data as T;
   }
 

@@ -344,7 +344,7 @@ export default function ContactPage() {
         animationType="pulse"
       />
 
-      <FloatingParticles count={50} color="bg-white" />
+      <FloatingParticles count={30} color="bg-white" />
 
       <div className="relative z-10 mx-auto w-full pb-8 md:pb-24" style={{ maxWidth: '1600px', paddingLeft: fluidSizing.space.lg, paddingRight: fluidSizing.space.lg, paddingTop: `calc(${fluidSizing.header.height} + ${fluidSizing.space.md})` }}>
         <div className="mb-8 md:mb-16">

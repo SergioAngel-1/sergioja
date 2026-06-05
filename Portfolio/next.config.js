@@ -27,7 +27,7 @@ const nextConfig = {
   },
   
   experimental: {
-    optimizePackageImports: ['framer-motion', 'three', '@react-three/fiber', '@react-three/drei'],
+    optimizePackageImports: ['framer-motion'],
   },
   
   images: {
@@ -40,7 +40,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   },
-  transpilePackages: ['three'],
+  transpilePackages: [],
   async redirects() {
     return [
       {

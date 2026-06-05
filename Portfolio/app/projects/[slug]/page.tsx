@@ -17,7 +17,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
     try {
       const redirectRes = await serverFetch<{ redirectTo: string }>(
         `/api/portfolio/redirects/${encodeURIComponent(slug)}`,
-        { revalidate: 3600 }
+        { revalidate: 3600, noStore: true }
       );
       if (redirectRes.success && redirectRes.data?.redirectTo) {
         redirect(`/projects/${redirectRes.data.redirectTo}`);
@@ -36,7 +36,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
   if (category) {
     const catRes = await serverFetch<PaginatedResponse<Project>>(
       `/api/portfolio/projects/list?limit=5&category=${encodeURIComponent(category)}`,
-      { revalidate: 60 }
+      { noStore: true }
     );
     if (catRes.success && catRes.data) {
       relatedProjects = catRes.data.data.filter(p => p.id !== project.id);
@@ -47,7 +47,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
   if (relatedProjects.length < 4) {
     const generalRes = await serverFetch<PaginatedResponse<Project>>(
       '/api/portfolio/projects/list?limit=8',
-      { revalidate: 60 }
+      { noStore: true }
     );
     if (generalRes.success && generalRes.data) {
       const existingIds = new Set([project.id, ...relatedProjects.map(p => p.id)]);

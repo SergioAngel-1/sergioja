@@ -6,7 +6,7 @@ import ProjectsContent from '../../components/organisms/ProjectsContent';
 export default async function WorkPage() {
   // Server-side parallel fetch: projects + categories
   const [projectsRes, categoriesRes] = await Promise.all([
-    serverFetch<PaginatedResponse<Project>>('/api/portfolio/projects/list?limit=100', { revalidate: 60 }),
+    serverFetch<PaginatedResponse<Project>>('/api/portfolio/projects/list?limit=50', { noStore: true }),
     serverFetch<ProjectCategory[]>('/api/categories/projects', { revalidate: 300 }),
   ]);
 

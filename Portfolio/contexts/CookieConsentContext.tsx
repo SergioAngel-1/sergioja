@@ -55,14 +55,10 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
 
     storeConsentStatus('accepted');
     clearPreviousConsentStatus();
+    setConsentStatus('accepted');
     ensureDataLayer();
     toggleGtm(true);
     dispatchConsentEvents('accepted', previousStatus);
-
-    // Always reload to ensure GTM scripts load from a clean page init
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
   }, []);
 
   const rejectCookies = useCallback(() => {
@@ -71,15 +67,11 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
 
     storeConsentStatus('rejected');
     clearPreviousConsentStatus();
+    setConsentStatus('rejected');
     clearTrackingCookies();
     resetDataLayer();
     toggleGtm(false);
     dispatchConsentEvents('rejected', previousStatus);
-
-    // Always reload to ensure GTM scripts are fully removed and page is clean
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
   }, []);
 
   const resetConsent = useCallback(() => {

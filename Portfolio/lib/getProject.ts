@@ -10,7 +10,7 @@ export const getProject = cache(async (slug: string): Promise<Project | null> =>
   try {
     const res = await fetch(
       `${getApiUrl()}/api/portfolio/projects/${encodeURIComponent(slug)}`,
-      { next: { revalidate: 3600 } }
+      { cache: 'no-store' }
     );
 
     if (res.ok) {
