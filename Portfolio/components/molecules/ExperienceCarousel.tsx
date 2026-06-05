@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { fluidSizing, clamp } from '@/lib/utils/fluidSizing';
@@ -49,44 +49,23 @@ export default function ExperienceCarousel({ items }: ExperienceCarouselProps) {
   const { lowPerformanceMode } = usePerformance();
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(8000);
-  const [startTime, setStartTime] = useState<number | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
   const AUTO_MS = 8000;
-  const PROGRESS_SEC = AUTO_MS / 1000;
 
-  // Autoplay with true pause/resume support
+  // Autoplay with pause/resume
   useEffect(() => {
-    // Si está pausado (dragging o hover), no hacer nada
-    if (isDragging || isHovered) {
-      return;
-    }
-    
-    // Guardar tiempo de inicio
-    const now = Date.now();
-    setStartTime(now);
-    
-    // Crear timer con el tiempo restante
+    const paused = isDragging || isHovered;
+    if (paused) return;
+
     const timer = setTimeout(() => {
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % items.length);
-      setRemainingTime(AUTO_MS); // Reset para siguiente slide
-    }, remainingTime);
-    
-    return () => {
-      clearTimeout(timer);
-      // Calcular tiempo transcurrido y actualizar remainingTime
-      if (startTime !== null) {
-        const elapsed = Date.now() - startTime;
-        setRemainingTime(prev => Math.max(0, prev - elapsed));
-      }
-    };
-  }, [currentIndex, items.length, isDragging, isHovered, remainingTime, startTime]);
-  
-  // Reset remaining time cuando cambia el slide
-  useEffect(() => {
-    setRemainingTime(AUTO_MS);
-    setStartTime(null);
-  }, [currentIndex]);
+    }, AUTO_MS);
+
+    timerRef.current = timer;
+
+    return () => clearTimeout(timer);
+  }, [currentIndex, items.length, isDragging, isHovered, AUTO_MS]);
 
   const handleNext = () => {
     setDirection(1);
@@ -227,16 +206,10 @@ export default function ExperienceCarousel({ items }: ExperienceCarouselProps) {
               aria-label={`Go to slide ${index + 1}`}
               aria-current={currentIndex === index ? 'true' : 'false'}
             >
-              {currentIndex === index && !lowPerformanceMode && !isDragging && (
-                <motion.div
-                  className="absolute left-0 top-0 h-full rounded-full bg-white"
-                  initial={{ width: `${((AUTO_MS - remainingTime) / AUTO_MS) * 100}%` }}
-                  animate={{ width: isHovered ? `${((AUTO_MS - remainingTime) / AUTO_MS) * 100}%` : '100%' }}
-                  transition={{
-                    duration: isHovered ? 0 : remainingTime / 1000,
-                    ease: 'linear',
-                  }}
-                  key={`${currentIndex}-${remainingTime}`}
+              {currentIndex === index && !lowPerformanceMode && (
+                <div
+                  className="absolute left-0 top-0 h-full rounded-full bg-white progress-bar-fill"
+                  style={{ animationPlayState: isDragging || isHovered ? 'paused' : 'running' }}
                 />
               )}
             </motion.button>

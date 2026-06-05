@@ -105,7 +105,7 @@ export default function HomeContent({ initialProfile }: HomeContentProps) {
       />
 
       <div
-        className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden pl-0 md:pl-20 "
         style={{ paddingTop: `calc(${fluidSizing.header.height} - env(safe-area-inset-top, 0px))` }}
       >
         <CyberBackground />

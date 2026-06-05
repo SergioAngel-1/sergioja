@@ -131,7 +131,7 @@ export default function FAQPage() {
       <Script id="ld-faq" type="application/ld+json" strategy="beforeInteractive">
         {toJsonLd(faqSchema)}
       </Script>
-      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
+      <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 ">
       <div className="absolute inset-0 cyber-grid opacity-10" />
 
       <GlowEffect

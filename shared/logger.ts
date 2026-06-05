@@ -84,8 +84,8 @@ function baseLog(level: LogLevel, message: string, data: any = {}, context?: str
   const ctx = context ? `[${context}] ` : '';
   const text = `${ts} ${level.toUpperCase()} ${ctx}${message}`;
   
-  // Solo mostrar data si no está vacío
-  const hasData = data && Object.keys(data).length > 0;
+  // Solo mostrar data si no está vacío (incluye Error objects que tienen props no-enumerable)
+  const hasData = data && (data instanceof Error || (typeof data === 'object' && Object.keys(data).length > 0));
   
   switch (level) {
     case 'debug':

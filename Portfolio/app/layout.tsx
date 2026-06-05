@@ -5,6 +5,7 @@ import { Orbitron, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { generateMetadata, generatePersonSchema, generateWebSiteSchema, toJsonLd } from '@/shared/seo';
 import { defaultSEO, siteConfig } from '@/lib/seo/config';
+import ServiceWorkerReload from '@/components/ServiceWorkerReload';
 
 // Import client-only components dynamically to avoid hydration errors
 const CookieConsentProvider = dynamic(
@@ -136,10 +137,11 @@ export default function RootLayout({
           </Script>
           <CookieConsentBanner variant="portfolio" />
           <ClientProviders>
-            <main className="min-h-screen">{children}</main>
+            <main className="min-h-screen pb-24 md:pb-0">{children}</main>
           </ClientProviders>
           <WebVitalsTracker />
           <PageViewTracker />
+          <ServiceWorkerReload />
         </CookieConsentProvider>
       </body>
     </html>

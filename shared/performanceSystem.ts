@@ -177,11 +177,8 @@ export class PerformanceManager {
    */
   subscribe(listener: (config: PerformanceConfig) => void): () => void {
     this.listeners.add(listener);
-    logger.debug('Performance listener subscribed', { totalListeners: this.listeners.size }, 'Performance');
-    
     return () => {
       this.listeners.delete(listener);
-      logger.debug('Performance listener unsubscribed', { totalListeners: this.listeners.size }, 'Performance');
     };
   }
 

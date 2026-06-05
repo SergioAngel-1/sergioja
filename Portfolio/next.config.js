@@ -5,10 +5,36 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   skipWaiting: true,
   sw: 'sw.js',
   scope: '/',
-  reloadOnOnline: true,
+  reloadOnOnline: false,
   fallbacks: {
     document: '/offline',
   },
+  runtimeCaching: [
+    {
+      urlPattern: /^https?:\/\/.*\/_next\/static\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'next-static',
+        expiration: { maxEntries: 100, maxAgeSeconds: 7 * 24 * 60 * 60 },
+      },
+    },
+    {
+      urlPattern: /^https?:\/\/.*\/favicon\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'favicons',
+        expiration: { maxEntries: 20, maxAgeSeconds: 30 * 24 * 60 * 60 },
+      },
+    },
+    {
+      urlPattern: /^https?:\/\/api\.sergioja\.com\/api\/(portfolio\/profile|portfolio\/projects|categories).*/i,
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'api-cache',
+        expiration: { maxEntries: 30, maxAgeSeconds: 5 * 60 },
+      },
+    },
+  ],
 });
 
 /** @type {import('next').NextConfig} */

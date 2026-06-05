@@ -35,16 +35,11 @@ export function usePerformance() {
     const clientConfig = manager.getConfig();
     setConfig(clientConfig);
 
-    logger.debug('usePerformance hook mounted', { mode: clientConfig.mode }, 'Performance');
-
-    // Suscribirse a cambios
     const unsubscribe = manager.subscribe((newConfig: PerformanceConfig) => {
-      logger.debug('Performance config updated in hook', newConfig, 'Performance');
       setConfig(newConfig);
     });
 
     return () => {
-      logger.debug('usePerformance hook unmounted', {}, 'Performance');
       unsubscribe();
     };
   }, [manager]);

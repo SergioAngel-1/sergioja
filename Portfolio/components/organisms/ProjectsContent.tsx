@@ -106,7 +106,7 @@ export default function ProjectsContent({ initialProjects, initialCategories }: 
   }, [displayProjects.length, totalPages, currentPage]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 with-bottom-nav-inset">
+    <div className="relative min-h-screen overflow-hidden pl-0 md:pl-20 ">
         {/* Cyber grid background */}
         <div className="absolute inset-0 cyber-grid opacity-10" />
 
