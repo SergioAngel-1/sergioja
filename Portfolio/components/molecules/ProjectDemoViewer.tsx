@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { fluidSizing } from '@/lib/utils/fluidSizing';
 import { logger } from '@/lib/logger';
 import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
+
+const DESKTOP_IFRAME_WIDTH = 1440;
 
 interface ProjectDemoViewerProps {
   demoUrl?: string;
@@ -24,7 +26,49 @@ export default function ProjectDemoViewer({
 }: ProjectDemoViewerProps) {
   const { t } = useLanguage();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isSmUp = useMediaQuery('(min-width: 640px)');
+  const [iframeScale, setIframeScale] = useState<{ scale: number; height: number } | null>(null);
+
+  const handleIframeFailure = useCallback(() => {
+    if (hasGallery && onViewGallery) {
+      onViewGallery();
+    }
+  }, [hasGallery, onViewGallery]);
+
+  const handleIframeLoad = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    try {
+      // Cross-origin page loaded fine → throws SecurityError → do nothing
+      // Blocked by X-Frame-Options → contentDocument is null
+      if (iframe.contentDocument === null) {
+        handleIframeFailure();
+      }
+    } catch {
+      // SecurityError: cross-origin content loaded successfully
+    }
+  }, [handleIframeFailure]);
+
+  useEffect(() => {
+    if (!isSmUp) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const rect = el.getBoundingClientRect();
+      if (!rect.width) return;
+      const scale = rect.width / DESKTOP_IFRAME_WIDTH;
+      // Use measured height; fallback to 16:9 if container hasn't established height yet
+      const h = rect.height > 10 ? rect.height : rect.width * 0.5625;
+      setIframeScale({ scale, height: h / scale });
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isSmUp]);
 
   // Log cuando se intenta cargar el iframe
   useEffect(() => {
@@ -118,6 +162,7 @@ export default function ProjectDemoViewer({
       )}
 
       <motion.div
+        ref={containerRef}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -125,16 +170,31 @@ export default function ProjectDemoViewer({
         className="flex-1 w-full h-full"
       >
       {isSmUp ? (
-        /* Desktop/Tablet View — single iframe */
-        <div className="w-full h-full bg-background-elevated rounded-lg overflow-hidden border border-white/10">
-          <iframe
-            ref={iframeRef}
-            src={demoUrl}
-            className="w-full h-full"
-            title={title}
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-            loading="lazy"
-          />
+        /* Desktop/Tablet View — renders at 1440px, scaled down to fit container */
+        <div
+          className="w-full h-full bg-background-elevated rounded-lg border border-white/10 overflow-hidden relative"
+        >
+          {iframeScale && (
+            <iframe
+              ref={iframeRef}
+              src={demoUrl}
+              title={title}
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+              loading="lazy"
+              onLoad={handleIframeLoad}
+              onError={handleIframeFailure}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: `${DESKTOP_IFRAME_WIDTH}px`,
+                height: `${iframeScale.height}px`,
+                transform: `scale(${iframeScale.scale})`,
+                transformOrigin: 'top left',
+                border: 'none',
+              }}
+            />
+          )}
         </div>
       ) : (
         /* Mobile View - Simulated Phone — single iframe */
@@ -152,6 +212,8 @@ export default function ProjectDemoViewer({
                 title={title}
                 sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
                 loading="lazy"
+                onLoad={handleIframeLoad}
+                onError={handleIframeFailure}
               />
             </div>
             
