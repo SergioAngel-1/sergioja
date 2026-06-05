@@ -155,7 +155,7 @@ export default function ProjectDetailContent({ project, relatedProjects }: Proje
         {/* Grid Layout: Info + Actions + Preview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-stretch" style={{ gap: fluidSizing.space.lg }}>
           {/* Left Column: Project Info + Actions */}
-          <div className="lg:col-span-1 flex flex-col h-full" style={{ gap: fluidSizing.space.lg }}>
+          <div className="lg:col-span-1 flex flex-col lg:self-start" style={{ gap: fluidSizing.space.lg }}>
             <ProjectInfo project={project} />
             <ProjectActions project={project} />
           </div>

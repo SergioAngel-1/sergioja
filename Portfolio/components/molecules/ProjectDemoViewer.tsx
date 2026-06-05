@@ -29,26 +29,31 @@ export default function ProjectDemoViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const isSmUp = useMediaQuery('(min-width: 640px)');
   const [iframeScale, setIframeScale] = useState<{ scale: number; height: number } | null>(null);
+  const [embedBlocked, setEmbedBlocked] = useState<boolean | null>(null); // null = checking
 
   const handleIframeFailure = useCallback(() => {
+    setEmbedBlocked(true);
     if (hasGallery && onViewGallery) {
       onViewGallery();
     }
   }, [hasGallery, onViewGallery]);
 
-  const handleIframeLoad = useCallback(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-    try {
-      // Cross-origin page loaded fine → throws SecurityError → do nothing
-      // Blocked by X-Frame-Options → contentDocument is null
-      if (iframe.contentDocument === null) {
-        handleIframeFailure();
-      }
-    } catch {
-      // SecurityError: cross-origin content loaded successfully
-    }
-  }, [handleIframeFailure]);
+  // Preflight: check X-Frame-Options/CSP server-side before rendering iframe
+  useEffect(() => {
+    if (!demoUrl || lowPerformanceMode) return;
+    setEmbedBlocked(null);
+    const from = encodeURIComponent(window.location.origin);
+    fetch(`/api/check-embed?url=${encodeURIComponent(demoUrl)}&from=${from}`)
+      .then(r => r.json())
+      .then(({ embeddable }) => {
+        if (!embeddable) {
+          handleIframeFailure();
+        } else {
+          setEmbedBlocked(false);
+        }
+      })
+      .catch(() => setEmbedBlocked(false)); // on API error, try anyway
+  }, [demoUrl, lowPerformanceMode, handleIframeFailure]);
 
   useEffect(() => {
     if (!isSmUp) return;
@@ -174,14 +179,13 @@ export default function ProjectDemoViewer({
         <div
           className="w-full h-full bg-background-elevated rounded-lg border border-white/10 overflow-hidden relative"
         >
-          {iframeScale && (
+          {iframeScale && embedBlocked === false && (
             <iframe
               ref={iframeRef}
               src={demoUrl}
               title={title}
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
               loading="lazy"
-              onLoad={handleIframeLoad}
               onError={handleIframeFailure}
               style={{
                 position: 'absolute',
@@ -205,16 +209,17 @@ export default function ProjectDemoViewer({
             
             {/* Screen */}
             <div className="relative w-full h-full bg-white rounded-[1.5rem] overflow-hidden">
-              <iframe
-                ref={iframeRef}
-                src={demoUrl}
-                className="w-full h-full"
-                title={title}
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                loading="lazy"
-                onLoad={handleIframeLoad}
-                onError={handleIframeFailure}
-              />
+              {embedBlocked === false && (
+                <iframe
+                  ref={iframeRef}
+                  src={demoUrl}
+                  className="w-full h-full"
+                  title={title}
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                  loading="lazy"
+                  onError={handleIframeFailure}
+                />
+              )}
             </div>
             
             {/* Home indicator */}
