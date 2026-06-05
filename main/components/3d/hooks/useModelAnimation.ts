@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, MutableRefObject } from 'react';
 
 interface UseModelAnimationOptions {
   duration?: number;
@@ -7,48 +7,48 @@ interface UseModelAnimationOptions {
   invalidate?: () => void;
 }
 
+// Returns a ref (not state) so reading progress in useFrame never triggers React re-renders
 export function useModelAnimation({
   duration = 800,
   lowPerformanceMode,
   onComplete,
   invalidate,
-}: UseModelAnimationOptions) {
-  const [progress, setProgress] = useState(0);
+}: UseModelAnimationOptions): MutableRefObject<number> {
+  const progressRef = useRef(lowPerformanceMode ? 1 : 0);
   const calledRef = useRef(false);
 
-  // Animación de entrada
   useEffect(() => {
     if (lowPerformanceMode) {
-      setProgress(1);
+      progressRef.current = 1;
+      if (!calledRef.current) {
+        calledRef.current = true;
+        onComplete?.();
+      }
       return;
     }
 
+    progressRef.current = 0;
+    calledRef.current = false;
     const startTime = Date.now();
+    let rafId: number;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const rawProgress = Math.min(elapsed / duration, 1);
-
-      // Easing function (ease-out cubic)
-      const eased = 1 - Math.pow(1 - rawProgress, 3);
-      setProgress(eased);
+      progressRef.current = 1 - Math.pow(1 - rawProgress, 3);
       invalidate?.();
 
       if (rawProgress < 1) {
-        requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
+      } else if (!calledRef.current) {
+        calledRef.current = true;
+        onComplete?.();
       }
     };
 
-    animate();
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, [lowPerformanceMode, duration, invalidate]);
 
-  // Callback cuando completa
-  useEffect(() => {
-    if (progress >= 1 && !calledRef.current) {
-      calledRef.current = true;
-      onComplete?.();
-    }
-  }, [progress, onComplete]);
-
-  return progress;
+  return progressRef;
 }

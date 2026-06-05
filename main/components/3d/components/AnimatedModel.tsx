@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, MutableRefObject } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { Group, Quaternion, Euler, MathUtils } from 'three';
@@ -11,7 +11,7 @@ import { ModelFallback } from './ModelFallback';
 import { useModelTarget } from '@/lib/contexts/ModelTargetContext';
 
 interface AnimatedModelProps {
-  mousePosition: { x: number; y: number };
+  mousePosition: MutableRefObject<{ x: number; y: number }>;
   gyroEnabled: boolean;
   lowPerformanceMode: boolean;
   onIntroAnimationEnd?: () => void;
@@ -34,45 +34,42 @@ export function AnimatedModel({
   const log = useLogger('AnimatedModel3D');
   const invalidate = useThree((state) => state.invalidate);
 
-  // Hooks personalizados
   const schedule = useRenderScheduler(invalidate);
-  const animationProgress = useModelAnimation({
+  const animationProgressRef = useModelAnimation({
     lowPerformanceMode,
     onComplete: onIntroAnimationEnd,
     invalidate,
   });
-  const { orientation, isMobile, isSupported, isActive, requestPermission } = useDeviceOrientation(gyroEnabled, schedule);
-  
-  // Exponer requestPermission a Model3D
+  const { orientation, isMobile, isActive, requestPermission } = useDeviceOrientation(gyroEnabled, schedule);
+
   useEffect(() => {
     if (onGyroRequestPermissionReady && requestPermission) {
       onGyroRequestPermissionReady(requestPermission);
     }
   }, [requestPermission, onGyroRequestPermissionReady]);
+
   const { targetPosition, isModalOpen, modalClosedTimestamp } = useModelTarget();
 
   // Cache quaternions and euler to avoid recreating them every frame
   const targetQuatRef = useRef(new Quaternion());
   const targetEulerRef = useRef(new Euler());
-  
-  // State refs para interacciones
-  const buttonTargetRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
-  const canUseGyroRef = useRef(true); // Cache para evitar Date.now() en cada frame
 
-  // Cargar modelo GLTF optimizado
+  const buttonTargetRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
+  const canUseGyroRef = useRef(true);
+
   const { scene } = useGLTF(MODEL_PATH);
+
+  // Initialize group scale to 0 so the intro animation starts from nothing
+  useEffect(() => {
+    if (groupRef.current) groupRef.current.scale.setScalar(0);
+  }, []);
 
   // Cleanup: Dispose of Three.js resources to prevent memory leaks
   useEffect(() => {
     return () => {
       if (scene) {
         scene.traverse((child: any) => {
-          // Dispose geometries
-          if (child.geometry) {
-            child.geometry.dispose();
-          }
-          
-          // Dispose materials
+          if (child.geometry) child.geometry.dispose();
           if (child.material) {
             if (Array.isArray(child.material)) {
               child.material.forEach((material: any) => {
@@ -95,40 +92,27 @@ export function AnimatedModel({
             }
           }
         });
-        
         log.debug('Three.js resources disposed', { modelPath: MODEL_PATH });
       }
     };
   }, [scene, log]);
 
-  // Mouse movement triggers re-render automatically via frameloop='always'
-
-  // Handle button target position (mobile only)
   useEffect(() => {
     if (targetPosition && isMobile) {
-      buttonTargetRef.current = {
-        x: targetPosition.x,
-        y: targetPosition.y,
-        active: true,
-      };
+      buttonTargetRef.current = { x: targetPosition.x, y: targetPosition.y, active: true };
       schedule(200);
-      
-      // Desactivar después de 2 segundos
+
       const timeout = setTimeout(() => {
         buttonTargetRef.current.active = false;
       }, 2000);
-      
+
       return () => clearTimeout(timeout);
     }
   }, [targetPosition, isMobile, schedule]);
 
-  // Handle gyro delay after modal closes (optimized with ref)
   useEffect(() => {
     if (modalClosedTimestamp) {
-      // Desactivar button target inmediatamente cuando se cierra el modal
       buttonTargetRef.current.active = false;
-      
-      // Pausar giroscopio brevemente para permitir animación de retorno
       canUseGyroRef.current = false;
       const timeout = setTimeout(() => {
         canUseGyroRef.current = true;
@@ -137,69 +121,59 @@ export function AnimatedModel({
     }
   }, [modalClosedTimestamp]);
 
-  // Frame animation loop optimizado para prevenir violaciones de RAF
-  useFrame((state, delta) => {
-    // Early exit optimizado: verificar group primero para evitar cálculos innecesarios
+  useFrame((state) => {
     const group = groupRef.current;
     if (!group) return;
 
     const now = state.clock.getElapsedTime();
-    // Throttle to target FPS: 30fps in low performance, 60fps normal
     const interval = lowPerformanceMode ? 1 / 30 : 1 / 60;
     if (now - tickRef.current < interval) return;
     tickRef.current = now;
 
+    const progress = animationProgressRef.current;
+
+    // Apply scale from animation progress (avoids React re-renders for scale)
+    group.scale.setScalar(3.0 * progress);
     group.position.z = 0;
 
-    if (animationProgress < 1) {
+    if (progress < 1) {
       // Intro animation
-      const tx = MathUtils.lerp(0, BASE_ROT_X, animationProgress);
-      const ty = MathUtils.lerp(0, BASE_ROT_Y, animationProgress);
+      const tx = MathUtils.lerp(0, BASE_ROT_X, progress);
+      const ty = MathUtils.lerp(0, BASE_ROT_Y, progress);
       targetEulerRef.current.set(tx, ty, 0, 'XYZ');
       targetQuatRef.current.setFromEuler(targetEulerRef.current);
       group.quaternion.slerp(targetQuatRef.current, 0.15);
-      return; // Early exit después de intro animation
+      return;
     }
 
-    // Interactive animation - calcular target rotation basado en input
     let targetRotY = 0;
     let targetRotX = 0;
 
-    // Prioridad 1: Botón clickeado en mobile
     if (isMobile && buttonTargetRef.current.active) {
       targetRotY = MathUtils.clamp(buttonTargetRef.current.x * 0.5, -0.5, 0.5);
       targetRotX = MathUtils.clamp(buttonTargetRef.current.y * 0.35, -0.35, 0.35);
-    }
-    // Prioridad 2: Giroscopio en mobile (deshabilitado si modal está abierto o recién cerrado)
-    else if (isMobile && !lowPerformanceMode && !isModalOpen && canUseGyroRef.current) {
+    } else if (isMobile && !lowPerformanceMode && !isModalOpen && canUseGyroRef.current) {
       const { beta, gamma } = orientation;
       targetRotY = MathUtils.clamp(gamma * 0.00555555, -0.4, 0.4);
       targetRotX = MathUtils.clamp(beta * 0.00166666, -0.25, 0.25);
-    }
-    // Prioridad 3: Mouse en desktop
-    else if (!isMobile) {
-      targetRotY = MathUtils.clamp(mousePosition.x * 0.4, -0.4, 0.4);
-      targetRotX = MathUtils.clamp(mousePosition.y * 0.25, -0.25, 0.25);
+    } else if (!isMobile) {
+      // Read mouse position from ref — no React re-render needed
+      targetRotY = MathUtils.clamp(mousePosition.current.x * 0.4, -0.4, 0.4);
+      targetRotX = MathUtils.clamp(mousePosition.current.y * 0.25, -0.25, 0.25);
     }
 
-    // Aplicar rotación con quaternion slerp
-    const finalRotX = BASE_ROT_X + targetRotX;
-    const finalRotY = BASE_ROT_Y + targetRotY;
-    
-    targetEulerRef.current.set(finalRotX, finalRotY, 0, 'XYZ');
+    targetEulerRef.current.set(BASE_ROT_X + targetRotX, BASE_ROT_Y + targetRotY, 0, 'XYZ');
     targetQuatRef.current.setFromEuler(targetEulerRef.current);
 
-    // Damping factor ajustado
     const dampingFactor = lowPerformanceMode ? 0.08 : 0.15;
     group.quaternion.slerp(targetQuatRef.current, dampingFactor);
   });
 
   const hasContent = scene.children.length > 0;
-  const scale = 3.0 * animationProgress;
 
   return (
     <group ref={groupRef}>
-      {hasContent ? <primitive object={scene} scale={scale} /> : <ModelFallback />}
+      {hasContent ? <primitive object={scene} /> : <ModelFallback />}
       <ModelLighting lowPerformanceMode={lowPerformanceMode} />
     </group>
   );

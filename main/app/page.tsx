@@ -20,6 +20,7 @@ import { useLanguage } from '@/lib/contexts/LanguageContext';
 import { loadRecaptchaEnterprise } from '@/shared/recaptchaHelpers';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
 import { usePageAnalytics } from '@/lib/hooks/usePageAnalytics';
 import { api } from '@/lib/api-client';
 import type { Profile } from '@/lib/types';
@@ -32,7 +33,7 @@ export default function Home() {
   const { t } = useLanguage();
   const log = useLogger('Home');
   const { lowPerformanceMode } = usePerformance();
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -41,10 +42,6 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    const checkMobile = () => {
-      setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
-    };
-    checkMobile();
   }, []);
 
   // Sincronizar estado del modal con la ruta actual

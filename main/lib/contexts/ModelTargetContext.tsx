@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 
 interface TargetPosition {
   x: number;
@@ -24,19 +24,19 @@ export function ModelTargetProvider({ children }: { children: ReactNode }) {
   const [isModalOpen, setIsModalOpenState] = useState(false);
   const [modalClosedTimestamp, setModalClosedTimestamp] = useState<number | null>(null);
 
-  const setTargetPosition = (position: { x: number; y: number }) => {
+  const setTargetPosition = useCallback((position: { x: number; y: number }) => {
     setTargetPositionState({
       x: position.x,
       y: position.y,
       timestamp: Date.now(),
     });
-  };
+  }, []);
 
-  const clearTarget = () => {
+  const clearTarget = useCallback(() => {
     setTargetPositionState(null);
-  };
+  }, []);
 
-  const setIsModalOpen = (isOpen: boolean) => {
+  const setIsModalOpen = useCallback((isOpen: boolean) => {
     setIsModalOpenState(isOpen);
     if (!isOpen) {
       // Delay para asegurar que router.push complete antes de actualizar timestamp
@@ -45,10 +45,14 @@ export function ModelTargetProvider({ children }: { children: ReactNode }) {
         setModalClosedTimestamp(Date.now());
       }, 50);
     }
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    targetPosition, setTargetPosition, clearTarget, isModalOpen, setIsModalOpen, modalClosedTimestamp
+  }), [targetPosition, setTargetPosition, clearTarget, isModalOpen, setIsModalOpen, modalClosedTimestamp]);
 
   return (
-    <ModelTargetContext.Provider value={{ targetPosition, setTargetPosition, clearTarget, isModalOpen, setIsModalOpen, modalClosedTimestamp }}>
+    <ModelTargetContext.Provider value={contextValue}>
       {children}
     </ModelTargetContext.Provider>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState, useMemo } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { useLogger } from '@/shared/hooks/useLogger';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
@@ -17,10 +17,10 @@ interface ModalProps {
   statusLabel?: string;
 }
 
-export default function Modal({ 
-  isOpen, 
-  onClose, 
-  title, 
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
   icon,
   children,
   position = 'top-left',
@@ -31,6 +31,7 @@ export default function Modal({
   const { lowPerformanceMode } = usePerformance();
   const { setIsModalOpen } = useModelTarget();
   const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     const check = () => {
       const isCoarse = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(pointer: coarse)').matches : false;
@@ -50,7 +51,7 @@ export default function Modal({
       log.interaction('close_modal', title || position);
       setIsModalOpen(false);
     }
-  }, [isOpen, title, position, setIsModalOpen]);
+  }, [isOpen, title, position, setIsModalOpen, log]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -78,13 +79,12 @@ export default function Modal({
     onClose();
   };
 
-  // Determinar posición del modal según el hexágono
-  const getModalPositionStyles = () => {
+  // Memoized so they don't recompute on every render — only when layout deps change
+  const modalPositionStyles = useMemo(() => {
     const baseOffset = fluidSizing.space.lg;
     const hexButtonSize = fluidSizing.size.hexButton;
     const gap = fluidSizing.space.md;
     const extraSafe = fluidSizing.space.sm;
-
     const desktopLeft = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-left))`;
     const desktopRight = `calc(${baseOffset} + ${hexButtonSize} + ${gap} + env(safe-area-inset-right))`;
 
@@ -108,16 +108,13 @@ export default function Modal({
       default:
         return { top: `calc(${baseOffset} + env(safe-area-inset-top))`, left: desktopLeft };
     }
-  };
+  }, [isMobile, position]);
 
-
-  const getModalMaxHeight = () => {
+  const modalMaxHeight = useMemo(() => {
     const baseOffset = fluidSizing.space.lg;
     const hexButtonSize = fluidSizing.size.hexButton;
     const gap = fluidSizing.space.md;
     const extraSafe = fluidSizing.space.sm;
-    // Desktop: solo reservar el lado opuesto al anclaje (top/bottom).
-    // Mobile: reservar ambos lados para dejar espacio a los hex buttons.
     const includeTopHex = position.includes('bottom') || isMobile;
     const includeBottomHex = position.includes('top') || isMobile;
     const anchoredTop = position.includes('top');
@@ -128,46 +125,36 @@ export default function Modal({
     const bottomReserved = `calc(${bottomBase} + ${includeBottomHex ? `${hexButtonSize} + ${gap} + ${extraSafe} + ` : ''}env(safe-area-inset-bottom))`;
     const viewportVar = isMobile ? '--vh-form' : '--vh-app';
     return `calc(var(${viewportVar}) - ${topReserved} - ${bottomReserved})`;
-  };
+  }, [isMobile, position]);
 
-
-  // Animación de entrada según posición
-  // Los modales vienen desde el lado del HexButton
-  const getInitialX = () => {
-    return position.includes('left') ? -100 : 100;
-  };
-
-  // Animación adaptativa (mobile vs desktop) para mayor fluidez en móviles
-  // Eliminado rotateY y scale para evitar texto borroso causado por transformaciones 3D
-  // En bajo rendimiento, simplificar aún más las animaciones
-  const initialAnim = lowPerformanceMode
-    ? { opacity: 0, x: 0 }
-    : isMobile
-      ? { x: getInitialX() * 0.6, opacity: 0 }
-      : { x: getInitialX(), opacity: 0 };
-  const animateAnim = lowPerformanceMode
-    ? { opacity: 1, x: 0 }
-    : isMobile
-      ? { x: 0, opacity: 1 }
-      : { x: 0, opacity: 1 };
-  const exitAnim = lowPerformanceMode
-    ? { opacity: 0, x: 0 }
-    : isMobile
-      ? { x: getInitialX() * 0.5, opacity: 0 }
-      : { x: getInitialX(), opacity: 0 };
-  const transitionAnim = lowPerformanceMode
-    ? { duration: 0.15 }
-    : isMobile
-      ? { duration: 0.2, ease: 'easeOut' }
-      : { duration: 0.3, ease: [0.4, 0, 0.2, 1] };
+  // Memoized animation objects — avoids new object creation on every render
+  const initialX = position.includes('left') ? -100 : 100;
+  const { initialAnim, animateAnim, exitAnim, transitionAnim } = useMemo(() => ({
+    initialAnim: lowPerformanceMode
+      ? { opacity: 0, x: 0 }
+      : isMobile
+        ? { x: initialX * 0.6, opacity: 0 }
+        : { x: initialX, opacity: 0 },
+    animateAnim: { x: 0, opacity: 1 },
+    exitAnim: lowPerformanceMode
+      ? { opacity: 0, x: 0 }
+      : isMobile
+        ? { x: initialX * 0.5, opacity: 0 }
+        : { x: initialX, opacity: 0 },
+    transitionAnim: lowPerformanceMode
+      ? { duration: 0.15 }
+      : isMobile
+        ? { duration: 0.2, ease: 'easeOut' }
+        : { duration: 0.3, ease: [0.4, 0, 0.2, 1] as any },
+  }), [lowPerformanceMode, isMobile, initialX]);
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop — no blur in low performance mode to reduce compositor layers */}
           <motion.div
-            className="fixed inset-0 bg-cyber-black/20 backdrop-blur-sm z-40"
+            className={`fixed inset-0 z-40 ${lowPerformanceMode ? 'bg-cyber-black/60' : 'bg-cyber-black/20 backdrop-blur-sm'}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -178,10 +165,10 @@ export default function Modal({
           <motion.div
             className="fixed z-50"
             style={{
-              ...getModalPositionStyles(),
+              ...modalPositionStyles,
               width: 'min(calc(100vw - 2rem), clamp(320px, 35vw, 380px))',
               maxWidth: 'calc(100vw - 2rem)',
-              maxHeight: getModalMaxHeight(),
+              maxHeight: modalMaxHeight,
               zIndex: isMobile ? 45 : undefined,
               overflow: isMobile ? 'hidden' : undefined
             }}
@@ -190,15 +177,14 @@ export default function Modal({
             exit={exitAnim}
             transition={transitionAnim}
           >
-            <div 
-              className="relative bg-black/95 backdrop-blur-xl border-2 border-white/30 shadow-2xl" 
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                maxHeight: getModalMaxHeight(),
+            <div
+              className={`relative border-2 border-white/30 shadow-2xl ${lowPerformanceMode ? 'bg-black' : 'bg-black/95 backdrop-blur-xl'}`}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                maxHeight: modalMaxHeight,
                 height: '100%',
                 overflow: 'hidden',
-                // Anti-blur optimizations for text rendering
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
                 textRendering: 'optimizeLegibility'
@@ -206,34 +192,25 @@ export default function Modal({
             >
               {/* Header */}
               <div className="relative border-b border-white/10" style={{ padding: `${fluidSizing.space.lg} ${fluidSizing.space.lg}` }}>
-                {/* Líneas decorativas de fondo */}
                 <div className="absolute inset-0 opacity-5">
                   <div className="absolute top-0 left-0 w-full h-px bg-white" />
                   <div className="absolute bottom-0 left-0 w-full h-px bg-white" />
                 </div>
-                
+
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center" style={{ gap: fluidSizing.space.md }}>
-                    {/* Icono */}
                     {icon && (
                       <motion.div
                         className="text-white"
-                        animate={lowPerformanceMode ? {} : {
-                          scale: [1, 1.08, 1],
-                        }}
-                        transition={lowPerformanceMode ? {} : {
-                          duration: 2.5,
-                          repeat: Infinity,
-                          ease: 'easeInOut'
-                        }}
+                        animate={lowPerformanceMode ? {} : { scale: [1, 1.08, 1] }}
+                        transition={lowPerformanceMode ? {} : { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                       >
                         {icon}
                       </motion.div>
                     )}
-                    
-                    {/* Título */}
+
                     <div style={{ contentVisibility: 'auto' }}>
-                      <h2 
+                      <h2
                         className="font-orbitron font-black text-white uppercase"
                         style={{
                           fontSize: fluidSizing.text.lg,
@@ -246,8 +223,8 @@ export default function Modal({
                       </h2>
                       <div className="flex items-center" style={{ gap: fluidSizing.space.sm, marginTop: fluidSizing.space.xs }}>
                         <div
-                          style={{ 
-                            width: fluidSizing.space.sm, 
+                          style={{
+                            width: fluidSizing.space.sm,
                             height: fluidSizing.space.sm,
                             overflow: 'hidden',
                             display: 'flex',
@@ -257,8 +234,8 @@ export default function Modal({
                         >
                           <div
                             className="rounded-full bg-white"
-                            style={{ 
-                              width: '100%', 
+                            style={{
+                              width: '100%',
                               height: '100%',
                               animation: lowPerformanceMode ? 'none' : 'pulse 2s ease-in-out infinite'
                             }}
@@ -275,8 +252,8 @@ export default function Modal({
                   <motion.button
                     onClick={handleClose}
                     className="border border-white/30 hover:border-white/60 flex items-center justify-center transition-all duration-300 group relative overflow-hidden"
-                    style={{ 
-                      width: fluidSizing.size.buttonMd, 
+                    style={{
+                      width: fluidSizing.size.buttonMd,
                       height: fluidSizing.size.buttonMd,
                       clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)'
                     }}
@@ -284,10 +261,10 @@ export default function Modal({
                     whileTap={{ scale: 0.95 }}
                   >
                     <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all duration-300" />
-                    <motion.svg 
-                      className="size-icon-md text-white/70 group-hover:text-white transition-colors relative z-10" 
-                      fill="none" 
-                      stroke="currentColor" 
+                    <motion.svg
+                      className="size-icon-md text-white/70 group-hover:text-white transition-colors relative z-10"
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                       whileHover={{ rotate: 90 }}
                       transition={{ duration: 0.3 }}
@@ -316,7 +293,7 @@ export default function Modal({
                       <div
                         key={i}
                         className={`w-1 bg-white/40 ${!lowPerformanceMode ? 'modal-bar-animate' : ''}`}
-                        style={{ 
+                        style={{
                           height: `${(i + 1) * 3}px`,
                           animationDelay: !lowPerformanceMode ? `${i * 0.15}s` : undefined
                         }}
@@ -331,14 +308,10 @@ export default function Modal({
               <div className="absolute top-0 right-0 border-t-2 border-r-2 border-white/40" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
               <div className="absolute bottom-0 left-0 border-b-2 border-l-2 border-white/40" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
               <div className="absolute bottom-0 right-0 border-b-2 border-r-2 border-white/40" style={{ width: fluidSizing.space.lg, height: fluidSizing.space.lg }} />
-              
+
               {/* Líneas decorativas */}
-              <div 
-                className={`absolute top-0 left-1/4 w-1/2 h-px bg-white/30 ${!lowPerformanceMode ? 'modal-line-pulse' : ''}`}
-              />
-              <div 
-                className={`absolute bottom-0 right-1/4 w-1/2 h-px bg-white/30 ${!lowPerformanceMode ? 'modal-line-pulse-delayed' : ''}`}
-              />
+              <div className={`absolute top-0 left-1/4 w-1/2 h-px bg-white/30 ${!lowPerformanceMode ? 'modal-line-pulse' : ''}`} />
+              <div className={`absolute bottom-0 right-1/4 w-1/2 h-px bg-white/30 ${!lowPerformanceMode ? 'modal-line-pulse-delayed' : ''}`} />
             </div>
           </motion.div>
         </>

@@ -28,7 +28,9 @@ const Model3D = dynamic(() => import('@/components/3d/Model3D'), {
 
 export default function CenteredHero({ onModelIntroComplete }: { onModelIntroComplete?: () => void }) {
   const [mounted, setMounted] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // Ref instead of state: mouse position is read every frame by useFrame in Three.js,
+  // no React re-renders needed — avoids 60fps CenteredHero → Model3D → Canvas re-render chain
+  const mousePositionRef = useRef({ x: 0, y: 0 });
   const [inIframe, setInIframe] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
   const rafIdRef = useRef<number | null>(null);
@@ -37,25 +39,20 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
   useEffect(() => {
     setMounted(true);
     setInIframe(isInIframe());
-    
-    // Optimized mouse tracking: Use RAF to batch updates at monitor refresh rate
-    // This allows smooth 3D tracking while preventing excessive re-renders
+
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
-      
-      // Normalize mouse position to -1 to 1 range
+
       const x = (clientX / innerWidth) * 2 - 1;
       const y = (clientY / innerHeight) * 2 - 1;
-      
-      // Store pending position
+
       pendingPositionRef.current = { x, y };
-      
-      // Schedule update on next animation frame if not already scheduled
+
       if (rafIdRef.current === null) {
         rafIdRef.current = requestAnimationFrame(() => {
           if (pendingPositionRef.current) {
-            setMousePosition(pendingPositionRef.current);
+            mousePositionRef.current = pendingPositionRef.current;
             pendingPositionRef.current = null;
           }
           rafIdRef.current = null;
@@ -140,12 +137,12 @@ export default function CenteredHero({ onModelIntroComplete }: { onModelIntroCom
             }
           >
             {/* Renderizar modelo solo después de que el contenedor sea visible */}
-            <Model3D 
-              mousePosition={mousePosition} 
+            <Model3D
+              mousePositionRef={mousePositionRef}
               onAnimationComplete={() => {
                 setAnimationComplete(true);
                 onModelIntroComplete?.();
-              }} 
+              }}
             />
           </Suspense>
         </motion.div>

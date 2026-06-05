@@ -51,26 +51,28 @@ export default function HexagonGrid() {
     };
   }, [mounted]);
   
-  // Manejar animación de luz central
+  // Manejar animación de luz central — RAF en lugar de setInterval para respetar el frame budget
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (lowPerformanceMode) {
-      setCenterLightIntensity(1); // Luz fija sin animación
+      setCenterLightIntensity(1);
       return;
     }
-    
+
     let intensity = 0;
-    const interval = setInterval(() => {
-      intensity += 0.02;
-      if (intensity >= 1) {
-        intensity = 1;
-        clearInterval(interval);
-      }
+    let rafId: number;
+    const duration = 1500; // ms para llegar a 1
+    const startTime = performance.now();
+
+    const animate = (now: number) => {
+      intensity = Math.min((now - startTime) / duration, 1);
       setCenterLightIntensity(intensity);
-    }, 30);
-    
-    return () => clearInterval(interval);
+      if (intensity < 1) rafId = requestAnimationFrame(animate);
+    };
+
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, [mounted, lowPerformanceMode]);
   
   // Manejar seguimiento del mouse con RAF throttle e interpolación suave

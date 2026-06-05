@@ -1,10 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ReactNode, useRef, useEffect, useState } from 'react';
+import { ReactNode, useRef } from 'react';
 import { fluidSizing } from '@/lib/fluidSizing';
 import { usePerformance } from '@/lib/contexts/PerformanceContext';
 import { useModelTarget } from '@/lib/contexts/ModelTargetContext';
+import { useIsMobile } from '@/shared/hooks/useIsMobile';
 
 interface HexButtonProps {
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -19,13 +20,14 @@ interface HexButtonProps {
 }
 
 // Valores precalculados estáticos para evitar diferencias servidor/cliente (escalados 1.3x)
+// y2 para 60°/120°/240°/300° = 65 ± (45.5 * √3/2) ≈ 104.40 / 25.60
 const linePositions = [
-  { x2: 110.5, y2: 65 },                    // 0°
-  { x2: 87.75, y2: 104.40415587219195 },   // 60°
-  { x2: 42.25, y2: 104.40415587219195 },   // 120°
-  { x2: 19.5, y2: 65 },                     // 180°
-  { x2: 42.25, y2: 25.595844127808048 },   // 240°
-  { x2: 87.75, y2: 25.595844127808048 }    // 300°
+  { x2: 110.5, y2: 65 },      // 0°
+  { x2: 87.75, y2: 104.40 },  // 60°
+  { x2: 42.25, y2: 104.40 },  // 120°
+  { x2: 19.5,  y2: 65 },      // 180°
+  { x2: 42.25, y2: 25.60 },   // 240°
+  { x2: 87.75, y2: 25.60 }    // 300°
 ];
 
 export default function HexButton({ 
@@ -42,17 +44,7 @@ export default function HexButton({
   const { lowPerformanceMode } = usePerformance();
   const { setTargetPosition } = useModelTarget();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      setIsMobile(mobile);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const isMobile = useIsMobile();
   const positionStyles = {
     'top-left': { 
       top: `calc(${fluidSizing.space.lg} + env(safe-area-inset-top))`, 
@@ -129,7 +121,6 @@ export default function HexButton({
             backdropFilter: 'blur(6px)',
             WebkitBackdropFilter: 'blur(6px)',
             backgroundColor: isActive ? 'rgba(0, 0, 0, 0.35)' : 'rgba(0, 0, 0, 0.25)',
-            willChange: 'backdrop-filter',
             transform: 'translateZ(0)',
             isolation: 'isolate',
             zIndex: 0
