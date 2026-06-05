@@ -39,7 +39,7 @@ export default function TabBarItem({ href, icon, label, isActive, onNavigate }: 
         </svg>
       </div>
       <span
-        className={`text-[10px] font-medium tracking-widest transition-colors duration-200 leading-none ${
+        className={`text-[10px] font-medium tracking-widest text-center transition-colors duration-200 leading-none ${
           isActive ? 'text-white/90' : 'text-text-muted/50'
         }`}
       >
