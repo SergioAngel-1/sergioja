@@ -106,27 +106,7 @@ export default function ProjectDemoViewer({
     }
   }, [demoUrl, lowPerformanceMode]);
 
-  // Prevent iframe focus-steal from scrolling the parent page
-  useEffect(() => {
-    if (!demoUrl || lowPerformanceMode) return;
-    let prevScrollY = 0;
-    let lastScrollY = window.scrollY;
-    const onScroll = () => { prevScrollY = lastScrollY; lastScrollY = window.scrollY; };
-    const onBlur = () => {
-      const saved = prevScrollY;
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (Math.abs(window.scrollY - saved) > 200) window.scrollTo(0, saved);
-        });
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('blur', onBlur);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('blur', onBlur);
-    };
-  }, [demoUrl, lowPerformanceMode]);
+
 
   if (!demoUrl || lowPerformanceMode) {
     return (
